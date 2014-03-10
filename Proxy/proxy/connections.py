@@ -1,5 +1,3 @@
-import os
-
 class Connections:
     """A class containing all the connection related functions"""
     
