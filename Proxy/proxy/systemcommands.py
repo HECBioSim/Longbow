@@ -10,6 +10,11 @@ class SysCommands:
     def runcommand(self, cmd):
         handle = subprocess.Popen(cmd)
         handle.communicate()
+    
+    def sshconnection(self, args, uname, host, port):
+        cmd = ["ssh", uname + "@" + host, "-p " + port]
+        cmd.extend(args)
+        self.runcommand(cmd)
                 
     # Copy file function 
     def copyfilelocal(self):
