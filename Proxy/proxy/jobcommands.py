@@ -1,6 +1,6 @@
 
 
-class Commands:
+class JobCommands:
     """A class of commands that can be invoked on the remote machine"""
     
     # A function for submitting jobs
