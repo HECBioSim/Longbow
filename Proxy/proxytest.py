@@ -6,5 +6,6 @@ port = "2222"
 
 test = ["ls"]
 
-command = SysCommands()
-command.sshconnection(test, uname, host, port)
+command = SysCommands(uname, host, port)
+command.sshconnection(test)
+#command.copyfilelocal("../../../dir1/test", "../../../dir2")
