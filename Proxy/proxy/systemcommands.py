@@ -7,9 +7,6 @@ class SysCommands:
     def __init__(self, uname, domain, port):
         """On calling the class we want some initial information to be available to the methods, such as default paths and host details."""
         self.host = uname + "@" + domain
-        
-        if(port == ""):
-            port = "21"
         self.port = port
         
         #Script executing directory (just in case).
