@@ -9,16 +9,8 @@ class SysCommands:
         self.host = user + "@" + domain
         self.port = port
         
-        #Script executing directory (just in case).
-        self.defaultpath = os.getcwd()
-
         #Change to the users home dir and operate as a base (locally).
-        os.chdir(os.path.expanduser('~') + "/Desktop")
         self.base = os.getcwd()
-        
-    def __del__(self):
-        """If the class is destroyed then set the working dir back to the default."""
-        os.chdir(self.defaultpath)
     
     # Open function is defined here
     # This runs the command in a sub process

@@ -6,6 +6,8 @@ class RemoteConfig:
     def __init__(self, config_file):
         """Some declarations and their initialisation (for specific error checking) followed by some config params loading and some checking."""
         
+        self.config_file = config_file
+        
         #Declare and initialise some params to default values.
         self.user = ""
         self.host = ""
@@ -29,7 +31,7 @@ class RemoteConfig:
         
         #Bind the settings file to the configparser
         configs = configparser.ConfigParser()
-        configs.read('settings.conf')
+        configs.read(self.config_file)
 
         #Walk through the available file parameters
         for index in configs['SCARF']:
