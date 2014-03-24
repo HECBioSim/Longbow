@@ -16,7 +16,7 @@ class ArcherJobs:
         print("status")
         
 class ScarfJobs:
-    """A class of commands that can be invoked on SCARF"""
+    """A class of commands that can be invoked on SCARF (cluster machine at STFC used in testing)"""
     
     # A function for submitting jobs
     def submit(self):
