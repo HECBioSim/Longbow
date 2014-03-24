@@ -16,6 +16,7 @@ test2 = ['ls']
 
 #command.sshconnection(test1)
 #command.runcommand(test2)
+#command.listlocal("./Desktop")
 
 
 

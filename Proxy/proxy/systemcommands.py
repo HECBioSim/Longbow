@@ -78,17 +78,17 @@ class SysCommands:
     
     # Return a list of all directory contents (for some reason cd doesn't work locally)
     def listlocal(self, path):
-        """For some reason cd and ls doesn't work locally, possible this maybe due to changing the execution path 
-           and the interpreter protects against this?? So in this case the OS listdir method is used."""
-        contents = os.listdir(self.base + path) 
+        """Listing dirs is simply the ls [path]."""
+        #contents = os.listdir(self.base + path) 
+        cmd = ["ls", path]
         
-        print(contents)
-        return contents
+        print(cmd)
+        self.runcommand(cmd)
     
     # Return a list of all directory contents (remote)
     def listremote(self, path):
-        """Listing dirs remotely is much easier when done remotely as cd and ls can be called over ssh."""
-        cmd = ["cd " + path + "\n", "ls"]
+        """Listing dirs remotely is much easier when done remotely as ls [path] can be called over ssh."""
+        cmd = ["ls", path]
     
         print(cmd)
         self.sshconnection(cmd) 
