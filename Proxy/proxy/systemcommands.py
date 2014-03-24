@@ -4,9 +4,9 @@ import os
 class SysCommands:
     """A class containing all the connection related functions."""
     
-    def __init__(self, uname, domain, port):
+    def __init__(self, user, domain, port):
         """On calling the class we want some initial information to be available to the methods, such as default paths and host details."""
-        self.host = uname + "@" + domain
+        self.host = user + "@" + domain
         self.port = port
         
         #Script executing directory (just in case).

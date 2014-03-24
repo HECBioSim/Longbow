@@ -1,4 +1,5 @@
 import sys
+import configparser
 
 class RemoteConfig:
     
@@ -6,7 +7,7 @@ class RemoteConfig:
         """Some declarations and their initialisation (for specific error checking) followed by some config params loading and some checking."""
         
         #Declare and initialise some params to default values.
-        self.uname = ""
+        self.user = ""
         self.host = ""
         self.port = ""
         self.account = ""
@@ -26,22 +27,19 @@ class RemoteConfig:
     def load_configs(self):
         """Load the parameters from the config file."""
         
-        #Todo: add all the stuff for the loading from file.
-        self.uname = "rjw41005"
-        self.host = "scarf.rl.ac.uk"
-        self.port = "2222"
-        self.account = ""
-        self.workdir = ""
-        self.maxtime = ""
-        self.cores = ""
-        self.program = ""
-        self.frequency = ""
+        #Bind the settings file to the configparser
+        configs = configparser.ConfigParser()
+        configs.read('settings.conf')
+
+        #Walk through the available file parameters
+        for index in configs['SCARF']:
+            vars(self)[index] = configs['SCARF'][index]
                 
     def check_params(self):
         """Some rudimentary checks on the parameters, make sure the key ones exist and some sanity checking."""
         
         #Exit with error if no username is provided.
-        if (self.uname == ""):
+        if (self.user == ""):
             sys.exit("ERR: No username provided for remote resource in the .conf file")
             
         #Exit with error message if the host field is blank.
