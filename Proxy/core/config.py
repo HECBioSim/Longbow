@@ -3,7 +3,7 @@ import configparser
 
 class RemoteConfig:
     
-    def __init__(self, config_file):
+    def __init__(self, args, config_file):
         """Some declarations and their initialisation (for specific error checking) followed by some config params loading and some checking."""
         
         self.config_file = config_file
@@ -34,8 +34,8 @@ class RemoteConfig:
         configs.read(self.config_file)
 
         #Walk through the available file parameters
-        for index in configs['SCARF']:
-            vars(self)[index] = configs['SCARF'][index]
+        for index in configs["Scarf"]:
+            vars(self)[index] = configs["Scarf"][index]
                 
     def check_params(self):
         """Some rudimentary checks on the parameters, make sure the key ones exist and some sanity checking."""

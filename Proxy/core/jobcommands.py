@@ -1,6 +1,6 @@
 
 
-class ArcherJobs:
+class Archer:
     """A class of commands that can be invoked on Archer"""
     
     # A function for submitting jobs
@@ -15,7 +15,7 @@ class ArcherJobs:
     def status(self):
         print("status")
         
-class ScarfJobs:
+class Scarf:
     """A class of commands that can be invoked on SCARF (cluster machine at STFC used in testing)"""
     
     # A function for submitting jobs
