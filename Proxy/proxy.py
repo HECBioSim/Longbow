@@ -4,7 +4,10 @@ def proxy(args, remnant_args, config_file):
     #Use paths relative to user dir so set this as our cwd
     os.chdir(os.path.expanduser("~"))
 
+    #Instantiate the remote connection configuration class.
     remote = RemoteConfig(args, config_file)
+    
+    #Instantiate the sys commands class.
     command = SysCommands(remote.user, remote.host, remote.port)
 
     #test = ["ls"]
@@ -23,17 +26,19 @@ if __name__ == "__main__":
     from core.systemcommands import SysCommands
     from core.config import RemoteConfig
     
-    #Instantiate the parser
+    #Instantiate the parser.
     parser = argparse.ArgumentParser(description = "Welcome to the ProxyApp.")
     
-    #Parse the command line args
+    #Set up the first two command line parameters to parse.
     parser.add_argument("-res", "--resource", help = "Name of the computer resource for example Archer.", required = True)
     parser.add_argument("-prog", "--program", help = "Name of the software for example Amber.", required = True)
-    #parser.add_argument(nargs = "*")
     
+    #Parse the known params into args and return the rest in remnants.
     args, remnants = parser.parse_known_args()
 
+    #Config file (maybe do something with this later)
     config_file = "./Workspace/Git/ProxyApp/Proxy/settings.conf"
     
+    #Enter the main application function.
     proxy(args, remnants, config_file)
 
