@@ -16,8 +16,6 @@ def proxy(args, remnant_args, config_file):
     #command.runcommand(test)
     command.listlocal("./Desktop")
     
-    print("resource = ", args.resource)
-    print("program = ", args.program)
 
 if __name__ == "__main__":
     """Main entry point for the ProxyApp as a stand-alone application. The main function proxy can be hooked directly by providing it with the correct args."""
