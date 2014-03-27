@@ -17,18 +17,12 @@ def proxy(args, remnant_args, config_file):
     command = SysCommands(remote.user, remote.host, remote.port)
     
     #Instantiate the jobs commands class.
-    jobcommand = Archer()
+    jobcommand = Scheduler()
     
     #Instantiate the application commands class.
     application = Applications()
     
     
-
-    #test = ["ls"]
-
-    #command.sshconnection(test)
-    #command.runcommand(test)
-    command.listlocal("./Desktop")
     
 
 if __name__ == "__main__":
