@@ -1,3 +1,9 @@
+import os
+import argparse
+from core.systemcommands import SysCommands
+from core.config import RemoteConfig
+from core.application import *
+from core.jobcommands import *
 
 def proxy(args, remnant_args, config_file):
 
@@ -9,6 +15,14 @@ def proxy(args, remnant_args, config_file):
     
     #Instantiate the sys commands class.
     command = SysCommands(remote.user, remote.host, remote.port)
+    
+    #Instantiate the jobs commands class.
+    jobcommand = Archer()
+    
+    #Instantiate the application commands class.
+    application = Applications()
+    
+    
 
     #test = ["ls"]
 
@@ -19,10 +33,6 @@ def proxy(args, remnant_args, config_file):
 
 if __name__ == "__main__":
     """Main entry point for the ProxyApp as a stand-alone application. The main function proxy can be hooked directly by providing it with the correct args."""
-    import os
-    import argparse
-    from core.systemcommands import SysCommands
-    from core.config import RemoteConfig
     
     #Instantiate the parser.
     parser = argparse.ArgumentParser(description = "Welcome to the ProxyApp.")
@@ -34,9 +44,10 @@ if __name__ == "__main__":
     #Parse the known params into args and return the rest in remnants.
     args, remnants = parser.parse_known_args()
 
-    #Config file (maybe do something with this later)
+    #Configuration file (maybe do something with this later to make it's specification nicer)
     config_file = "./Workspace/Git/ProxyApp/Proxy/settings.conf"
     
-    #Enter the main application function.
+    #Enter the main application function and pass it the dictionary containing the resource + application (args) 
+    #plus the list of unparsed command line arguments (remnants).
     proxy(args, remnants, config_file)
 
