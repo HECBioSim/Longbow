@@ -34,8 +34,8 @@ class RemoteConfig:
         configs.read(self.config_file)
 
         #Walk through the available file parameters
-        for index in configs["Scarf"]:
-            vars(self)[index] = configs["Scarf"][index]
+        for index in configs["Archer"]:
+            vars(self)[index] = configs["Archer"][index]
                 
     def check_params(self):
         """Some rudimentary checks on the parameters, make sure the key ones exist and some sanity checking."""

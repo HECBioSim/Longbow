@@ -1,8 +1,10 @@
 class Scheduler():
  
-    def test(self):
+    def test(command):
         
-        submitter = 'LSF'
+        command.sshconnection("qsub --version")
+        
+        submitter = 'PBS'
         
         if(submitter=='PBS'): return Pbs()
         if(submitter=='LSF'): return Lsf()
@@ -38,7 +40,3 @@ class Lsf(Scheduler):
     # A function for querying jobs
     def status(self):
         print("LSF status")
-            
-Schedule = Scheduler.test('')
-
-Schedule.submit()
