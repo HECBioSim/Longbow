@@ -7,6 +7,7 @@ class RemoteConfig:
         """Some declarations and their initialisation (for specific error checking) followed by some config params loading and some checking."""
         
         self.config_file = config_file
+        self.args = args
         
         #Declare and initialise some params to default values.
         self.user = ""
@@ -29,13 +30,13 @@ class RemoteConfig:
     def load_configs(self):
         """Load the parameters from the config file."""
         
-        #Bind the settings file to the configparser
+        #Bind the settings file to the config parser
         configs = configparser.ConfigParser()
         configs.read(self.config_file)
 
         #Walk through the available file parameters
-        for index in configs["Archer"]:
-            vars(self)[index] = configs["Archer"][index]
+        for index in configs[self.args.resource]:
+            vars(self)[index] = configs[self.args.resource][index]
                 
     def check_params(self):
         """Some rudimentary checks on the parameters, make sure the key ones exist and some sanity checking."""

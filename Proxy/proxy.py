@@ -1,5 +1,4 @@
 import os
-import subprocess
 import argparse
 from core.systemcommands import SysCommands
 from core.config import RemoteConfig
@@ -18,14 +17,10 @@ def proxy(args, remnant_args, config_file):
     command = SysCommands(remote.user, remote.host, remote.port)
     
     #Instantiate the jobs commands class.
-    #schedule = Scheduler.test(command)
+    schedule = Scheduler.test(command)
     
     #Instantiate the application commands class.
-    #application = Applications()
-    
-    #subprocess.Popen(["ssh", "rjw41005@scarf.rl.ac.uk", "-p 2222", "source .bashrc", "bsub -V"])
-    subprocess.Popen(["ssh", "jtg@login.archer.ac.uk", "source .bashrc", "qsub --version"])
-    #subprocess.call("ssh jtg@login.archer.ac.uk module avail 2>&1 | grep pbs", shell=True)
+    application = Applications()
     
 if __name__ == "__main__":
     """Main entry point for the ProxyApp as a stand-alone application. The main function proxy can be hooked directly by providing it with the correct args."""

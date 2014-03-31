@@ -1,13 +1,15 @@
 class Scheduler():
  
     def test(command):
+        """Static function to form part of a factory class which will return the correct class of the scheduler specific commands"""
         
-        command.sshconnection("qsub --version")
+        #Scarf had to go first since for some strange reason it has qsub (PBS) present which just hangs as if waiting for input.
+        tmp = command.sshconnection(["bsub -V"])
+        if(tmp == 0): return Lsf()
         
-        submitter = 'PBS'
-        
-        if(submitter=='PBS'): return Pbs()
-        if(submitter=='LSF'): return Lsf()
+        #The check for PBS.
+        tmp = command.sshconnection(["qsub --version"])
+        if(tmp == 0): return Pbs()
         
     test = staticmethod(test)
             

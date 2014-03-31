@@ -18,15 +18,18 @@ class SysCommands:
         """Here any command that is assembled and passed for calling is sent to a subprocess shell"""
         handle = subprocess.Popen(cmd)
         handle.communicate()
+
+        return handle.returncode
     
     # The ssh connection is setup here
     # All commands needing ssh should be passed through here
     def sshconnection(self, args):
         """If commands are destined for remote execution then they are appended to ssh before passing to subprocess."""
         cmd = ["ssh", self.host, "-p " + self.port]
+        cmd.extend(["source /etc/profile \n"])
         cmd.extend(args)
-        
-        self.runcommand(cmd)
+
+        return self.runcommand(cmd)
                 
     # Copy file function locally on local machine
     def copyfilelocal(self, from_path, to_path):

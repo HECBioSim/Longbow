@@ -14,14 +14,14 @@ class Applications:
     
         #print(remnants)
     
-        def Charmm(self):
-            pass
+    def Charmm(self):
+        pass
     
-        def Gromacs(self):
-            pass
+    def Gromacs(self):
+        pass
     
-        def Lammps(self):
-            pass
+    def Lammps(self):
+        pass
     
-        def Namd(self):
-            pass
+    def Namd(self):
+        pass
