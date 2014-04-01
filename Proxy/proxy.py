@@ -1,8 +1,8 @@
 import os
 import argparse
-from core.systemcommands import SysCommands
+from core.syscommands import SysCommands
 from core.config import RemoteConfig
-from core.application import Applications
+from core.appcommands import Applications
 from core.jobcommands import Scheduler
 
 def proxy(args, remnant_args):
@@ -22,9 +22,11 @@ def proxy(args, remnant_args):
     schedule = Scheduler.test(command)
     
     #Instantiate the application commands class.
-    application = Applications()
+    application = Applications.test(args)
     
     schedule.submit()
+    application.something()
+    
     
 if __name__ == "__main__":
     """Main entry point for the ProxyApp as a stand-alone application. The main function proxy can be hooked directly by providing it with the correct args."""
