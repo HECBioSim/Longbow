@@ -5,7 +5,9 @@ from core.config import RemoteConfig
 from core.application import Applications
 from core.jobcommands import Scheduler
 
-def proxy(args, remnant_args, config_file):
+def proxy(args, remnant_args):
+    
+    config_file = os.getcwd() + "/hosts.conf"
 
     #Use paths relative to user dir so set this as our cwd
     os.chdir(os.path.expanduser("~"))
@@ -22,6 +24,8 @@ def proxy(args, remnant_args, config_file):
     #Instantiate the application commands class.
     application = Applications()
     
+    schedule.submit()
+    
 if __name__ == "__main__":
     """Main entry point for the ProxyApp as a stand-alone application. The main function proxy can be hooked directly by providing it with the correct args."""
     #Instantiate the parser.
@@ -33,11 +37,8 @@ if __name__ == "__main__":
     
     #Parse the known params into args and return the rest in remnants.
     args, remnants = parser.parse_known_args()
-
-    #Configuration file (maybe do something with this later to make it's specification nicer)
-    config_file = "./Workspace/Git/ProxyApp/Proxy/settings.conf"
     
     #Enter the main application function and pass it the dictionary containing the resource + application (args) 
     #plus the list of unparsed command line arguments (remnants).
-    proxy(args, remnants, config_file)
+    proxy(args, remnants)
 
