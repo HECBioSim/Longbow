@@ -22,8 +22,8 @@ def proxy(args, remnant_args):
     schedule = Scheduler.test(command)
     
     #Instantiate the application commands class.
-    application = Applications.test(args)
-    
+    application = Applications.test(args, remnant_args)
+
     schedule.submit()
     application.something()
     
