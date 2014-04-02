@@ -5,7 +5,7 @@ from core.config import RemoteConfig
 from core.appcommands import Applications
 from core.jobcommands import Scheduler
 
-def proxy(args, remnant_args):
+def proxy(args, app_args):
     
     config_file = os.getcwd() + "/hosts.conf"
 
@@ -22,7 +22,7 @@ def proxy(args, remnant_args):
     schedule = Scheduler.test(command)
     
     #Instantiate the application commands class.
-    application = Applications.test(args, remnant_args)
+    application = Applications.test(args, app_args)
 
     schedule.submit()
     application.something()
