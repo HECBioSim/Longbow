@@ -1,5 +1,5 @@
 import os
-import argparse
+import sys
 from core.syscommands import SysCommands
 from core.config import RemoteConfig
 from core.appcommands import Applications
@@ -30,17 +30,29 @@ def proxy(args, remnant_args):
     
 if __name__ == "__main__":
     """Main entry point for the ProxyApp as a stand-alone application. The main function proxy can be hooked directly by providing it with the correct args."""
-    #Instantiate the parser.
-    parser = argparse.ArgumentParser(description = "Welcome to the ProxyApp.")
     
-    #Set up the first two command line parameters to parse.
-    parser.add_argument("-res", "--resource", help = "Name of the computer resource for example Archer.", required = True)
-    parser.add_argument("-prog", "--program", help = "Name of the software for example Amber.", required = True)
     
-    #Parse the known params into args and return the rest in remnants.
-    args, remnants = parser.parse_known_args()
+    command_line_args = sys.argv 
+
+    command_line_args.pop(0)
+
+    args = {}
+    
+    if(command_line_args.count("-res") == 1):
+        position = command_line_args.index("-res")
+        args['resource'] = command_line_args[position + 1]
+        command_line_args.pop(position)
+        command_line_args.pop(position)
+    else: sys.exit("Error: must supply resource")
+        
+    if(command_line_args.count("-prog") == 1):
+        position = command_line_args.index("-prog")
+        args['program'] = command_line_args[position + 1]
+        command_line_args.pop(position)
+        command_line_args.pop(position)
+    else: sys.exit("Error: must supply resource")
     
     #Enter the main application function and pass it the dictionary containing the resource + application (args) 
     #plus the list of unparsed command line arguments (remnants).
-    proxy(args, remnants)
+    proxy(args, command_line_args)
 

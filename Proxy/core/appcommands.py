@@ -5,13 +5,14 @@ class Applications:
     def test(args, remnant_args):
         """Static function to form part of a factory class which will return the correct class of the application specific commands"""
         
-        tmp = args.program.lower()
+        tmp = args["program"].lower()
         
-        if(tmp == 'amber'): return Amber()
-        if(tmp == 'charmm'): return Charmm(remnant_args)
-        if(tmp == 'gromacs'): return Gromacs(remnant_args)
-        if(tmp == 'lammps'): return Lammps(remnant_args)
-        if(tmp == 'namd'): return Namd(remnant_args)
+        if(tmp == "amber"): return Amber()
+        elif(tmp == "charmm"): return Charmm(remnant_args)
+        elif(tmp == "gromacs"): return Gromacs(remnant_args)
+        elif(tmp == "lammps"): return Lammps(remnant_args)
+        elif(tmp == "namd"): return Namd(remnant_args)
+        else: print("Fail to instantiate app class: check that the -prog arg is supplied correctly")
         
     test = staticmethod(test)
 
