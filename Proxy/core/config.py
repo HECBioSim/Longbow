@@ -19,6 +19,7 @@ class RemoteConfig:
         self.cores = ""
         self.program = ""
         self.frequency = ""
+        self.scheduler = ""
         self.config_file = config_file
         
         #Load the remote resource configuration from the .conf file.
@@ -30,13 +31,21 @@ class RemoteConfig:
     def load_configs(self):
         """Load the parameters from the config file."""
         
-        #Bind the settings file to the config parser
+        #Bind the hosts file to the config parser
         configs = configparser.ConfigParser()
         configs.read(self.config_file)
 
         #Walk through the available file parameters
         for index in configs[self.args['resource']]:
             vars(self)[index] = configs[self.args['resource']][index]
+            
+    def save_configs(self):
+        """Save the parameters to the config file."""
+        
+        #Bind the hosts file to the config parser
+        configs = configparser.ConfigParser()
+        
+        
                 
     def check_params(self):
         """Some rudimentary checks on the parameters, make sure the key ones exist and some sanity checking."""

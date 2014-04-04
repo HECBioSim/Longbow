@@ -13,13 +13,13 @@ def proxy(args, app_args):
     os.chdir(os.path.expanduser("~"))
 
     #Instantiate the remote connection configuration class.
-    remote = RemoteConfig(args, config_file)
+    resource = RemoteConfig(args, config_file)
     
     #Instantiate the sys commands class.
-    command = SysCommands(remote.user, remote.host, remote.port)
+    command = SysCommands(resource.user, resource.host, resource.port)
     
     #Instantiate the jobs commands class.
-    schedule = Scheduler.test(command)
+    schedule = Scheduler.test(command, resource)
     
     #Instantiate the application commands class.
     application = Applications.test(args, app_args)

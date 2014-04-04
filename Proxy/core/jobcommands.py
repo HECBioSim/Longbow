@@ -2,17 +2,20 @@ import sys
 
 class Scheduler():
  
-    def test(command):
+    def test(command, resource):
         """Static function to form part of a factory class which will return the correct class of the scheduler specific commands"""
         
-        #Scarf had to go first since for some strange reason it has qsub (PBS) present which just hangs as if waiting for input.
-        if(command.sshconnection(["bsub -V"]) == 0): return Lsf()
+        if (resource.scheduler == ""):
+            #Scarf had to go first since for some strange reason it has qsub (PBS) present which just hangs as if waiting for input.
+            #todo: add writing ability for hosts.conf so this check is only ever done once per host.
+            if(command.sshconnection(["bsub -V"]) == 0): return Lsf()
         
-        #The check for PBS.
-        elif(command.sshconnection(["qsub --version"]) == 0): return Pbs()
+            #The check for PBS.
+            #todo: add writing ability for hosts.conf so this check is only ever done once per host.
+            elif(command.sshconnection(["qsub --version"]) == 0): return Pbs()
         
-        #Fail
-        else: sys.exit("Error: failed to successfully establish target scheduler environment")
+            #Fail
+            else: sys.exit("Error: failed to successfully establish target scheduler environment")
         
     test = staticmethod(test)
             
