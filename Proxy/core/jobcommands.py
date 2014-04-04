@@ -8,14 +8,22 @@ class Scheduler():
         if (resource.scheduler == ""):
             #Scarf had to go first since for some strange reason it has qsub (PBS) present which just hangs as if waiting for input.
             #todo: add writing ability for hosts.conf so this check is only ever done once per host.
-            if(command.sshconnection(["bsub -V"]) == 0): return Lsf()
+            if(command.sshconnection(["bsub -V"]) == 0): 
+                resource.save_configs('scheduler', 'LSF')
+                return Lsf()
         
             #The check for PBS.
             #todo: add writing ability for hosts.conf so this check is only ever done once per host.
-            elif(command.sshconnection(["qsub --version"]) == 0): return Pbs()
-        
+            elif(command.sshconnection(["qsub --version"]) == 0): 
+                resource.save_configs('scheduler', 'PBS')
+                return Pbs()
+            
             #Fail
             else: sys.exit("Error: failed to successfully establish target scheduler environment")
+            
+        else:
+            if(resource.scheduler == 'LSF'): return Lsf()
+            if(resource.scheduler == 'PBS'): return Pbs()
         
     test = staticmethod(test)
             

@@ -39,13 +39,18 @@ class RemoteConfig:
         for index in configs[self.args['resource']]:
             vars(self)[index] = configs[self.args['resource']][index]
             
-    def save_configs(self):
+    def save_configs(self, flag, value):
         """Save the parameters to the config file."""
         
         #Bind the hosts file to the config parser
         configs = configparser.ConfigParser()
         
+        configs.read(self.config_file)
         
+        configs.set(self.args['resource'], flag, value)
+        
+        with open(self.config_file, 'w') as conf:
+            configs.write(conf)
                 
     def check_params(self):
         """Some rudimentary checks on the parameters, make sure the key ones exist and some sanity checking."""
