@@ -1,7 +1,7 @@
 import sys
 import configparser
 
-class RemoteConfig:
+class HostConfig:
     
     def __init__(self, args, config_file):
         """Some declarations and their initialisation (for specific error checking) followed by some config params loading and some checking."""
@@ -23,23 +23,23 @@ class RemoteConfig:
         self.config_file = config_file
         
         #Load the remote resource configuration from the .conf file.
-        self.load_configs()
+        self.load_host_configs()
         
         #Check the configuration parameters for some basic errors.
         self.check_params()
         
-    def load_configs(self):
+    def load_host_configs(self):
         """Load the parameters from the config file."""
         
         #Bind the hosts file to the config parser
         configs = configparser.ConfigParser()
         configs.read(self.config_file)
 
-        #Walk through the available file parameters
+        #Walk through the available file parameters for the resource specified on the command line -res flag
         for index in configs[self.args['resource']]:
             vars(self)[index] = configs[self.args['resource']][index]
             
-    def save_configs(self, flag, value):
+    def save_host_configs(self, flag, value):
         """Save the parameters to the config file."""
         
         #Bind the hosts file to the config parser
@@ -53,7 +53,7 @@ class RemoteConfig:
             configs.write(conf)
                 
     def check_params(self):
-        """Some rudimentary checks on the parameters, make sure the key ones exist and some sanity checking."""
+        """Some rudimentary checks on the parameters, make sure the key ones exist."""
         
         #Exit with error if no username is provided.
         if (self.user == ""):

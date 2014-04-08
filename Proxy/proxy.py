@@ -1,7 +1,7 @@
 import os
 import sys
 from core.syscommands import SysCommands
-from core.config import RemoteConfig
+from core.configs import HostConfig
 from core.appcommands import Applications
 from core.jobcommands import Scheduler
 
@@ -13,7 +13,7 @@ def proxy(args, app_args):
     os.chdir(os.path.expanduser("~"))
 
     #Instantiate the remote connection configuration class.
-    resource = RemoteConfig(args, config_file)
+    resource = HostConfig(args, config_file)
     
     #Instantiate the sys commands class.
     command = SysCommands(resource.user, resource.host, resource.port)
@@ -22,7 +22,8 @@ def proxy(args, app_args):
     schedule = Scheduler.test(command, resource)
     
     #Instantiate the application commands class.
-    application = Applications.test(args, app_args)
+    application = Applications.test(args, app_args, command)
+
 
     schedule.submit()
     application.something()
@@ -34,13 +35,13 @@ if __name__ == "__main__":
     #Fetch command line arguments
     command_line_args = sys.argv 
     
-    #Remove the firs arg (the application path)
+    #Remove the first argument (the application path)
     command_line_args.pop(0)
 
-    #Initialise a dictionary for some args
+    #Initialise a dictionary for some arguments
     args = {}
     
-    #Take out the resource arg and put it into the dictionary, then remove it from the command line arg list
+    #Take out the resource argument and put it into the dictionary, then remove it from the command line argument list
     if(command_line_args.count("-res") == 1):
         position = command_line_args.index("-res")
         args['resource'] = command_line_args[position + 1]
@@ -48,13 +49,13 @@ if __name__ == "__main__":
         command_line_args.pop(position)
     else: sys.exit("Error: must supply resource")
     
-    #Take out the program arg and put it into the dictionary, then remove it from the command line arg list
+    #Take out the program argument and put it into the dictionary, then remove it from the command line argument list
     if(command_line_args.count("-prog") == 1):
         position = command_line_args.index("-prog")
         args['program'] = command_line_args[position + 1]
         command_line_args.pop(position)
         command_line_args.pop(position)
-    else: sys.exit("Error: must supply resource")
+    else: sys.exit("Error: must supply program")
     
     #Enter the main application function and pass it the dictionary containing the resource + application (args) 
     #plus the list of unparsed command line arguments (command_line_args).
