@@ -17,7 +17,7 @@ class HostConfig:
         self.workdir = ""
         self.maxtime = ""
         self.cores = ""
-        self.program = ""
+        self.executable = ""
         self.frequency = ""
         self.scheduler = ""
         self.config_file = config_file

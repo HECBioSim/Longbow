@@ -4,6 +4,7 @@ from core.syscommands import SysCommands
 from core.configs import HostConfig
 from core.appcommands import Applications
 from core.jobcommands import Scheduler
+from core.staging import Staging
 
 def proxy(args, app_args):
     
@@ -21,12 +22,14 @@ def proxy(args, app_args):
     #Instantiate the jobs commands class.
     schedule = Scheduler.test(command, resource)
     
+    #Instantiate the staging class.
+    stage = Staging()
+    
     #Instantiate the application commands class.
-    application = Applications.test(args, app_args, command)
-
-
-    schedule.submit()
+    application = Applications.test(args, app_args, command, resource.executable)
+    
     application.something()
+    schedule.submit(command, "test.job")
     
     
 if __name__ == "__main__":
