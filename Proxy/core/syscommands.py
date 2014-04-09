@@ -10,7 +10,7 @@ class SysCommands:
         self.host = user + "@" + domain
         self.port = port
         
-        #test the host connection
+        #test the host connection to see if we can connect
         if (self.sshconnection(["ls &> /dev/null"]) == 0):
             print("connection established with " + self.host)
         else: sys.exit("Error: could not reach host at " + self.host)
@@ -62,7 +62,7 @@ class SysCommands:
     def uploadfile(self, from_path, to_path):
         """To copy a file from the local resource to the remote resource (upload) call this method."""
         
-        cmd = ["scp ", "-P " + self.port, " -r ", from_path, self.host + "/" + to_path]
+        cmd = ["scp", "-P " + self.port, "-r", from_path, self.host + "/" + to_path]
         
         print(cmd)
         self.runcommand(cmd)
@@ -71,7 +71,7 @@ class SysCommands:
     def downloadfile(self, from_path, to_path):
         """To copy a file from the remote resource to the local resource (download) call this method."""
         
-        cmd = ["scp ", "-P " + self.port, " -r ", self.host + "/" + from_path, to_path]
+        cmd = ["scp", "-P " + self.port, "-r", self.host + "/" + from_path, to_path]
         
         print(cmd)
         self.runcommand(cmd)

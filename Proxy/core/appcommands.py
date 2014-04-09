@@ -2,25 +2,25 @@ import sys
 
 class Applications:
     
-    def test(args, app_args, command, executable):
+    def test(args, command, executable):
         """Static function to form part of a factory class which will return the correct class of the application specific commands"""
         
         #Make arg (program) from command line lower all lower case (less susceptible to error in the wild).
         tmp = args["program"].lower()
         
         #Establish software being used and select class to instantiate.
-        if(tmp == "amber"): return Amber(app_args, command, executable)
-        elif(tmp == "charmm"): return Charmm(app_args, command, executable)
-        elif(tmp == "gromacs"): return Gromacs(app_args, command, executable)
-        elif(tmp == "lammps"): return Lammps(app_args, command, executable)
-        elif(tmp == "namd"): return Namd(app_args, command, executable)
+        if(tmp == "amber"): return Amber(command, executable)
+        elif(tmp == "charmm"): return Charmm(command, executable)
+        elif(tmp == "gromacs"): return Gromacs(command, executable)
+        elif(tmp == "lammps"): return Lammps(command, executable)
+        elif(tmp == "namd"): return Namd(command, executable)
         else: sys.exit("Error: Fail to instantiate app class: check that the -prog arg is supplied correctly")
         
     test = staticmethod(test)
 
 class Amber:
     
-    def __init__(self, app_args, command, executable):
+    def __init__(self, command, executable):
         
         #user specified Amber, lets go ahead and do some tests.
         print("Application: Amber")
@@ -44,52 +44,52 @@ class Amber:
         #command.sshconnection(["env"])
     
     
-    def something(self):
+    def process_job(self, app_args):
         print("Amber")
 
 
 class Charmm:
     
-    def __init__(self, app_args, command, executable):
+    def __init__(self, command, executable):
         #user specified Charmm, lets go ahead and do some tests.
         print("Application: Charmm")
         
         #TODO: add charmm specific path checks
     
-    def something(self):
+    def process_job(self, app_args):
         print("Charmm")
     
 class Gromacs:
     
-    def __init__(self, app_args, command, executable):
+    def __init__(self, command, executable):
         #user specified Gromacs, lets go ahead and do some tests.
         print("Application: Gromacs")
         
         #TODO: add Gromacs specific path checks
     
-    def something(self):
+    def process_job(self, app_args):
         print("Gromacs")
     
     
 class Lammps:
     
-    def __init__(self, app_args, command, executable):
+    def __init__(self, command, executable):
         #user specified Lammps, lets go ahead and do some tests.
         print("Application: Lammps")
         
         #TODO: add Lammps specific path checks
     
-    def something(self):
+    def process_job(self, app_args):
         print("Lammps")
     
 class Namd:
     
-    def __init__(self, app_args, command, executable):
+    def __init__(self, command, executable):
         #user specified Namd, lets go ahead and do some tests.
         print("Application: Namd")
         
         #TODO: add Namd specific path checks
     
-    def something(self):
+    def process_job(self, app_args):
         print("Namd")
     

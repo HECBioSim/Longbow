@@ -51,7 +51,7 @@ class Pbs(Scheduler):
     def delete(self, job_id):
         
         #TODO: figure out a way to handle both singular and multijob deletions, I suspect that a list of job id's is the way to go here.
-        cmd = ["qdel", job_id]
+        cmd = ["qdel " + job_id]
         
         print(cmd)
         
@@ -59,7 +59,7 @@ class Pbs(Scheduler):
     def status(self, job_id):
        
         #TODO: figure out a way to handle both singular and multijob queries, I suspect that a list of job id's is the way to go here.
-        cmd = ["qstat", job_id]
+        cmd = ["qstat " + job_id]
         
         print(cmd)
         
@@ -83,7 +83,7 @@ class Lsf(Scheduler):
     def delete(self, job_id):
         
         #TODO: figure out a way to handle both singular and multijob deletions, I suspect that a list of job id's is the way to go here.
-        cmd = ["bdel", job_id]
+        cmd = ["bdel " + job_id]
         
         print(cmd)
         
@@ -91,7 +91,7 @@ class Lsf(Scheduler):
     def status(self, job_id):
         
         #TODO: figure out a way to handle both singular and multijob queries, I suspect that a list of job id's is the way to go here.
-        cmd = ["bjobs", job_id]
+        cmd = ["bjobs " + job_id]
         
         print(cmd)
         

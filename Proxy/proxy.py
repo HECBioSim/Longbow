@@ -8,11 +8,19 @@ from core.staging import Staging
 
 def proxy(args, app_args):
     
+    #-----------------------------------------------------------------------------------------------
+    #I find it easier using relative paths, in this case I'm going to run both the remote and local
+    #paths relative to the "~" user dir. Before I set the working dir to the user dir, I capture the
+    #absolute path of the hosts.conf.
+    
     config_file = os.getcwd() + "/hosts.conf"
 
     #Use paths relative to user dir so set this as our cwd
     os.chdir(os.path.expanduser("~"))
-
+    
+    #-----------------------------------------------------------------------------------------------
+    #Instantiate the classes.
+    
     #Instantiate the remote connection configuration class.
     resource = HostConfig(args, config_file)
     
@@ -26,10 +34,16 @@ def proxy(args, app_args):
     stage = Staging()
     
     #Instantiate the application commands class.
-    application = Applications.test(args, app_args, command, resource.executable)
+    application = Applications.test(args, command, resource.executable)
     
-    application.something()
+    #-----------------------------------------------------------------------------------------------
+    #Start processing the job setup.
+    
+    application.process_job(app_args)
     schedule.submit(command, "test.job")
+    
+    #-----------------------------------------------------------------------------------------------
+    #Monitor jobs.
     
     
 if __name__ == "__main__":
