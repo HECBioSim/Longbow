@@ -26,10 +26,6 @@ class Amber:
         print("Application: Amber")
 
         #Check to see if amber is in the path
-        #TODO: Bulk this out with better checking and custom compiled versions.
-        #1. check if the user specifies an executable in the job conf file
-        #2. if that is not true check if there is a default amber.
-        #3. possibly then check for a module and load that (this would only work though with sessions the only other way would be to append it to the .bashrc??)
         if(executable != ""):
             #if user specifies an executable to use then check for it.
             if(command.sshconnection(["which " + executable + " &> /dev/null"]) != 0):
@@ -40,9 +36,6 @@ class Amber:
             if(command.sshconnection(["which pmemd &> /dev/null"]) != 0):
                 sys.exit("Error: fail to find amber (pmemd)")
             else: print("a vanilla pmemd is present.")
-        
-        #command.sshconnection(["env"])
-    
     
     def process_job(self, app_args):
         print("Amber")

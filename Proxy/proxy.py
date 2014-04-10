@@ -21,19 +21,22 @@ def proxy(args, app_args):
     #-----------------------------------------------------------------------------------------------
     #Instantiate the classes.
     
-    #Instantiate the remote connection configuration class.
+    #Instantiate the remote connection configuration class. This is where host connections are dealt with
+    #It was convenient to support different hosts this way.
     resource = HostConfig(args, config_file)
     
     #Instantiate the sys commands class.
     command = SysCommands(resource.user, resource.host, resource.port)
     
-    #Instantiate the jobs commands class.
+    #Instantiate the jobs commands class, this return the correct class for the scheduler environment. If not specified in the host.conf
+    #then testing will try to determine the scheduling environment to use.
     schedule = Scheduler.test(command, resource)
     
     #Instantiate the staging class.
     stage = Staging()
     
-    #Instantiate the application commands class.
+    #Instantiate the application commands class, this will return the correct class for the application specified on command line.
+    #Some tests as to whether the application is actually in your path will happen automatically.
     application = Applications.test(args, command, resource.executable)
     
     #-----------------------------------------------------------------------------------------------
@@ -44,6 +47,8 @@ def proxy(args, app_args):
     
     #-----------------------------------------------------------------------------------------------
     #Monitor jobs.
+    
+    #TODO: monitoring jobs and any ongoing file staging will go here.
     
     
 if __name__ == "__main__":
