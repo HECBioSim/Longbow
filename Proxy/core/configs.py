@@ -13,14 +13,7 @@ class HostConfig:
         self.user = ""
         self.host = ""
         self.port = ""
-        self.account = ""
-        self.workdir = ""
-        self.maxtime = ""
-        self.cores = ""
-        self.executable = ""
-        self.frequency = ""
         self.scheduler = ""
-        self.config_file = config_file
         
         #Load the remote resource configuration from the .conf file.
         self.load_host_configs()
@@ -67,5 +60,31 @@ class HostConfig:
         if (self.port == ""):
             self.port = "22"
             print("Port has not been specified for remote host, setting for ssh default on port 22")
-    
+            
+class JobConfig:
+    #TODO: add support here later for multijob batch prescription
+    def __init__(self, job_file):
         
+        #job file
+        self.job_file = job_file
+        
+        #Initialise some params that may be used later for checking
+        self.account = ""
+        self.workdir = ""
+        self.maxtime = ""
+        self.cores = ""
+        self.executable = ""
+        self.frequency = ""
+        
+        #Get the configs
+        self.load_job_configs()
+        
+    def load_job_configs(self):
+        
+        #bind the config parser to the job file
+        job_configs = configparser.ConfigParser()
+        job_configs.read(self.job_file)
+        
+        #parse all the config entries underdefault
+        for index in job_configs['default']:
+            vars(self)[index] = job_configs['default'][index]

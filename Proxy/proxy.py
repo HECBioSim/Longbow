@@ -1,7 +1,7 @@
 import os
 import sys
 from core.syscommands import SysCommands
-from core.configs import HostConfig
+from core.configs import HostConfig, JobConfig
 from core.appcommands import Applications
 from core.jobcommands import Scheduler
 from core.staging import Staging
@@ -11,8 +11,9 @@ def proxy(args, app_args):
     #-----------------------------------------------------------------------------------------------
     #I find it easier using relative paths, in this case I'm going to run both the remote and local
     #paths relative to the "~" user dir. Before I set the working dir to the user dir, I capture the
-    #absolute path of the hosts.conf.
+    #absolute path of the hosts.conf and job.conf.
     
+    job_file = os.getcwd() + "/job.conf"
     config_file = os.getcwd() + "/hosts.conf"
 
     #Use paths relative to user dir so set this as our cwd
@@ -24,6 +25,8 @@ def proxy(args, app_args):
     #Instantiate the remote connection configuration class. This is where host connections are dealt with
     #It was convenient to support different hosts this way.
     resource = HostConfig(args, config_file)
+    
+    jobconf = JobConfig(job_file)
     
     #Instantiate the sys commands class.
     command = SysCommands(resource.user, resource.host, resource.port)
@@ -37,7 +40,7 @@ def proxy(args, app_args):
     
     #Instantiate the application commands class, this will return the correct class for the application specified on command line.
     #Some tests as to whether the application is actually in your path will happen automatically.
-    application = Applications.test(args, command, resource.executable)
+    application = Applications.test(args, command, jobconf.executable)
     
     #-----------------------------------------------------------------------------------------------
     #Start processing the job setup.
