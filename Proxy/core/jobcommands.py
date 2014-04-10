@@ -23,6 +23,12 @@ class Scheduler():
                 resource.save_host_configs('scheduler', 'PBS')
                 return Pbs()
             
+            #The check for PBS.
+            elif(command.sshconnection(["condor_version &> /dev/null"]) == 0): 
+                print("This host appears to be running Condor so lets store that in the hosts.conf for next time.")
+                resource.save_host_configs('scheduler', 'CONDOR')
+                return Condor()
+            
             #Fail we can't return a class so exit.
             else: sys.exit("Error: failed to successfully establish target scheduler environment")
             
@@ -31,11 +37,12 @@ class Scheduler():
             #TODO: might be better to verify the scheduler environment but then again there would be no point in caching???
             if(resource.scheduler == 'LSF'): return Lsf()
             if(resource.scheduler == 'PBS'): return Pbs()
+            if(resource.scheduler == 'CONDOR'): return Condor()
         
     test = staticmethod(test)
             
 class Pbs(Scheduler):
-    """A class of commands that can be invoked on machines running the PBS scheduler (Archer)"""
+    """A class of commands that can be invoked on machines running the PBS scheduler (Archer)."""
     
     # A function for submitting jobs
     def submit(self, command, submit_file):
@@ -63,11 +70,29 @@ class Pbs(Scheduler):
         
         print(cmd)
         
-    def job_file(self):
-        pass
+    def job_file(self, file):
+        
+        #TODO: add multi job support
+        
+        with open(file) as job_file:
+            job_file.write("#!/bin/bash")
+            job_file.write("#PBS -N Amber")
+            job_file.write("#PBS -A account")
+            job_file.write("#PBS -l walltime=")
+            job_file.write("#PBS -l mppwidth=")
+            job_file.write("#PBS -l mppnppn=")
+            job_file.write("export PBS_O_WORKDIR=$(readlink -f $PBS_O_WORKDIR)")
+            job_file.write("cd $PBS_O_WORKDIR")
+            
+            
+            
+            job_file.write("done")
+            job_file.write("wait")
+            
+    
         
 class Lsf(Scheduler):
-    """A class of commands that can be invoked on machines running the LSF scheduler (SCARF a cluster machine at STFC used in testing)"""
+    """A class of commands that can be invoked on machines running the LSF scheduler (SCARF a cluster machine at STFC used in testing)."""
 
     # A function for submitting jobs
     def submit(self, command, submit_file):
@@ -96,4 +121,29 @@ class Lsf(Scheduler):
         print(cmd)
         
     def job_file(self):
-        pass
+        
+        print("lsf submit")
+    
+class Condor(Scheduler):
+    """A class of commands that can be invoked on machines running the Condor scheduler."""
+
+    #TODO: Add all the condor stuff (don't have a cluster running condor to test, so this may go in blind to begin with)
+
+    # A function for submitting jobs
+    def submit(self, command, submit_file):
+        
+        print("condor submit")
+        
+    # A function for deleting jobs
+    def delete(self, job_id):
+        
+        print("condor delete")
+        
+    # A function for querying jobs
+    def status(self, job_id):
+        
+        print("condor status")
+        
+    def job_file(self):
+        
+        print("condor job file")

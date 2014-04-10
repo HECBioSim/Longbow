@@ -8,13 +8,21 @@ from core.staging import Staging
 
 def proxy(args, app_args):
     
+    """The main function that forms the basis for operating the core library. This can serve as a template
+    for building more advanced applications. Here most of the classes are doing auto configuration through 
+    the use of factory classes, however the same things can be done by calling the respective classes for
+    example (scheduler can be called using the lsf or pbs class if known or preferred)."""
+    
     #-----------------------------------------------------------------------------------------------
     #I find it easier using relative paths, in this case I'm going to run both the remote and local
     #paths relative to the "~" user dir. Before I set the working dir to the user dir, I capture the
     #absolute path of the hosts.conf and job.conf.
     
-    job_file = os.getcwd() + "/job.conf"
+    #host config file (user, host, port and scheduler)
     config_file = os.getcwd() + "/hosts.conf"
+    
+    #add this as a commandline arg -conf
+    job_file = os.getcwd() + "/job.conf"
 
     #Use paths relative to user dir so set this as our cwd
     os.chdir(os.path.expanduser("~"))
@@ -55,6 +63,7 @@ def proxy(args, app_args):
     
     
 if __name__ == "__main__":
+    
     """Main entry point for the ProxyApp as a stand-alone application. The main function proxy can be hooked directly by providing it with the correct args."""
     
     #Fetch command line arguments
