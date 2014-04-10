@@ -37,7 +37,7 @@ class Amber:
                 sys.exit("Error: fail to find amber (pmemd)")
             else: print("a vanilla pmemd is present.")
     
-    def process_job(self, app_args):
+    def processjob(self, app_args):
         print("Amber")
 
 
@@ -49,7 +49,7 @@ class Charmm:
         
         #TODO: add charmm specific path checks
     
-    def process_job(self, app_args):
+    def processjob(self, app_args):
         print("Charmm")
     
 class Gromacs:
@@ -60,7 +60,7 @@ class Gromacs:
         
         #TODO: add Gromacs specific path checks
     
-    def process_job(self, app_args):
+    def processjob(self, app_args):
         print("Gromacs")
     
     
@@ -72,7 +72,7 @@ class Lammps:
         
         #TODO: add Lammps specific path checks
     
-    def process_job(self, app_args):
+    def processjob(self, app_args):
         print("Lammps")
     
 class Namd:
@@ -83,6 +83,6 @@ class Namd:
         
         #TODO: add Namd specific path checks
     
-    def process_job(self, app_args):
+    def processjob(self, app_args):
         print("Namd")
     

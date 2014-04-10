@@ -70,7 +70,7 @@ class Pbs(Scheduler):
         
         print(cmd)
         
-    def job_file(self, file):
+    def jobfile(self, file):
         
         #TODO: add multi job support
         
@@ -83,6 +83,7 @@ class Pbs(Scheduler):
             job_file.write("#PBS -l mppnppn=")
             job_file.write("export PBS_O_WORKDIR=$(readlink -f $PBS_O_WORKDIR)")
             job_file.write("cd $PBS_O_WORKDIR")
+            job_file.write("export OMP_NUM_THREADS=1")
             
             
             
@@ -120,7 +121,7 @@ class Lsf(Scheduler):
         
         print(cmd)
         
-    def job_file(self):
+    def jobfile(self):
         
         print("lsf submit")
     
@@ -144,6 +145,6 @@ class Condor(Scheduler):
         
         print("condor status")
         
-    def job_file(self):
+    def jobfile(self):
         
         print("condor job file")
