@@ -56,6 +56,7 @@ def proxy(args, app_args):
     application.processjob(app_args)
     
     schedule.jobfile("myjob.pbs")
+    
     schedule.submit(command, "test.job")
     
     #-----------------------------------------------------------------------------------------------
