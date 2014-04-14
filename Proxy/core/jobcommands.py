@@ -74,21 +74,22 @@ class Pbs(Scheduler):
         
         #TODO: add multi job support
         
-        with open(file) as job_file:
-            job_file.write("#!/bin/bash")
-            job_file.write("#PBS -N Amber")
-            job_file.write("#PBS -A account")
-            job_file.write("#PBS -l walltime=")
-            job_file.write("#PBS -l mppwidth=")
-            job_file.write("#PBS -l mppnppn=")
-            job_file.write("export PBS_O_WORKDIR=$(readlink -f $PBS_O_WORKDIR)")
-            job_file.write("cd $PBS_O_WORKDIR")
-            job_file.write("export OMP_NUM_THREADS=1")
+        job_file = open("Desktop/" + file, "w+")
+        
+        job_file.write("#!/bin/bash \n")
+        job_file.write("#PBS -N Amber \n")
+        job_file.write("#PBS -A account \n")
+        job_file.write("#PBS -l walltime = \n")
+        job_file.write("#PBS -l mppwidth = \n")
+        job_file.write("#PBS -l mppnppn = \n")
+        job_file.write("export PBS_O_WORKDIR=$(readlink -f $PBS_O_WORKDIR) \n")
+        job_file.write("cd $PBS_O_WORKDIR \n")
+        job_file.write("export OMP_NUM_THREADS=1 \n")
             
             
             
-            job_file.write("done")
-            job_file.write("wait")
+        job_file.write("done \n")
+        job_file.write("wait \n")
             
     
         

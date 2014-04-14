@@ -3,11 +3,11 @@ import configparser
 
 class HostConfig:
     
-    def __init__(self, args, config_file):
+    def __init__(self, resource, config_file):
         """Some declarations and their initialisation (for specific error checking) followed by some config params loading and some checking."""
         
         self.config_file = config_file
-        self.args = args
+        self.resource = resource
         
         #Declare and initialise some params to default values.
         self.user = ""
@@ -29,8 +29,8 @@ class HostConfig:
         configs.read(self.config_file)
 
         #Walk through the available file parameters for the resource specified on the command line -res flag
-        for index in configs[self.args['resource']]:
-            vars(self)[index] = configs[self.args['resource']][index]
+        for index in configs[self.resource]:
+            vars(self)[index] = configs[self.resource][index]
             
     def save_host_configs(self, flag, value):
         """Save the parameters to the config file."""
@@ -69,6 +69,8 @@ class JobConfig:
         self.job_file = job_file
         
         #Initialise some params that may be used later for checking
+        self.resource = ""
+        self.program = ""
         self.account = ""
         self.workdir = ""
         self.maxtime = ""

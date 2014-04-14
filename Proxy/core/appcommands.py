@@ -2,11 +2,11 @@ import sys
 
 class Applications:
     
-    def test(args, command, executable):
+    def test(program, executable, command):
         """Static function to form part of a factory class which will return the correct class of the application specific commands"""
         
         #Make arg (program) from command line lower all lower case (less susceptible to error in the wild).
-        tmp = args["program"].lower()
+        tmp = program.lower()
         
         #Establish software being used and select class to instantiate.
         if(tmp == "amber"): return Amber(command, executable)

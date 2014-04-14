@@ -20,6 +20,7 @@ class SysCommands:
     def runcommand(self, cmd):
         """Any command that is called here is passed to a subprocess shell"""
         
+        #TODO: Add in pipes to start routeing the standard input, output and err out of the subprocess for use in other classes.
         handle = subprocess.Popen(cmd)
         handle.communicate()
 
@@ -32,7 +33,9 @@ class SysCommands:
         
         cmd = ["ssh", self.host, "-p " + self.port]
         
-        #TODO: verify which of the following two work best for Archer.
+        #TODO: Neither of these are a good idea they are a bit hacky and won't work for all situations, find a decent replacement.
+        #Maybe handle different shells by testing???
+        #Or just rely on user to configure their environment for non-interactive shells.
         #cmd.extend(["source /etc/profile \n"])
         cmd.extend(["source .bashrc \n"])
         

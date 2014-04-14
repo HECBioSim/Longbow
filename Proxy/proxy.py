@@ -6,7 +6,7 @@ from core.appcommands import Applications
 from core.jobcommands import Scheduler
 from core.staging import Staging
 
-def proxy(args, app_args):
+def proxy(app_args):
     
     """The main function that forms the basis for operating the core library. This can serve as a template
     for building more advanced applications. Here most of the classes are doing auto configuration through 
@@ -30,11 +30,11 @@ def proxy(args, app_args):
     #-----------------------------------------------------------------------------------------------
     #Instantiate the classes.
     
+    jobconf = JobConfig(job_file)
+    
     #Instantiate the remote connection configuration class. This is where host connections are dealt with
     #It was convenient to support different hosts this way.
-    resource = HostConfig(args, config_file)
-    
-    jobconf = JobConfig(job_file)
+    resource = HostConfig(jobconf.resource, config_file)
     
     #Instantiate the sys commands class.
     command = SysCommands(resource.user, resource.host, resource.port)
@@ -48,7 +48,7 @@ def proxy(args, app_args):
     
     #Instantiate the application commands class, this will return the correct class for the application specified on command line.
     #Some tests as to whether the application is actually in your path will happen automatically.
-    application = Applications.test(args, command, jobconf.executable)
+    application = Applications.test(jobconf.program, jobconf.executable, command)
     
     #-----------------------------------------------------------------------------------------------
     #Start processing the job setup.
@@ -57,7 +57,7 @@ def proxy(args, app_args):
     
     schedule.jobfile("myjob.pbs")
     
-    schedule.submit(command, "test.job")
+    #schedule.submit(command, "test.job")
     
     #-----------------------------------------------------------------------------------------------
     #Monitor jobs.
@@ -74,27 +74,8 @@ if __name__ == "__main__":
     
     #Remove the first argument (the application path)
     command_line_args.pop(0)
-
-    #Initialise a dictionary for some arguments
-    args = {}
-    
-    #Take out the resource argument and put it into the dictionary, then remove it from the command line argument list
-    if(command_line_args.count("-res") == 1):
-        position = command_line_args.index("-res")
-        args['resource'] = command_line_args[position + 1]
-        command_line_args.pop(position)
-        command_line_args.pop(position)
-    else: sys.exit("Error: must supply resource")
-    
-    #Take out the program argument and put it into the dictionary, then remove it from the command line argument list
-    if(command_line_args.count("-prog") == 1):
-        position = command_line_args.index("-prog")
-        args['program'] = command_line_args[position + 1]
-        command_line_args.pop(position)
-        command_line_args.pop(position)
-    else: sys.exit("Error: must supply program")
     
     #Enter the main application function and pass it the dictionary containing the resource + application (args) 
     #plus the list of unparsed command line arguments (command_line_args).
-    proxy(args, command_line_args)
+    proxy(command_line_args)
 
