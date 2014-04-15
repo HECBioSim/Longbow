@@ -52,11 +52,15 @@ def proxy(app_args):
     
     #-----------------------------------------------------------------------------------------------
     #Start processing the job setup.
-    
     application.processjob(app_args)
     
-    schedule.jobfile("myjob.pbs")
+    #TODO: do something with the path to the job file here 
+    #(perhaps a local working dir so this becomes more of an application and less like a script).
+    schedule.jobfile("Desktop/" + "myjob.pbs", "24", "24", "8", "e280", "1","-i 1 -j 2 -k 3 -l 4")
     
+    #TODO: stage all of the job files along with the scheduling script.
+    
+    #TODO: submit the job to the scheduler.
     #schedule.submit(command, "test.job")
     
     #-----------------------------------------------------------------------------------------------

@@ -72,9 +72,11 @@ class JobConfig:
         self.resource = ""
         self.program = ""
         self.account = ""
-        self.workdir = ""
+        self.local_workdir = ""
+        self.remote_workdir = ""
         self.maxtime = ""
         self.cores = ""
+        self.corespernode = ""
         self.executable = ""
         self.frequency = ""
         
@@ -90,3 +92,4 @@ class JobConfig:
         #parse all the config entries underdefault
         for index in job_configs['default']:
             vars(self)[index] = job_configs['default'][index]
+            

@@ -70,28 +70,35 @@ class Pbs(Scheduler):
         
         print(cmd)
         
-    def jobfile(self, file):
+    def jobfile(self, file, cores, corespernode, reps, account, walltime, args):
         
         #TODO: add multi job support
+        #TODO: this method may become code specific, if that is the case then move this to the appcommands under the relevant app class.
+        #TODO: come up with some sensible defaults for if a param is left out of job.conf
         
-        job_file = open("Desktop/" + file, "w+")
+        job_file = open(file, "w+")
         
         job_file.write("#!/bin/bash \n")
         job_file.write("#PBS -N Amber \n")
-        job_file.write("#PBS -A account \n")
-        job_file.write("#PBS -l walltime = \n")
-        job_file.write("#PBS -l mppwidth = \n")
-        job_file.write("#PBS -l mppnppn = \n")
+        job_file.write("#PBS -A " + account + "\n")
+        job_file.write("#PBS -l walltime = " + walltime + ":00:00 \n")
+        
+        #TODO: This does not constitute a normal job this is specific to repeats/replicas and will be handled later probably 
+        #just take the reps param and say if it is >0 then do this bit, and somewhere reps will have to be initialised as 0 
+        #for the case it isn't set at all.
+        #mppwidth = cores * reps
+        #job_file.write("#PBS -l mppwidth = \n")
+        #job_file.write("#PBS -l mppnppn = \n")
+        
+        #make sure links are absolute (not symbolic)
         job_file.write("export PBS_O_WORKDIR=$(readlink -f $PBS_O_WORKDIR) \n")
         job_file.write("cd $PBS_O_WORKDIR \n")
         job_file.write("export OMP_NUM_THREADS=1 \n")
             
-            
-            
+        job_file.write("aprun -n " + cores + " -N " + corespernode + " " + args + " & \n")
+        
         job_file.write("done \n")
         job_file.write("wait \n")
-            
-    
         
 class Lsf(Scheduler):
     """A class of commands that can be invoked on machines running the LSF scheduler (SCARF a cluster machine at STFC used in testing)."""
