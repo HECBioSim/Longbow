@@ -39,6 +39,8 @@ class Amber:
     
     def processjob(self, app_args):
         print("Amber")
+        
+        return "test", "test2"
 
 
 class Charmm:

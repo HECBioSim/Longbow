@@ -70,7 +70,7 @@ class Pbs(Scheduler):
         
         print(cmd)
         
-    def jobfile(self, file, cores, corespernode, reps, account, walltime, args):
+    def jobfile(self, file, cores, corespernode, reps, account, walltime, args, filelist):
         
         #TODO: add multi job support
         #TODO: this method may become code specific, if that is the case then move this to the appcommands under the relevant app class.
@@ -99,6 +99,8 @@ class Pbs(Scheduler):
         
         job_file.write("done \n")
         job_file.write("wait \n")
+        
+        return "test"
         
 class Lsf(Scheduler):
     """A class of commands that can be invoked on machines running the LSF scheduler (SCARF a cluster machine at STFC used in testing)."""

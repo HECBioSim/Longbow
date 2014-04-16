@@ -13,16 +13,22 @@ def proxy(app_args):
     the use of factory classes, however the same things can be done by calling the respective classes for
     example (scheduler can be called using the lsf or pbs class if known or preferred)."""
     
+    #TODO: Support multiple job submission as both reps and batches.
+    #TODO: Create advanced monitoring methods.
+    
     #-----------------------------------------------------------------------------------------------
     #I find it easier using relative paths, in this case I'm going to run both the remote and local
     #paths relative to the "~" user dir. Before I set the working dir to the user dir, I capture the
     #absolute path of the hosts.conf and job.conf.
     
-    #host config file (user, host, port and scheduler)
-    config_file = os.getcwd() + "/hosts.conf"
+    #Current dir to get the 
+    current_dir = os.getcwd()
     
-    #add this as a commandline arg -conf
-    job_file = os.getcwd() + "/job.conf"
+    #host config file (user, host, port and scheduler)
+    config_file = current_dir + "/hosts.conf"
+    
+    #TODO: add this as a commandline arg -conf (like Charlies app) which means that I want to use a relative path too.
+    job_file = current_dir + "/job.conf"
 
     #Use paths relative to user dir so set this as our cwd
     os.chdir(os.path.expanduser("~"))
@@ -52,13 +58,15 @@ def proxy(app_args):
     
     #-----------------------------------------------------------------------------------------------
     #Start processing the job setup.
-    application.processjob(app_args)
+    
+    filelist, arglist = application.processjob(app_args)
     
     #TODO: do something with the path to the job file here 
     #(perhaps a local working dir so this becomes more of an application and less like a script).
-    schedule.jobfile("Desktop/" + "myjob.pbs", "24", "24", "8", "e280", "1","-i 1 -j 2 -k 3 -l 4")
+    filelist = schedule.jobfile(jobconf.local_workdir + "/" + "myjob.pbs", jobconf.cores, jobconf.corespernode, "8", jobconf.account, jobconf.maxtime, arglist, filelist)
     
     #TODO: stage all of the job files along with the scheduling script.
+    stage.stage_upstream(filelist)
     
     #TODO: submit the job to the scheduler.
     #schedule.submit(command, "test.job")
