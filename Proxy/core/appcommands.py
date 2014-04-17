@@ -2,7 +2,7 @@ import sys
 
 class Applications:
     
-    def test(program, executable, command):
+    def test(command, program, executable):
         """Static function to form part of a factory class which will return the correct class of the application specific commands"""
         
         #Make arg (program) from command line lower all lower case (less susceptible to error in the wild).
@@ -30,17 +30,32 @@ class Amber:
             #if user specifies an executable to use then check for it.
             if(command.sshconnection(["which " + executable + " &> /dev/null"]) != 0):
                 sys.exit("Error the executable that you specified: " + executable + " is not in your path.")
-            else: print(executable + " has been found in your path.")
+            else: 
+                self.executable = executable
+                print(executable + " has been found in your path.")
         else:
             #Check if there is a vanilla executable
             if(command.sshconnection(["which pmemd &> /dev/null"]) != 0):
                 sys.exit("Error: fail to find amber (pmemd)")
-            else: print("a vanilla pmemd is present.")
+            else: 
+                self.executable = "pmemd"
+                print("a vanilla pmemd is present.")
     
     def processjob(self, app_args):
-        print("Amber")
         
-        return "test", "test2"
+        #list for files that need staging.
+        filelist = []
+        
+        #append executable to args string
+        
+        args = self.executable 
+        
+        #TODO: parse app_args, and pull out the files that should be staged and at the same time move the arguments into 
+        #this string args ready to send to the submit script.
+        
+        args = args + " -i md1.in -c prot.crd -p prot.top -o md1.out"
+        
+        return filelist, args
 
 
 class Charmm:

@@ -9,7 +9,7 @@ class Scheduler():
             print("No scheduler for this host is specified - let's see if it can be determined!")
             
             #Scarf had to go first since for some strange reason it has qsub (PBS) present which just hangs as if waiting for input.
-            #todo: it might be better to take a look at the loaded modules to find the scheduler
+            #TODO: it might be better to take a look at the loaded modules to find the scheduler
             
             #Check for LSF
             if(command.sshconnection(["bsub -V &> /dev/null"]) == 0):
@@ -70,37 +70,49 @@ class Pbs(Scheduler):
         
         print(cmd)
         
-    def jobfile(self, file, cores, corespernode, reps, account, walltime, args, filelist):
+    def jobfile(self, filepath, cores, corespernode, reps, account, walltime, args, filelist):
         
         #TODO: add multi job support
         #TODO: this method may become code specific, if that is the case then move this to the appcommands under the relevant app class.
         #TODO: come up with some sensible defaults for if a param is left out of job.conf
+        #TODO: come up with a sensible job naming scheme for -N
         
-        job_file = open(file, "w+")
+        file = "job.pbs"
         
-        job_file.write("#!/bin/bash \n")
-        job_file.write("#PBS -N Amber \n")
-        job_file.write("#PBS -A " + account + "\n")
-        job_file.write("#PBS -l walltime = " + walltime + ":00:00 \n")
+        jobfile = open(filepath + "/" + file, "w+")
+        
+        jobfile.write("#!/bin/bash \n")
+        jobfile.write("#PBS -N Amber \n")
+        jobfile.write("#PBS -A " + account + "\n")
+        jobfile.write("#PBS -l walltime = " + walltime + ":00:00 \n")
         
         #TODO: This does not constitute a normal job this is specific to repeats/replicas and will be handled later probably 
         #just take the reps param and say if it is >0 then do this bit, and somewhere reps will have to be initialised as 0 
         #for the case it isn't set at all.
-        #mppwidth = cores * reps
-        #job_file.write("#PBS -l mppwidth = \n")
-        #job_file.write("#PBS -l mppnppn = \n")
+        #if(reps > 0):
+        #    mppwidth = cores * reps
+        #    jobfile.write("#PBS -l mppwidth = " + mppwidth + "\n")
+        #    jobfile.write("#PBS -l mppnppn = 24 \n") <-------------- is this cores or cores per node?
+
         
         #make sure links are absolute (not symbolic)
-        job_file.write("export PBS_O_WORKDIR=$(readlink -f $PBS_O_WORKDIR) \n")
-        job_file.write("cd $PBS_O_WORKDIR \n")
-        job_file.write("export OMP_NUM_THREADS=1 \n")
-            
-        job_file.write("aprun -n " + cores + " -N " + corespernode + " " + args + " & \n")
+        jobfile.write("export PBS_O_WORKDIR=$(readlink -f $PBS_O_WORKDIR) \n")
+        jobfile.write("cd $PBS_O_WORKDIR \n")
+        jobfile.write("export OMP_NUM_THREADS=1 \n")
         
-        job_file.write("done \n")
-        job_file.write("wait \n")
+        #TODO: Do we really need the full path to the executable when modules provide it????
+        jobfile.write("aprun -n " + cores + " -N " + corespernode + " " + args + " & \n")
         
-        return "test"
+        #TODO: find out if this is necessary.
+        jobfile.write("done \n")
+        jobfile.write("wait \n")
+        
+        jobfile.close()
+    
+        #append file pbs file to list of files ready for staging.
+        filelist.extend([file])
+        
+        return filelist
         
 class Lsf(Scheduler):
     """A class of commands that can be invoked on machines running the LSF scheduler (SCARF a cluster machine at STFC used in testing)."""
@@ -148,11 +160,13 @@ class Condor(Scheduler):
     # A function for deleting jobs
     def delete(self, job_id):
         
+        #TODO: figure out a way to handle both singular and multijob deletions, I suspect that a list of job id's is the way to go here.
         print("condor delete")
         
     # A function for querying jobs
     def status(self, job_id):
         
+        #TODO: figure out a way to handle both singular and multijob queries, I suspect that a list of job id's is the way to go here.
         print("condor status")
         
     def jobfile(self):

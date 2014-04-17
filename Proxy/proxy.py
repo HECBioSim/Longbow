@@ -27,7 +27,7 @@ def proxy(app_args):
     #host config file (user, host, port and scheduler)
     config_file = current_dir + "/hosts.conf"
     
-    #TODO: add this as a commandline arg -conf (like Charlies app) which means that I want to use a relative path too.
+    #TODO: add this as a commandline arg -conf (like Charlie's app) which means that I want to use a relative path too.
     job_file = current_dir + "/job.conf"
 
     #Use paths relative to user dir so set this as our cwd
@@ -54,19 +54,20 @@ def proxy(app_args):
     
     #Instantiate the application commands class, this will return the correct class for the application specified on command line.
     #Some tests as to whether the application is actually in your path will happen automatically.
-    application = Applications.test(jobconf.program, jobconf.executable, command)
+    application = Applications.test(command, jobconf.program, jobconf.executable)
     
     #-----------------------------------------------------------------------------------------------
-    #Start processing the job setup.
+    #Start processing the job setup and submit.
     
+    #Process the command line args to separate out all the files that need staging and form a nice string for the scheduler.
     filelist, arglist = application.processjob(app_args)
     
-    #TODO: do something with the path to the job file here 
+    #TODO: That number "8" is currently not used but it is to remind me to do something good surrounding reps.
     #(perhaps a local working dir so this becomes more of an application and less like a script).
-    filelist = schedule.jobfile(jobconf.local_workdir + "/" + "myjob.pbs", jobconf.cores, jobconf.corespernode, "8", jobconf.account, jobconf.maxtime, arglist, filelist)
-    
+    filelist = schedule.jobfile(jobconf.local_workdir, jobconf.cores, jobconf.corespernode, "8", jobconf.account, jobconf.maxtime, arglist, filelist)
+
     #TODO: stage all of the job files along with the scheduling script.
-    stage.stage_upstream(filelist)
+    stage.stage_upstream(command, jobconf.local_workdir, jobconf.remote_workdir, filelist)
     
     #TODO: submit the job to the scheduler.
     #schedule.submit(command, "test.job")
