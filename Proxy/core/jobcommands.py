@@ -34,7 +34,6 @@ class Scheduler():
             
         else:
             #Either user or a previous run has set the scheduler.
-            #TODO: might be better to verify the scheduler environment but then again there would be no point in caching???
             if(resource.scheduler == 'LSF'): return Lsf()
             if(resource.scheduler == 'PBS'): return Pbs()
             if(resource.scheduler == 'CONDOR'): return Condor()
@@ -45,12 +44,12 @@ class Pbs(Scheduler):
     """A class of commands that can be invoked on machines running the PBS scheduler (Archer)."""
     
     # A function for submitting jobs
-    def submit(self, command, submit_file):
+    def submit(self, command, workdir, submit_file):
         
-        cmd = ["qsub " + submit_file]
+        #cmd = ["cd " + workdir + "\n","qsub " + submit_file]
+        cmd = ["cd " + workdir + "\n", "ls"]
         
-        print(cmd)
-        #command.sshconnection(cmd)
+        command.sshconnection(cmd)
         
         #TODO: return a job id
         
@@ -109,10 +108,10 @@ class Pbs(Scheduler):
         
         jobfile.close()
     
-        #append file pbs file to list of files ready for staging.
+        #Append file pbs file to list of files ready for staging.
         filelist.extend([file])
         
-        return filelist
+        return filelist, file
         
 class Lsf(Scheduler):
     """A class of commands that can be invoked on machines running the LSF scheduler (SCARF a cluster machine at STFC used in testing)."""

@@ -1,15 +1,15 @@
 
 class Staging:
     
-    def __init__(self):
-        pass
-    
     def stage_upstream(self, command, local_workdir, remote_workdir, filelist):
         
-        #TODO: calls to scp upload will go here
+        #Create the dir ready for staging.
+        if(command.listremote(remote_workdir) != 0): 
+            command.sshconnection(["mkdir " + remote_workdir])
+                    
+        #Loop through the list of input files and upload them.
         for i in range (len(filelist)):
-            command.upload
-            print(filelist[i])
+            command.uploadfile(local_workdir + "/" + filelist[i], remote_workdir)
     
     def stage_downstream(self, command, local_workdir, remote_workdir, filelist):
         

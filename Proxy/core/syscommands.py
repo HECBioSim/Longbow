@@ -49,8 +49,7 @@ class SysCommands:
         
         cmd = ["cp", "-r", from_path, to_path]
         
-        print(cmd)
-        self.runcommand(cmd)
+        return self.runcommand(cmd)
                 
     # Copy the file locally on remote machine
     def copyfileremote(self, from_path, to_path):
@@ -58,26 +57,23 @@ class SysCommands:
         
         cmd = ["cp", "-r", from_path, to_path]
         
-        print(cmd)
-        self.sshconnection(cmd)
+        return self.sshconnection(cmd)
         
     # Transfer the file between local and remote machines
     def uploadfile(self, from_path, to_path):
         """To copy a file from the local resource to the remote resource (upload) call this method."""
         
-        cmd = ["scp", "-P " + self.port, "-r", from_path, self.host + "/" + to_path]
+        cmd = ["scp", "-P " + self.port, "-r", from_path, self.host + ":" + to_path]
         
-        print(cmd)
-        self.runcommand(cmd)
+        return self.runcommand(cmd)
         
     # Transfer the file between local and remote machines
     def downloadfile(self, from_path, to_path):
         """To copy a file from the remote resource to the local resource (download) call this method."""
         
-        cmd = ["scp", "-P " + self.port, "-r", self.host + "/" + from_path, to_path]
+        cmd = ["scp", "-P " + self.port, "-r", self.host + ":" + from_path, to_path]
         
-        print(cmd)
-        self.runcommand(cmd)
+        return self.runcommand(cmd)
 
     # Delete local file function
     def removefilelocal(self, path):
@@ -85,8 +81,7 @@ class SysCommands:
         
         cmd = ["rm", "-r", path]
 
-        print(cmd)
-        self.runcommand(cmd)
+        return self.runcommand(cmd)
         
     # Delete remote file function
     def removefileremote(self, path):
@@ -94,8 +89,7 @@ class SysCommands:
         
         cmd = ["rm", "-r", path]
 
-        print(cmd)
-        self.sshconnection(cmd)  
+        return self.sshconnection(cmd)  
     
     # Return a list of all directory contents (for some reason cd doesn't work locally)
     def listlocal(self, path):
@@ -103,8 +97,7 @@ class SysCommands:
         
         cmd = ["ls", path]
         
-        print(cmd)
-        self.runcommand(cmd)
+        return self.runcommand(cmd)
     
     # Return a list of all directory contents (remote)
     def listremote(self, path):
@@ -112,5 +105,4 @@ class SysCommands:
         
         cmd = ["ls", path]
     
-        print(cmd)
-        self.sshconnection(cmd) 
+        return self.sshconnection(cmd) 

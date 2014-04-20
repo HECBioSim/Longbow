@@ -66,13 +66,13 @@ def proxy(app_args, debug):
     
     #TODO: That number "8" is currently not used but it is to remind me to do something good surrounding reps.
     #(perhaps a local working dir so this becomes more of an application and less like a script).
-    filelist = schedule.jobfile(jobconf.local_workdir, jobconf.cores, jobconf.corespernode, "8", jobconf.account, jobconf.maxtime, arglist, filelist)
+    filelist, submitfile = schedule.jobfile(jobconf.local_workdir, jobconf.cores, jobconf.corespernode, "8", jobconf.account, jobconf.maxtime, arglist, filelist)
 
-    #TODO: stage all of the job files along with the scheduling script.
+    #Stage all of the job files along with the scheduling script.
     stage.stage_upstream(command, jobconf.local_workdir, jobconf.remote_workdir, filelist)
     
-    #TODO: submit the job to the scheduler.
-    #schedule.submit(command, "test.job")
+    #Submit the job to the scheduler.
+    schedule.submit(command, jobconf.remote_workdir, submitfile)
     
     #-----------------------------------------------------------------------------------------------
     #Monitor jobs.
