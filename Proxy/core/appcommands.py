@@ -46,17 +46,24 @@ class Amber:
         #list for files that need staging.
         filelist = []
         
-        #append executable to args string
-        
+        #append executable to args string.
         args = self.executable 
         
-        #TODO: parse app_args, and pull out the files that should be staged and at the same time move the arguments into 
-        #this string args ready to send to the submit script.
-        
-        args = args + " -i md1.in -c prot.crd -p prot.top -o md1.out"
-        
+        #Process the command line args and find files for staging.
+        for item in app_args:
+            index = app_args.index(item)
+            
+            #Put ALL of the args specified on the commandline into a string.
+            args = args + " " + item
+            
+            #Find the amber input files that require staging.
+            if(item == "-i"): filelist.append(app_args[index+1])
+            if(item == "-c"): filelist.append(app_args[index+1])
+            if(item == "-p"): filelist.append(app_args[index+1])
+            if(item == "-r"): filelist.append(app_args[index+1])
+            if(item == "-x"): filelist.append(app_args[index+1])
+            
         return filelist, args
-
 
 class Charmm:
     

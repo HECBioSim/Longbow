@@ -6,12 +6,12 @@ from core.appcommands import Applications
 from core.jobcommands import Scheduler
 from core.staging import Staging
 
-def proxy(app_args):
+def proxy(app_args, debug):
     
     """The main function that forms the basis for operating the core library. This can serve as a template
     for building more advanced applications. Here most of the classes are doing auto configuration through 
     the use of factory classes, however the same things can be done by calling the respective classes for
-    example (scheduler can be called using the lsf or pbs class if known or preferred)."""
+    example (scheduler can be used by calling the lsf or pbs classes if known or preferred)."""
     
     #TODO: Support multiple job submission as both reps and batches.
     #TODO: Create advanced monitoring methods.
@@ -22,13 +22,15 @@ def proxy(app_args):
     #absolute path of the hosts.conf and job.conf.
     
     #Current dir to get the 
-    current_dir = os.getcwd()
+    currentdir = os.getcwd()
     
     #host config file (user, host, port and scheduler)
-    config_file = current_dir + "/hosts.conf"
+    configfile = currentdir + "/hosts.conf"
     
     #TODO: add this as a commandline arg -conf (like Charlie's app) which means that I want to use a relative path too.
-    job_file = current_dir + "/job.conf"
+    jobfile = currentdir + "/job.conf"
+    
+    logfile = open(currentdir + "/log", "w+")
 
     #Use paths relative to user dir so set this as our cwd
     os.chdir(os.path.expanduser("~"))
@@ -36,11 +38,11 @@ def proxy(app_args):
     #-----------------------------------------------------------------------------------------------
     #Instantiate the classes.
     
-    jobconf = JobConfig(job_file)
+    jobconf = JobConfig(jobfile)
     
     #Instantiate the remote connection configuration class. This is where host connections are dealt with
     #It was convenient to support different hosts this way.
-    resource = HostConfig(jobconf.resource, config_file)
+    resource = HostConfig(jobconf.resource, configfile)
     
     #Instantiate the sys commands class.
     command = SysCommands(resource.user, resource.host, resource.port)
@@ -90,5 +92,5 @@ if __name__ == "__main__":
     
     #Enter the main application function and pass it the dictionary containing the resource + application (args) 
     #plus the list of unparsed command line arguments (command_line_args).
-    proxy(command_line_args)
+    proxy(command_line_args, "True")
 
