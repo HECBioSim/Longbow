@@ -92,5 +92,17 @@ if __name__ == "__main__":
     
     #Enter the main application function and pass it the dictionary containing the resource + application (args) 
     #plus the list of unparsed command line arguments (command_line_args).
-    proxy(command_line_args, "True")
+    #proxy(command_line_args, "True")
+    
+    import subprocess
+    
+    cmd = "ls"
+    
+    
+    handle = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    out = handle.communicate()[0]
+    out = out.decode("utf-8")
+    test = out.split()
+    print(out)
+    print(test)
 
