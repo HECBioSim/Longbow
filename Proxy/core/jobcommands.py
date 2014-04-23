@@ -9,7 +9,7 @@ class Scheduler():
             print("No scheduler for this host is specified - let's see if it can be determined!")
             
             #Scarf had to go first since for some strange reason it has qsub (PBS) present which just hangs as if waiting for input.
-            #TODO: it might be better to take a look at the loaded modules to find the scheduler
+            #TODO: it might be better to take a look at the loaded modules to find the scheduler - older systems like SGE also used qsub.
             
             #Check for LSF
             if(command.sshconnection(["bsub -V &> /dev/null"])[0] == 0):
@@ -34,9 +34,15 @@ class Scheduler():
             
         else:
             #Either user or a previous run has set the scheduler.
-            if(resource.scheduler == 'LSF'): return Lsf()
-            if(resource.scheduler == 'PBS'): return Pbs()
-            if(resource.scheduler == 'CONDOR'): return Condor()
+            if(resource.scheduler == 'LSF'): 
+                print("Scheduler is LSF")
+                return Lsf()
+            if(resource.scheduler == 'PBS'): 
+                print("Scheduler is PBS")
+                return Pbs()
+            if(resource.scheduler == 'CONDOR'): 
+                print("Scheduler is CONDOR")
+                return Condor()
         
     test = staticmethod(test)
             
@@ -46,12 +52,21 @@ class Pbs(Scheduler):
     # A function for submitting jobs
     def submit(self, command, workdir, submit_file):
         
-        #cmd = ["cd " + workdir + "\n","qsub " + submit_file]
-        cmd = ["cd " + workdir + "\n", "ls"]
+        #cd into the working directory and submit the job.
+        cmd = ["cd " + workdir + "\n","qsub " + submit_file]
         
-        command.sshconnection(cmd)
+        #process the submit
+        error, output = command.sshconnection(cmd)
         
-        #TODO: return a job id
+        print(error, output)
+        
+        #check status here.
+        if(error == 0):
+            print("Job submitted.")
+        else:
+            print("Something went wrong when submitting. Here is the error code = " + error + ". Here is the output = " + output)
+
+        #TODO: return a job id and archive it for monitoring
         
     # A function for deleting jobs    
     def delete(self, job_id):
@@ -76,14 +91,18 @@ class Pbs(Scheduler):
         #TODO: come up with some sensible defaults for if a param is left out of job.conf
         #TODO: come up with a sensible job naming scheme for -N
         
-        file = "job.pbs"
+        #TODO: Apparently this now has to be specified.
+        nodes = "1"
         
+        #Open file for PBS script.
+        file = "job.pbs"
         jobfile = open(filepath + "/" + file, "w+")
         
         jobfile.write("#!/bin/bash \n")
-        jobfile.write("#PBS -N Amber \n")
+        jobfile.write("#PBS -N Test \n")
+        jobfile.write("#PBS -l select="+nodes+" \n")
+        jobfile.write("#PBS -l walltime=" + walltime + ":00:00 \n")
         jobfile.write("#PBS -A " + account + "\n")
-        jobfile.write("#PBS -l walltime = " + walltime + ":00:00 \n")
         
         #TODO: This does not constitute a normal job this is specific to repeats/replicas and will be handled later probably 
         #just take the reps param and say if it is >0 then do this bit, and somewhere reps will have to be initialised as 0 
@@ -94,22 +113,26 @@ class Pbs(Scheduler):
         #    jobfile.write("#PBS -l mppnppn = 24 \n") <-------------- is this cores or cores per node?
 
         
-        #make sure links are absolute (not symbolic)
+        #Make sure links are resolved (not symbolic)
         jobfile.write("export PBS_O_WORKDIR=$(readlink -f $PBS_O_WORKDIR) \n")
         jobfile.write("cd $PBS_O_WORKDIR \n")
         jobfile.write("export OMP_NUM_THREADS=1 \n")
         
-        #TODO: Do we really need the full path to the executable when modules provide it????
+        #Assemble the aprun string
+        #TODO: There are other arguments for aprun that should be included here for wider support.
         jobfile.write("aprun -n " + cores + " -N " + corespernode + " " + args + " & \n")
         
         #TODO: find out if this is necessary.
         jobfile.write("done \n")
         jobfile.write("wait \n")
         
+        #Close the file (housekeeping)
         jobfile.close()
     
-        #Append file pbs file to list of files ready for staging.
+        #Append pbs file to list of files ready for staging.
         filelist.extend([file])
+        
+        print("List of files for upload: ", filelist)
         
         return filelist, file
         

@@ -15,6 +15,7 @@ def proxy(app_args, debug):
     
     #TODO: Support multiple job submission as both reps and batches.
     #TODO: Create advanced monitoring methods.
+    #TODO: Replace sys.exits throughout the application with exception raising. Also this would be a good time to introduce the logfile.
     
     #-----------------------------------------------------------------------------------------------
     #I find it easier using relative paths, in this case I'm going to run both the remote and local
@@ -30,6 +31,8 @@ def proxy(app_args, debug):
     #TODO: add this as a commandline arg -conf (like Charlie's app) which means that I want to use a relative path too.
     jobfile = currentdir + "/job.conf"
     
+    #Logfile for troubleshooting.
+    #TODO: this log file isn't yet used, include it when sys.exits are replaced by exception handling.
     logfile = open(currentdir + "/log", "w+")
 
     #Use paths relative to user dir so set this as our cwd
@@ -94,4 +97,3 @@ if __name__ == "__main__":
     #plus the list of unparsed command line arguments (command_line_args).
     proxy(command_line_args, "True")
     
-

@@ -43,6 +43,8 @@ class Amber:
     
     def processjob(self, app_args):
         
+        print("Processing job to extract files that require upload.")
+        
         #list for files that need staging.
         filelist = []
         
