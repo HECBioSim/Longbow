@@ -5,7 +5,7 @@ class Staging:
         
         #Create the dir ready for staging.
         if(command.listremote(remote_workdir) != 0): 
-            command.sshconnection(["mkdir " + remote_workdir])
+            command.sshconnection(["mkdir " + remote_workdir])[0]
                     
         #Loop through the list of input files and upload them.
         for i in range (len(filelist)):

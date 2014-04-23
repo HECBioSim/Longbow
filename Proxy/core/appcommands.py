@@ -28,14 +28,14 @@ class Amber:
         #Check to see if amber is in the path
         if(executable != ""):
             #if user specifies an executable to use then check for it.
-            if(command.sshconnection(["which " + executable + " &> /dev/null"]) != 0):
+            if(command.sshconnection(["which " + executable + " &> /dev/null"])[0] != 0):
                 sys.exit("Error the executable that you specified: " + executable + " is not in your path.")
             else: 
                 self.executable = executable
                 print(executable + " has been found in your path.")
         else:
             #Check if there is a vanilla executable
-            if(command.sshconnection(["which pmemd &> /dev/null"]) != 0):
+            if(command.sshconnection(["which pmemd &> /dev/null"])[0] != 0):
                 sys.exit("Error: fail to find amber (pmemd)")
             else: 
                 self.executable = "pmemd"

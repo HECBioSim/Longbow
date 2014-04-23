@@ -12,19 +12,19 @@ class Scheduler():
             #TODO: it might be better to take a look at the loaded modules to find the scheduler
             
             #Check for LSF
-            if(command.sshconnection(["bsub -V &> /dev/null"]) == 0):
+            if(command.sshconnection(["bsub -V &> /dev/null"])[0] == 0):
                 print("This host appears to be running LSF so lets store that in the hosts.conf for next time.")
                 resource.save_host_configs('scheduler', 'LSF')
                 return Lsf()
         
             #The check for PBS.
-            elif(command.sshconnection(["qsub --version &> /dev/null"]) == 0): 
+            elif(command.sshconnection(["qsub --version &> /dev/null"])[0] == 0): 
                 print("This host appears to be running PBS so lets store that in the hosts.conf for next time.")
                 resource.save_host_configs('scheduler', 'PBS')
                 return Pbs()
             
             #The check for PBS.
-            elif(command.sshconnection(["condor_version &> /dev/null"]) == 0): 
+            elif(command.sshconnection(["condor_version &> /dev/null"])[0] == 0): 
                 print("This host appears to be running Condor so lets store that in the hosts.conf for next time.")
                 resource.save_host_configs('scheduler', 'CONDOR')
                 return Condor()

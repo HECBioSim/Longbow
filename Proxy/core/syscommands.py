@@ -11,7 +11,7 @@ class SysCommands:
         self.port = port
         
         #test the host connection to see if we can connect
-        if (self.sshconnection(["ls &> /dev/null"]) == 0):
+        if (self.sshconnection(["ls &> /dev/null"])[0] == 0):
             print("connection established with " + self.host)
         else: sys.exit("Error: could not reach host at " + self.host)
     
@@ -20,11 +20,17 @@ class SysCommands:
     def runcommand(self, cmd):
         """Any command that is called here is passed to a subprocess shell"""
         
-        #TODO: Add in pipes to start routeing the standard input, output and err out of the subprocess for use in other classes.
-        handle = subprocess.Popen(cmd)
-        handle.communicate()
-
-        return handle.returncode
+        #Call to python subprocess, here we will send commands to be run in a terminal as a list and return the output back.
+        #the [0] on the communicate is basically because extra information seems to come back down the pipe. 
+        handle = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        output = handle.communicate()[0]
+        
+        errorstate = handle.returncode
+        
+        #The returned information is in byte format so lets put it into a useful string format.
+        output = output.decode("utf-8")
+        
+        return errorstate, output
     
     # The ssh connection is setup here
     # All commands needing ssh should be passed through here
@@ -41,7 +47,9 @@ class SysCommands:
         
         cmd.extend(args)
 
-        return self.runcommand(cmd)
+        errorstate, output = self.runcommand(cmd)
+        
+        return errorstate, output
                 
     # Copy file function locally on local machine
     def copyfilelocal(self, from_path, to_path):
@@ -49,7 +57,9 @@ class SysCommands:
         
         cmd = ["cp", "-r", from_path, to_path]
         
-        return self.runcommand(cmd)
+        errorstate = self.runcommand(cmd)[0]
+        
+        return errorstate
                 
     # Copy the file locally on remote machine
     def copyfileremote(self, from_path, to_path):
@@ -57,7 +67,9 @@ class SysCommands:
         
         cmd = ["cp", "-r", from_path, to_path]
         
-        return self.sshconnection(cmd)
+        errorstate = self.sshconnection(cmd)[0]
+        
+        return errorstate
         
     # Transfer the file between local and remote machines
     def uploadfile(self, from_path, to_path):
@@ -65,7 +77,9 @@ class SysCommands:
         
         cmd = ["scp", "-P " + self.port, "-r", from_path, self.host + ":" + to_path]
         
-        return self.runcommand(cmd)
+        errorstate = self.runcommand(cmd)[0]
+        
+        return errorstate
         
     # Transfer the file between local and remote machines
     def downloadfile(self, from_path, to_path):
@@ -73,7 +87,9 @@ class SysCommands:
         
         cmd = ["scp", "-P " + self.port, "-r", self.host + ":" + from_path, to_path]
         
-        return self.runcommand(cmd)
+        errorstate = self.runcommand(cmd)[0]
+        
+        return errorstate
 
     # Delete local file function
     def removefilelocal(self, path):
@@ -81,7 +97,9 @@ class SysCommands:
         
         cmd = ["rm", "-r", path]
 
-        return self.runcommand(cmd)
+        errorstate = self.runcommand(cmd)[0]
+        
+        return errorstate
         
     # Delete remote file function
     def removefileremote(self, path):
@@ -89,7 +107,9 @@ class SysCommands:
         
         cmd = ["rm", "-r", path]
 
-        return self.sshconnection(cmd)  
+        errorstate = self.sshconnection(cmd)[0]
+        
+        return errorstate 
     
     # Return a list of all directory contents (for some reason cd doesn't work locally)
     def listlocal(self, path):
@@ -97,7 +117,11 @@ class SysCommands:
         
         cmd = ["ls", path]
         
-        return self.runcommand(cmd)
+        errorstate = self.runcommand(cmd)[0]
+        
+        #TODO: we should probably do something with the output and return from here this might be useful (test = out.split()) 
+        
+        return errorstate
     
     # Return a list of all directory contents (remote)
     def listremote(self, path):
@@ -105,4 +129,8 @@ class SysCommands:
         
         cmd = ["ls", path]
     
-        return self.sshconnection(cmd) 
+        errorstate = self.sshconnection(cmd)[0]
+        
+        #TODO: we should probably do something with the output and return from here this might be useful (test = out.split()) 
+        
+        return errorstate
