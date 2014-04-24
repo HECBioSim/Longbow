@@ -58,15 +58,15 @@ class Pbs(Scheduler):
         #process the submit
         error, output = command.sshconnection(cmd)
         
-        print(error, output)
+        output = output.rstrip("\r\n")
         
         #check status here.
         if(error == 0):
-            print("Job submitted.")
+            print("Job submitted with id = " + output)
         else:
             print("Something went wrong when submitting. Here is the error code = " + error + ". Here is the output = " + output)
 
-        #TODO: return a job id and archive it for monitoring
+        return output
         
     # A function for deleting jobs    
     def delete(self, job_id):

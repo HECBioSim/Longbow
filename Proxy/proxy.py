@@ -75,7 +75,10 @@ def proxy(app_args, debug):
     stage.stage_upstream(command, jobconf.local_workdir, jobconf.remote_workdir, filelist)
     
     #Submit the job to the scheduler.
-    schedule.submit(command, jobconf.remote_workdir, submitfile)
+    #jobid = schedule.submit(command, jobconf.remote_workdir, submitfile)
+    
+    #TODO: this is a test line, delete it later.
+    jobid = "12345.pbs"
     
     #-----------------------------------------------------------------------------------------------
     #Monitor jobs.
