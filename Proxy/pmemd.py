@@ -2,8 +2,8 @@ import os
 import sys
 from core.syscommands import SysCommands
 from core.configs import HostConfig, JobConfig
-from core.appcommands import Applications
-from core.jobcommands import Scheduler
+from core.appcommands import Amber
+from core.jobcommands import Pbs
 from core.staging import Staging
 
 def proxy(app_args, debug):
@@ -52,14 +52,14 @@ def proxy(app_args, debug):
     
     #Instantiate the jobs commands class, this return the correct class for the scheduler environment. If not specified in the host.conf
     #then testing will try to determine the scheduling environment to use.
-    schedule = Scheduler.test(command, resource)
+    schedule = Pbs()
     
     #Instantiate the staging class.
     stage = Staging()
     
     #Instantiate the application commands class, this will return the correct class for the application specified on command line.
     #Some tests as to whether the application is actually in your path will happen automatically.
-    application = Applications.test(command, "Amber", jobconf.executable)
+    application = Amber(command, jobconf.executable)
     
     #-----------------------------------------------------------------------------------------------
     #Start processing the job setup and submit.
