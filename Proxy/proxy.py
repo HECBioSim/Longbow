@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 from core.syscommands import SysCommands
 from core.configs import HostConfig, JobConfig
 from core.appcommands import Applications
@@ -75,15 +76,35 @@ def proxy(app_args, debug):
     stage.stage_upstream(command, jobconf.local_workdir, jobconf.remote_workdir, filelist)
     
     #Submit the job to the scheduler.
-    #jobid = schedule.submit(command, jobconf.remote_workdir, submitfile)
+    jobid = schedule.submit(command, jobconf.remote_workdir, submitfile)
     
     #TODO: this is a test line, delete it later.
-    jobid = "12345.pbs"
+    #jobid = "12345.pbs"
     
     #-----------------------------------------------------------------------------------------------
     #Monitor jobs.
     
-    #TODO: monitoring jobs and any ongoing file staging will go here.
+    #Here is some test stuff for the monitoring.
+    done = "False"
+    i = 0
+    while (done == "False"):
+        time.sleep(float(jobconf.frequency))
+        
+        #for testing
+        i = i + 1
+        
+        test2 = command.sshconnection(["qstat | grep " + jobid])[1]
+        test2 = test2.split()
+        
+        if(test2[4] == "Q"): print("Queued")
+        if(test2[4] == "R"): print("Running")
+        if(test2[4] == "H"): print("Held")
+        
+        if(i == 2): done = "True"
+    
+    print("kill the job")
+    command.sshconnection(["qdel " + jobid])
+    
     
     
 if __name__ == "__main__":
