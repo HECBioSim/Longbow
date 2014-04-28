@@ -1,6 +1,5 @@
 import os
 import sys
-import time
 from core.syscommands import SysCommands
 from core.configs import HostConfig, JobConfig
 from core.appcommands import Applications
@@ -17,6 +16,7 @@ def proxy(app_args, debug):
     #TODO: Support multiple job submission as both reps and batches.
     #TODO: Create advanced monitoring methods.
     #TODO: Replace sys.exits throughout the application with exception raising. Also this would be a good time to introduce the logfile.
+    #TODO: Fix issues with files that are not being uploaded sometimes, this must be something failing somewhere (possibly ssh or scp) all commands should have their returns checked.
     
     #-----------------------------------------------------------------------------------------------
     #I find it easier using relative paths, in this case I'm going to run both the remote and local
@@ -53,7 +53,7 @@ def proxy(app_args, debug):
     
     #Instantiate the jobs commands class, this return the correct class for the scheduler environment. If not specified in the host.conf
     #then testing will try to determine the scheduling environment to use.
-    schedule = Scheduler.test(command, resource)
+    job = Scheduler.test(command, resource)
     
     #Instantiate the staging class.
     stage = Staging()
@@ -70,41 +70,26 @@ def proxy(app_args, debug):
     
     #TODO: That number "8" is currently not used but it is to remind me to do something good surrounding reps.
     #(perhaps a local working dir so this becomes more of an application and less like a script).
-    filelist, submitfile = schedule.jobfile(jobconf.local_workdir, jobconf.cores, jobconf.corespernode, "8", jobconf.account, jobconf.maxtime, arglist, filelist)
+    filelist, submitfile = job.jobfile(jobconf.local_workdir, jobconf.cores, jobconf.corespernode, "8", jobconf.account, jobconf.maxtime, arglist, filelist)
 
     #Stage all of the job files along with the scheduling script.
     stage.stage_upstream(command, jobconf.local_workdir, jobconf.remote_workdir, filelist)
     
     #Submit the job to the scheduler.
-    jobid = schedule.submit(command, jobconf.remote_workdir, submitfile)
-    
-    #TODO: this is a test line, delete it later.
-    #jobid = "12345.pbs"
+    jobid = job.submit(command, jobconf.remote_workdir, submitfile)
     
     #-----------------------------------------------------------------------------------------------
     #Monitor jobs.
     
-    #Here is some test stuff for the monitoring.
-    done = "False"
-    i = 0
-    while (done == "False"):
-        time.sleep(float(jobconf.frequency))
-        
-        #for testing
-        i = i + 1
-        
-        test2 = command.sshconnection(["qstat | grep " + jobid])[1]
-        test2 = test2.split()
-        
-        if(test2[4] == "Q"): print("Queued")
-        if(test2[4] == "R"): print("Running")
-        if(test2[4] == "H"): print("Held")
-        
-        if(i == 2): done = "True"
+    job.monitor(command, stage, jobconf.frequency, jobid, jobconf.local_workdir, jobconf.remote_workdir)
     
-    print("kill the job")
-    command.sshconnection(["qdel " + jobid])
+    #-----------------------------------------------------------------------------------------------
+    #Final transfer of data and clean up.
+
+    #Download final results.
+    stage.stage_downstream(command, jobconf.local_workdir, jobconf.remote_workdir)
     
+    #TODO: add in the remove files part.
     
     
 if __name__ == "__main__":

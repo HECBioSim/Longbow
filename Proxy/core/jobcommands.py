@@ -1,4 +1,5 @@
 import sys
+import time
 
 class Scheduler():
  
@@ -50,10 +51,10 @@ class Pbs(Scheduler):
     """A class of commands that can be invoked on machines running the PBS scheduler (Archer)."""
     
     # A function for submitting jobs
-    def submit(self, command, workdir, submit_file):
+    def submit(self, command, workdir, submitfile):
         
         #cd into the working directory and submit the job.
-        cmd = ["cd " + workdir + "\n","qsub " + submit_file]
+        cmd = ["cd " + workdir + "\n","qsub " + submitfile]
         
         #process the submit
         error, output = command.sshconnection(cmd)
@@ -62,27 +63,28 @@ class Pbs(Scheduler):
         
         #check status here.
         if(error == 0):
-            print("Job submitted with id = " + output)
+            print(time.strftime("%x"), " ", time.strftime("%X"), "Job submitted with id = " + output)
         else:
-            print("Something went wrong when submitting. Here is the error code = " + error + ". Here is the output = " + output)
+            print("Something went wrong when submitting. Here is the error code = ",  error, ". Here is the output = " + output)
 
         return output
         
     # A function for deleting jobs    
-    def delete(self, job_id):
+    def delete(self, command, jobid):
         
         #TODO: figure out a way to handle both singular and multijob deletions, I suspect that a list of job id's is the way to go here.
-        cmd = ["qdel " + job_id]
+        cmd = ["qdel " + jobid]
         
         print(cmd)
         
     # A function for querying jobs
-    def status(self, job_id):
+    def status(self, command, jobid):
        
-        #TODO: figure out a way to handle both singular and multijob queries, I suspect that a list of job id's is the way to go here.
-        cmd = ["qstat " + job_id]
+        #TODO: figure out a way to handle both singular and multijob queries, I suspect that a list of job id's is the way to go here.        
+        error, output = command.sshconnection(["qstat | grep " + jobid])
+        output = output.split()
         
-        print(cmd)
+        return error, output
         
     def jobfile(self, filepath, cores, corespernode, reps, account, walltime, args, filelist):
         
@@ -135,14 +137,49 @@ class Pbs(Scheduler):
         print("List of files for upload: ", filelist)
         
         return filelist, file
+    
+    def monitor(self, command, stage, frequency, jobid, localworkdir, remoteworkdir):
         
+        done = "False"
+                
+        while (done == "False"):
+        
+            error, status = self.status(command, jobid)
+            
+            if(error == 0):
+
+                if(status[4] == "E"): 
+                    print(time.strftime("%x"), " ", time.strftime("%X"), "Exiting")
+            
+                elif(status[4] == "H"): 
+                    print(time.strftime("%x"), " ", time.strftime("%X"), "Held")
+        
+                elif(status[4] == "Q"): 
+                    print(time.strftime("%x"), " ", time.strftime("%X"), "Queued")
+        
+                elif(status[4] == "R"): 
+                    print(time.strftime("%x"), " ", time.strftime("%X"), "Running")
+                
+                    stage.stage_downstream(command, localworkdir, remoteworkdir)
+            
+                elif(status[4] == "T"): 
+                    print(time.strftime("%x"), " ", time.strftime("%X"), "Transferring job")
+        
+                elif(status[4] == "W"): 
+                    print(time.strftime("%x"), " ", time.strftime("%X"), "Waiting")   
+            
+            else: done = "True"     
+                        
+            time.sleep(float(frequency))
+
+            
 class Lsf(Scheduler):
     """A class of commands that can be invoked on machines running the LSF scheduler (SCARF a cluster machine at STFC used in testing)."""
 
     # A function for submitting jobs
-    def submit(self, command, submit_file):
+    def submit(self, command, submitfile):
         
-        cmd = ["bsub " + submit_file]
+        cmd = ["bsub " + submitfile]
         
         print(cmd)
         #command.sshconnection(cmd)
@@ -150,24 +187,27 @@ class Lsf(Scheduler):
         #TODO: return a job id
         
     # A function for deleting jobs
-    def delete(self, job_id):
+    def delete(self, jobid):
         
         #TODO: figure out a way to handle both singular and multijob deletions, I suspect that a list of job id's is the way to go here.
-        cmd = ["bdel " + job_id]
+        cmd = ["bdel " + jobid]
         
         print(cmd)
         
     # A function for querying jobs
-    def status(self, job_id):
+    def status(self, jobid):
         
         #TODO: figure out a way to handle both singular and multijob queries, I suspect that a list of job id's is the way to go here.
-        cmd = ["bjobs " + job_id]
+        cmd = ["bjobs " + jobid]
         
         print(cmd)
         
     def jobfile(self):
         
         print("lsf submit")
+        
+    def monitor(self):
+        pass
     
 class Condor(Scheduler):
     """A class of commands that can be invoked on machines running the Condor scheduler."""
@@ -175,18 +215,18 @@ class Condor(Scheduler):
     #TODO: Add all the condor stuff (don't have a cluster running condor to test, so this may go in blind to begin with)
 
     # A function for submitting jobs
-    def submit(self, command, submit_file):
+    def submit(self, command, submitfile):
         
         print("condor submit")
         
     # A function for deleting jobs
-    def delete(self, job_id):
+    def delete(self, jobid):
         
         #TODO: figure out a way to handle both singular and multijob deletions, I suspect that a list of job id's is the way to go here.
         print("condor delete")
         
     # A function for querying jobs
-    def status(self, job_id):
+    def status(self, jobid):
         
         #TODO: figure out a way to handle both singular and multijob queries, I suspect that a list of job id's is the way to go here.
         print("condor status")
@@ -194,3 +234,6 @@ class Condor(Scheduler):
     def jobfile(self):
         
         print("condor job file")
+    
+    def monitor(self):
+        pass
