@@ -1,7 +1,7 @@
 import subprocess
 import sys
 
-class SysCommands:
+class ShellCommands:
     """A class containing all the connection related functions."""
     
     def __init__(self, user, domain, port):

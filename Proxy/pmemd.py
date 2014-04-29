@@ -1,6 +1,6 @@
 import os
 import sys
-from core.syscommands import SysCommands
+from core.shellwrappers import ShellCommands
 from core.configs import HostConfig, JobConfig
 from core.appcommands import Amber
 from core.jobcommands import Pbs
@@ -48,7 +48,7 @@ def proxy(app_args, debug):
     resource = HostConfig(jobconf.resource, configfile)
     
     #Instantiate the sys commands class.
-    command = SysCommands(resource.user, resource.host, resource.port)
+    command = ShellCommands(resource.user, resource.host, resource.port)
     
     #Instantiate the jobs commands class, this return the correct class for the scheduler environment. If not specified in the host.conf
     #then testing will try to determine the scheduling environment to use.
