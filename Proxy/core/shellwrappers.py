@@ -24,7 +24,6 @@ class ShellCommands:
         #the [0] on the communicate is basically because extra information seems to come back down the pipe. 
         handle = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         output = handle.communicate()[0]
-        
         errorstate = handle.returncode
         
         #The returned information is in byte format so lets put it into a useful string format.
@@ -45,6 +44,7 @@ class ShellCommands:
         #cmd.extend(["source /etc/profile \n"])
         cmd.extend(["source .bashrc \n"])
         
+        #Extend with commands that are to be run.
         cmd.extend(args)
 
         errorstate, output = self.runcommand(cmd)

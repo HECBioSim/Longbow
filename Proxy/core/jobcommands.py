@@ -63,9 +63,9 @@ class Pbs(Scheduler):
         
         #check status here.
         if(error == 0):
-            print(time.strftime("%x"), " ", time.strftime("%X"), "Job submitted with id = " + output)
+            print(time.strftime("%x"), " ", time.strftime("%X"), "  Job submitted with id = " + output)
         else:
-            print("Something went wrong when submitting. Here is the error code = ",  error, ". Here is the output = " + output)
+            print("Something went wrong when submitting. Here is the error code = ",  error)
 
         return output
         
@@ -73,9 +73,9 @@ class Pbs(Scheduler):
     def delete(self, command, jobid):
         
         #TODO: figure out a way to handle both singular and multijob deletions, I suspect that a list of job id's is the way to go here.
-        cmd = ["qdel " + jobid]
+        error, output = command.sshconnection(["qdel " + jobid])
         
-        print(cmd)
+        return error, output
         
     # A function for querying jobs
     def status(self, command, jobid):
@@ -149,24 +149,24 @@ class Pbs(Scheduler):
             if(error == 0):
 
                 if(status[4] == "E"): 
-                    print(time.strftime("%x"), " ", time.strftime("%X"), "Exiting")
+                    print(time.strftime("%x"), " ", time.strftime("%X"), "  Exiting")
             
                 elif(status[4] == "H"): 
-                    print(time.strftime("%x"), " ", time.strftime("%X"), "Held")
+                    print(time.strftime("%x"), " ", time.strftime("%X"), "  Held")
         
                 elif(status[4] == "Q"): 
-                    print(time.strftime("%x"), " ", time.strftime("%X"), "Queued")
+                    print(time.strftime("%x"), " ", time.strftime("%X"), "  Queued")
         
                 elif(status[4] == "R"): 
-                    print(time.strftime("%x"), " ", time.strftime("%X"), "Running")
+                    print(time.strftime("%x"), " ", time.strftime("%X"), "  Running")
                 
                     stage.stage_downstream(command, localworkdir, remoteworkdir)
             
                 elif(status[4] == "T"): 
-                    print(time.strftime("%x"), " ", time.strftime("%X"), "Transferring job")
+                    print(time.strftime("%x"), " ", time.strftime("%X"), "  Transferring job")
         
                 elif(status[4] == "W"): 
-                    print(time.strftime("%x"), " ", time.strftime("%X"), "Waiting")   
+                    print(time.strftime("%x"), " ", time.strftime("%X"), "  Waiting")   
             
             else: done = "True"     
                         

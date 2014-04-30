@@ -26,7 +26,8 @@ def proxy(app_args, configfile, jobfile, logfile, debug):
     #TODO: Support multiple job submission as both reps and batches.
     #TODO: Create advanced monitoring methods.
     #TODO: Replace sys.exits throughout the application with exception raising. Also this would be a good time to introduce the logfile.
-    #TODO: Fix issues with files that are not being uploaded sometimes, this must be something failing somewhere (possibly ssh or scp) all commands should have their returns checked.
+    #TODO: Fix issues with files that are not being uploaded sometimes, this must be something failing somewhere (possibly ssh or scp) 
+    #      all commands should have their returns checked.
     #TODO: log file isn't yet used, include it when sys.exits are replaced by exception handling.
     
     #-----------------------------------------------------------------------------------------------
@@ -133,23 +134,30 @@ if __name__ == "__main__":
     jobfile = ""
     logfile = ""
 
-    #Take out the config file path, then remove it from the command line argument list
+    #Take out the config file path, then remove it from the command line argument list.
     if(command_line_args.count("-config") == 1):
         position = command_line_args.index("-config")
         confile = command_line_args[position + 1]
         command_line_args.pop(position)
         command_line_args.pop(position)
      
-    #Take out the job config file path, then remove it from the command line argument list
+    #Take out the job config file path, then remove it from the command line argument list.
     if(command_line_args.count("-job") == 1):
         position = command_line_args.index("-job")
         jobfile = command_line_args[position + 1]
         command_line_args.pop(position)
         command_line_args.pop(position)
      
-    #Take out the log file path, then remove it from the command line argument list
+    #Take out the log file path, then remove it from the command line argument list.
     if(command_line_args.count("-log") == 1):
         position = command_line_args.index("-log")
+        logfile = command_line_args[position + 1]
+        command_line_args.pop(position)
+        command_line_args.pop(position)
+        
+    #Take out the reps parameter, then remove it from the command line list.
+    if(command_line_args.count("-reps") == 1):
+        position = command_line_args.index("-reps")
         logfile = command_line_args[position + 1]
         command_line_args.pop(position)
         command_line_args.pop(position)

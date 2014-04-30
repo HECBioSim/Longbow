@@ -68,7 +68,7 @@ class JobConfig:
         #job file
         self.job_file = job_file
         
-        #Initialise some params that may be used later for checking
+        #Initialise some params, these may be used later for checking
         self.resource = ""
         self.program = ""
         self.account = ""
@@ -89,7 +89,7 @@ class JobConfig:
         job_configs = configparser.ConfigParser()
         job_configs.read(self.job_file)
         
-        #parse all the config entries underdefault
+        #parse all the config entries under default
         for index in job_configs['default']:
             vars(self)[index] = job_configs['default'][index]
             
