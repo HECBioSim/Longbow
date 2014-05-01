@@ -123,6 +123,7 @@ if __name__ == "__main__":
     """Main entry point for the ProxyApp as a stand-alone application. The main function proxy can be 
     hooked directly by providing it with the correct args."""
     
+    
     #Fetch command line arguments
     command_line_args = sys.argv 
     
@@ -163,5 +164,6 @@ if __name__ == "__main__":
         command_line_args.pop(position)
     
     #Enter the main application.
-    proxy(command_line_args, confile, jobfile, logfile, "True")
+    proxy(command_line_args, confile, jobfile, logfile, "True")   
+
     

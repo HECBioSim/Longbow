@@ -9,23 +9,20 @@ class Scheduler():
         if (resource.scheduler == ""):
             print("No scheduler for this host is specified - let's see if it can be determined!")
             
-            #Scarf had to go first since for some strange reason it has qsub (PBS) present which just hangs as if waiting for input.
-            #TODO: it might be better to take a look at the loaded modules to find the scheduler - older systems like SGE also used qsub.
-            
             #Check for LSF
-            if(command.sshconnection(["bsub -V &> /dev/null"])[0] == 0):
+            if(command.sshconnection(["env | grep -i 'lsf' &> /dev/null"])[0] == 0):
                 print("This host appears to be running LSF so lets store that in the hosts.conf for next time.")
                 resource.save_host_configs('scheduler', 'LSF')
                 return Lsf()
         
             #The check for PBS.
-            elif(command.sshconnection(["qsub --version &> /dev/null"])[0] == 0): 
+            elif(command.sshconnection(["env | grep -i 'pbs' &> /dev/null"])[0] == 0): 
                 print("This host appears to be running PBS so lets store that in the hosts.conf for next time.")
                 resource.save_host_configs('scheduler', 'PBS')
                 return Pbs()
             
             #The check for PBS.
-            elif(command.sshconnection(["condor_version &> /dev/null"])[0] == 0): 
+            elif(command.sshconnection(["env | grep -i 'condor' &> /dev/null"])[0] == 0): 
                 print("This host appears to be running Condor so lets store that in the hosts.conf for next time.")
                 resource.save_host_configs('scheduler', 'CONDOR')
                 return Condor()
