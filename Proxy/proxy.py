@@ -24,7 +24,6 @@ def proxy(app_args, configfile, jobfile, logfile, debug):
     """
     
     #TODO: Support multiple job submission as both reps and batches.
-    #TODO: Create advanced monitoring methods.
     #TODO: Replace sys.exits throughout the application with exception raising. Also this would be a good time to introduce the logfile.
     #TODO: Fix issues with files that are not being uploaded sometimes, this must be something failing somewhere (possibly ssh or scp) 
     #      all commands should have their returns checked.

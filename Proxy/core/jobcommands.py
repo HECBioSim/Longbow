@@ -1,6 +1,7 @@
 import sys
 import time
 
+
 class Scheduler():
  
     def test(command, resource):
@@ -31,6 +32,7 @@ class Scheduler():
             else: sys.exit("Error: failed to successfully establish target scheduler environment")
             
         else:
+            
             #Either user or a previous run has set the scheduler.
             if(resource.scheduler == 'LSF'): 
                 print("Scheduler is LSF")
@@ -43,6 +45,7 @@ class Scheduler():
                 return Condor()
         
     test = staticmethod(test)
+            
             
 class Pbs(Scheduler):
     """A class of commands that can be invoked on machines running the PBS scheduler (Archer)."""
@@ -69,15 +72,13 @@ class Pbs(Scheduler):
     # A function for deleting jobs    
     def delete(self, command, jobid):
         
-        #TODO: figure out a way to handle both singular and multijob deletions, I suspect that a list of job id's is the way to go here.
         error, output = command.sshconnection(["qdel " + jobid])
         
         return error, output
         
     # A function for querying jobs
     def status(self, command, jobid):
-       
-        #TODO: figure out a way to handle both singular and multijob queries, I suspect that a list of job id's is the way to go here.        
+               
         error, output = command.sshconnection(["qstat | grep " + jobid])
         output = output.split()
         
@@ -103,25 +104,14 @@ class Pbs(Scheduler):
         jobfile.write("#PBS -l walltime=" + walltime + ":00:00 \n")
         jobfile.write("#PBS -A " + account + "\n")
         
-        #TODO: This does not constitute a normal job this is specific to repeats/replicas and will be handled later probably 
-        #just take the reps param and say if it is >0 then do this bit, and somewhere reps will have to be initialised as 0 
-        #for the case it isn't set at all.
-        #if(reps > 0):
-        #    mppwidth = cores * reps
-        #    jobfile.write("#PBS -l mppwidth = " + mppwidth + "\n")
-        #    jobfile.write("#PBS -l mppnppn = 24 \n") <-------------- is this cores or cores per node?
-
-        
         #Make sure links are resolved (not symbolic)
         jobfile.write("export PBS_O_WORKDIR=$(readlink -f $PBS_O_WORKDIR) \n")
         jobfile.write("cd $PBS_O_WORKDIR \n")
         jobfile.write("export OMP_NUM_THREADS=1 \n")
         
         #Assemble the aprun string
-        #TODO: There are other arguments for aprun that should be included here for wider support.
         jobfile.write("aprun -n " + cores + " -N " + corespernode + " " + args + " & \n")
         
-        #TODO: find out if this is necessary.
         jobfile.write("done \n")
         jobfile.write("wait \n")
         
@@ -173,64 +163,66 @@ class Pbs(Scheduler):
 class Lsf(Scheduler):
     """A class of commands that can be invoked on machines running the LSF scheduler (SCARF a cluster machine at STFC used in testing)."""
 
+
     # A function for submitting jobs
     def submit(self, command, submitfile):
         
         cmd = ["bsub " + submitfile]
         
         print(cmd)
-        #command.sshconnection(cmd)
         
-        #TODO: return a job id
         
     # A function for deleting jobs
     def delete(self, jobid):
         
-        #TODO: figure out a way to handle both singular and multijob deletions, I suspect that a list of job id's is the way to go here.
         cmd = ["bdel " + jobid]
         
         print(cmd)
         
+        
     # A function for querying jobs
     def status(self, jobid):
         
-        #TODO: figure out a way to handle both singular and multijob queries, I suspect that a list of job id's is the way to go here.
         cmd = ["bjobs " + jobid]
         
         print(cmd)
         
+        
+    # A function for creating the LSF submit file.
     def jobfile(self):
+        pass
         
-        print("lsf submit")
-        
+    
+    # A function for monitoring LSF jobs.   
     def monitor(self):
         pass
+    
     
 class Condor(Scheduler):
     """A class of commands that can be invoked on machines running the Condor scheduler."""
 
     #TODO: Add all the condor stuff (don't have a cluster running condor to test, so this may go in blind to begin with)
 
-    # A function for submitting jobs
+    # A function for submitting condor jobs.
     def submit(self, command, submitfile):
+        pass
         
-        print("condor submit")
         
-    # A function for deleting jobs
+    # A function for deleting condor jobs.
     def delete(self, jobid):
+        pass
+
         
-        #TODO: figure out a way to handle both singular and multijob deletions, I suspect that a list of job id's is the way to go here.
-        print("condor delete")
-        
-    # A function for querying jobs
+    # A function for querying condor jobs.
     def status(self, jobid):
-        
-        #TODO: figure out a way to handle both singular and multijob queries, I suspect that a list of job id's is the way to go here.
-        print("condor status")
-        
+        pass
+
+
+    # A function for creating the job file for submitting.  
     def jobfile(self):
-        
-        print("condor job file")
+        pass
     
+    
+    # A function for condor specific monitoring.
     def monitor(self):
         pass

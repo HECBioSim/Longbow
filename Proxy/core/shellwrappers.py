@@ -5,7 +5,8 @@ class ShellCommands:
     """A class containing all the connection related functions."""
     
     def __init__(self, user, domain, port):
-        """On calling the class we want some initial information to be available to the methods, such as default paths and host details."""
+        """On calling the class we want some initial information to be available to the methods, such as default paths and host details.
+        Here we are also going to check if the host can be reached."""
         
         self.host = user + "@" + domain
         self.port = port
