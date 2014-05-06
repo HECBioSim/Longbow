@@ -91,7 +91,7 @@ def proxy(app_args, configfile, jobfile, logfile, debug):
     filelist, arglist = application.processjob(app_args)
     
     #(perhaps a local working dir so this becomes more of an application and less like a script).
-    filelist, submitfile = job.jobfile(jobconf.local_workdir, jobconf.cores, jobconf.corespernode, "8", jobconf.account, jobconf.maxtime, arglist, filelist)
+    filelist, submitfile = job.jobfile(jobconf.local_workdir, jobconf.nodes, jobconf.cores, jobconf.corespernode, "8", jobconf.account, jobconf.maxtime, arglist, filelist)
 
     #Stage all of the job files along with the scheduling script.
     stage.stage_upstream(command, jobconf.local_workdir, jobconf.remote_workdir, filelist)

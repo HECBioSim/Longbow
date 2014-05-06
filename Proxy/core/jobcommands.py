@@ -22,8 +22,8 @@ class Scheduler():
                 resource.save_host_configs('scheduler', 'PBS')
                 return Pbs()
             
-            #The check for PBS.
-            elif(command.sshconnection(["env | grep -i 'condor' &> /dev/null"])[0] == 0): 
+            #The check for Condor, condor doesn't appear to have any environment variables that we can use.
+            elif(command.sshconnection(["condor_version &> /dev/null"])[0] == 0): 
                 print("This host appears to be running Condor so lets store that in the hosts.conf for next time.")
                 resource.save_host_configs('scheduler', 'CONDOR')
                 return Condor()
@@ -35,13 +35,13 @@ class Scheduler():
             
             #Either user or a previous run has set the scheduler.
             if(resource.scheduler == 'LSF'): 
-                print("Scheduler is LSF")
+                print("Scheduler: LSF")
                 return Lsf()
             if(resource.scheduler == 'PBS'): 
-                print("Scheduler is PBS")
+                print("Scheduler: PBS")
                 return Pbs()
             if(resource.scheduler == 'CONDOR'): 
-                print("Scheduler is CONDOR")
+                print("Scheduler: CONDOR")
                 return Condor()
         
     test = staticmethod(test)
@@ -84,15 +84,12 @@ class Pbs(Scheduler):
         
         return error, output
         
-    def jobfile(self, filepath, cores, corespernode, reps, account, walltime, args, filelist):
+    def jobfile(self, filepath, nodes, cores, corespernode, reps, account, walltime, args, filelist):
         
         #TODO: add multi job support
         #TODO: this method may become code specific, if that is the case then move this to the appcommands under the relevant app class.
         #TODO: come up with some sensible defaults for if a param is left out of job.conf
         #TODO: come up with a sensible job naming scheme for -N
-        
-        #TODO: Apparently this now has to be specified.
-        nodes = "1"
         
         #Open file for PBS script.
         file = "job.pbs"

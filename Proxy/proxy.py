@@ -29,7 +29,7 @@ def proxy(app_args, configfile, jobfile, logfile, debug):
     #      all commands should have their returns checked.
     #TODO: log file isn't yet used, include it when sys.exits are replaced by exception handling.
     
-    #-----------------------------------------------------------------------------------------------
+    #----------------------------------------------------------------------------------------------------------------------------------------------------------
     #Setup some basic files and paths.
     
     #I find it easier using relative paths, in this case I'm going to run both the remote and local
@@ -56,7 +56,7 @@ def proxy(app_args, configfile, jobfile, logfile, debug):
     os.chdir(os.path.expanduser("~"))
     
     
-    #-----------------------------------------------------------------------------------------------
+    #----------------------------------------------------------------------------------------------------------------------------------------------------------
     #Instantiate the classes.
     
     
@@ -82,15 +82,15 @@ def proxy(app_args, configfile, jobfile, logfile, debug):
     application = Applications.test(command, jobconf.program, jobconf.executable)
     
     
-    #-----------------------------------------------------------------------------------------------
+    #----------------------------------------------------------------------------------------------------------------------------------------------------------
     #Start processing the job setup and submit.
     
     
     #Process the command line args to separate out all the files that need staging and form a nice string for the scheduler.
     filelist, arglist = application.processjob(app_args)
     
-    #(perhaps a local working dir so this becomes more of an application and less like a script).
-    filelist, submitfile = job.jobfile(jobconf.local_workdir, jobconf.cores, jobconf.corespernode, "8", jobconf.account, jobconf.maxtime, arglist, filelist)
+    #Create the jobile and append it to the list of files that need uploading.
+    filelist, submitfile = job.jobfile(jobconf.local_workdir, jobconf.nodes, jobconf.cores, jobconf.corespernode, "8", jobconf.account, jobconf.maxtime, arglist, filelist)
 
     #Stage all of the job files along with the scheduling script.
     stage.stage_upstream(command, jobconf.local_workdir, jobconf.remote_workdir, filelist)
@@ -99,14 +99,14 @@ def proxy(app_args, configfile, jobfile, logfile, debug):
     jobid = job.submit(command, jobconf.remote_workdir, submitfile)
     
     
-    #-----------------------------------------------------------------------------------------------
+    #----------------------------------------------------------------------------------------------------------------------------------------------------------
     #Monitor jobs.
     
     
     job.monitor(command, stage, jobconf.frequency, jobid, jobconf.local_workdir, jobconf.remote_workdir)
     
     
-    #-----------------------------------------------------------------------------------------------
+    #----------------------------------------------------------------------------------------------------------------------------------------------------------
     #Final transfer of data and clean up.
     
 
@@ -115,6 +115,9 @@ def proxy(app_args, configfile, jobfile, logfile, debug):
     
     #Remove the remote directory.
     command.removefileremote(jobconf.remote_workdir)
+
+
+    #----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 if __name__ == "__main__":

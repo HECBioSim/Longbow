@@ -75,6 +75,7 @@ class JobConfig:
         self.local_workdir = ""
         self.remote_workdir = ""
         self.maxtime = ""
+        self.nodes = ""
         self.cores = ""
         self.corespernode = ""
         self.executable = ""
