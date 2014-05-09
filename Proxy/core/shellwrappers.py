@@ -39,12 +39,6 @@ class ShellCommands:
         
         cmd = ["ssh", self.host, "-p " + self.port]
         
-        #TODO: Neither of these are a good idea they are a bit hacky and won't work for all situations, find a decent replacement.
-        #Maybe handle different shells by testing???
-        #Or just rely on user to configure their environment for non-interactive shells.
-        #cmd.extend(["source /etc/profile \n"])
-        cmd.extend(["source .bashrc \n"])
-        
         #Extend with commands that are to be run.
         cmd.extend(args)
 

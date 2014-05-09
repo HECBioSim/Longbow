@@ -40,7 +40,7 @@ class HostConfig:
         
         configs.read(self.config_file)
         
-        configs.set(self.args['resource'], flag, value)
+        configs.set(self.resource, flag, value)
         
         with open(self.config_file, 'w') as conf:
             configs.write(conf)

@@ -6,7 +6,7 @@ from core.appcommands import Applications
 from core.jobcommands import Scheduler
 from core.staging import Staging
 
-def proxy(app_args, configfile, jobfile, logfile, debug):
+def proxy(currentdir, app_args, configfile, jobfile, logfile, debug):
     
     """The main function that forms the basis for operating the core library. This can serve as a template
     for building more advanced applications. Here some of the classes are doing auto configuration through 
@@ -32,14 +32,14 @@ def proxy(app_args, configfile, jobfile, logfile, debug):
     #----------------------------------------------------------------------------------------------------------------------------------------------------------
     #Setup some basic files and paths.
     
-    #I find it easier using relative paths, in this case I'm going to run both the remote and local
-    #paths relative to the "~" user dir. The config files used here are all mandatory, the user can
-    #choose whether they want to use the default locations or custom ones by supplying them on the 
-    #command line. 
+    # The path that the proxy is executed from is passed from sysargv so that we can point the app to the location 
+    # of the default config files. If custom file locations are required then supply an absolute path. All paths
+    # after this initial configuration (for example the working dir inside the job config file) should be relative 
+    # to the home (~) directory.
     
     
     #Current dir to get the 
-    currentdir = os.getcwd()
+    currentdir = os.path.dirname(currentdir)
     
     #Host config file (user, host, port and scheduler) supplied with -config or uses this default location.
     if(configfile == ""): configfile = currentdir + "/hosts.conf"
@@ -91,7 +91,7 @@ def proxy(app_args, configfile, jobfile, logfile, debug):
     
     #Create the jobile and append it to the list of files that need uploading.
     filelist, submitfile = job.jobfile(jobconf.local_workdir, jobconf.nodes, jobconf.cores, jobconf.corespernode, "8", jobconf.account, jobconf.maxtime, arglist, filelist)
-
+    
     #Stage all of the job files along with the scheduling script.
     stage.stage_upstream(command, jobconf.local_workdir, jobconf.remote_workdir, filelist)
     
@@ -130,6 +130,7 @@ if __name__ == "__main__":
     command_line_args = sys.argv 
     
     #Remove the first argument (the application path)
+    currentdir = command_line_args[0]
     command_line_args.pop(0)
     
     #Initialise file path params, so we can pass blank to signify use default paths if not supplied.
@@ -166,6 +167,5 @@ if __name__ == "__main__":
         command_line_args.pop(position)
     
     #Enter the main application.
-    proxy(command_line_args, confile, jobfile, logfile, "True")   
-
+    proxy(currentdir, command_line_args, confile, jobfile, logfile, "True") 
     

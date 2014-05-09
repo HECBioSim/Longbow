@@ -92,41 +92,36 @@ class Pbs(Scheduler):
         #TODO: come up with a sensible job naming scheme for -N
         
         #Open file for PBS script.
-        file = "job.pbs"
-        jobfile = open(filepath + "/" + file, "w+")
+        pbsfile = "job.pbs"
+        jobfile = open(filepath + "/" + pbsfile, "w+")
         
-        jobfile.write("#!/bin/bash \n")
-        jobfile.write("#PBS -N Test \n")
-        jobfile.write("#PBS -l select="+nodes+" \n")
-        jobfile.write("#PBS -l walltime=" + walltime + ":00:00 \n")
-        jobfile.write("#PBS -A " + account + "\n")
-        
-        #Make sure links are resolved (not symbolic)
-        jobfile.write("export PBS_O_WORKDIR=$(readlink -f $PBS_O_WORKDIR) \n")
-        jobfile.write("cd $PBS_O_WORKDIR \n")
-        jobfile.write("export OMP_NUM_THREADS=1 \n")
-        
-        #Assemble the aprun string
-        jobfile.write("aprun -n " + cores + " -N " + corespernode + " " + args + " & \n")
-        
-        jobfile.write("done \n")
-        jobfile.write("wait \n")
+        jobfile.write("#!/bin/bash \n"
+                      "#PBS -N Test \n"
+                      "#PBS -l select="+nodes+" \n"
+                      "#PBS -l walltime=" + walltime + ":00:00 \n"
+                      "#PBS -A " + account + "\n"
+                      "export PBS_O_WORKDIR=$(readlink -f $PBS_O_WORKDIR) \n"
+                      "cd $PBS_O_WORKDIR \n"
+                      "export OMP_NUM_THREADS=1 \n"
+                      "aprun -n " + cores + " -N " + corespernode + " " + args + " & \n")
+
+        #jobfile.write("wait \n")
         
         #Close the file (housekeeping)
         jobfile.close()
     
         #Append pbs file to list of files ready for staging.
-        filelist.extend([file])
+        filelist.extend([pbsfile])
         
         print("List of files for upload: ", filelist)
         
-        return filelist, file
+        return filelist, pbsfile
     
     def monitor(self, command, stage, frequency, jobid, localworkdir, remoteworkdir):
         
-        done = "False"
+        done = False
                 
-        while (done == "False"):
+        while (done == False):
         
             error, status = self.status(command, jobid)
             
@@ -152,7 +147,7 @@ class Pbs(Scheduler):
                 elif(status[4] == "W"): 
                     print(time.strftime("%x"), " ", time.strftime("%X"), "  Waiting")   
             
-            else: done = "True"     
+            else: done = True     
                         
             time.sleep(float(frequency))
 
