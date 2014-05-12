@@ -84,7 +84,7 @@ class Pbs(Scheduler):
         
         return error, output
         
-    def jobfile(self, filepath, nodes, cores, corespernode, reps, account, walltime, args, filelist):
+    def jobfile(self, jobconf, args, filelist):
         
         #TODO: add multi job support
         #TODO: this method may become code specific, if that is the case then move this to the appcommands under the relevant app class.
@@ -93,17 +93,18 @@ class Pbs(Scheduler):
         
         #Open file for PBS script.
         pbsfile = "job.pbs"
-        jobfile = open(filepath + "/" + pbsfile, "w+")
+        jobfile = open(jobconf.local_workdir + "/" + pbsfile, "w+")
         
+        #Write the PBS script
         jobfile.write("#!/bin/bash \n"
                       "#PBS -N Test \n"
-                      "#PBS -l select="+nodes+" \n"
-                      "#PBS -l walltime=" + walltime + ":00:00 \n"
-                      "#PBS -A " + account + "\n"
+                      "#PBS -l select="+jobconf.nodes+" \n"
+                      "#PBS -l walltime=" + jobconf.maxtime + ":00:00 \n"
+                      "#PBS -A " + jobconf.account + "\n"
                       "export PBS_O_WORKDIR=$(readlink -f $PBS_O_WORKDIR) \n"
                       "cd $PBS_O_WORKDIR \n"
                       "export OMP_NUM_THREADS=1 \n"
-                      "aprun -n " + cores + " -N " + corespernode + " " + args + " & \n")
+                      "aprun -n " + jobconf.cores + " -N " + jobconf.corespernode + " " + args + " & \n")
 
         #jobfile.write("wait \n")
         
@@ -117,7 +118,7 @@ class Pbs(Scheduler):
         
         return filelist, pbsfile
     
-    def monitor(self, command, stage, frequency, jobid, localworkdir, remoteworkdir):
+    def monitor(self, command, stage, jobconf, jobid):
         
         done = False
                 
@@ -139,7 +140,7 @@ class Pbs(Scheduler):
                 elif(status[4] == "R"): 
                     print(time.strftime("%x"), " ", time.strftime("%X"), "  Running")
                 
-                    stage.stage_downstream(command, localworkdir, remoteworkdir)
+                    stage.stage_downstream(command, jobconf.local_workdir, jobconf.remote_workdir)
             
                 elif(status[4] == "T"): 
                     print(time.strftime("%x"), " ", time.strftime("%X"), "  Transferring job")
@@ -149,7 +150,7 @@ class Pbs(Scheduler):
             
             else: done = True     
                         
-            time.sleep(float(frequency))
+            time.sleep(float(jobconf.frequency))
 
             
 class Lsf(Scheduler):

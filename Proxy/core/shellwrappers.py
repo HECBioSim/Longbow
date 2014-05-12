@@ -4,12 +4,12 @@ import sys
 class ShellCommands:
     """A class containing all the connection related functions."""
     
-    def __init__(self, user, domain, port):
+    def __init__(self, resource):
         """On calling the class we want some initial information to be available to the methods, such as default paths and host details.
         Here we are also going to check if the host can be reached."""
         
-        self.host = user + "@" + domain
-        self.port = port
+        self.host = resource.user + "@" + resource.domain
+        self.port = resource.port
         
         #test the host connection to see if we can connect
         if (self.sshconnection(["ls &> /dev/null"])[0] == 0):

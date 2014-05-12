@@ -2,18 +2,18 @@ import sys
 
 class Applications:
     
-    def test(command, program, executable):
+    def test(command, jobconf):
         """Static function to form part of a factory class which will return the correct class of the application specific commands"""
         
         #Make arg (program) from command line lower all lower case (less susceptible to error in the wild).
-        tmp = program.lower()
+        tmp = jobconf.program.lower()
         
         #Establish software being used and select class to instantiate.
-        if(tmp == "amber"): return Amber(command, executable)
-        elif(tmp == "charmm"): return Charmm(command, executable)
-        elif(tmp == "gromacs"): return Gromacs(command, executable)
-        elif(tmp == "lammps"): return Lammps(command, executable)
-        elif(tmp == "namd"): return Namd(command, executable)
+        if(tmp == "amber"): return Amber(command, jobconf.executable)
+        elif(tmp == "charmm"): return Charmm(command, jobconf.executable)
+        elif(tmp == "gromacs"): return Gromacs(command, jobconf.executable)
+        elif(tmp == "lammps"): return Lammps(command, jobconf.executable)
+        elif(tmp == "namd"): return Namd(command, jobconf.executable)
         else: sys.exit("Error: Fail to instantiate app class: check that the -prog arg is supplied correctly")
         
     test = staticmethod(test)
@@ -62,8 +62,10 @@ class Amber:
             if(item == "-i"): filelist.append(app_args[index+1])
             if(item == "-c"): filelist.append(app_args[index+1])
             if(item == "-p"): filelist.append(app_args[index+1])
-            if(item == "-r"): filelist.append(app_args[index+1])
-            if(item == "-x"): filelist.append(app_args[index+1])
+            
+            #TODO: Are these input or output files?
+            #if(item == "-r"): filelist.append(app_args[index+1])
+            #if(item == "-x"): filelist.append(app_args[index+1])
             
         return filelist, args
 

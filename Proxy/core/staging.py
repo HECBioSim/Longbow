@@ -1,29 +1,29 @@
 
 class Staging:
     
-    def stage_upstream(self, command, localworkdir, remoteworkdir, filelist):
+    def stage_upstream(self, command, jobconf, filelist):
         
         #Create the dir ready for staging.
-        print("Creating dir " + remoteworkdir + " ready for staging files.")
+        print("Creating dir " + jobconf.remote_workdir + " ready for staging files.")
         
-        if(command.listremote(remoteworkdir) != 0): 
+        if(command.listremote(jobconf.remote_workdir) != 0): 
             
-            command.sshconnection(["mkdir " + remoteworkdir])[0]
-            print("dir " + remoteworkdir + " created successfully.")
+            command.sshconnection(["mkdir " + jobconf.remote_workdir])[0]
+            print("dir " + jobconf.remote_workdir + " created successfully.")
             
-        else: print("dir " + remoteworkdir + " already exists.")
+        else: print("dir " + jobconf.remote_workdir + " already exists.")
             
         #Loop through the list of input files and upload them.
         for i in range (len(filelist)):
             
-            command.uploadfile(localworkdir + "/" + filelist[i], remoteworkdir)
+            command.uploadfile(jobconf.local_workdir + "/" + filelist[i], jobconf.remote_workdir)
             
         print("Staging files complete.")
     
-    def stage_downstream(self, command, localworkdir, remoteworkdir):
+    def stage_downstream(self, command, jobconf):
         
         print("staging downstream")
         
-        command.downloadfile(remoteworkdir + "/*", localworkdir)
+        command.downloadfile(jobconf.remote_workdir + "/*", jobconf.local_workdir)
         
         print("staging files downstream complete.")
