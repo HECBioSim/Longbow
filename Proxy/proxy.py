@@ -17,15 +17,15 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
     
     proxy(args, configfile, jobfile, logfile, debug):
     
-    args       = a string of arguments normally passed to the command line 
+    args       = A string of arguments normally passed to the command line 
                  when running the program normally.
-    configfile = path (absolute) to the config file pass blank ("") to use 
+    configfile = Path (absolute) to the config file pass blank ("") to use 
                  a default location.
-    jobfile    = path (absolute) to the job config file pass blank ("") to 
+    jobfile    = Path (absolute) to the job config file pass blank ("") to 
                  use a default location. 
-    logfile    = path (absolute) to the log file pass blank ("") to use a 
+    logfile    = Path (absolute) to the log file pass blank ("") to use a 
                  default location. 
-    debug      = pass "True" if debug output is required.
+    debug      = Pass "True" if debug output is required.
     """
     
     #TODO: Support multiple job submission as both reps and batches.
@@ -146,9 +146,15 @@ if __name__ == "__main__":
     
     To specify the job is a batch job append the -reps x where x is the number of reps.
     
+    To put the app in debug mode supply -debug
+    
     """
     
     
+    #------------------------------------------------------------------------
+    # Some defaults.
+    
+
     # Fetch command line arguments
     command_line_args = sys.argv 
     
@@ -161,6 +167,13 @@ if __name__ == "__main__":
     confile = ""
     jobfile = ""
     logfile = ""
+    debug = False
+
+
+    #------------------------------------------------------------------------
+    # Pull out some of the ProxyApp specific commandline args leaving behind the target
+    # app args.
+
 
     # Take out the config file path, then remove it from the command line argument list.
     if(command_line_args.count("-conf") == 1):
@@ -190,6 +203,16 @@ if __name__ == "__main__":
         command_line_args.pop(position)
         command_line_args.pop(position)
     
-    #Enter the main application.
-    proxy(currentpath, command_line_args, confile, jobfile, logfile, "True") 
+    # Take out the debug parameter, then remove it from the command line list.
+    if(command_line_args.count("-debug") == 1):
+        position = command_line_args.index("-debug")
+        command_line_args.pop(position)
+        debug =True
+        
+    
+    #------------------------------------------------------------------------
+    # Call ProxyApp.
+        
+    # Enter the main application.
+    proxy(currentpath, command_line_args, confile, jobfile, logfile, debug) 
     
