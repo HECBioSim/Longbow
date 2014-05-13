@@ -1,5 +1,6 @@
 import os
 import sys
+import logging
 from core.shellwrappers import ShellCommands
 from core.configs import HostConfig, JobConfig
 from core.appcommands import Applications
@@ -35,13 +36,11 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
     #TODO: log file isn't yet used, include it when sys.exits are replaced by exception handling.
     
     #------------------------------------------------------------------------
-    # Setup some basic files and paths.
+    # Setup some basic files.
     
     # The path that the proxy is executed from is passed from sysargv so that 
     # we can point the app to the location of the default config files. If custom 
-    # file locations are required then supply an absolute path. All paths after 
-    # this initial configuration (for example the working dir inside the job
-    # config file) should be relative to the home (~) directory.
+    # file locations are required then supply an absolute path.
     
     
     # Current dir to get the 
@@ -56,10 +55,41 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
     
     # Logfile for troubleshooting supplied with -log or uses this default location
     if(logfile == ""): logfile = currentdir + "/log"
-        
-    logfile = open(logfile, "w+")
+    
+    
+    #------------------------------------------------------------------------
+    # Set up the cross package logger.
+    
+    # Create a package-wide logger called logger.
+    logger = logging.getLogger("proxy.py")
+    logger.setLevel(logging.DEBUG)
+    
+    # Create a logging format.
+    logformat = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    
+    
+    # Default is to write to the log file and set level to debug and bind format.
+    loghandle = logging.FileHandler(logfile, mode = "w")
+    loghandle.setLevel(logging.DEBUG)
+    loghandle.setFormatter(logformat)
+    logger.addHandler(loghandle)
+    
+    if(debug==True):
+        loghandle = logging.StreamHandler()
+        loghandle.setLevel(logging.DEBUG)
+        loghandle.setFormatter(logformat)
+        logger.addHandler(loghandle)
+    
+    # Test entry stating the app is started.
+    logger.info('ProxyApp is now started.')
 
-    # Use paths relative to user dir so set this as our cwd
+    
+    #------------------------------------------------------------------------
+    # All paths after this initial configuration (for example the working dir
+    # inside the job config file) should be relative to the home (~) directory.
+
+
+    # Use paths relative to user dir so set this as our cwd.
     os.chdir(os.path.expanduser("~"))
     
     
@@ -73,7 +103,7 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
     # Instantiate the remote connection configuration class. This is where host 
     # connections are dealt with, it was convenient to support different hosts this way.
     resource = HostConfig(jobconf.resource, configfile)
-    
+    sys.exit("Placeholder exit, re-factoring code!")
     # Instantiate the shell commands class.
     command = ShellCommands(resource)
     
