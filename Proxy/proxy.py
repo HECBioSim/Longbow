@@ -61,12 +61,14 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
     # Set up the cross package logger.
     
     # Create a package-wide logger called logger.
-    logger = logging.getLogger("proxy.py")
+    logger = logging.getLogger("ProxyApp Core")
     logger.setLevel(logging.DEBUG)
     
-    # Create a logging format.
-    logformat = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    
+    # Create a logging format - in debug mode it is useful to have the .py files.
+    if(debug==True):
+        logformat = logging.Formatter('%(asctime)s - %(name)s - %(filename)s - %(levelname)s - %(message)s')
+    else:
+        logformat = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     
     # Default is to write to the log file and set level to debug and bind format.
     loghandle = logging.FileHandler(logfile, mode = "w")

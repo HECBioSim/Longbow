@@ -1,19 +1,26 @@
 import sys
 import configparser
+import logging
+
+logger = logging.getLogger("ProxyApp Core")
 
 class HostConfig:
     
-    def __init__(self, resource, config_file):
+    def __init__(self, resource, configfile):
         """Some declarations and their initialisation (for specific error checking) followed by some config params loading and some checking."""
+
+        logger.info("Loading configuration for destination computer from ", configfile)
         
-        self.config_file = config_file
+        self.configfile = configfile
         self.resource = resource
         
-        #Declare and initialise some params to default values.
-        self.user = ""
-        self.host = ""
-        self.port = ""
-        self.scheduler = ""
+        # Dictionary for the host config params.
+        hostparams = {
+                      "host": "",
+                      "port": "",
+                      "user": "",
+                      "scheduler": ""
+                      }
         
         #Load the remote resource configuration from the .conf file.
         self.load_host_configs()
@@ -38,11 +45,11 @@ class HostConfig:
         #Bind the hosts file to the config parser
         configs = configparser.ConfigParser()
         
-        configs.read(self.config_file)
+        configs.read(self.configfile)
         
         configs.set(self.resource, flag, value)
         
-        with open(self.config_file, 'w') as conf:
+        with open(self.configfile, 'w') as conf:
             configs.write(conf)
                 
     def check_params(self):
@@ -63,34 +70,35 @@ class HostConfig:
             
 class JobConfig:
     #TODO: add support here later for multijob batch prescription
-    def __init__(self, job_file):
+    def __init__(self, jobfile):
         
-        #job file
-        self.job_file = job_file
+        logger.info("Loading the job configuration parameters")
         
-        #Initialise some params, these may be used later for checking
-        self.resource = ""
-        self.program = ""
-        self.account = ""
-        self.local_workdir = ""
-        self.remote_workdir = ""
-        self.maxtime = ""
-        self.nodes = ""
-        self.cores = ""
-        self.corespernode = ""
-        self.executable = ""
-        self.frequency = ""
+        # Dictionary for the host config params.
+        jobparams = {
+                      "resource": "",
+                      "program": "",
+                      "account": "",
+                      "localworkdir": "",
+                      "remoteworkdir": "",
+                      "maxtime": "",
+                      "nodes": "",
+                      "cores": "",
+                      "corespernode": "",
+                      "executable": "",
+                      "frequency": "",
+                      }
         
-        #Get the configs
-        self.load_job_configs()
+        # Get the configs
+        self.load_job_configs(jobfile)
         
-    def load_job_configs(self):
+    def load_job_configs(self, jobfile):
+
+        # Bind the config parser to the job file
+        jobconfigs = configparser.ConfigParser()
+        jobconfigs.read(self.jobfile)
         
-        #bind the config parser to the job file
-        job_configs = configparser.ConfigParser()
-        job_configs.read(self.job_file)
-        
-        #parse all the config entries under default
-        for index in job_configs['default']:
-            vars(self)[index] = job_configs['default'][index]
+        # Parse all the config entries under default
+        for index in jobconfigs['default']:
+            vars(self)[index] = jobconfigs['default'][index]
             
