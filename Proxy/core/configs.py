@@ -7,9 +7,10 @@ logger = logging.getLogger("ProxyApp Core")
 class HostConfig:
     
     def __init__(self, resource, configfile):
-        """Some declarations and their initialisation (for specific error checking) followed by some config params loading and some checking."""
-
-        logger.info("Loading configuration for destination computer from ", configfile)
+        
+        
+        """Some declarations and their initialisation (for specific error checking) 
+        followed by some config params loading and some checking."""
         
         self.configfile = configfile
         self.resource = resource
@@ -22,24 +23,65 @@ class HostConfig:
                       "scheduler": ""
                       }
         
-        #Load the remote resource configuration from the .conf file.
-        self.load_host_configs()
+        # Load the remote resource configuration from the .conf file.
+        self.loadhostconfigs()
         
-        #Check the configuration parameters for some basic errors.
-        self.check_params()
+        # Check the configuration parameters for some basic errors.
+        self.checkparams()
         
-    def load_host_configs(self):
+        
+    def loadhostconfigs(self):
+        
+        
         """Load the parameters from the config file."""
         
-        #Bind the hosts file to the config parser
-        configs = configparser.ConfigParser()
-        configs.read(self.config_file)
+        logger.info("Loading configuration for destination computer from %s" % self.configfile)
+        
+        # Bind the hosts file to the config parser
+        config = configparser.ConfigParser()
+        config.read(self.configfile)
+        
+        # Check that we have some sections to read.
+        sectionlist = config.sections()
+        if(len(sectionlist) == 0):
+            raise RuntimeError("No sections defined in the host config file each section defines \
+                                a supercomputer resource connection details, sections are defined \
+                                within [] followed by a list of params: \
+                                [section name] \
+                                param1 = val1 \
+                                param2 = val2 \
+                                etc.")
+        
+        # Make all sections in sectionlist lower case to be case agnostic.
+        sectionlist = [x.lower() for x in sectionlist]
+        
+        # Check now if the section we want is there.
+        if (self.resource.lower() not in sectionlist):
+            raise RuntimeError("The resource specified in the job configuration is not \
+                                found, this could either not exist or be misspelled.")
 
-        #Walk through the available file parameters for the resource specified on the command line -res flag
-        for index in configs[self.resource]:
-            vars(self)[index] = configs[self.resource][index]
+        # Lets now check if the section that is chosen actually has any options.
+        optionlist = config.options(self.resource)
+        if(len(optionlist) == 0):
+            raise RuntimeError("No options are specified in the specified config file section \
+                                sections are defined within [] followed by a list of params: \
+                                [section name] \
+                                param1 = val1 \
+                                param2 = val2 \
+                                etc.")
             
-    def save_host_configs(self, flag, value):
+        # Now load in the options and place them into the hostparams dictionary, the scheduler
+        # option can be missing as this can be tested later using the test functions of the library.
+        for param in self.hostparams:
+            try:
+                self.hostparams["param"] = config[self.resource][param]
+            except:
+                if(param == "scheduler")
+        
+            
+    def savehostconfigs(self, flag, value):
+        
+        
         """Save the parameters to the config file."""
         
         #Bind the hosts file to the config parser
@@ -51,8 +93,11 @@ class HostConfig:
         
         with open(self.configfile, 'w') as conf:
             configs.write(conf)
+            
                 
-    def check_params(self):
+    def checkparams(self):
+        
+        
         """Some rudimentary checks on the parameters, make sure the key ones exist."""
         
         #Exit with error if no username is provided.
@@ -68,9 +113,12 @@ class HostConfig:
             self.port = "22"
             print("Port has not been specified for remote host, setting for ssh default on port 22")
             
+            
 class JobConfig:
+    
     #TODO: add support here later for multijob batch prescription
     def __init__(self, jobfile):
+        
         
         logger.info("Loading the job configuration parameters")
         
@@ -90,15 +138,25 @@ class JobConfig:
                       }
         
         # Get the configs
-        self.load_job_configs(jobfile)
+        self.loadjobconfigs(jobfile)
         
-    def load_job_configs(self, jobfile):
+        self.checkparams()
+        
+        
+    def loadjobconfigs(self, jobfile):
+        
 
         # Bind the config parser to the job file
         jobconfigs = configparser.ConfigParser()
-        jobconfigs.read(self.jobfile)
+        jobconfigs.read(jobfile)
         
         # Parse all the config entries under default
         for index in jobconfigs['default']:
             vars(self)[index] = jobconfigs['default'][index]
+            
+            
+    def checkparams(self):
+        
+        
+        pass
             

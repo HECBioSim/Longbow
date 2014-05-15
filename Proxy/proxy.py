@@ -99,7 +99,8 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
     # Instantiate the classes.
     
     
-    # Load the job configuration file.
+    # Instantiate the class and store the job config params in an object, note this will also
+    # automatically read the chosen file followed by some checking.
     jobconf = JobConfig(jobfile)
     
     # Instantiate the remote connection configuration class. This is where host 
