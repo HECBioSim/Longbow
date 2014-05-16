@@ -1,3 +1,3 @@
-2014-05-15 16:33:23,156 - ProxyApp Core - proxy.py - INFO - ProxyApp is now started.
-2014-05-15 16:33:23,156 - ProxyApp Core - configs.py - INFO - Loading the job configuration parameters
-2014-05-15 16:33:23,157 - ProxyApp Core - configs.py - INFO - Loading configuration for destination computer from /media/storage/Workspace/Git/ProxyApp/Proxy/hosts.conf
+2014-05-16 13:45:28,682 - ProxyApp Core - proxy.py - INFO - ProxyApp is now started.
+2014-05-16 13:45:28,682 - ProxyApp Core - configs.py - INFO - Loading up the job configuration file and obtain all job set parameters.
+2014-05-16 13:45:28,682 - ProxyApp Core - proxy.py - ERROR - The executable parameter seems to have something wrong with it, either it is missing or it maybe the param name is not all lowercase or misspelled.

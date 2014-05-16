@@ -98,14 +98,22 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
     #------------------------------------------------------------------------
     # Instantiate the classes.
     
+    try:
+        
+        # Instantiate the class and store the job config params in an object, note this will also
+        # automatically read the chosen file followed by some checking.
+        jobconf = JobConfig(jobfile)
     
-    # Instantiate the class and store the job config params in an object, note this will also
-    # automatically read the chosen file followed by some checking.
-    jobconf = JobConfig(jobfile)
-    
-    # Instantiate the remote connection configuration class. This is where host 
-    # connections are dealt with, it was convenient to support different hosts this way.
-    resource = HostConfig(jobconf.resource, configfile)
+        # Instantiate the remote connection configuration class. This is where host 
+        # connections are dealt with, it was convenient to support different hosts this way.
+        resource = HostConfig(jobconf.jobparams, configfile)
+        
+    except Exception as e:
+        if (debug == True): 
+            logger.exception(e)
+        else:
+            logger.error(e) 
+        
     sys.exit("Placeholder exit, re-factoring code!")
     # Instantiate the shell commands class.
     command = ShellCommands(resource)

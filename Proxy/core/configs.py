@@ -1,4 +1,3 @@
-import sys
 import configparser
 import logging
 
@@ -6,17 +5,21 @@ logger = logging.getLogger("ProxyApp Core")
 
 class HostConfig:
     
-    def __init__(self, resource, configfile):
+    def __init__(self, jobparams, configfile):
         
         
-        """Some declarations and their initialisation (for specific error checking) 
-        followed by some config params loading and some checking."""
+        """Declare the hostparams data structure, this is to ensure that is the user adds
+           junk to their config or mispells something then it can be picked up and an 
+           exception be raised. Also set here is a few class wide params to ensure that
+           once instantiated we don't have to keep passing things around the library.
+           For the time being, instantiating this class will trigger an autoload of the 
+           config file."""
         
         self.configfile = configfile
-        self.resource = resource
+        self.resource = jobparams["resource"]
         
         # Dictionary for the host config params.
-        hostparams = {
+        self.hostparams = {
                       "host": "",
                       "port": "",
                       "user": "",
@@ -25,9 +28,6 @@ class HostConfig:
         
         # Load the remote resource configuration from the .conf file.
         self.loadhostconfigs()
-        
-        # Check the configuration parameters for some basic errors.
-        self.checkparams()
         
         
     def loadhostconfigs(self):
@@ -38,45 +38,46 @@ class HostConfig:
         logger.info("Loading configuration for destination computer from %s" % self.configfile)
         
         # Bind the hosts file to the config parser
-        config = configparser.ConfigParser()
-        config.read(self.configfile)
+        hostconfigs = configparser.ConfigParser()
+        hostconfigs.read(self.configfile)
         
         # Check that we have some sections to read.
-        sectionlist = config.sections()
+        sectionlist = hostconfigs.sections()
         if(len(sectionlist) == 0):
-            raise RuntimeError("No sections defined in the host config file each section defines \
-                                a supercomputer resource connection details, sections are defined \
-                                within [] followed by a list of params: \
-                                [section name] \
-                                param1 = val1 \
-                                param2 = val2 \
-                                etc.")
+            raise RuntimeError("No sections defined in the host config file each section defines " +
+                               "a supercomputer resource connection details, sections are defined " +
+                               "within [] followed by a list of params of the form param1 = val1")
         
         # Make all sections in sectionlist lower case to be case agnostic.
         sectionlist = [x.lower() for x in sectionlist]
         
         # Check now if the section we want is there.
         if (self.resource.lower() not in sectionlist):
-            raise RuntimeError("The resource specified in the job configuration is not \
-                                found, this could either not exist or be misspelled.")
+            raise RuntimeError("The resource specified in the job configuration is not " +
+                               "found, this could either not exist or be misspelled.")
 
         # Lets now check if the section that is chosen actually has any options.
-        optionlist = config.options(self.resource)
+        optionlist = hostconfigs.options(self.resource)
         if(len(optionlist) == 0):
-            raise RuntimeError("No options are specified in the specified config file section \
-                                sections are defined within [] followed by a list of params: \
-                                [section name] \
-                                param1 = val1 \
-                                param2 = val2 \
-                                etc.")
+            raise RuntimeError("No options are specified in the specified config file section " +
+                               "sections are defined within [] followed by a list of params of " +
+                               "the form param1 = val1")
             
         # Now load in the options and place them into the hostparams dictionary, the scheduler
         # option can be missing as this can be tested later using the test functions of the library.
         for param in self.hostparams:
             try:
-                self.hostparams["param"] = config[self.resource][param]
-            except:
-                if(param == "scheduler")
+                self.hostparams[param] = hostconfigs[self.resource][param]
+            except Exception as e:
+                if(param != "scheduler"):
+                    raise RuntimeError("Nothing has been specified for host parameter " + param + 
+                                       "this is not optional.") from e
+                    
+                    if(param == "port"):
+                        self.hostparams["port"] = "22"
+                        logging.info("No port specified for host " + self.resource + " the default " +
+                                     "port 22 is going to be used.")
+                        
         
             
     def savehostconfigs(self, flag, value):
@@ -84,46 +85,37 @@ class HostConfig:
         
         """Save the parameters to the config file."""
         
-        #Bind the hosts file to the config parser
+        # Bind the hosts file to the config parser and read it in.
         configs = configparser.ConfigParser()
-        
         configs.read(self.configfile)
         
+        # Append the new option and value to the configuration.
         configs.set(self.resource, flag, value)
         
+        # Save it.
         with open(self.configfile, 'w') as conf:
             configs.write(conf)
-            
-                
-    def checkparams(self):
-        
-        
-        """Some rudimentary checks on the parameters, make sure the key ones exist."""
-        
-        #Exit with error if no username is provided.
-        if (self.user == ""):
-            sys.exit("ERR: No username provided for remote resource in the .conf file")
-            
-        #Exit with error message if the host field is blank.
-        if (self.host == ""):
-            sys.exit("ERR: No host provided for remote resource in the .conf file")
-               
-        #Some machines require non standard ports, if not specified then set it to the default ssh port.
-        if (self.port == ""):
-            self.port = "22"
-            print("Port has not been specified for remote host, setting for ssh default on port 22")
             
             
 class JobConfig:
     
-    #TODO: add support here later for multijob batch prescription
     def __init__(self, jobfile):
         
-        
-        logger.info("Loading the job configuration parameters")
-        
+    
+        """The data structure that is loaded from the config file is declared in a dictionary
+           this is to prevent non useful data that a user might decide to provide being loaded
+           into ProxyApp. This could be useful if other programs make use of this library and
+           common config files are desired.
+           For the time being, instantiating this class will trigger an autoload of the job
+           config file."""
+           
         # Dictionary for the host config params.
-        jobparams = {
+        # TODO: For multijob groups this probably ought to be either a dictionary of dictionaries 
+        # or a list of dictionaries (basically a 2D data structure. For batching jobs, add the batch
+        # or reps param to the dictionary. Implementing both of these will allow one to supply all of
+        # single jobs, batched jobs, multiple single jobs with different configs, multiple batched jobs
+        # this should just about nail most job requirements.
+        self.jobparams = {
                       "resource": "",
                       "program": "",
                       "account": "",
@@ -137,26 +129,59 @@ class JobConfig:
                       "frequency": "",
                       }
         
-        # Get the configs
+        # Get the configs.
         self.loadjobconfigs(jobfile)
-        
-        self.checkparams()
         
         
     def loadjobconfigs(self, jobfile):
         
-
-        # Bind the config parser to the job file
+        
+        """Load the parameters from the job config file."""
+        
+        logger.info("Loading up the job configuration file and obtain all job set parameters.")
+        
+        # Bind the config parser to the job file.
         jobconfigs = configparser.ConfigParser()
         jobconfigs.read(jobfile)
         
-        # Parse all the config entries under default
-        for index in jobconfigs['default']:
-            vars(self)[index] = jobconfigs['default'][index]
-            
-            
-    def checkparams(self):
+        # Check that we have some sections to read.
+        sectionlist = jobconfigs.sections()
+        if(len(sectionlist) == 0):
+            raise RuntimeError("No sections defined in the job config file each section defines " +
+                               "a job configuration, sections are defined within [] followed by a " +
+                               "list of params of the form param1 = val1 etc.")
         
+        #TODO: Delete this once the multijobs is supported.
+        # Parse all the config entries under default.
+        section = sectionlist[0]
         
-        pass
+        # Parse all the config entries under first section.
+        for param in self.jobparams:
+            
+            try:
+                self.jobparams[param] = jobconfigs[section][param]
+            except Exception as e:
+                if (param != "batch"):
+                    raise RuntimeError("The " + param + " parameter seems to have something wrong with it, " +
+                                       "either it is missing or it maybe the param name is not all " +
+                                       "lowercase or misspelled.") from e
+                else:
+                    pass
+        
+        #TODO: Once the multijobs are supported then this should be used and modified accordingly if necessary.
+        # Loop through all sections in the jobfile (we are assuming any job config specified is there
+        # to be run. 
+        #for section in sectionlist:
+           
+            # Parse all the config entries under default.
+            #for param in self.jobparams:
+            
+                #try:
+                #    self.jobparams[param] = jobconfigs[section][param]
+                #except:
+                #   if (param != "batch"):
+                        #raise RuntimeError("The " + param + " seems have something wrong with it, either it \
+                        #                    is missing or it maybe the param name is not all lowercase or missspelled.")
+                        #else:
+                            #pass
             
