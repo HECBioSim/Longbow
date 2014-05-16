@@ -29,11 +29,10 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
     debug      = Pass "True" if debug output is required.
     """
     
-    #TODO: Support multiple job submission as both reps and batches.
-    #TODO: Replace sys.exits throughout the application with exception raising. Also this would be a good time to introduce the logfile.
+    #TODO: Support multiple job submission as both reps and batches (see comments throughout code).
     #TODO: Fix issues with files that are not being uploaded sometimes, this must be something failing somewhere (possibly ssh or scp) 
     #      all commands should have their returns checked.
-    #TODO: log file isn't yet used, include it when sys.exits are replaced by exception handling.
+    #TODO: sys.exits in the lib are replaced, either place them in the exception handlers or find a graceful way to exit.
     
     #------------------------------------------------------------------------
     # Setup some basic files.
@@ -61,14 +60,14 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
     # Set up the cross package logger.
     
     # Create a package-wide logger called logger.
-    logger = logging.getLogger("ProxyApp Core")
+    logger = logging.getLogger("ProxyApp")
     logger.setLevel(logging.DEBUG)
     
     # Create a logging format - in debug mode it is useful to have the .py files.
     if(debug==True):
-        logformat = logging.Formatter('%(asctime)s - %(name)s - %(filename)s - %(levelname)s - %(message)s')
+        logformat = logging.Formatter("%(asctime)s - %(name)s - %(filename)-18s - %(levelname)-8s - %(message)s")
     else:
-        logformat = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        logformat = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     
     # Default is to write to the log file and set level to debug and bind format.
     loghandle = logging.FileHandler(logfile, mode = "w")
@@ -83,7 +82,7 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
         logger.addHandler(loghandle)
     
     # Test entry stating the app is started.
-    logger.info('ProxyApp is now started.')
+    logger.info("ProxyApp is now started.")
 
     
     #------------------------------------------------------------------------
@@ -114,14 +113,13 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
         else:
             logger.error(e) 
         
-    sys.exit("Placeholder exit, re-factoring code!")
     # Instantiate the shell commands class.
-    command = ShellCommands(resource)
-    
+    shellcommand = ShellCommands(resource.hostparams)
+    sys.exit("Placeholder exit, re-factoring code!")
     # Instantiate the jobs commands class, this return the correct class for the 
     # scheduler environment. If not specified in the host.conf
     # then testing will try to determine the scheduling environment to use.
-    job = Scheduler.test(command, resource)
+    job = Scheduler.test(shellcommand, resource)
     
     # Instantiate the staging class.
     stage = Staging()
@@ -129,7 +127,7 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
     # Instantiate the application commands class, this will return the correct 
     # class for the application specified on command line. Some tests as to whether
     # the application is actually in your path will happen automatically.
-    application = Applications.test(command, jobconf)
+    application = Applications.test(shellcommand, jobconf)
     
     
     #------------------------------------------------------------------------
@@ -144,17 +142,17 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
     filelist, submitfile = job.jobfile(jobconf, arglist, filelist)
     
     # Stage all of the job files along with the scheduling script.
-    stage.stage_upstream(command, jobconf, filelist)
+    stage.stage_upstream(shellcommand, jobconf, filelist)
     
     # Submit the job to the scheduler.
-    jobid = job.submit(command, jobconf.remote_workdir, submitfile)
+    jobid = job.submit(shellcommand, jobconf.remote_workdir, submitfile)
     
     
     #------------------------------------------------------------------------
     # Monitor jobs.
     
     
-    job.monitor(command, stage, jobconf, jobid)
+    job.monitor(shellcommand, stage, jobconf, jobid)
     
     
     #------------------------------------------------------------------------
@@ -162,10 +160,10 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
     
 
     # Download final results.
-    stage.stage_downstream(command, jobconf)
+    stage.stage_downstream(shellcommand, jobconf)
     
     # Remove the remote directory.
-    command.removefileremote(jobconf.remote_workdir)
+    shellcommand.removefileremote(jobconf.remote_workdir)
 
 
     #------------------------------------------------------------------------

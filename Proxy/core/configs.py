@@ -1,9 +1,11 @@
 import configparser
 import logging
 
-logger = logging.getLogger("ProxyApp Core")
+logger = logging.getLogger("ProxyApp")
 
 class HostConfig:
+    
+    """A class containing the host configuration methods."""
     
     def __init__(self, jobparams, configfile):
         
@@ -71,7 +73,7 @@ class HostConfig:
             except Exception as e:
                 if(param != "scheduler"):
                     raise RuntimeError("Nothing has been specified for host parameter " + param + 
-                                       "this is not optional.") from e
+                                       " this is not optional.") from e
                     
                     if(param == "port"):
                         self.hostparams["port"] = "22"
@@ -98,6 +100,8 @@ class HostConfig:
             
             
 class JobConfig:
+    
+    """A class containing the job configuration methods."""
     
     def __init__(self, jobfile):
         
