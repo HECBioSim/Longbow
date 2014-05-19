@@ -32,6 +32,10 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
     #TODO: Support multiple job submission as both reps and batches (see comments throughout code).
     #TODO: Fix issues with files that are not being uploaded sometimes, this must be something failing somewhere (possibly ssh or scp) 
     #      all commands should have their returns checked.
+    #TODO: Methods in shellwrappers need commenting, also the local methods should have the shell based replaced with the native python
+    #      versions.
+    #TODO: Formatting and add remaining exceptions (the placeholder marker below marks progress point).
+    #TODO: Various classes and methods are missing documentation comments and also hashed comments, add these.
     #TODO: sys.exits in the lib are replaced, either place them in the exception handlers or find a graceful way to exit.
     
     #------------------------------------------------------------------------
@@ -107,33 +111,33 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
         # connections are dealt with, it was convenient to support different hosts this way.
         resource = HostConfig(jobconf.jobparams, configfile)
         
+        # Instantiate the shell commands class.
+        shellcommand = ShellCommands(resource.hostparams)
+        
+        # Instantiate the jobs commands class, this return the correct class for the 
+        # scheduler environment. If not specified in the host.conf
+        # then testing will try to determine the scheduling environment to use.
+        job = Scheduler.test(shellcommand, resource)
+
+        # Instantiate the staging class.
+        stage = Staging()
+    
+        # Instantiate the application commands class, this will return the correct 
+        # class for the application specified on command line. Some tests as to whether
+        # the application is actually in your path will happen automatically.
+        application = Applications.test(shellcommand, jobconf.jobparams)
+
     except Exception as e:
         if (debug == True): 
             logger.exception(e)
         else:
             logger.error(e) 
         
-    # Instantiate the shell commands class.
-    shellcommand = ShellCommands(resource.hostparams)
-    sys.exit("Placeholder exit, re-factoring code!")
-    # Instantiate the jobs commands class, this return the correct class for the 
-    # scheduler environment. If not specified in the host.conf
-    # then testing will try to determine the scheduling environment to use.
-    job = Scheduler.test(shellcommand, resource)
-    
-    # Instantiate the staging class.
-    stage = Staging()
-    
-    # Instantiate the application commands class, this will return the correct 
-    # class for the application specified on command line. Some tests as to whether
-    # the application is actually in your path will happen automatically.
-    application = Applications.test(shellcommand, jobconf)
-    
-    
+        
     #------------------------------------------------------------------------
     # Start processing the job setup and submit.
     
-    
+    sys.exit("Placeholder exit, re-factoring code!")
     # Process the command line args to separate out all the files that need staging
     # and form a nice string for the scheduler.
     filelist, arglist = application.processjob(app_args)

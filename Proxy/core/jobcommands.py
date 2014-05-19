@@ -1,53 +1,61 @@
-import sys
 import time
+import logging
 
+logger = logging.getLogger("ProxyApp")
 
 class Scheduler():
- 
+    
+    
+    """A factory class which will return the correct class of the scheduler specific commands"""
+
     def test(command, resource):
-        """Static function to form part of a factory class which will return the correct class of the scheduler specific commands"""
         
-        if (resource.scheduler == ""):
-            print("No scheduler for this host is specified - let's see if it can be determined!")
+        if (resource.hostparams["scheduler"] == ""):
+            logger.info("No scheduler for this host is specified - attempt to determine it!")
             
             #Check for LSF
-            if(command.sshconnection(["env | grep -i 'lsf' &> /dev/null"])[0] == 0):
-                print("This host appears to be running LSF so lets store that in the hosts.conf for next time.")
-                resource.save_host_configs('scheduler', 'LSF')
+            if(command.runremote(["env | grep -i 'lsf' &> /dev/null"])[0] == 0):
+                logger.info("This host appears to be running LSF so lets store that in the hosts.conf for next time.")
+                resource.savehostconfigs('scheduler', 'LSF')
                 return Lsf()
         
             #The check for PBS.
-            elif(command.sshconnection(["env | grep -i 'pbs' &> /dev/null"])[0] == 0): 
-                print("This host appears to be running PBS so lets store that in the hosts.conf for next time.")
-                resource.save_host_configs('scheduler', 'PBS')
+            elif(command.runremote(["env | grep -i 'pbs' &> /dev/null"])[0] == 0): 
+                logger.info("This host appears to be running PBS so lets store that in the hosts.conf for next time.")
+                resource.savehostconfigs('scheduler', 'PBS')
                 return Pbs()
             
             #The check for Condor, condor doesn't appear to have any environment variables that we can use.
-            elif(command.sshconnection(["condor_version &> /dev/null"])[0] == 0): 
-                print("This host appears to be running Condor so lets store that in the hosts.conf for next time.")
-                resource.save_host_configs('scheduler', 'CONDOR')
+            elif(command.runremote(["condor_version &> /dev/null"])[0] == 0): 
+                logger.info("This host appears to be running Condor so lets store that in the hosts.conf for next time.")
+                resource.savehostconfigs('scheduler', 'CONDOR')
                 return Condor()
             
             #Fail we can't return a class so exit.
-            else: sys.exit("Error: failed to successfully establish target scheduler environment")
+            else:
+                raise RuntimeError("Unable to establish the scheduling environment to use, if it is known then provide it in hostconfig file.")
             
         else:
             
             #Either user or a previous run has set the scheduler.
-            if(resource.scheduler == 'LSF'): 
-                print("Scheduler: LSF")
+            if(resource.hostparams["scheduler"].lower() == 'lsf'): 
+                logger.info("Scheduler: LSF")
                 return Lsf()
-            if(resource.scheduler == 'PBS'): 
-                print("Scheduler: PBS")
+            elif(resource.hostparams["scheduler"].lower() == 'pbs'): 
+                logger.info("Scheduler: PBS")
                 return Pbs()
-            if(resource.scheduler == 'CONDOR'): 
-                print("Scheduler: CONDOR")
+            elif(resource.hostparams["scheduler"].lower() == 'condor'): 
+                logger.info("Scheduler: CONDOR")
                 return Condor()
+            else:
+                raise RuntimeError("Unable to establish the scheduling environment to use, check for typos in the hostconfig file.")
         
     test = staticmethod(test)
             
             
 class Pbs(Scheduler):
+    
+    
     """A class of commands that can be invoked on machines running the PBS scheduler (Archer)."""
     
     # A function for submitting jobs
@@ -154,6 +162,8 @@ class Pbs(Scheduler):
 
             
 class Lsf(Scheduler):
+    
+    
     """A class of commands that can be invoked on machines running the LSF scheduler (SCARF a cluster machine at STFC used in testing)."""
 
 
@@ -192,6 +202,8 @@ class Lsf(Scheduler):
     
     
 class Condor(Scheduler):
+    
+    
     """A class of commands that can be invoked on machines running the Condor scheduler."""
 
     #TODO: Add all the condor stuff (don't have a cluster running condor to test, so this may go in blind to begin with)

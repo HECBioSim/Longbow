@@ -1,45 +1,48 @@
-import sys
+import logging
+
+logger = logging.getLogger("ProxyApp")
 
 class Applications:
     
-    def test(command, jobconf):
-        """Static function to form part of a factory class which will return the correct class of the application specific commands"""
+    
+    """A factory class which will return the correct class of the application specific commands"""
+        
+    def test(command, jobparams):
         
         #Make arg (program) from command line lower all lower case (less susceptible to error in the wild).
-        tmp = jobconf.program.lower()
+        tmp = jobparams["program"].lower()
         
         #Establish software being used and select class to instantiate.
-        if(tmp == "amber"): return Amber(command, jobconf.executable)
-        elif(tmp == "charmm"): return Charmm(command, jobconf.executable)
-        elif(tmp == "gromacs"): return Gromacs(command, jobconf.executable)
-        elif(tmp == "lammps"): return Lammps(command, jobconf.executable)
-        elif(tmp == "namd"): return Namd(command, jobconf.executable)
-        else: sys.exit("Error: Fail to instantiate app class: check that the -prog arg is supplied correctly")
+        if(tmp == "amber"): return Amber(command, jobparams["executable"])
+        elif(tmp == "charmm"): return Charmm(command, jobparams["executable"])
+        elif(tmp == "gromacs"): return Gromacs(command, jobparams["executable"])
+        elif(tmp == "lammps"): return Lammps(command, jobparams["executable"])
+        elif(tmp == "namd"): return Namd(command, jobparams["executable"])
+        else:
+            raise RuntimeError("Failed to instantiate the app class, check that the program parameter is set and corresponds to one of the supported applications")
         
     test = staticmethod(test)
 
 class Amber:
     
+    
+    """Class specific to methods for processing Amber jobs."""
+    
     def __init__(self, command, executable):
         
         #user specified Amber, lets go ahead and do some tests.
-        print("Application: Amber")
+        logger.info("Application requested is Amber, now test to see if it's executable; " + executable + " is in your path.")
 
         #Check to see if amber is in the path
         if(executable != ""):
             #if user specifies an executable to use then check for it.
-            if(command.sshconnection(["which " + executable + " &> /dev/null"])[0] != 0):
-                sys.exit("Error the executable that you specified: " + executable + " is not in your path.")
+            if(command.runremote(["which " + executable + " &> /dev/null"])[0] != 0):
+                raise RuntimeError(executable + " is not in your path, if your machine uses modules add the module load to your bash profile.")
             else: 
                 self.executable = executable
-                print(executable + " has been found in your path.")
+                logger.info(executable + " has been found in your path.")
         else:
-            #Check if there is a vanilla executable
-            if(command.sshconnection(["which pmemd &> /dev/null"])[0] != 0):
-                sys.exit("Error: fail to find amber (pmemd)")
-            else: 
-                self.executable = "pmemd"
-                print("a vanilla pmemd is present.")
+            raise("The executable parameter was not set.")
     
     def processjob(self, app_args):
         
@@ -71,46 +74,58 @@ class Amber:
 
 class Charmm:
     
+    
+    """Class specific to methods for processing Charmm jobs."""
+    
     def __init__(self, command, executable):
         #user specified Charmm, lets go ahead and do some tests.
-        print("Application: Charmm")
+        logger.info("Application requested is Amber, now test to see if it's executable; " + executable + " is in your path.")
         
         #TODO: add charmm specific path checks
     
     def processjob(self, app_args):
-        print("Charmm")
+        print("Charmm job")
     
 class Gromacs:
     
+    
+    """Class specific to methods for processing Gromacs jobs."""
+    
     def __init__(self, command, executable):
         #user specified Gromacs, lets go ahead and do some tests.
-        print("Application: Gromacs")
+        logger.info("Application requested is Amber, now test to see if it's executable; " + executable + " is in your path.")
         
         #TODO: add Gromacs specific path checks
     
     def processjob(self, app_args):
-        print("Gromacs")
+        print("Gromacs job")
     
     
 class Lammps:
     
+    
+    """Class specific to methods for processing Lammps jobs."""
+    
     def __init__(self, command, executable):
         #user specified Lammps, lets go ahead and do some tests.
-        print("Application: Lammps")
+        logger.info("Application requested is Amber, now test to see if it's executable; " + executable + " is in your path.")
         
         #TODO: add Lammps specific path checks
     
     def processjob(self, app_args):
-        print("Lammps")
+        print("Lammps job")
     
 class Namd:
     
+    
+    """Class specific to methods for processing Namd jobs."""
+    
     def __init__(self, command, executable):
         #user specified Namd, lets go ahead and do some tests.
-        print("Application: Namd")
+        logger.info("Application requested is Amber, now test to see if it's executable; " + executable + " is in your path.")
         
         #TODO: add Namd specific path checks
     
     def processjob(self, app_args):
-        print("Namd")
+        print("Namd job")
     

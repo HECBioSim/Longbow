@@ -1,5 +1,8 @@
-2014-05-16 15:15:31,034 - ProxyApp - proxy.py           - INFO     - ProxyApp is now started.
-2014-05-16 15:15:31,034 - ProxyApp - configs.py         - INFO     - Loading up the job configuration file and obtain all job set parameters.
-2014-05-16 15:15:31,035 - ProxyApp - configs.py         - INFO     - Loading configuration for destination computer from /media/storage/Workspace/Git/ProxyApp/Proxy/hosts.conf
-2014-05-16 15:15:31,035 - ProxyApp - shellwrappers.py   - INFO     - Testing the connection to jtg@login.archer.ac.uk
-2014-05-16 15:15:31,747 - ProxyApp - shellwrappers.py   - INFO     - Connection established to jtg@login.archer.ac.uk
+2014-05-19 16:41:15,551 - ProxyApp - proxy.py           - INFO     - ProxyApp is now started.
+2014-05-19 16:41:15,551 - ProxyApp - configs.py         - INFO     - Loading up the job configuration file and obtain all job set parameters.
+2014-05-19 16:41:15,551 - ProxyApp - configs.py         - INFO     - Loading configuration for destination computer from /media/storage/Workspace/Git/ProxyApp/Proxy/hosts.conf
+2014-05-19 16:41:15,552 - ProxyApp - shellwrappers.py   - INFO     - Testing the connection to jtg@login.archer.ac.uk
+2014-05-19 16:41:16,300 - ProxyApp - shellwrappers.py   - INFO     - Connection established to jtg@login.archer.ac.uk
+2014-05-19 16:41:16,301 - ProxyApp - jobcommands.py     - INFO     - Scheduler: PBS
+2014-05-19 16:41:16,301 - ProxyApp - appcommands.py     - INFO     - Application requested is Amber, now test to see if it's executable; pmemd.MPI in the path.
+2014-05-19 16:41:16,993 - ProxyApp - appcommands.py     - INFO     - pmemd.MPI has been found in your path.
