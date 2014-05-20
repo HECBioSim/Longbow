@@ -137,11 +137,11 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
     #------------------------------------------------------------------------
     # Start processing the job setup and submit.
     
-    sys.exit("Placeholder exit, re-factoring code!")
     # Process the command line args to separate out all the files that need staging
     # and form a nice string for the scheduler.
-    filelist, arglist = application.processjob(app_args)
+    filelist, arglist = application.processjob(app_args, jobconf.jobparams["executable"])
     
+    sys.exit("Placeholder exit, re-factoring code!")
     # Create the jobile and append it to the list of files that need uploading.
     filelist, submitfile = job.jobfile(jobconf, arglist, filelist)
     

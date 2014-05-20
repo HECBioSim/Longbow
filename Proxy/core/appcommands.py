@@ -9,10 +9,10 @@ class Applications:
         
     def test(command, jobparams):
         
-        #Make arg (program) from command line lower all lower case (less susceptible to error in the wild).
+        # Make arg (program) from command line lower all lower case (less susceptible to error in the wild).
         tmp = jobparams["program"].lower()
         
-        #Establish software being used and select class to instantiate.
+        # Establish software being used and select class to instantiate.
         if(tmp == "amber"): return Amber(command, jobparams["executable"])
         elif(tmp == "charmm"): return Charmm(command, jobparams["executable"])
         elif(tmp == "gromacs"): return Gromacs(command, jobparams["executable"])
@@ -30,38 +30,37 @@ class Amber:
     
     def __init__(self, command, executable):
         
-        #user specified Amber, lets go ahead and do some tests.
+        
         logger.info("Application requested is Amber, now test to see if it's executable; " + executable + " is in your path.")
 
-        #Check to see if amber is in the path
+        # Check to see if amber is in the path
         if(executable != ""):
-            #if user specifies an executable to use then check for it.
+            # If user specifies an executable to use then check for it.
             if(command.runremote(["which " + executable + " &> /dev/null"])[0] != 0):
                 raise RuntimeError(executable + " is not in your path, if your machine uses modules add the module load to your bash profile.")
             else: 
-                self.executable = executable
                 logger.info(executable + " has been found in your path.")
         else:
             raise("The executable parameter was not set.")
     
-    def processjob(self, app_args):
+    def processjob(self, app_args, executable):
         
-        print("Processing job to extract files that require upload.")
+        logger.info("Processing job to extract files that require upload.")
         
-        #list for files that need staging.
+        # List for files that need staging.
         filelist = []
         
-        #append executable to args string.
-        args = self.executable 
+        # Append executable to args string.
+        args = executable 
         
-        #Process the command line args and find files for staging.
+        # Process the command line args and find files for staging.
         for item in app_args:
             index = app_args.index(item)
             
-            #Put ALL of the args specified on the commandline into a string.
+            # Put ALL of the args specified on the commandline into a string.
             args = args + " " + item
             
-            #Find the amber input files that require staging.
+            # Find the amber input files that require staging.
             if(item == "-i"): filelist.append(app_args[index+1])
             if(item == "-c"): filelist.append(app_args[index+1])
             if(item == "-p"): filelist.append(app_args[index+1])
@@ -69,7 +68,11 @@ class Amber:
             #TODO: Are these input or output files?
             #if(item == "-r"): filelist.append(app_args[index+1])
             #if(item == "-x"): filelist.append(app_args[index+1])
-            
+        
+        # Log results.
+        logger.info("Files for upload: " + "".join(filelist))
+        logger.info("String for submitting simulation: " + args)
+        
         return filelist, args
 
 class Charmm:
@@ -78,10 +81,10 @@ class Charmm:
     """Class specific to methods for processing Charmm jobs."""
     
     def __init__(self, command, executable):
-        #user specified Charmm, lets go ahead and do some tests.
+        
         logger.info("Application requested is Amber, now test to see if it's executable; " + executable + " is in your path.")
         
-        #TODO: add charmm specific path checks
+        # TODO: add charmm specific path checks
     
     def processjob(self, app_args):
         print("Charmm job")
@@ -92,10 +95,10 @@ class Gromacs:
     """Class specific to methods for processing Gromacs jobs."""
     
     def __init__(self, command, executable):
-        #user specified Gromacs, lets go ahead and do some tests.
+        
         logger.info("Application requested is Amber, now test to see if it's executable; " + executable + " is in your path.")
         
-        #TODO: add Gromacs specific path checks
+        # TODO: add Gromacs specific path checks
     
     def processjob(self, app_args):
         print("Gromacs job")
@@ -107,10 +110,10 @@ class Lammps:
     """Class specific to methods for processing Lammps jobs."""
     
     def __init__(self, command, executable):
-        #user specified Lammps, lets go ahead and do some tests.
+        
         logger.info("Application requested is Amber, now test to see if it's executable; " + executable + " is in your path.")
         
-        #TODO: add Lammps specific path checks
+        # TODO: add Lammps specific path checks
     
     def processjob(self, app_args):
         print("Lammps job")
@@ -121,10 +124,10 @@ class Namd:
     """Class specific to methods for processing Namd jobs."""
     
     def __init__(self, command, executable):
-        #user specified Namd, lets go ahead and do some tests.
+        
         logger.info("Application requested is Amber, now test to see if it's executable; " + executable + " is in your path.")
         
-        #TODO: add Namd specific path checks
+        # TODO: add Namd specific path checks
     
     def processjob(self, app_args):
         print("Namd job")
