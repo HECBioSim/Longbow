@@ -61,7 +61,7 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
     
     
     #------------------------------------------------------------------------
-    # Set up the cross package logger.
+    # Set up the package wide logger.
     
     # Create a package-wide logger called logger.
     logger = logging.getLogger("ProxyApp")
@@ -141,13 +141,12 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
     # and form a nice string for the scheduler.
     filelist, arglist = application.processjob(app_args, jobconf.jobparams["executable"])
     
-    sys.exit("Placeholder exit, re-factoring code!")
-    # Create the jobile and append it to the list of files that need uploading.
-    filelist, submitfile = job.jobfile(jobconf, arglist, filelist)
+    # Create the jobfile and append it to the list of files that need uploading.
+    filelist, submitfile = job.jobfile(jobconf.jobparams, arglist, filelist)
     
     # Stage all of the job files along with the scheduling script.
-    stage.stage_upstream(shellcommand, jobconf, filelist)
-    
+    stage.stage_upstream(shellcommand, jobconf.jobparams, filelist)
+    sys.exit("Placeholder exit, re-factoring code!")
     # Submit the job to the scheduler.
     jobid = job.submit(shellcommand, jobconf.remote_workdir, submitfile)
     

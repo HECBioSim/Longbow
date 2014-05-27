@@ -1,11 +1,13 @@
-2014-05-20 16:51:47,652 - ProxyApp - proxy.py           - INFO     - ProxyApp is now started.
-2014-05-20 16:51:47,653 - ProxyApp - configs.py         - INFO     - Loading up the job configuration file and obtain all job set parameters.
-2014-05-20 16:51:47,654 - ProxyApp - configs.py         - INFO     - Loading configuration for destination computer from /media/storage/Workspace/Git/ProxyApp/Proxy/hosts.conf
-2014-05-20 16:51:47,655 - ProxyApp - shellwrappers.py   - INFO     - Testing the connection to jtg@login.archer.ac.uk
-2014-05-20 16:51:48,340 - ProxyApp - shellwrappers.py   - INFO     - Connection established to jtg@login.archer.ac.uk
-2014-05-20 16:51:48,341 - ProxyApp - jobcommands.py     - INFO     - Scheduler: PBS
-2014-05-20 16:51:48,341 - ProxyApp - appcommands.py     - INFO     - Application requested is Amber, now test to see if it's executable; pmemd.MPI is in your path.
-2014-05-20 16:51:49,008 - ProxyApp - appcommands.py     - INFO     - pmemd.MPI has been found in your path.
-2014-05-20 16:51:49,009 - ProxyApp - appcommands.py     - INFO     - Processing job to extract files that require upload.
-2014-05-20 16:51:49,009 - ProxyApp - appcommands.py     - INFO     - Files for upload: md1.in1apt2.min21apt2.top
-2014-05-20 16:51:49,009 - ProxyApp - appcommands.py     - INFO     - String for submitting simulation: pmemd.MPI -i md1.in -c 1apt2.min2 -p 1apt2.top -o md1.out
+2014-05-27 22:50:02,188 - ProxyApp - proxy.py           - INFO     - ProxyApp is now started.
+2014-05-27 22:50:02,189 - ProxyApp - configs.py         - INFO     - Loading up the job configuration file and obtain all job set parameters.
+2014-05-27 22:50:02,189 - ProxyApp - configs.py         - INFO     - Loading configuration for destination computer from /home/jimboid/git/proxyapp/Proxy/hosts.conf
+2014-05-27 22:50:02,190 - ProxyApp - shellwrappers.py   - INFO     - Testing the connection to jtg@login.archer.ac.uk
+2014-05-27 22:50:04,749 - ProxyApp - shellwrappers.py   - INFO     - Connection established to jtg@login.archer.ac.uk
+2014-05-27 22:50:04,750 - ProxyApp - jobcommands.py     - INFO     - Scheduler: PBS
+2014-05-27 22:50:04,750 - ProxyApp - appcommands.py     - INFO     - Application requested is Amber, now test to see if it's executable; pmemd.MPI is in your path.
+2014-05-27 22:50:06,278 - ProxyApp - appcommands.py     - INFO     - pmemd.MPI has been found in your path.
+2014-05-27 22:50:06,279 - ProxyApp - appcommands.py     - INFO     - Processing job to extract files that require upload.
+2014-05-27 22:50:06,279 - ProxyApp - appcommands.py     - INFO     - Files for upload: md1.in1apt2.min21apt2.top
+2014-05-27 22:50:06,280 - ProxyApp - appcommands.py     - INFO     - String for submitting simulation: pmemd.MPI -i md1.in -c 1apt2.min2 -p 1apt2.top -o md1.out
+2014-05-27 22:50:06,281 - ProxyApp - jobcommands.py     - INFO     - Files for upload: md1.in1apt2.min21apt2.topjob.pbs
+2014-05-27 22:50:06,281 - ProxyApp - staging.py         - INFO     - Preparing to stage files to remote host.

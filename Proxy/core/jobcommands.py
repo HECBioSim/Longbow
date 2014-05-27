@@ -13,31 +13,31 @@ class Scheduler():
         if (resource.hostparams["scheduler"] == ""):
             logger.info("No scheduler for this host is specified - attempt to determine it!")
             
-            #Check for LSF
+            # Check for LSF
             if(command.runremote(["env | grep -i 'lsf' &> /dev/null"])[0] == 0):
                 logger.info("This host appears to be running LSF so lets store that in the hosts.conf for next time.")
                 resource.savehostconfigs('scheduler', 'LSF')
                 return Lsf()
         
-            #The check for PBS.
+            # The check for PBS.
             elif(command.runremote(["env | grep -i 'pbs' &> /dev/null"])[0] == 0): 
                 logger.info("This host appears to be running PBS so lets store that in the hosts.conf for next time.")
                 resource.savehostconfigs('scheduler', 'PBS')
                 return Pbs()
             
-            #The check for Condor, condor doesn't appear to have any environment variables that we can use.
+            # The check for Condor, condor doesn't appear to have any environment variables that we can use.
             elif(command.runremote(["condor_version &> /dev/null"])[0] == 0): 
                 logger.info("This host appears to be running Condor so lets store that in the hosts.conf for next time.")
                 resource.savehostconfigs('scheduler', 'CONDOR')
                 return Condor()
             
-            #Fail we can't return a class so exit.
+            # Fail we can't return a class so exit.
             else:
                 raise RuntimeError("Unable to establish the scheduling environment to use, if it is known then provide it in hostconfig file.")
             
         else:
             
-            #Either user or a previous run has set the scheduler.
+            # Either user or a previous run has set the scheduler.
             if(resource.hostparams["scheduler"].lower() == 'lsf'): 
                 logger.info("Scheduler: LSF")
                 return Lsf()
@@ -61,7 +61,7 @@ class Pbs(Scheduler):
     # A function for submitting jobs
     def submit(self, command, workdir, submitfile):
         
-        #cd into the working directory and submit the job.
+        # cd into the working directory and submit the job.
         cmd = ["cd " + workdir + "\n","qsub " + submitfile]
         
         #process the submit
@@ -92,37 +92,39 @@ class Pbs(Scheduler):
         
         return error, output
         
-    def jobfile(self, jobconf, args, filelist):
+    def jobfile(self, jobparams, args, filelist):
+        
+        
+        """Create the PBS jobfile ready for submitting jobs"""
         
         #TODO: add multi job support
-        #TODO: this method may become code specific, if that is the case then move this to the appcommands under the relevant app class.
         #TODO: come up with some sensible defaults for if a param is left out of job.conf
         #TODO: come up with a sensible job naming scheme for -N
         
-        #Open file for PBS script.
+        # Open file for PBS script.
         pbsfile = "job.pbs"
-        jobfile = open(jobconf.local_workdir + "/" + pbsfile, "w+")
+        jobfile = open(jobparams["localworkdir"] + "/" + pbsfile, "w+")
         
-        #Write the PBS script
+        # Write the PBS script
         jobfile.write("#!/bin/bash \n"
                       "#PBS -N Test \n"
-                      "#PBS -l select="+jobconf.nodes+" \n"
-                      "#PBS -l walltime=" + jobconf.maxtime + ":00:00 \n"
-                      "#PBS -A " + jobconf.account + "\n"
+                      "#PBS -l select=" + jobparams["nodes"] + " \n"
+                      "#PBS -l walltime=" + jobparams["maxtime"] + ":00:00 \n"
+                      "#PBS -A " + jobparams["account"] + "\n"
                       "export PBS_O_WORKDIR=$(readlink -f $PBS_O_WORKDIR) \n"
                       "cd $PBS_O_WORKDIR \n"
                       "export OMP_NUM_THREADS=1 \n"
-                      "aprun -n " + jobconf.cores + " -N " + jobconf.corespernode + " " + args + " & \n")
+                      "aprun -n " + jobparams["cores"] + " -N " + jobparams["corespernode"] + " " + args + " & \n")
 
         #jobfile.write("wait \n")
         
-        #Close the file (housekeeping)
+        # Close the file (housekeeping)
         jobfile.close()
     
-        #Append pbs file to list of files ready for staging.
+        # Append pbs file to list of files ready for staging.
         filelist.extend([pbsfile])
         
-        print("List of files for upload: ", filelist)
+        logger.info("Files for upload: " + "".join(filelist))
         
         return filelist, pbsfile
     

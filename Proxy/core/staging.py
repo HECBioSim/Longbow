@@ -1,24 +1,27 @@
+import logging
+
+logger = logging.getLogger("ProxyApp")
 
 class Staging:
     
-    def stage_upstream(self, command, jobconf, filelist):
+    def stage_upstream(self, command, jobparams, filelist):
         
-        #Create the dir ready for staging.
-        print("Creating dir " + jobconf.remote_workdir + " ready for staging files.")
+        logger.info("Preparing to stage files to remote host.")
         
-        if(command.listremote(jobconf.remote_workdir) != 0): 
+        if(command.listremote(jobparams["remoteworkdir"]) != 0): 
             
-            command.sshconnection(["mkdir " + jobconf.remote_workdir])[0]
-            print("dir " + jobconf.remote_workdir + " created successfully.")
+            command.sshconnection(["mkdir " + jobparams["remoteworkdir"]])[0]
+            logger.info(jobparams["remoteworkdir"] + " created successfully.")
             
-        else: print("dir " + jobconf.remote_workdir + " already exists.")
+        else: 
+            logger.info(jobparams["remoteworkdir"] + " already exists so files will be staged here.")
             
-        #Loop through the list of input files and upload them.
+        # Loop through the list of input files and upload them.
         for i in range (len(filelist)):
             
-            command.uploadfile(jobconf.local_workdir + "/" + filelist[i], jobconf.remote_workdir)
+            command.uploadfile(jobparams["localworkdir"] + "/" + filelist[i], jobparams["remoteworkdir"])
             
-        print("Staging files complete.")
+        logger.info("Staging files complete.")
     
     def stage_downstream(self, command, jobconf):
         
