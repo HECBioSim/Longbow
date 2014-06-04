@@ -194,8 +194,36 @@ class Lsf(Scheduler):
         
         
     # A function for creating the LSF submit file.
-    def jobfile(self):
-        pass
+    def jobfile(self, jobparams, args, filelist):
+        
+        
+        """Create the LSF jobfile ready for submitting jobs"""
+        
+        #TODO: add multi job support
+        #TODO: come up with some sensible defaults for if a param is left out of job.conf
+        #TODO: come up with a sensible job naming scheme for -N
+        
+        # Open file for LSF script.
+        lsffile = "job.lsf"
+        jobfile = open(jobparams["localworkdir"] + "/" + lsffile, "w+")
+        
+        # Write the PBS script
+        jobfile.write("#!/bin/bash \n"
+                      "#BSUB -J Test \n"
+                      "#PBS -l select=" + jobparams["nodes"] + " \n"
+                      "#PBS -W " + jobparams["maxtime"] + ":00:00 \n"
+                      "#PBS -A " + jobparams["account"] + "\n"
+                      "aprun -n " + jobparams["cores"] + " -N " + jobparams["corespernode"] + " " + args + " & \n")
+        
+        # Close the file (housekeeping)
+        jobfile.close()
+    
+        # Append pbs file to list of files ready for staging.
+        filelist.extend([lsffile])
+        
+        logger.info("Files for upload: " + "".join(filelist))
+        
+        return filelist, lsffile
         
     
     # A function for monitoring LSF jobs.   

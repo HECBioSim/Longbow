@@ -105,7 +105,7 @@ class ShellCommands:
         
         cmd = ["cp", "-r", from_path, to_path]
         
-        errorstate = self.sshconnection(cmd)[0]
+        errorstate = self.runremote(cmd)[0]
         
         return errorstate
         
@@ -117,7 +117,7 @@ class ShellCommands:
         
         cmd = ["rm", "-r", path]
 
-        errorstate = self.sshconnection(cmd)[0]
+        errorstate = self.runremote(cmd)[0]
         
         return errorstate 
     
@@ -129,7 +129,7 @@ class ShellCommands:
         
         cmd = ["ls", path]
     
-        errorstate = self.sshconnection(cmd)[0]
+        errorstate = self.runremote(cmd)[0]
         
         #TODO: we should probably do something with the output and return from here this might be useful (test = out.split()) 
         

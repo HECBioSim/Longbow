@@ -30,13 +30,10 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
     """
     
     #TODO: Support multiple job submission as both reps and batches (see comments throughout code).
-    #TODO: Fix issues with files that are not being uploaded sometimes, this must be something failing somewhere (possibly ssh or scp) 
-    #      all commands should have their returns checked.
-    #TODO: Methods in shellwrappers need commenting, also the local methods should have the shell based replaced with the native python
+    #TODO: Local methods in shellwrappers should have the shell based commands replaced with the native python
     #      versions.
     #TODO: Formatting and add remaining exceptions (the placeholder marker below marks progress point).
     #TODO: Various classes and methods are missing documentation comments and also hashed comments, add these.
-    #TODO: sys.exits in the lib are replaced, either place them in the exception handlers or find a graceful way to exit.
     
     #------------------------------------------------------------------------
     # Setup some basic files.
@@ -126,34 +123,32 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
         # class for the application specified on command line. Some tests as to whether
         # the application is actually in your path will happen automatically.
         application = Applications.test(shellcommand, jobconf.jobparams)
-
+        
+    #------------------------------------------------------------------------
+    # Start processing the job setup and submit.
+    
+        # Process the command line args to separate out all the files that need staging
+        # and form a nice string for the scheduler.
+        filelist, arglist = application.processjob(app_args, jobconf.jobparams["executable"])
+    
+        # Create the jobfile and append it to the list of files that need uploading.
+        filelist, submitfile = job.jobfile(jobconf.jobparams, arglist, filelist)
+    
+        # Stage all of the job files along with the scheduling script.
+        stage.stage_upstream(shellcommand, jobconf.jobparams, filelist)
+        sys.exit("Placeholder exit, re-factoring code!")
+        # Submit the job to the scheduler.
+        jobid = job.submit(shellcommand, jobconf.remote_workdir, submitfile)
+        
     except Exception as e:
         if (debug == True): 
             logger.exception(e)
         else:
             logger.error(e) 
-        
-        
-    #------------------------------------------------------------------------
-    # Start processing the job setup and submit.
-    
-    # Process the command line args to separate out all the files that need staging
-    # and form a nice string for the scheduler.
-    filelist, arglist = application.processjob(app_args, jobconf.jobparams["executable"])
-    
-    # Create the jobfile and append it to the list of files that need uploading.
-    filelist, submitfile = job.jobfile(jobconf.jobparams, arglist, filelist)
-    
-    # Stage all of the job files along with the scheduling script.
-    stage.stage_upstream(shellcommand, jobconf.jobparams, filelist)
-    sys.exit("Placeholder exit, re-factoring code!")
-    # Submit the job to the scheduler.
-    jobid = job.submit(shellcommand, jobconf.remote_workdir, submitfile)
-    
     
     #------------------------------------------------------------------------
     # Monitor jobs.
-    
+    sys.exit("Placeholder exit, re-factoring code!")
     
     job.monitor(shellcommand, stage, jobconf, jobid)
     

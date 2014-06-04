@@ -51,13 +51,17 @@ class HostConfig:
                                "within [] followed by a list of params of the form param1 = val1")
         
         # Make all sections in sectionlist lower case to be case agnostic.
-        sectionlist = [x.lower() for x in sectionlist]
+        sectionlisttmp = sectionlist
+        sectionlisttmp = [x.lower() for x in sectionlisttmp]
         
         # Check now if the section we want is there.
-        if (self.resource.lower() not in sectionlist):
+        if (self.resource.lower() not in sectionlisttmp):
             raise RuntimeError("The resource specified in the job configuration is not " +
                                "found, this could either not exist or be misspelled.")
-
+        
+        # Lets set the resource specified to have the same case as the option in the host list.
+        self.resource = sectionlist[sectionlisttmp.index(self.resource.lower())]
+        
         # Lets now check if the section that is chosen actually has any options.
         optionlist = hostconfigs.options(self.resource)
         if(len(optionlist) == 0):
