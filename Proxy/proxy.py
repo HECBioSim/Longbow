@@ -136,9 +136,9 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
     
         # Stage all of the job files along with the scheduling script.
         stage.stage_upstream(shellcommand, jobconf.jobparams, filelist)
-        sys.exit("Placeholder exit, re-factoring code!")
+
         # Submit the job to the scheduler.
-        jobid = job.submit(shellcommand, jobconf.remote_workdir, submitfile)
+        jobid = job.submit(shellcommand, jobconf.jobparams, submitfile)
         
     except Exception as e:
         if (debug == True): 

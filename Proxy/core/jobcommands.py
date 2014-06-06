@@ -25,12 +25,6 @@ class Scheduler():
                 resource.savehostconfigs('scheduler', 'PBS')
                 return Pbs()
             
-            # The check for Condor, condor doesn't appear to have any environment variables that we can use.
-            elif(command.runremote(["condor_version &> /dev/null"])[0] == 0): 
-                logger.info("This host appears to be running Condor so lets store that in the hosts.conf for next time.")
-                resource.savehostconfigs('scheduler', 'CONDOR')
-                return Condor()
-            
             # Fail we can't return a class so exit.
             else:
                 raise RuntimeError("Unable to establish the scheduling environment to use, if it is known then provide it in hostconfig file.")
@@ -44,9 +38,6 @@ class Scheduler():
             elif(resource.hostparams["scheduler"].lower() == 'pbs'): 
                 logger.info("Scheduler: PBS")
                 return Pbs()
-            elif(resource.hostparams["scheduler"].lower() == 'condor'): 
-                logger.info("Scheduler: CONDOR")
-                return Condor()
             else:
                 raise RuntimeError("Unable to establish the scheduling environment to use, check for typos in the hostconfig file.")
         
@@ -58,40 +49,40 @@ class Pbs(Scheduler):
     
     """A class of commands that can be invoked on machines running the PBS scheduler (Archer)."""
     
-    # A function for submitting jobs
-    def submit(self, command, workdir, submitfile):
+    def submit(self, command, jobparams, submitfile):
         
-        # cd into the working directory and submit the job.
-        cmd = ["cd " + workdir + "\n","qsub " + submitfile]
+        # Change into the working directory and submit the job.
+        cmd = ["cd " + jobparams["remoteworkdir"] + "\n","qsub " + submitfile]
         
-        #process the submit
-        error, output = command.sshconnection(cmd)
+        # Process the submit
+        error, output = command.runremote(cmd)
         
         output = output.rstrip("\r\n")
         
-        #check status here.
+        # Check status here.
         if(error == 0):
-            print(time.strftime("%x"), " ", time.strftime("%X"), "  Job submitted with id = " + output)
+            logger.info("Job submitted with id = " + output)
         else:
-            print("Something went wrong when submitting. Here is the error code = ",  error)
+            raise RuntimeError("Something went wrong when submitting.")
 
         return output
         
-    # A function for deleting jobs    
+          
     def delete(self, command, jobid):
         
-        error, output = command.sshconnection(["qdel " + jobid])
+        error, output = command.runremote(["qdel " + jobid])
         
         return error, output
         
-    # A function for querying jobs
+
     def status(self, command, jobid):
                
-        error, output = command.sshconnection(["qstat | grep " + jobid])
+        error, output = command.runremote(["qstat | grep " + jobid])
         output = output.split()
         
         return error, output
         
+    
     def jobfile(self, jobparams, args, filelist):
         
         
@@ -127,7 +118,8 @@ class Pbs(Scheduler):
         logger.info("Files for upload: " + "".join(filelist))
         
         return filelist, pbsfile
-    
+
+
     def monitor(self, command, stage, jobconf, jobid):
         
         done = False
@@ -169,31 +161,41 @@ class Lsf(Scheduler):
     """A class of commands that can be invoked on machines running the LSF scheduler (SCARF a cluster machine at STFC used in testing)."""
 
 
-    # A function for submitting jobs
-    def submit(self, command, submitfile):
+    def submit(self, command, jobparams, submitfile):
         
-        cmd = ["bsub " + submitfile]
+        # cd into the working directory and submit the job.
+        cmd = ["cd " + jobparams["remoteworkdir"] + "\n","qsub " + submitfile + "| grep -P -o '(?<=\<)[0-9]*(?=\>)'"]
         
-        print(cmd)
+        #process the submit
+        error, output = command.runremote(cmd)
         
-        
-    # A function for deleting jobs
-    def delete(self, jobid):
-        
-        cmd = ["bdel " + jobid]
-        
-        print(cmd)
-        
-        
-    # A function for querying jobs
-    def status(self, jobid):
-        
-        cmd = ["bjobs " + jobid]
-        
-        print(cmd)
+        output = output.splitlines()[0]
+                
+        #check status here.
+        if(error == 0):
+            logger.info("Job submitted with id = " + output)
+        else:
+            raise RuntimeError("Something went wrong when submitting.")
+
+        return output
         
         
-    # A function for creating the LSF submit file.
+    def delete(self, command, jobid):
+        
+        error, output = command.runremote(["bkill " + jobid])
+        
+        return error, output
+        
+        
+
+    def status(self, command, jobid):
+        
+        error, output = command.runremote(["bjobs " + jobid])
+        
+        return error, output
+        
+        
+
     def jobfile(self, jobparams, args, filelist):
         
         
@@ -210,10 +212,9 @@ class Lsf(Scheduler):
         # Write the PBS script
         jobfile.write("#!/bin/bash \n"
                       "#BSUB -J Test \n"
-                      "#PBS -l select=" + jobparams["nodes"] + " \n"
-                      "#PBS -W " + jobparams["maxtime"] + ":00:00 \n"
-                      "#PBS -A " + jobparams["account"] + "\n"
-                      "aprun -n " + jobparams["cores"] + " -N " + jobparams["corespernode"] + " " + args + " & \n")
+                      "#BSUB -W " + jobparams["maxtime"] + ":00 \n"
+                      "#BSUB -n " + jobparams["cores"] + "\n"
+                      "mpirun -lsf" + " " + args + "\n")
         
         # Close the file (housekeeping)
         jobfile.close()
@@ -225,39 +226,6 @@ class Lsf(Scheduler):
         
         return filelist, lsffile
         
-    
-    # A function for monitoring LSF jobs.   
-    def monitor(self):
-        pass
-    
-    
-class Condor(Scheduler):
-    
-    
-    """A class of commands that can be invoked on machines running the Condor scheduler."""
-
-    #TODO: Add all the condor stuff (don't have a cluster running condor to test, so this may go in blind to begin with)
-
-    # A function for submitting condor jobs.
-    def submit(self, command, submitfile):
-        pass
-        
-        
-    # A function for deleting condor jobs.
-    def delete(self, jobid):
-        pass
-
-        
-    # A function for querying condor jobs.
-    def status(self, jobid):
-        pass
-
-
-    # A function for creating the job file for submitting.  
-    def jobfile(self):
-        pass
-    
-    
-    # A function for condor specific monitoring.
+     
     def monitor(self):
         pass
