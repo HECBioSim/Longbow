@@ -51,6 +51,9 @@ class Pbs(Scheduler):
     
     def submit(self, command, jobparams, submitfile):
         
+        
+        logger.info("Submitting the job to the remote host.")
+        
         # Change into the working directory and submit the job.
         cmd = ["cd " + jobparams["remoteworkdir"] + "\n","qsub " + submitfile]
         
@@ -70,14 +73,24 @@ class Pbs(Scheduler):
           
     def delete(self, command, jobid):
         
+        
+        logger.info("Deleting the job with id = " + jobid)
+        
         error, output = command.runremote(["qdel " + jobid])
         
-        return error, output
+        if(error==0):
+            logger.info("Job with id = " + jobid + " was successfully deleted.")
+        else:
+            raise RuntimeError("Unable to delete job.")
+        
+        return output
         
 
     def status(self, command, jobid):
+           
                
         error, output = command.runremote(["qstat | grep " + jobid])
+        
         output = output.split()
         
         return error, output
@@ -120,39 +133,42 @@ class Pbs(Scheduler):
         return filelist, pbsfile
 
 
-    def monitor(self, command, stage, jobconf, jobid):
+    def monitor(self, command, stage, jobparams, jobid):
+        
+        
+        logger.info("Starting the job monitoring - this will stay alive until the last job finishes.")
         
         done = False
-                
+        laststate = ""
+        
         while (done == False):
         
             error, status = self.status(command, jobid)
             
             if(error == 0):
-
-                if(status[4] == "E"): 
-                    print(time.strftime("%x"), " ", time.strftime("%X"), "  Exiting")
-            
-                elif(status[4] == "H"): 
-                    print(time.strftime("%x"), " ", time.strftime("%X"), "  Held")
-        
-                elif(status[4] == "Q"): 
-                    print(time.strftime("%x"), " ", time.strftime("%X"), "  Queued")
-        
-                elif(status[4] == "R"): 
-                    print(time.strftime("%x"), " ", time.strftime("%X"), "  Running")
                 
-                    stage.stage_downstream(command, jobconf.local_workdir, jobconf.remote_workdir)
-            
-                elif(status[4] == "T"): 
-                    print(time.strftime("%x"), " ", time.strftime("%X"), "  Transferring job")
+                if(laststate != status[4]):
+                    if(status[4] == "H"):
+                        laststate = "H" 
+                        logger.info("Job with id " + jobid + " is Held.")
         
-                elif(status[4] == "W"): 
-                    print(time.strftime("%x"), " ", time.strftime("%X"), "  Waiting")   
+                    elif(status[4] == "Q"): 
+                        laststate = "Q"
+                        logger.info("Job with id " + jobid + " is Queued.")
+        
+                    elif(status[4] == "R"):
+                        laststate = "R" 
+                        logger.info("Job with id " + jobid + " is Running.")
+                
+                if(laststate == "R"):
+                    stage.stage_downstream(command, jobparams)
             
-            else: done = True     
+            else: 
+                done = True     
                         
-            time.sleep(float(jobconf.frequency))
+            time.sleep(float(jobparams["frequency"]))
+        
+        logger.info("All jobs are complete.")
 
             
 class Lsf(Scheduler):
@@ -163,15 +179,18 @@ class Lsf(Scheduler):
 
     def submit(self, command, jobparams, submitfile):
         
+        
+        logger.info("Submitting the job to the remote host.")
+        
         # cd into the working directory and submit the job.
         cmd = ["cd " + jobparams["remoteworkdir"] + "\n","qsub " + submitfile + "| grep -P -o '(?<=\<)[0-9]*(?=\>)'"]
         
-        #process the submit
+        # Process the submit
         error, output = command.runremote(cmd)
         
         output = output.splitlines()[0]
                 
-        #check status here.
+        # Check status here.
         if(error == 0):
             logger.info("Job submitted with id = " + output)
         else:
@@ -182,18 +201,25 @@ class Lsf(Scheduler):
         
     def delete(self, command, jobid):
         
+        logger.info("Deleting the job with id = " + jobid)
+        
         error, output = command.runremote(["bkill " + jobid])
         
-        return error, output
+        if(error==0):
+            logger.info("Job with id = " + jobid + " was successfully deleted.")
+        else:
+            raise RuntimeError("Unable to delete job.")
         
+        return output        
         
 
     def status(self, command, jobid):
         
-        error, output = command.runremote(["bjobs " + jobid])
+        error, output = command.runremote(["bjobs | grep " + jobid])
+        
+        output = output.split()
         
         return error, output
-        
         
 
     def jobfile(self, jobparams, args, filelist):
@@ -203,7 +229,7 @@ class Lsf(Scheduler):
         
         #TODO: add multi job support
         #TODO: come up with some sensible defaults for if a param is left out of job.conf
-        #TODO: come up with a sensible job naming scheme for -N
+        #TODO: come up with a sensible job naming scheme for -J
         
         # Open file for LSF script.
         lsffile = "job.lsf"
@@ -227,5 +253,39 @@ class Lsf(Scheduler):
         return filelist, lsffile
         
      
-    def monitor(self):
-        pass
+    def monitor(self, command, stage, jobparams, jobid):
+        
+        
+        logger.info("Starting the job monitoring - this will stay alive until the last job finishes.")
+        
+        done = False
+        laststate = ""
+        
+        while (done == False):
+        
+            error, status = self.status(command, jobid)
+            
+            if(error == 0):
+                
+                if(laststate != status[4]):
+                    if(status[4] == "PSUSP" or status[4] == "USUSP" or status[4] == "SSUSP"):
+                        laststate = status[4]
+                        logger.info("Job with id " + jobid + " is Held.")
+        
+                    elif(status[4] == "PEND"): 
+                        laststate = "PEND"
+                        logger.info("Job with id " + jobid + " is Queued.")
+        
+                    elif(status[4] == "RUN"):
+                        laststate = "RUN" 
+                        logger.info("Job with id " + jobid + " is Running.")
+                
+                if(laststate == "R"):
+                    stage.stage_downstream(command, jobparams)
+            
+            else: 
+                done = True     
+                        
+            time.sleep(float(jobparams["frequency"]))
+            
+        logger.info("All jobs are complete.")

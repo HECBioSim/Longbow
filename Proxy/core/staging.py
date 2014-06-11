@@ -54,13 +54,13 @@ class Staging:
                 
         logger.info("Staging files complete.")
     
-    def stage_downstream(self, command, jobconf):
+    def stage_downstream(self, command, jobparams):
         
-        logger.info("staging downstream")
+        logger.info("Staging from remote to local host.")
         
         for i in range(3):
         
-            error = command.download(jobconf.remote_workdir + "/*", jobconf.local_workdir)
+            error = command.download(jobparams["remoteworkdir"] + "/*", jobparams["localworkdir"])
             
             # If we have success then break.
             if(error == 0):
@@ -73,5 +73,5 @@ class Staging:
         if(error != 0):
             raise RuntimeError("Failed to download files from remote.")
         else:
-            logger.info("staging files downstream complete.")
+            logger.info("Staging files complete.")
             

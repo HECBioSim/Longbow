@@ -124,8 +124,9 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
         # the application is actually in your path will happen automatically.
         application = Applications.test(shellcommand, jobconf.jobparams)
         
-    #------------------------------------------------------------------------
-    # Start processing the job setup and submit.
+        
+        #------------------------------------------------------------------------
+        # Start processing the job setup and submit.
     
         # Process the command line args to separate out all the files that need staging
         # and form a nice string for the scheduler.
@@ -140,28 +141,32 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
         # Submit the job to the scheduler.
         jobid = job.submit(shellcommand, jobconf.jobparams, submitfile)
         
+
+        #------------------------------------------------------------------------
+        # Monitor jobs.
+    
+    
+        job.monitor(shellcommand, stage, jobconf.jobparams, jobid)
+        
+
+        #------------------------------------------------------------------------
+        # Final transfer of data and clean up.
+    
+
+        # Download final results.
+        stage.stage_downstream(shellcommand, jobconf.jobparams)
+    
+        # Remove the remote directory.
+        shellcommand.remotedelete(jobconf.jobparams["remoteworkdir"])
+
+
     except Exception as e:
         if (debug == True): 
             logger.exception(e)
         else:
             logger.error(e) 
-    
-    #------------------------------------------------------------------------
-    # Monitor jobs.
-    sys.exit("Placeholder exit, re-factoring code!")
-    
-    job.monitor(shellcommand, stage, jobconf, jobid)
-    
-    
-    #------------------------------------------------------------------------
-    # Final transfer of data and clean up.
-    
 
-    # Download final results.
-    stage.stage_downstream(shellcommand, jobconf)
-    
-    # Remove the remote directory.
-    shellcommand.removefileremote(jobconf.remote_workdir)
+    logger.info("Closing ProxyApp.")
 
 
     #------------------------------------------------------------------------

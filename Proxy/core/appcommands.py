@@ -64,10 +64,6 @@ class Amber:
             if(item == "-i"): filelist.append(app_args[index+1])
             if(item == "-c"): filelist.append(app_args[index+1])
             if(item == "-p"): filelist.append(app_args[index+1])
-            
-            #TODO: Are these input or output files?
-            #if(item == "-r"): filelist.append(app_args[index+1])
-            #if(item == "-x"): filelist.append(app_args[index+1])
         
         # Log results.
         logger.info("Files for upload: " + "".join(filelist))
@@ -82,7 +78,7 @@ class Charmm:
     
     def __init__(self, command, executable):
         
-        logger.info("Application requested is Amber, now test to see if it's executable; " + executable + " is in your path.")
+        logger.info("Application requested is Charmm, now test to see if it's executable; " + executable + " is in your path.")
         
         # TODO: add charmm specific path checks
     
@@ -96,7 +92,7 @@ class Gromacs:
     
     def __init__(self, command, executable):
         
-        logger.info("Application requested is Amber, now test to see if it's executable; " + executable + " is in your path.")
+        logger.info("Application requested is Gromacs, now test to see if it's executable; " + executable + " is in your path.")
         
         # TODO: add Gromacs specific path checks
     
@@ -111,7 +107,7 @@ class Lammps:
     
     def __init__(self, command, executable):
         
-        logger.info("Application requested is Amber, now test to see if it's executable; " + executable + " is in your path.")
+        logger.info("Application requested is Lammps, now test to see if it's executable; " + executable + " is in your path.")
         
         # TODO: add Lammps specific path checks
     
@@ -125,7 +121,7 @@ class Namd:
     
     def __init__(self, command, executable):
         
-        logger.info("Application requested is Amber, now test to see if it's executable; " + executable + " is in your path.")
+        logger.info("Application requested is Namd, now test to see if it's executable; " + executable + " is in your path.")
         
         # TODO: add Namd specific path checks
     
