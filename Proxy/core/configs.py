@@ -135,6 +135,7 @@ class JobConfig:
                       "corespernode": "",
                       "executable": "",
                       "frequency": "",
+                      "batch": ""
                       }
         
         # Get the configs.
@@ -188,8 +189,9 @@ class JobConfig:
                 #    self.jobparams[param] = jobconfigs[section][param]
                 #except:
                 #   if (param != "batch"):
-                        #raise RuntimeError("The " + param + " seems have something wrong with it, either it \
-                        #                    is missing or it maybe the param name is not all lowercase or missspelled.")
-                        #else:
-                            #pass
+                #        raise RuntimeError("The " + param + " parameter seems to have something wrong with it, " +
+                #                           "either it is missing or it maybe the param name is not all " +
+                #                           "lowercase or misspelled.") from e
+                    #else:
+                        #pass
             

@@ -237,13 +237,6 @@ if __name__ == "__main__":
         logfile = command_line_args[position + 1]
         command_line_args.pop(position)
         command_line_args.pop(position)
-        
-    # Take out the reps parameter, then remove it from the command line list.
-    if(command_line_args.count("-reps") == 1):
-        position = command_line_args.index("-reps")
-        reps = command_line_args[position + 1]
-        command_line_args.pop(position)
-        command_line_args.pop(position)
     
     # Take out the debug parameter, then remove it from the command line list.
     if(command_line_args.count("-debug") == 1):

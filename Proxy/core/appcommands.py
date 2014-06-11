@@ -66,7 +66,7 @@ class Amber:
             if(item == "-p"): filelist.append(app_args[index+1])
         
         # Log results.
-        logger.info("Files for upload: " + "".join(filelist))
+        logger.info("Files for upload: " + ", ".join(filelist))
         logger.info("String for submitting simulation: " + args)
         
         return filelist, args
