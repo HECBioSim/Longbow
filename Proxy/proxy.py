@@ -29,10 +29,9 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
     debug      = Pass "True" if debug output is required.
     """
     
-    #TODO: Support multiple job submission as both reps and batches (see comments throughout code).
-    #TODO: Local methods in shellwrappers should have the shell based commands replaced with the native python
+    #TODO: Support multiple job submission (see comments throughout code).
+    #TODO: Local methods in shellwrappers should have the shell based commands replaced with the native python.
     #      versions.
-    #TODO: Formatting and add remaining exceptions (the placeholder marker below marks progress point).
     #TODO: Various classes and methods are missing documentation comments and also hashed comments, add these.
     
     #------------------------------------------------------------------------
@@ -130,7 +129,7 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
     
         # Process the command line args to separate out all the files that need staging
         # and form a nice string for the scheduler.
-        filelist, arglist = application.processjob(app_args, jobconf.jobparams["executable"])
+        filelist, arglist = application.processjob(app_args, jobconf.jobparams)
     
         # Create the jobfile and append it to the list of files that need uploading.
         filelist, submitfile = job.jobfile(jobconf.jobparams, arglist, filelist)

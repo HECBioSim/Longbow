@@ -169,11 +169,9 @@ class JobConfig:
             
             try:
                 self.jobparams[param] = jobconfigs[section][param]
-            except Exception as e:
-                if (param != "batch"):
-                    raise RuntimeError("The " + param + " parameter seems to have something wrong with it, " +
-                                       "either it is missing or it maybe the param name is not all " +
-                                       "lowercase or misspelled.") from e
+            except Exception:
+                if (param == "batch"):
+                    self.jobparams["batch"] = "1"
                 else:
                     pass
         

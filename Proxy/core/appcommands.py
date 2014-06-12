@@ -28,22 +28,22 @@ class Amber:
     
     """Class specific to methods for processing Amber jobs."""
     
-    def __init__(self, command, executable):
+    def __init__(self, command, jobparams):
         
         
-        logger.info("Application requested is Amber, now test to see if it's executable; " + executable + " is in your path.")
+        logger.info("Application requested is Amber, now test to see if it's executable; " + jobparams["executable"] + " is in your path.")
 
         # Check to see if amber is in the path
-        if(executable != ""):
+        if(jobparams["executable"] != ""):
             # If user specifies an executable to use then check for it.
-            if(command.runremote(["which " + executable + " &> /dev/null"])[0] != 0):
-                raise RuntimeError(executable + " is not in your path, if your machine uses modules add the module load to your bash profile.")
+            if(command.runremote(["which " + jobparams["executable"] + " &> /dev/null"])[0] != 0):
+                raise RuntimeError(jobparams["executable"] + " is not in your path, if your machine uses modules add the module load to your bash profile.")
             else: 
-                logger.info(executable + " has been found in your path.")
+                logger.info(jobparams["executable"] + " has been found in your path.")
         else:
             raise("The executable parameter was not set.")
     
-    def processjob(self, app_args, executable):
+    def processjob(self, app_args, jobparams):
         
         logger.info("Processing job to extract files that require upload.")
         
@@ -51,7 +51,7 @@ class Amber:
         filelist = []
         
         # Append executable to args string.
-        args = executable 
+        args = jobparams["executable"] 
         
         # Process the command line args and find files for staging.
         for item in app_args:
