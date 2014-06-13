@@ -130,10 +130,12 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
         # Process the command line args to separate out all the files that need staging
         # and form a nice string for the scheduler.
         filelist, arglist = application.processjob(app_args, jobconf.jobparams)
-    
+        print(filelist)
+        print(arglist)
+        sys.exit("normal")
         # Create the jobfile and append it to the list of files that need uploading.
         filelist, submitfile = job.jobfile(jobconf.jobparams, arglist, filelist)
-    
+        
         # Stage all of the job files along with the scheduling script.
         stage.stage_upstream(shellcommand, jobconf.jobparams, filelist)
 

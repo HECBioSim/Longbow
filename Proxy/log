@@ -1,28 +1,17 @@
-2014-06-12 14:49:42,889 - ProxyApp - pmemd.py           - INFO     - ProxyApp is now started.
-2014-06-12 14:49:42,889 - ProxyApp - configs.py         - INFO     - Loading up the job configuration file and obtain all job set parameters.
-2014-06-12 14:49:42,890 - ProxyApp - configs.py         - INFO     - Loading configuration for destination computer from /media/storage/Workspace/Git/ProxyApp/Proxy/hosts.conf
-2014-06-12 14:49:42,890 - ProxyApp - shellwrappers.py   - INFO     - Testing the connection to jtg@login.archer.ac.uk
-2014-06-12 14:49:43,477 - ProxyApp - shellwrappers.py   - INFO     - Connection established to jtg@login.archer.ac.uk
-2014-06-12 14:49:43,477 - ProxyApp - appcommands.py     - INFO     - Application requested is Amber, now test to see if it's executable; pmemd.MPI is in your path.
-2014-06-12 14:49:44,053 - ProxyApp - appcommands.py     - INFO     - pmemd.MPI has been found in your path.
-2014-06-12 14:49:44,053 - ProxyApp - appcommands.py     - INFO     - Processing job to extract files that require upload.
-2014-06-12 14:49:44,054 - ProxyApp - appcommands.py     - INFO     - Files for upload: md1.in, 1apt2.min2, 1apt2.top
-2014-06-12 14:49:44,054 - ProxyApp - appcommands.py     - INFO     - String for submitting simulation: pmemd.MPI -i md1.in -c 1apt2.min2 -p 1apt2.top -o md1.out
-2014-06-12 14:49:44,054 - ProxyApp - jobcommands.py     - INFO     - Files for upload: md1.in1apt2.min21apt2.topjob.pbs
-2014-06-12 14:49:44,054 - ProxyApp - staging.py         - INFO     - Preparing to stage files to remote host.
-2014-06-12 14:49:44,653 - ProxyApp - staging.py         - INFO     - 'test' already exists so files will be staged here.
-2014-06-12 14:49:48,566 - ProxyApp - staging.py         - INFO     - Staging files complete.
-2014-06-12 14:49:48,567 - ProxyApp - jobcommands.py     - INFO     - Submitting the job to the remote host.
-2014-06-12 14:49:49,292 - ProxyApp - jobcommands.py     - INFO     - Job submitted with id = 337431.sdb
-2014-06-12 14:49:49,293 - ProxyApp - jobcommands.py     - INFO     - Starting the job monitoring - this will stay alive until the last job finishes.
-2014-06-12 14:49:49,950 - ProxyApp - jobcommands.py     - INFO     - Job with id 337431.sdb is Queued.
-2014-06-12 14:51:51,845 - ProxyApp - jobcommands.py     - INFO     - All jobs are complete.
-2014-06-12 14:51:51,846 - ProxyApp - staging.py         - INFO     - Staging from remote to local host.
-2014-06-12 14:52:24,011 - ProxyApp - pmemd.py           - ERROR    - Failed to download files from remote.
+2014-06-13 17:02:14,727 - ProxyApp - proxy.py           - INFO     - ProxyApp is now started.
+2014-06-13 17:02:14,727 - ProxyApp - configs.py         - INFO     - Loading up the job configuration file and obtain all job set parameters.
+2014-06-13 17:02:14,727 - ProxyApp - configs.py         - INFO     - Loading configuration for destination computer from /media/storage/Workspace/Git/ProxyApp/Proxy/hosts.conf
+2014-06-13 17:02:14,728 - ProxyApp - shellwrappers.py   - INFO     - Testing the connection to jtg@login.archer.ac.uk
+2014-06-13 17:02:15,392 - ProxyApp - shellwrappers.py   - INFO     - Connection established to jtg@login.archer.ac.uk
+2014-06-13 17:02:15,393 - ProxyApp - jobcommands.py     - INFO     - Scheduler: PBS
+2014-06-13 17:02:15,394 - ProxyApp - appcommands.py     - INFO     - Application requested is Amber, now test to see if it's executable; pmemd.MPI is in your path.
+2014-06-13 17:02:16,105 - ProxyApp - appcommands.py     - INFO     - pmemd.MPI has been found in your path.
+2014-06-13 17:02:16,105 - ProxyApp - appcommands.py     - INFO     - Processing job/s to extract files that require upload.
+2014-06-13 17:02:16,105 - ProxyApp - proxy.py           - ERROR    - 'int' object has no attribute 'next'
 Traceback (most recent call last):
-  File "/media/storage/Workspace/Git/ProxyApp/Proxy/pmemd.py", line 156, in proxy
-    stage.stage_downstream(shellcommand, jobconf.jobparams)
-  File "/media/storage/Workspace/Git/ProxyApp/Proxy/core/staging.py", line 74, in stage_downstream
-    raise RuntimeError("Failed to download files from remote.")
-RuntimeError: Failed to download files from remote.
-2014-06-12 14:52:24,015 - ProxyApp - pmemd.py           - INFO     - Closing ProxyApp.
+  File "/media/storage/Workspace/Git/ProxyApp/Proxy/proxy.py", line 132, in proxy
+    filelist, arglist = application.processjob(app_args, jobconf.jobparams)
+  File "/media/storage/Workspace/Git/ProxyApp/Proxy/core/appcommands.py", line 103, in processjob
+    index.next()
+AttributeError: 'int' object has no attribute 'next'
+2014-06-13 17:02:16,106 - ProxyApp - proxy.py           - INFO     - Closing ProxyApp.

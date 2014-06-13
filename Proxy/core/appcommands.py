@@ -1,4 +1,5 @@
 import logging
+import os
 
 logger = logging.getLogger("ProxyApp")
 
@@ -13,11 +14,11 @@ class Applications:
         tmp = jobparams["program"].lower()
         
         # Establish software being used and select class to instantiate.
-        if(tmp == "amber"): return Amber(command, jobparams["executable"])
-        elif(tmp == "charmm"): return Charmm(command, jobparams["executable"])
-        elif(tmp == "gromacs"): return Gromacs(command, jobparams["executable"])
-        elif(tmp == "lammps"): return Lammps(command, jobparams["executable"])
-        elif(tmp == "namd"): return Namd(command, jobparams["executable"])
+        if(tmp == "amber"): return Amber(command, jobparams)
+        elif(tmp == "charmm"): return Charmm(command, jobparams)
+        elif(tmp == "gromacs"): return Gromacs(command, jobparams)
+        elif(tmp == "lammps"): return Lammps(command, jobparams)
+        elif(tmp == "namd"): return Namd(command, jobparams)
         else:
             raise RuntimeError("Failed to instantiate the app class, check that the program parameter is set and corresponds to one of the supported applications")
         
@@ -45,7 +46,7 @@ class Amber:
     
     def processjob(self, app_args, jobparams):
         
-        logger.info("Processing job to extract files that require upload.")
+        logger.info("Processing job/s to extract files that require upload.")
         
         # List for files that need staging.
         filelist = []
@@ -53,18 +54,65 @@ class Amber:
         # Append executable to args string.
         args = jobparams["executable"] 
         
-        # Process the command line args and find files for staging.
-        for item in app_args:
-            index = app_args.index(item)
-            
-            # Put ALL of the args specified on the commandline into a string.
-            args = args + " " + item
-            
-            # Find the amber input files that require staging.
-            if(item == "-i"): filelist.append(app_args[index+1])
-            if(item == "-c"): filelist.append(app_args[index+1])
-            if(item == "-p"): filelist.append(app_args[index+1])
+        # Does the batch contain just a single job.
+        if(jobparams["batch"]=="1"):
         
+            # Process the command line args and find files for staging.
+            for index, item in app_args:
+            
+                # Put ALL of the args specified on the commandline into a string.
+                args = args + " " + item
+            
+                # Find the amber input files that require staging.
+                if(item == "-i" or
+                   item == "-c" or
+                   item == "-p" or
+                   item == "-ref"): 
+                    
+                    # Add them to the list.
+                    filelist.append(app_args[index+1])
+                    
+                    # Check it is there.
+                    if(os.path.isfile(jobparams["localworkdir"] + "/" + app_args[index+1]) == False):
+                        raise RuntimeError("A file you have supplied on commandline does not exist.")
+                    
+        # Else the batch should have many.    
+        elif(jobparams["batch"] > "1"):
+            
+            # Process the batch job and extract any globals
+            for index, item in enumerate(app_args):
+                
+                # Put ALL of the args specified on the commandline into a string.
+                args = args + " " + item
+                
+                # This only really needs doing for the inputs.
+                if(item == "-i" or
+                   item == "-c" or
+                   item == "-p" or
+                   item == "-ref"):
+                    
+                    # If a file with the same name as those in the subdirs is placed in the workdir then this 
+                    # will override those and act as a default.
+                    if(os.path.isfile(jobparams["localworkdir"] + "/" + app_args[index+1]) == True):
+                        
+                        # Add file to list of files required to upload.
+                        filelist.append(app_args[index+1])
+                        
+                        args = args + " ../" + app_args[index+1]
+                        
+                        #TODO: need to increment the index by 1 somehow
+                        
+                    else:
+                        # Else we just process all the files as normal.
+                        for i in range(1, int(jobparams["batch"])+1):
+                            
+                            # Add file to list of files required to upload.
+                            filelist.append("rep" + str(i) + "/" + app_args[index+1])
+                            
+                            # Check it is there.
+                            if(os.path.isfile(jobparams["localworkdir"] + "/rep" + str(i) + "/" + app_args[index+1]) == False):
+                                raise RuntimeError("A file you have supplied on commandline does not exist.")                
+                    
         # Log results.
         logger.info("Files for upload: " + ", ".join(filelist))
         logger.info("String for submitting simulation: " + args)
