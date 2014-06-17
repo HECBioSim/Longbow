@@ -19,7 +19,7 @@ class HostConfig:
         
         self.configfile = configfile
         self.resource = jobparams["resource"]
-        
+
         # Dictionary for the host config params.
         self.hostparams = {
                       "host": "",
@@ -53,7 +53,7 @@ class HostConfig:
         # Make all sections in sectionlist lower case to be case agnostic.
         sectionlisttmp = sectionlist
         sectionlisttmp = [x.lower() for x in sectionlisttmp]
-        
+
         # Check now if the section we want is there.
         if (self.resource.lower() not in sectionlisttmp):
             raise RuntimeError("The resource specified in the job configuration is not " +
@@ -73,16 +73,17 @@ class HostConfig:
         # option can be missing as this can be tested later using the test functions of the library.
         for param in self.hostparams:
             try:
-                self.hostparams[param] = hostconfigs[self.resource][param]
-            except (Exception):
-                if(param != "scheduler"):
+                self.hostparams[param] = hostconfigs.get(self.resource, param)
+            except (Exception):                            
+                if(param == "port"):
+                    self.hostparams["port"] = "22"
+                    logging.info("No port specified for host " + self.resource + " the default " +
+                                     "port 22 is going to be used.")
+                    
+                elif(param != "scheduler"):
                     raise RuntimeError("Nothing has been specified for host parameter " + param + 
                                        " this is not optional.")
-                    
-                    if(param == "port"):
-                        self.hostparams["port"] = "22"
-                        logging.info("No port specified for host " + self.resource + " the default " +
-                                     "port 22 is going to be used.")
+
                         
         
             
@@ -148,7 +149,7 @@ class JobConfig:
         """Load the parameters from the job config file."""
         
         logger.info("Loading up the job configuration file and obtain all job set parameters.")
-        
+
         # Bind the config parser to the job file.
         jobconfigs = configparser.ConfigParser()
         jobconfigs.read(jobfile)
@@ -159,21 +160,22 @@ class JobConfig:
             raise RuntimeError("No sections defined in the job config file each section defines " +
                                "a job configuration, sections are defined within [] followed by a " +
                                "list of params of the form param1 = val1 etc.")
-        
+
         #TODO: Delete this once the multijobs is supported.
         # Parse all the config entries under default.
         section = sectionlist[0]
-        
+
         # Parse all the config entries under first section.
         for param in self.jobparams:
             
             try:
-                self.jobparams[param] = jobconfigs[section][param]
-            except Exception:
+                self.jobparams[param] = jobconfigs.get(section, param)
+                
+            except Exception as e:
                 if (param == "batch"):
                     self.jobparams["batch"] = "1"
                 else:
-                    pass
+                    print e
         
         #TODO: Once the multijobs are supported then this should be used and modified accordingly if necessary.
         # Loop through all sections in the jobfile (we are assuming any job config specified is there

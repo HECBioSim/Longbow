@@ -1,13 +1,13 @@
-2014-06-17 15:24:26,227 - ProxyApp - proxy.py           - INFO     - ProxyApp is now started.
-2014-06-17 15:24:26,227 - ProxyApp - configs.py         - INFO     - Loading up the job configuration file and obtain all job set parameters.
-2014-06-17 15:24:26,227 - ProxyApp - configs.py         - INFO     - Loading configuration for destination computer from /media/storage/Workspace/Git/ProxyApp/Proxy/hosts.conf
-2014-06-17 15:24:26,227 - ProxyApp - proxy.py           - ERROR    - The resource specified in the job configuration is not found, this could either not exist or be misspelled.
+2014-06-17 16:00:39,671 - ProxyApp - proxy.py           - INFO     - ProxyApp is now started.
+2014-06-17 16:00:39,671 - ProxyApp - configs.py         - INFO     - Loading up the job configuration file and obtain all job set parameters.
+2014-06-17 16:00:39,671 - ProxyApp - configs.py         - INFO     - Loading configuration for destination computer from /media/storage/Workspace/Git/ProxyApp/Proxy/hosts.conf
+2014-06-17 16:00:39,672 - ProxyApp - proxy.py           - ERROR    - Nothing has been specified for host parameter host this is not optional.
 Traceback (most recent call last):
   File "/media/storage/Workspace/Git/ProxyApp/Proxy/proxy.py", line 108, in proxy
     resource = HostConfig(jobconf.jobparams, configfile)
   File "/media/storage/Workspace/Git/ProxyApp/Proxy/core/configs.py", line 32, in __init__
     self.loadhostconfigs()
-  File "/media/storage/Workspace/Git/ProxyApp/Proxy/core/configs.py", line 60, in loadhostconfigs
-    "found, this could either not exist or be misspelled.")
-RuntimeError: The resource specified in the job configuration is not found, this could either not exist or be misspelled.
-2014-06-17 15:24:26,228 - ProxyApp - proxy.py           - INFO     - Closing ProxyApp.
+  File "/media/storage/Workspace/Git/ProxyApp/Proxy/core/configs.py", line 80, in loadhostconfigs
+    " this is not optional.")
+RuntimeError: Nothing has been specified for host parameter host this is not optional.
+2014-06-17 16:00:39,672 - ProxyApp - proxy.py           - INFO     - Closing ProxyApp.
