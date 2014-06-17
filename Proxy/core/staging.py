@@ -1,4 +1,5 @@
 import time
+import os
 import logging
 
 logger = logging.getLogger("ProxyApp")
@@ -39,7 +40,11 @@ class Staging:
             
             for j in range(3):
                 
-                error = command.upload(jobparams["localworkdir"] + "/" + filelist[i], jobparams["remoteworkdir"])
+                if(os.path.dirname(filelist[i]) != ""):
+                    if(command.remotelist(jobparams["remoteworkdir"] + "/" + os.path.dirname(filelist[i])) != 0):
+                        command.runremote(["mkdir " + jobparams["remoteworkdir"] + "/" + os.path.dirname(filelist[i])])
+                
+                error = command.upload(jobparams["localworkdir"] + "/" + filelist[i], jobparams["remoteworkdir"] + "/" + os.path.dirname(filelist[i]))
             
                 # If we have success then break.
                 if(error == 0):

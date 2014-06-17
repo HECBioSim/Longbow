@@ -117,10 +117,21 @@ class Pbs(Scheduler):
                       "#PBS -A " + jobparams["account"] + "\n"
                       "export PBS_O_WORKDIR=$(readlink -f $PBS_O_WORKDIR) \n"
                       "cd $PBS_O_WORKDIR \n"
-                      "export OMP_NUM_THREADS=1 \n"
-                      "aprun -n " + jobparams["cores"] + " -N " + jobparams["corespernode"] + " " + args + " & \n")
+                      "export OMP_NUM_THREADS=1 \n")
+        
+        if(int(jobparams["batch"]) == 1):
+            
+            jobfile.write("aprun -n " + jobparams["cores"] + " -N " + jobparams["corespernode"] + " " + args + " & \n")
 
-        #jobfile.write("wait \n")
+        elif(int(jobparams["batch"]) > 1): 
+            
+            jobfile.write("basedir=$PBS_O_WORKDIR \n"
+                          "for i in {1.." + jobparams["batch"] + "}; \n" 
+                          "do \n"
+                          "  cd $basedir/rep$i/ \n"
+                          "  aprun -n " + jobparams["cores"] + " -N " + jobparams["corespernode"] + " " + args + " & \n"
+                          "done \n"
+                          "wait \n")
         
         # Close the file (housekeeping)
         jobfile.close()
@@ -128,7 +139,7 @@ class Pbs(Scheduler):
         # Append pbs file to list of files ready for staging.
         filelist.extend([pbsfile])
         
-        logger.info("Files for upload: " + "".join(filelist))
+        logger.info("Files for upload: " + ", ".join(filelist))
         
         return filelist, pbsfile
 

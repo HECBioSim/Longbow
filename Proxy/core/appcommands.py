@@ -55,10 +55,12 @@ class Amber:
         args = jobparams["executable"] 
         
         # Does the batch contain just a single job.
-        if(jobparams["batch"]=="1"):
+        if(int(jobparams["batch"]) == 1):
         
             # Process the command line args and find files for staging.
-            for index, item in app_args:
+            iappargs = iter(app_args)
+            for item in iappargs:
+                index = app_args.index(item)
             
                 # Put ALL of the args specified on the commandline into a string.
                 args = args + " " + item
@@ -77,12 +79,14 @@ class Amber:
                         raise RuntimeError("A file you have supplied on commandline does not exist.")
                     
         # Else the batch should have many.    
-        elif(jobparams["batch"] > "1"):
+        elif(int(jobparams["batch"]) > 1):
             
             # Process the batch job and extract any globals
-            for index, item in enumerate(app_args):
+            iappargs = iter(app_args)
+            for item in iappargs:
+                index = app_args.index(item)
                 
-                # Put ALL of the args specified on the commandline into a string.
+                # Put ALL of the args specified on the command line into a string.
                 args = args + " " + item
                 
                 # This only really needs doing for the inputs.
@@ -100,7 +104,7 @@ class Amber:
                         
                         args = args + " ../" + app_args[index+1]
                         
-                        #TODO: need to increment the index by 1 somehow
+                        next(iappargs, None)
                         
                     else:
                         # Else we just process all the files as normal.
@@ -111,7 +115,7 @@ class Amber:
                             
                             # Check it is there.
                             if(os.path.isfile(jobparams["localworkdir"] + "/rep" + str(i) + "/" + app_args[index+1]) == False):
-                                raise RuntimeError("A file you have supplied on commandline does not exist.")                
+                                raise RuntimeError("A file you have supplied on command line does not exist.")                
                     
         # Log results.
         logger.info("Files for upload: " + ", ".join(filelist))

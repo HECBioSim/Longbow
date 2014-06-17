@@ -130,9 +130,7 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
         # Process the command line args to separate out all the files that need staging
         # and form a nice string for the scheduler.
         filelist, arglist = application.processjob(app_args, jobconf.jobparams)
-        print(filelist)
-        print(arglist)
-        sys.exit("normal")
+
         # Create the jobfile and append it to the list of files that need uploading.
         filelist, submitfile = job.jobfile(jobconf.jobparams, arglist, filelist)
         
@@ -141,7 +139,7 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
 
         # Submit the job to the scheduler.
         jobid = job.submit(shellcommand, jobconf.jobparams, submitfile)
-        
+
 
         #------------------------------------------------------------------------
         # Monitor jobs.
@@ -199,11 +197,11 @@ if __name__ == "__main__":
     
 
     # Fetch command line arguments
-    command_line_args = sys.argv 
+    commandlineargs = sys.argv 
     
     # Remove the first argument (the application path)
-    currentpath = command_line_args[0]
-    command_line_args.pop(0)
+    currentpath = commandlineargs[0]
+    commandlineargs.pop(0)
     
     # Initialise file path params, so we can pass blank to signify use default paths 
     # if not supplied.
@@ -219,30 +217,30 @@ if __name__ == "__main__":
 
 
     # Take out the config file path, then remove it from the command line argument list.
-    if(command_line_args.count("-conf") == 1):
-        position = command_line_args.index("-conf")
-        confile = command_line_args[position + 1]
-        command_line_args.pop(position)
-        command_line_args.pop(position)
+    if(commandlineargs.count("-conf") == 1):
+        position = commandlineargs.index("-conf")
+        confile = commandlineargs[position + 1]
+        commandlineargs.pop(position)
+        commandlineargs.pop(position)
      
     # Take out the job config file path, then remove it from the command line argument list.
-    if(command_line_args.count("-job") == 1):
-        position = command_line_args.index("-job")
-        jobfile = command_line_args[position + 1]
-        command_line_args.pop(position)
-        command_line_args.pop(position)
+    if(commandlineargs.count("-job") == 1):
+        position = commandlineargs.index("-job")
+        jobfile = commandlineargs[position + 1]
+        commandlineargs.pop(position)
+        commandlineargs.pop(position)
      
     # Take out the log file path, then remove it from the command line argument list.
-    if(command_line_args.count("-log") == 1):
-        position = command_line_args.index("-log")
-        logfile = command_line_args[position + 1]
-        command_line_args.pop(position)
-        command_line_args.pop(position)
+    if(commandlineargs.count("-log") == 1):
+        position = commandlineargs.index("-log")
+        logfile = commandlineargs[position + 1]
+        commandlineargs.pop(position)
+        commandlineargs.pop(position)
     
     # Take out the debug parameter, then remove it from the command line list.
-    if(command_line_args.count("-debug") == 1):
-        position = command_line_args.index("-debug")
-        command_line_args.pop(position)
+    if(commandlineargs.count("-debug") == 1):
+        position = commandlineargs.index("-debug")
+        commandlineargs.pop(position)
         debug =True
         
     
@@ -250,5 +248,5 @@ if __name__ == "__main__":
     # Call ProxyApp.
         
     # Enter the main application.
-    proxy(currentpath, command_line_args, confile, jobfile, logfile, debug) 
+    proxy(currentpath, commandlineargs, confile, jobfile, logfile, debug) 
     
