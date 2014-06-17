@@ -1,23 +1,13 @@
-2014-06-17 14:30:05,344 - ProxyApp - proxy.py           - INFO     - ProxyApp is now started.
-2014-06-17 14:30:05,344 - ProxyApp - configs.py         - INFO     - Loading up the job configuration file and obtain all job set parameters.
-2014-06-17 14:30:05,344 - ProxyApp - configs.py         - INFO     - Loading configuration for destination computer from /media/storage/Workspace/Git/ProxyApp/Proxy/hosts.conf
-2014-06-17 14:30:05,345 - ProxyApp - shellwrappers.py   - INFO     - Testing the connection to jtg@login.archer.ac.uk
-2014-06-17 14:30:06,032 - ProxyApp - shellwrappers.py   - INFO     - Connection established to jtg@login.archer.ac.uk
-2014-06-17 14:30:06,033 - ProxyApp - jobcommands.py     - INFO     - Scheduler: PBS
-2014-06-17 14:30:06,034 - ProxyApp - appcommands.py     - INFO     - Application requested is Amber, now test to see if it's executable; pmemd.MPI is in your path.
-2014-06-17 14:30:06,726 - ProxyApp - appcommands.py     - INFO     - pmemd.MPI has been found in your path.
-2014-06-17 14:30:06,726 - ProxyApp - appcommands.py     - INFO     - Processing job/s to extract files that require upload.
-2014-06-17 14:30:06,727 - ProxyApp - appcommands.py     - INFO     - Files for upload: rep1/md1.in, rep2/md1.in, rep3/md1.in, rep4/md1.in, rep5/md1.in, rep1/1apt2.min2, rep2/1apt2.min2, rep3/1apt2.min2, rep4/1apt2.min2, rep5/1apt2.min2, rep1/1apt2.top, rep2/1apt2.top, rep3/1apt2.top, rep4/1apt2.top, rep5/1apt2.top
-2014-06-17 14:30:06,728 - ProxyApp - appcommands.py     - INFO     - String for submitting simulation: pmemd.MPI -i md1.in -c 1apt2.min2 -p 1apt2.top -o md1.out
-2014-06-17 14:30:06,729 - ProxyApp - jobcommands.py     - INFO     - Files for upload: rep1/md1.inrep2/md1.inrep3/md1.inrep4/md1.inrep5/md1.inrep1/1apt2.min2rep2/1apt2.min2rep3/1apt2.min2rep4/1apt2.min2rep5/1apt2.min2rep1/1apt2.toprep2/1apt2.toprep3/1apt2.toprep4/1apt2.toprep5/1apt2.topjob.pbs
-2014-06-17 14:30:06,729 - ProxyApp - staging.py         - INFO     - Preparing to stage files to remote host.
-2014-06-17 14:30:07,888 - ProxyApp - staging.py         - INFO     - dir '/work/e280/e280/jtg/batch' created successfully.
-2014-06-17 14:30:37,156 - ProxyApp - staging.py         - INFO     - Staging files complete.
-2014-06-17 14:30:37,156 - ProxyApp - jobcommands.py     - INFO     - Submitting the job to the remote host.
-2014-06-17 14:30:44,573 - ProxyApp - jobcommands.py     - INFO     - Job submitted with id = 346050.sdb
-2014-06-17 14:30:44,574 - ProxyApp - jobcommands.py     - INFO     - Starting the job monitoring - this will stay alive until the last job finishes.
-2014-06-17 14:30:45,711 - ProxyApp - jobcommands.py     - INFO     - Job with id 346050.sdb is Queued.
-2014-06-17 14:52:01,461 - ProxyApp - jobcommands.py     - INFO     - All jobs are complete.
-2014-06-17 14:52:01,462 - ProxyApp - staging.py         - INFO     - Staging from remote to local host.
-2014-06-17 14:52:07,995 - ProxyApp - staging.py         - INFO     - Staging files complete.
-2014-06-17 14:52:08,666 - ProxyApp - proxy.py           - INFO     - Closing ProxyApp.
+2014-06-17 15:24:26,227 - ProxyApp - proxy.py           - INFO     - ProxyApp is now started.
+2014-06-17 15:24:26,227 - ProxyApp - configs.py         - INFO     - Loading up the job configuration file and obtain all job set parameters.
+2014-06-17 15:24:26,227 - ProxyApp - configs.py         - INFO     - Loading configuration for destination computer from /media/storage/Workspace/Git/ProxyApp/Proxy/hosts.conf
+2014-06-17 15:24:26,227 - ProxyApp - proxy.py           - ERROR    - The resource specified in the job configuration is not found, this could either not exist or be misspelled.
+Traceback (most recent call last):
+  File "/media/storage/Workspace/Git/ProxyApp/Proxy/proxy.py", line 108, in proxy
+    resource = HostConfig(jobconf.jobparams, configfile)
+  File "/media/storage/Workspace/Git/ProxyApp/Proxy/core/configs.py", line 32, in __init__
+    self.loadhostconfigs()
+  File "/media/storage/Workspace/Git/ProxyApp/Proxy/core/configs.py", line 60, in loadhostconfigs
+    "found, this could either not exist or be misspelled.")
+RuntimeError: The resource specified in the job configuration is not found, this could either not exist or be misspelled.
+2014-06-17 15:24:26,228 - ProxyApp - proxy.py           - INFO     - Closing ProxyApp.

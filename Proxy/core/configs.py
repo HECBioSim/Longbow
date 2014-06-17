@@ -1,4 +1,4 @@
-import configparser
+import ConfigParser as configparser
 import logging
 
 logger = logging.getLogger("ProxyApp")
@@ -74,10 +74,10 @@ class HostConfig:
         for param in self.hostparams:
             try:
                 self.hostparams[param] = hostconfigs[self.resource][param]
-            except Exception as e:
+            except (Exception):
                 if(param != "scheduler"):
                     raise RuntimeError("Nothing has been specified for host parameter " + param + 
-                                       " this is not optional.") from e
+                                       " this is not optional.")
                     
                     if(param == "port"):
                         self.hostparams["port"] = "22"
