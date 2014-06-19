@@ -93,7 +93,7 @@ class ShellCommands:
         
         errorstate = self.runcommand(cmd)[0]
         
-        #TODO: we should probably do something with the output and return from here this might be useful (test = out.split()) 
+        #TODO: we should probably do something with the output and return from here this might be useful. 
         
         return errorstate
     
@@ -127,11 +127,11 @@ class ShellCommands:
         
         """Listing dirs remotely is much easier when done remotely as ls [path] can be called over ssh."""
         
-        cmd = ["ls", path]
+        cmd = ["ls" + " " + path + " " + "2> /dev/null"]
     
         errorstate = self.runremote(cmd)[0]
         
-        #TODO: we should probably do something with the output and return from here this might be useful (test = out.split()) 
+        #TODO: we should probably do something with the output and return from here this might be useful. 
         
         return errorstate
 
