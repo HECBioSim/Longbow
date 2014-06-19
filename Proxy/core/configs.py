@@ -83,8 +83,6 @@ class HostConfig:
                 elif(param != "scheduler"):
                     raise RuntimeError("Nothing has been specified for host parameter " + param + 
                                        " this is not optional.")
-
-                        
         
             
     def savehostconfigs(self, flag, value):

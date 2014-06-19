@@ -1,13 +1,29 @@
-2014-06-17 16:00:39,671 - ProxyApp - proxy.py           - INFO     - ProxyApp is now started.
-2014-06-17 16:00:39,671 - ProxyApp - configs.py         - INFO     - Loading up the job configuration file and obtain all job set parameters.
-2014-06-17 16:00:39,671 - ProxyApp - configs.py         - INFO     - Loading configuration for destination computer from /media/storage/Workspace/Git/ProxyApp/Proxy/hosts.conf
-2014-06-17 16:00:39,672 - ProxyApp - proxy.py           - ERROR    - Nothing has been specified for host parameter host this is not optional.
+2014-06-17 16:06:08,306 - ProxyApp - proxy.py           - INFO     - ProxyApp is now started.
+2014-06-17 16:06:08,306 - ProxyApp - configs.py         - INFO     - Loading up the job configuration file and obtain all job set parameters.
+2014-06-17 16:06:08,306 - ProxyApp - configs.py         - INFO     - Loading configuration for destination computer from /media/storage/Workspace/Git/ProxyApp/Proxy/hosts.conf
+2014-06-17 16:06:08,307 - ProxyApp - shellwrappers.py   - INFO     - Testing the connection to jtg@login.archer.ac.uk
+2014-06-17 16:06:08,937 - ProxyApp - shellwrappers.py   - INFO     - Connection established to jtg@login.archer.ac.uk
+2014-06-17 16:06:08,937 - ProxyApp - jobcommands.py     - INFO     - Scheduler: PBS
+2014-06-17 16:06:08,937 - ProxyApp - appcommands.py     - INFO     - Application requested is Amber, now test to see if it's executable; pmemd.MPI is in your path.
+2014-06-17 16:06:09,629 - ProxyApp - appcommands.py     - INFO     - pmemd.MPI has been found in your path.
+2014-06-17 16:06:09,630 - ProxyApp - appcommands.py     - INFO     - Processing job/s to extract files that require upload.
+2014-06-17 16:06:09,631 - ProxyApp - appcommands.py     - INFO     - Files for upload: rep1/md1.in, rep2/md1.in, rep3/md1.in, rep4/md1.in, rep5/md1.in, rep1/1apt2.min2, rep2/1apt2.min2, rep3/1apt2.min2, rep4/1apt2.min2, rep5/1apt2.min2, rep1/1apt2.top, rep2/1apt2.top, rep3/1apt2.top, rep4/1apt2.top, rep5/1apt2.top
+2014-06-17 16:06:09,631 - ProxyApp - appcommands.py     - INFO     - String for submitting simulation: pmemd.MPI -i md1.in -c 1apt2.min2 -p 1apt2.top -o md1.out
+2014-06-17 16:06:09,632 - ProxyApp - jobcommands.py     - INFO     - Files for upload: rep1/md1.in, rep2/md1.in, rep3/md1.in, rep4/md1.in, rep5/md1.in, rep1/1apt2.min2, rep2/1apt2.min2, rep3/1apt2.min2, rep4/1apt2.min2, rep5/1apt2.min2, rep1/1apt2.top, rep2/1apt2.top, rep3/1apt2.top, rep4/1apt2.top, rep5/1apt2.top, job.pbs
+2014-06-17 16:06:09,632 - ProxyApp - staging.py         - INFO     - Preparing to stage files to remote host.
+2014-06-17 16:06:10,980 - ProxyApp - staging.py         - INFO     - dir '/work/e280/e280/jtg/batch' created successfully.
+2014-06-17 16:06:39,617 - ProxyApp - staging.py         - INFO     - Staging files complete.
+2014-06-17 16:06:39,618 - ProxyApp - jobcommands.py     - INFO     - Submitting the job to the remote host.
+2014-06-17 16:06:40,307 - ProxyApp - jobcommands.py     - INFO     - Job submitted with id = 346302.sdb
+2014-06-17 16:06:40,307 - ProxyApp - jobcommands.py     - INFO     - Starting the job monitoring - this will stay alive until the last job finishes.
+2014-06-17 16:06:40,915 - ProxyApp - jobcommands.py     - INFO     - Job with id 346302.sdb is Queued.
+2014-06-17 16:08:41,722 - ProxyApp - jobcommands.py     - INFO     - All jobs are complete.
+2014-06-17 16:08:41,722 - ProxyApp - staging.py         - INFO     - Staging from remote to local host.
+2014-06-17 16:09:13,846 - ProxyApp - proxy.py           - ERROR    - Failed to download files from remote.
 Traceback (most recent call last):
-  File "/media/storage/Workspace/Git/ProxyApp/Proxy/proxy.py", line 108, in proxy
-    resource = HostConfig(jobconf.jobparams, configfile)
-  File "/media/storage/Workspace/Git/ProxyApp/Proxy/core/configs.py", line 32, in __init__
-    self.loadhostconfigs()
-  File "/media/storage/Workspace/Git/ProxyApp/Proxy/core/configs.py", line 80, in loadhostconfigs
-    " this is not optional.")
-RuntimeError: Nothing has been specified for host parameter host this is not optional.
-2014-06-17 16:00:39,672 - ProxyApp - proxy.py           - INFO     - Closing ProxyApp.
+  File "/media/storage/Workspace/Git/ProxyApp/Proxy/proxy.py", line 156, in proxy
+    stage.stage_downstream(shellcommand, jobconf.jobparams)
+  File "/media/storage/Workspace/Git/ProxyApp/Proxy/core/staging.py", line 79, in stage_downstream
+    raise RuntimeError("Failed to download files from remote.")
+RuntimeError: Failed to download files from remote.
+2014-06-17 16:09:13,849 - ProxyApp - proxy.py           - INFO     - Closing ProxyApp.
