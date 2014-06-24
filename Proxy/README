@@ -38,7 +38,11 @@ Detailed information about the workings of the ProxyApp are as follows.
         export PATH
     
     This will enable you to call the ProxyApp without specifying the full path 
-    to the executable.
+    to the executable. If you are using this on a local machine or want to make
+    use of ProxyApp without restarting your session then you will need to source
+    you bash profile again:
+    
+    	source .bashrc
  
     
 1.2 Set up passwordless SSH access between the machine you have the ProxyApp 
