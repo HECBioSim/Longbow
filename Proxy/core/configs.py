@@ -173,7 +173,7 @@ class JobConfig:
                 if (param == "batch"):
                     self.jobparams["batch"] = "1"
                 else:
-                    print e
+                    pass
         
         #TODO: Once the multijobs are supported then this should be used and modified accordingly if necessary.
         # Loop through all sections in the jobfile (we are assuming any job config specified is there
