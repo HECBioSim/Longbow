@@ -169,7 +169,7 @@ class JobConfig:
             try:
                 self.jobparams[param] = jobconfigs.get(section, param)
                 
-            except Exception as e:
+            except Exception:
                 if (param == "batch"):
                     self.jobparams["batch"] = "1"
                 else:
