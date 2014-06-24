@@ -198,6 +198,8 @@ Detailed information about the workings of the ProxyApp are as follows.
 		
 3. Submitting a job
 
+3.1 Single Job
+
 	Once the host and job config files have been prepared, you are then ready
 	to submit a job. The following are some simple examples of using the 
 	ProxyApp:
@@ -229,6 +231,37 @@ Detailed information about the workings of the ProxyApp are as follows.
 	That is all there is to it, you should now be able to proxy your jobs and
 	have the file staging handled for you (they appear on your local machine
 	as if the job/s had run there).
-		
+	
+3.2 Array of Jobs
+
+    To submit this type of job a special file structure has to be set up so 
+    that ProxyApp can find all the jobs properly. Firstly each job must 
+    be placed within number directories of the following format where 
+    the input files are named the same in each directory:
+    
+    workdirectory/
+        rep1/
+            files....
+        rep2/
+            files....
+        rep3/
+            files....
+        ....
+        
+    To use global files (Amber only at the moment) one should place it
+    in the workdirectory (ie at the same directory level as the repXX
+    directories). 
+    
+    In the job config file the batch parameter has to be set with the 
+    number of jobs. Then submitting is as straight forward as submitting
+    a normal job, there is no need to point the input files to the subdirs
+    they are simply used to tell ProxyApp the naming scheme, it will
+    determine whether a file is a global or not by checking if a file 
+    with a given name is present in the main work directory, if not
+    it will assume it is non global and look for them in the repXX
+    directories.
+    
+    So submitting these jobs would look identical to submitting a normal
+    job.
 		
 Good luck, and you can get support by emailing james.gebbie@stfc.ac.uk
