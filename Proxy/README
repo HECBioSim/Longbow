@@ -43,7 +43,7 @@ Detailed information about the workings of the ProxyApp are as follows.
     you bash profile again:
     
     	source .bashrc
- 
+    	
     
 1.2 Set up passwordless SSH access between the machine you have the ProxyApp 
     installed on and the remote machine you intend jobs to be proxied to. If 
@@ -89,7 +89,10 @@ Detailed information about the workings of the ProxyApp are as follows.
     This is by default provided in the hosts.conf within the main Proxy 
     directory, however this file can be overridden by supplying:
     
-    -conf /followed/by/some/path/to/conf_file
+    -conf nameofconfigfile
+    
+    If this override is set then it will look to find the config file in the 
+    directory that you launch your experiment from (ie working directory).
 
     The host configuration file is structured in the ini file format. The idea
     behind this is that it should be possible to add the connection details of
@@ -130,7 +133,10 @@ Detailed information about the workings of the ProxyApp are as follows.
     This is by default provided in the job.conf within the main Proxy 
     directory, however this file can be overridden by supplying:
     
-    -job /followed/by/some/path/to/job_file
+    -job nameofjobconfigfile
+    
+    If this override is set then it will look to find the job config file in 
+    the directory that you launch your experiment from (ie working directory).
     
     The job configuration file is structured in the ini file format. The idea
     behind this is that it should be possible to specify the settings of many
@@ -152,7 +158,9 @@ Detailed information about the workings of the ProxyApp are as follows.
 		executable*       - The name of the executable in the case where there
 		                    different executables for example Amber (pmemd.MPI).
 		                    
-		localworkdir*     - Path to the local copy of the working directory.
+		localworkdir      - Path to the local copy of the working directory, 
+		                    this is optional and will override where you 
+		                    are launching from (most will ignore this).
 		
 		remoteworkdir*    - Name of the remote working directory (at current
 		                    only the final directory can be created if it 
@@ -188,10 +196,12 @@ Detailed information about the workings of the ProxyApp are as follows.
 
 	The following settings can be called on the commandline:
 	
-		-log /followed/by/some/path/to/conf_file
+		-log nameoflogfile
 		
 		will override the default log file from the one that is normally used,
-		the default logging location is in the main Proxy directory.
+		the default logging location is in the main Proxy directory, if the 
+		-log flag is used then it will log where you are launching ProxyApp 
+		from (ie your experiment directory).
 		
 		-debug
 		
@@ -220,17 +230,17 @@ Detailed information about the workings of the ProxyApp are as follows.
 	    
 	With custom host and job config, log it would be:
 	
-		pmemd.py -conf test/hosts.conf -job /test/job.conf -log /test/log -i md1.in -c prot.crd -p prot.top -o md1.out
+		pmemd.py -conf hosts.conf -job job.conf -log log -i md1.in -c prot.crd -p prot.top -o md1.out
 	
 	The same with outputting the logfile to the console in addition to file 
 	logging would be:
 	
-		pmemd.py -conf test/hosts.conf -job /test/job.conf -log /test/log -i md1.in -c prot.crd -p prot.top -o md1.out -debug
+		pmemd.py -conf hosts.conf -job job.conf -log log -i md1.in -c prot.crd -p prot.top -o md1.out -debug
 		
 	One could also use the generic ProxyApp and specify the program flag in 
 	the job config file which would make the submit look like:
 	
-		proxy.py -conf test/hosts.conf -job /test/job.conf -log /test/log -i md1.in -c prot.crd -p prot.top -o md1.out -debug
+		proxy.py -conf hosts.conf -job job.conf -log log -i md1.in -c prot.crd -p prot.top -o md1.out -debug
 		
 	That is all there is to it, you should now be able to proxy your jobs and
 	have the file staging handled for you (they appear on your local machine

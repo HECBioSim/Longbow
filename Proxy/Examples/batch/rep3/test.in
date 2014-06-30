@@ -1,0 +1,15 @@
+MD on the water about free
+ &cntrl
+        ntf=2, ntb=2,
+        ntr=1,
+        nstlim=1, dt=0.002,
+        temp0=100.0, ntt=1,
+        ntp=1,
+        ntc=2,
+ &end
+Restrain protein and counterions
+100.0
+RES 1 327
+END
+END
+
