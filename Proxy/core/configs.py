@@ -106,7 +106,7 @@ class JobConfig:
     
     """A class containing the job configuration methods."""
     
-    def __init__(self, jobfile):
+    def __init__(self, jobfile, launchdir):
         
     
         """The data structure that is loaded from the config file is declared in a dictionary
@@ -126,7 +126,7 @@ class JobConfig:
                       "resource": "",
                       "program": "",
                       "account": "",
-                      "localworkdir": "",
+                      "localworkdir": launchdir,
                       "remoteworkdir": "",
                       "maxtime": "",
                       "nodes": "",

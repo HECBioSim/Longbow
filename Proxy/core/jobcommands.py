@@ -121,7 +121,7 @@ class Pbs(Scheduler):
         
         if(int(jobparams["batch"]) == 1):
             
-            jobfile.write("aprun -n " + jobparams["cores"] + " -N " + jobparams["corespernode"] + " " + args + " & \n")
+            jobfile.write("aprun -n " + jobparams["cores"] + " -N " + jobparams["corespernode"] + " " + args + " \n")
 
         elif(int(jobparams["batch"]) > 1): 
             

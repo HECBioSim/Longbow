@@ -9,7 +9,7 @@ from core.appcommands import Amber
 from core.jobcommands import Pbs
 from core.staging import Staging
 
-def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
+def proxy(app_args, configfile, jobfile, logfile, debug):
     
     """The main function that forms the basis for operating the core library. 
     This can serve as a template for building more advanced applications. 
@@ -22,11 +22,11 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
     
     args       = A string of arguments normally passed to the command line 
                  when running the program normally.
-    configfile = Path (absolute) to the config file pass blank ("") to use 
+    configfile = Name of the config file pass blank ("") to use 
                  a default location.
-    jobfile    = Path (absolute) to the job config file pass blank ("") to 
+    jobfile    = Name of the job config file pass blank ("") to 
                  use a default location. 
-    logfile    = Path (absolute) to the log file pass blank ("") to use a 
+    logfile    = Name of the log file pass blank ("") to use a 
                  default location. 
     debug      = Pass "True" if debug output is required.
     """
@@ -43,19 +43,27 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
     # we can point the app to the location of the default config files. If custom 
     # file locations are required then supply an absolute path.
     
-    
-    # Current dir to get the 
-    currentdir = os.path.dirname(currentpath)
+    launchdir = os.getcwd()
+    execdir = os.path.dirname(os.path.realpath(__file__))
     
     # Host config file (user, host, port and scheduler) supplied with -config or 
     # uses this default location.
-    if(configfile == ""): configfile = currentdir + "/hosts.conf"
+    if(configfile != ""): 
+        configfile = launchdir + "/" + configfile
+    else:
+        configfile = execdir + "/hosts.conf"
     
     # Job config file supplied with -job or uses this default location
-    if(jobfile == ""): jobfile = currentdir + "/job.conf"
+    if(jobfile != ""): 
+        jobfile = launchdir + "/" + jobfile
+    else:
+        jobfile = execdir + "/job.conf"
     
     # Logfile for troubleshooting supplied with -log or uses this default location
-    if(logfile == ""): logfile = currentdir + "/log"
+    if(logfile != ""): 
+        logfile = launchdir + "/" + logfile
+    else:
+        logfile = execdir + "/log"
     
     
     #------------------------------------------------------------------------
@@ -85,15 +93,6 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
     
     # Test entry stating the app is started.
     logger.info("ProxyApp is now started.")
-
-    
-    #------------------------------------------------------------------------
-    # All paths after this initial configuration (for example the working dir
-    # inside the job config file) should be relative to the home (~) directory.
-
-
-    # Use paths relative to user dir so set this as our cwd.
-    os.chdir(os.path.expanduser("~"))
     
     
     #------------------------------------------------------------------------
@@ -103,7 +102,7 @@ def proxy(currentpath, app_args, configfile, jobfile, logfile, debug):
         
         # Instantiate the class and store the job config params in an object, note this will also
         # automatically read the chosen file followed by some checking.
-        jobconf = JobConfig(jobfile)
+        jobconf = JobConfig(jobfile, launchdir)
     
         # Instantiate the remote connection configuration class. This is where host 
         # connections are dealt with, it was convenient to support different hosts this way.
@@ -199,11 +198,10 @@ if __name__ == "__main__":
     
 
     # Fetch command line arguments
-    command_line_args = sys.argv 
+    commandlineargs = sys.argv 
     
     # Remove the first argument (the application path)
-    currentpath = command_line_args[0]
-    command_line_args.pop(0)
+    commandlineargs.pop(0)
     
     # Initialise file path params, so we can pass blank to signify use default paths 
     # if not supplied.
@@ -219,30 +217,30 @@ if __name__ == "__main__":
 
 
     # Take out the config file path, then remove it from the command line argument list.
-    if(command_line_args.count("-conf") == 1):
-        position = command_line_args.index("-conf")
-        confile = command_line_args[position + 1]
-        command_line_args.pop(position)
-        command_line_args.pop(position)
+    if(commandlineargs.count("-conf") == 1):
+        position = commandlineargs.index("-conf")
+        confile = commandlineargs[position + 1]
+        commandlineargs.pop(position)
+        commandlineargs.pop(position)
      
     # Take out the job config file path, then remove it from the command line argument list.
-    if(command_line_args.count("-job") == 1):
-        position = command_line_args.index("-job")
-        jobfile = command_line_args[position + 1]
-        command_line_args.pop(position)
-        command_line_args.pop(position)
+    if(commandlineargs.count("-jobconf") == 1):
+        position = commandlineargs.index("-jobconf")
+        jobfile = commandlineargs[position + 1]
+        commandlineargs.pop(position)
+        commandlineargs.pop(position)
      
     # Take out the log file path, then remove it from the command line argument list.
-    if(command_line_args.count("-log") == 1):
-        position = command_line_args.index("-log")
-        logfile = command_line_args[position + 1]
-        command_line_args.pop(position)
-        command_line_args.pop(position)
+    if(commandlineargs.count("-log") == 1):
+        position = commandlineargs.index("-log")
+        logfile = commandlineargs[position + 1]
+        commandlineargs.pop(position)
+        commandlineargs.pop(position)
     
     # Take out the debug parameter, then remove it from the command line list.
-    if(command_line_args.count("-debug") == 1):
-        position = command_line_args.index("-debug")
-        command_line_args.pop(position)
+    if(commandlineargs.count("-debug") == 1):
+        position = commandlineargs.index("-debug")
+        commandlineargs.pop(position)
         debug =True
         
     
@@ -250,5 +248,5 @@ if __name__ == "__main__":
     # Call ProxyApp.
         
     # Enter the main application.
-    proxy(currentpath, command_line_args, confile, jobfile, logfile, debug) 
+    proxy(commandlineargs, confile, jobfile, logfile, debug) 
     
