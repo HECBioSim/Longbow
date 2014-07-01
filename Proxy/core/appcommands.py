@@ -115,15 +115,7 @@ class Amber:
                             
                             # Check it is there.
                             if(os.path.isfile(jobparams["localworkdir"] + "/rep" + str(i) + "/" + app_args[index+1]) == False):
-                                raise RuntimeError("A file you have supplied on command line does not exist.")  
-                
-                elif(item == "-o"):   
-                    
-                    for i in range(1, int(jobparams["batch"])+1):
-                        
-                        # Add file to list of files required to upload.
-                            filelist.append("rep" + str(i) + "/" + app_args[index+1])
-                                   
+                                raise RuntimeError("A file you have supplied on command line does not exist.")                                     
                     
         # Log results.
         logger.info("Files for upload: " + ", ".join(filelist))
