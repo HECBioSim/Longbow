@@ -122,7 +122,10 @@ class JobConfig:
         # or reps param to the dictionary. Implementing both of these will allow one to supply all of
         # single jobs, batched jobs, multiple single jobs with different configs, multiple batched jobs
         # this should just about nail most job requirements.
+        self.jobfile = jobfile
+        
         self.jobparams = {
+                      "name": "",
                       "resource": "",
                       "program": "",
                       "account": "",
@@ -138,10 +141,10 @@ class JobConfig:
                       }
         
         # Get the configs.
-        self.loadjobconfigs(jobfile)
+        self.loadjobconfigs()
         
         
-    def loadjobconfigs(self, jobfile):
+    def loadjobconfigs(self):
         
         
         """Load the parameters from the job config file."""
@@ -150,7 +153,7 @@ class JobConfig:
 
         # Bind the config parser to the job file.
         jobconfigs = configparser.ConfigParser()
-        jobconfigs.read(jobfile)
+        jobconfigs.read(self.jobfile)
         
         # Check that we have some sections to read.
         sectionlist = jobconfigs.sections()
@@ -160,8 +163,9 @@ class JobConfig:
                                "list of params of the form param1 = val1 etc.")
 
         #TODO: Delete this once the multijobs is supported.
-        # Parse all the config entries under default.
+        # Parse all the config entries under first section.
         section = sectionlist[0]
+        self.jobparams["name"] = section
 
         # Parse all the config entries under first section.
         for param in self.jobparams:

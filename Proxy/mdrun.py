@@ -5,8 +5,8 @@ import sys
 import logging
 from core.shellwrappers import ShellCommands
 from core.configs import HostConfig, JobConfig
-from core.appcommands import Applications
-from core.jobcommands import Scheduler
+from core.appcommands import Gromacs
+from core.jobcommands import Pbs
 from core.staging import Staging
 
 def proxy(app_args, configfile, jobfile, logfile, debug):
@@ -110,11 +110,11 @@ def proxy(app_args, configfile, jobfile, logfile, debug):
         
         # Instantiate the shell commands class.
         shellcommand = ShellCommands(resource.hostparams)
-
+        
         # Instantiate the jobs commands class, this return the correct class for the 
         # scheduler environment. If not specified in the host.conf
         # then testing will try to determine the scheduling environment to use.
-        job = Scheduler.test(shellcommand, resource)
+        job = Pbs()
 
         # Instantiate the staging class.
         stage = Staging()
@@ -122,7 +122,8 @@ def proxy(app_args, configfile, jobfile, logfile, debug):
         # Instantiate the application commands class, this will return the correct 
         # class for the application specified on command line. Some tests as to whether
         # the application is actually in your path will happen automatically.
-        application = Applications.test(shellcommand, jobconf.jobparams)
+        application = Gromacs(shellcommand, jobconf.jobparams)
+        
         
         #------------------------------------------------------------------------
         # Start processing the job setup and submit.
@@ -130,17 +131,17 @@ def proxy(app_args, configfile, jobfile, logfile, debug):
         # Process the command line args to separate out all the files that need staging
         # and form a nice string for the scheduler.
         filelist, arglist = application.processjob(app_args, jobconf.jobparams)
-
+    
         # Create the jobfile and append it to the list of files that need uploading.
         filelist, submitfile = job.jobfile(jobconf.jobparams, arglist, filelist)
-        
+    
         # Stage all of the job files along with the scheduling script.
         stage.stage_upstream(shellcommand, jobconf.jobparams, filelist)
 
         # Submit the job to the scheduler.
         jobid = job.submit(shellcommand, jobconf.jobparams, submitfile)
-
         
+
         #------------------------------------------------------------------------
         # Monitor jobs.
     

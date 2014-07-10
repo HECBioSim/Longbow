@@ -103,7 +103,6 @@ class Pbs(Scheduler):
         
         #TODO: add multi job support
         #TODO: come up with some sensible defaults for if a param is left out of job.conf
-        #TODO: come up with a sensible job naming scheme for -N
         
         # Open file for PBS script.
         pbsfile = "job.pbs"
@@ -111,7 +110,7 @@ class Pbs(Scheduler):
         
         # Write the PBS script
         jobfile.write("#!/bin/bash \n"
-                      "#PBS -N Test \n"
+                      "#PBS -N " + jobparams["name"] + " \n"
                       "#PBS -l select=" + jobparams["nodes"] + " \n"
                       "#PBS -l walltime=" + jobparams["maxtime"] + ":00:00 \n"
                       "#PBS -A " + jobparams["account"] + "\n"
@@ -240,7 +239,6 @@ class Lsf(Scheduler):
         
         #TODO: add multi job support
         #TODO: come up with some sensible defaults for if a param is left out of job.conf
-        #TODO: come up with a sensible job naming scheme for -J
         
         # Open file for LSF script.
         lsffile = "job.lsf"
@@ -248,7 +246,7 @@ class Lsf(Scheduler):
         
         # Write the PBS script
         jobfile.write("#!/bin/bash \n"
-                      "#BSUB -J Test \n"
+                      "#BSUB -J " + jobparams["name"] + " \n"
                       "#BSUB -W " + jobparams["maxtime"] + ":00 \n"
                       "#BSUB -n " + jobparams["cores"] + "\n"
                       "mpirun -lsf" + " " + args + "\n")
