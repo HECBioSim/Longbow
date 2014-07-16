@@ -224,8 +224,8 @@ if __name__ == "__main__":
         commandlineargs.pop(position)
      
     # Take out the job config file path, then remove it from the command line argument list.
-    if(commandlineargs.count("-jobconf") == 1):
-        position = commandlineargs.index("-jobconf")
+    if(commandlineargs.count("-job") == 1):
+        position = commandlineargs.index("-job")
         jobfile = commandlineargs[position + 1]
         commandlineargs.pop(position)
         commandlineargs.pop(position)
