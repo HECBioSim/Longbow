@@ -98,9 +98,12 @@ def monitor(hosts, jobs):
     LOGGER.info("Monitoring job/s")
 
     finished = False
+    interval = 0
 
     for job in jobs:
         jobs[job]["laststatus"] = ""
+        if interval < jobs[job]["frequency"]:
+            interval = jobs[job]["frequency"]
 
     while finished is False:
 
@@ -132,6 +135,8 @@ def monitor(hosts, jobs):
                 if jobs[job]["laststatus"] == "Running":
                     staging.stage_downstream(hosts, jobs, job)
 
+        time.sleep(float(interval))
+
         for job in jobs:
 
             if jobs[job]["laststatus"] != "Finished":
@@ -139,8 +144,6 @@ def monitor(hosts, jobs):
                 break
 
             finished = True
-
-        time.sleep(float(60))
 
     LOGGER.info("All jobs are complete.")
 
@@ -289,6 +292,7 @@ def pbs_submit(host, jobname, jobs):
     """Method for submitting a job."""
 
     LOGGER.info("Submitting the job: %s to the remote host.", jobname)
+
     path = os.path.join(jobs[jobname]["remoteworkdir"], jobname)
     # Change into the working directory and submit the job.
     cmd = ["cd " + path + "\n", "qsub " + jobs[jobname]["subfile"]]
@@ -346,8 +350,7 @@ def lsf_prepare(jobname, jobs):
 
     if int(jobs[jobname]["batch"]) == 1:
 
-        jobfile.write("mpirun -lsf " + jobs[jobname]["corespernode"] + " " +
-                      jobs[jobname]["commandline"] + " \n")
+        jobfile.write("mpirun -lsf " + jobs[jobname]["commandline"] + " \n")
 
     elif int(jobs[jobname]["batch"]) > 1:
 
@@ -379,13 +382,13 @@ def lsf_status(host, jobid):
 
         stat = shellout[0].split()
 
-        if stat[4] == "PSUSP" or stat[4] == "USUSP" or stat[4] == "SSUSP":
+        if stat[2] == "PSUSP" or stat[4] == "USUSP" or stat[4] == "SSUSP":
             status = "Held"
 
-        elif stat[4] == "PEND":
+        elif stat[2] == "PEND":
             status = "Queued"
 
-        elif stat[4] == "RUN":
+        elif stat[2] == "RUN":
             status = "Running"
 
     except RuntimeError:
@@ -402,7 +405,7 @@ def lsf_submit(host, jobname, jobs):
 
     # cd into the working directory and submit the job.
     path = os.path.join(jobs[jobname]["remoteworkdir"], jobname)
-    cmd = ["cd " + path + "\n", "qsub " +
+    cmd = ["cd " + path + "\n", "bsub < " +
            jobs[jobname]["subfile"] + "| grep -P -o '(?<=<)[0-9]*(?=>)'"]
 
     # Process the submit
@@ -420,9 +423,18 @@ def lsf_submit(host, jobname, jobs):
 
 def sge_delete(host, jobid):
 
-    """."""
+    """Method for deleting job."""
 
-    print host, jobid
+    LOGGER.info("Deleting the job with id = " + jobid)
+    try:
+        shellout = shellwrappers.sendtossh(host, ["qdel " + jobid])
+    except:
+        raise RuntimeError("Unable to delete job.")
+
+    LOGGER.info("Job with id = " + jobid +
+                " was successfully deleted.")
+
+    return shellout[0]
 
 
 def sge_prepare(jobname, jobs):
@@ -434,16 +446,51 @@ def sge_prepare(jobname, jobs):
 
 def sge_status(host, jobid):
 
-    """."""
+    """Method for querying job."""
 
-    print host, jobid
+    status = ""
+
+    try:
+        shellout = shellwrappers.sendtossh(host, ["qstat | grep " + jobid])
+
+        stat = shellout[0].split()
+
+        if stat[4] == "h":
+            status = "Held"
+
+        elif stat[4] == "qw":
+            status = "Queued"
+
+        elif stat[4] == "r":
+            status = "Running"
+
+    except RuntimeError:
+        status = "Finished"
+
+    return status
 
 
 def sge_submit(host, jobname, jobs):
 
-    """."""
+    """Method for submitting a job."""
 
-    print host, jobname, jobs
+    LOGGER.info("Submitting the job: %s to the remote host.", jobname)
+
+    path = os.path.join(jobs[jobname]["remoteworkdir"], jobname)
+    # Change into the working directory and submit the job.
+    cmd = ["cd " + path + "\n", "qsub " + jobs[jobname]["subfile"]]
+
+    # Process the submit
+    try:
+        shellout = shellwrappers.sendtossh(host, cmd)[0]
+    except:
+        raise RuntimeError("Something went wrong when submitting.")
+
+    output = shellout.rstrip("\r\n")
+
+    LOGGER.info("  Job submitted with id = " + output)
+
+    jobs[jobname]["jobid"] = output
 
 
 def amazon_delete():

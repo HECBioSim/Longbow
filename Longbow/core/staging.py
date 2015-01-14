@@ -102,10 +102,10 @@ def stage_downstream(hosts, jobs, jobname):
 
     """Method for returning files from the remote machines."""
 
-    LOGGER.info("Staging from remote to local host.")
-
     # Have we been passed a single job or set of jobs.
     if jobname == "All":
+
+        LOGGER.info("Staging from remote to local host.")
 
         # We must have multiple jobs so loop through them.
         for job in jobs:
@@ -115,15 +115,20 @@ def stage_downstream(hosts, jobs, jobname):
             src = os.path.join(jobs[job]["remoteworkdir"], job + "/*")
             dst = jobs[job]["localworkdir"]
             shellwrappers.download("rsync", host, src, dst)
+
+        LOGGER.info("Staging files downstream - complete.")
+
     # Else we have a single job.
     else:
+        LOGGER.info("  For job %s staging files downstream.", jobname)
+
         host = hosts[jobs[jobname]["resource"]]
         src = os.path.join(jobs[jobname]["remoteworkdir"], jobname + "/*")
         dst = jobs[jobname]["localworkdir"]
         # Download the whole directory with rsync.
         shellwrappers.download("rsync", host, src, dst)
 
-    LOGGER.info("Staging files downstream - complete.")
+        LOGGER.info("  staging complete.")
 
 
 def cleanup(hosts, jobs):
