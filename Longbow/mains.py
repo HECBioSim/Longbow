@@ -1,3 +1,20 @@
+# Longbow is Copyright (C) of James T Gebbie-Rayet 2015.
+#
+# This file is part of Longbow.
+#
+# Longbow is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Longbow is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Longbow.  If not, see <http://www.gnu.org/licenses/>.
+
 """This module contains the methods that act as the main entry point for the
 different modes of Longbow, the main entry types are console and GUI based."""
 
@@ -10,7 +27,6 @@ import core
 # TODO: Add exception class to provide intuitive error handling/reporting.
 #       there are some points which should use try/except that are if's
 #       this should be addressed.
-# TODO: Sort out the "<" for the NAMD validation.
 # TODO: come up with some sensible defaults for if a param is left
 #       out of job.conf this applies to the prepare() in sheduling.py
 #       also alter the prepare functions to make sure items that are not given

@@ -1,3 +1,20 @@
+# Longbow is Copyright (C) of James T Gebbie-Rayet 2015.
+#
+# This file is part of Longbow.
+#
+# Longbow is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Longbow is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Longbow.  If not, see <http://www.gnu.org/licenses/>.
+
 """The application module provides methods for testing whether the requested
 application executable is present on the remote machine and for processing the
 command line arguments of the job in a code specific manner."""
@@ -7,6 +24,7 @@ import os
 import core.shellwrappers as shellwrappers
 
 LOGGER = logging.getLogger("Longbow")
+
 
 def testapp(hosts, jobs):
 
@@ -57,7 +75,7 @@ def processjobs(args, jobs):
                 "charmm": ["-i"],
                 "gromacs": ["-s"],
                 "lammps": ["-i"],
-                "namd": ["<"]
+                "namd": ["?"]
                 }
 
     for job in jobs:
@@ -93,10 +111,23 @@ def processjobs(args, jobs):
             # Check for missing flags.
             if len(flags) is not 0:
 
-                raise RuntimeError("in job '%s' " % job + "there are " +
-                                   "missing flags from command line: %s " %
-                                   flags + "see documentation for %s " %
-                                   jobs[job]["program"])
+                # Jobs that don't use a commadline flag to denote the input
+                # file, such NAMD can be dealt with like this.
+                if "?" in flags:
+
+                    # The only thing we can really do is check that something
+                    # is given on the cmdline.
+                    if args is "":
+                        raise RuntimeError("in job '%s' " % job +
+                                           "it appears that the input file " +
+                                           "is missing")
+
+                else:
+
+                    raise RuntimeError("in job '%s' " % job + "there are " +
+                                       "missing flags from command line: %s " %
+                                       flags + "see documentation for %s " %
+                                       jobs[job]["program"])
 
         # Path correction for multijobs.
         cwd = jobs[job]["localworkdir"]

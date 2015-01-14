@@ -1,3 +1,20 @@
+# Longbow is Copyright (C) of James T Gebbie-Rayet 2015.
+#
+# This file is part of Longbow.
+#
+# Longbow is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Longbow is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Longbow.  If not, see <http://www.gnu.org/licenses/>.
+
 """This module contains methods for loading and saving confinguration
 files as well as methods for processing host and job confinguration files.
 The following methods can be found:
@@ -39,6 +56,7 @@ def loadhosts(confile):
 
     return hosts
 
+
 def loadjobs(cwd, confile, overrides):
 
     """Method for processing job configuration files."""
@@ -70,6 +88,7 @@ def loadjobs(cwd, confile, overrides):
     jobs = loadconfigs(confile, jobtemplate, required, overrides)
 
     return jobs
+
 
 def loadconfigs(confile, template, required, overrides):
 
@@ -123,6 +142,7 @@ def loadconfigs(confile, template, required, overrides):
                         pass
 
     return params
+
 
 def saveconfigs(confile, params):
 

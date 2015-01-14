@@ -1,3 +1,20 @@
+# Longbow is Copyright (C) of James T Gebbie-Rayet 2015.
+#
+# This file is part of Longbow.
+#
+# Longbow is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Longbow is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Longbow.  If not, see <http://www.gnu.org/licenses/>.
+
 """."""
 
 import time
@@ -127,6 +144,7 @@ def monitor(hosts, jobs):
 
     LOGGER.info("All jobs are complete.")
 
+
 def prepare(hosts, jobs):
 
     """."""
@@ -169,6 +187,7 @@ def submit(hosts, jobs):
 
         elif scheduler == "AMAZON":
             amazon_submit()
+
 
 def pbs_delete(host, jobid):
 
@@ -248,18 +267,18 @@ def pbs_status(host, jobid):
     try:
         shellout = shellwrappers.sendtossh(host, ["qstat | grep " + jobid])
 
-        output = shellout[0].split()
+        stat = shellout[0].split()
 
-        if output[4] == "H":
+        if stat[4] == "H":
             status = "Held"
 
-        elif output[4] == "Q":
+        elif stat[4] == "Q":
             status = "Queued"
 
-        elif output[4] == "R":
+        elif stat[4] == "R":
             status = "Running"
 
-    except:
+    except RuntimeError:
         status = "Finished"
 
     return status
@@ -335,8 +354,7 @@ def lsf_prepare(jobname, jobs):
         jobfile.write("for i in {1.." + jobs[jobname]["batch"] + "}; \n"
                       "do \n"
                       "  cd rep$i/ \n"
-                      "  mpirun -lsf " + jobs[jobname]["corespernode"] + " " +
-                      jobs[jobname]["commandline"] + " & \n"
+                      "  mpirun -lsf " + jobs[jobname]["commandline"] + " & \n"
                       "done \n"
                       "wait \n")
 
@@ -356,22 +374,21 @@ def lsf_status(host, jobid):
 
     status = ""
 
-    shellout = shellwrappers.sendtossh(host, ["bjobs | grep " + jobid])
+    try:
+        shellout = shellwrappers.sendtossh(host, ["bjobs | grep " + jobid])
 
-    output = shellout[0].split()
+        stat = shellout[0].split()
 
-    if shellout[2] == 0:
-
-        if output[4] == "PSUSP" or output[4] == "USUSP" or output[4] == "SSUSP":
+        if stat[4] == "PSUSP" or stat[4] == "USUSP" or stat[4] == "SSUSP":
             status = "Held"
 
-        elif output[4] == "PEND":
+        elif stat[4] == "PEND":
             status = "Queued"
 
-        elif output[4] == "RUN":
+        elif stat[4] == "RUN":
             status = "Running"
 
-    else:
+    except RuntimeError:
         status = "Finished"
 
     return status
@@ -386,7 +403,7 @@ def lsf_submit(host, jobname, jobs):
     # cd into the working directory and submit the job.
     path = os.path.join(jobs[jobname]["remoteworkdir"], jobname)
     cmd = ["cd " + path + "\n", "qsub " +
-           jobs[jobname]["subfile"] + "| grep -P -o '(?<=\<)[0-9]*(?=\>)'"]
+           jobs[jobname]["subfile"] + "| grep -P -o '(?<=<)[0-9]*(?=>)'"]
 
     # Process the submit
     try:
