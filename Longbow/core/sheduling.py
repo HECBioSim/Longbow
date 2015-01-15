@@ -437,11 +437,52 @@ def sge_delete(host, jobid):
     return shellout[0]
 
 
-def sge_prepare(jobname, jobs):
+def sge_prepare(hosts, jobname, jobs):
 
-    """."""
+    """Create the SGE jobfile ready for submitting jobs"""
 
-    print jobname, jobs
+    LOGGER.info("Creating submit file for job: %s", jobname)
+
+    # Open file for LSF script.
+    sgefile = os.path.join(jobs[jobname]["localworkdir"], "submit.sge")
+    jobfile = open(sgefile, "w+")
+
+    # Write the PBS script
+    jobfile.write("#!/bin/bash \n"
+                  "#$ -cwd -V"
+                  "#$ -N " + jobname + " \n"
+                  "#$ -l h_rt=" + jobs[jobname]["maxtime"] + ":00:00 \n"
+                  "#$ -pe ib " + jobs[jobname]["cores"] + "\n\n")
+
+    if jobs[jobname]["modules"] is not "":
+        for module in jobs[jobname]["modules"].split(","):
+            module.replace(" ", "")
+            jobfile.write("module load %s \n\n" % module)
+
+    mpirun = hosts[jobs[jobname]["resource"]]["handler"]
+
+    if int(jobs[jobname]["batch"]) == 1:
+
+        jobfile.write(mpirun + " " + jobs[jobname]["commandline"] + " \n")
+
+    elif int(jobs[jobname]["batch"]) > 1:
+
+        jobfile.write("for i in {1.." + jobs[jobname]["batch"] + "}; \n"
+                      "do \n"
+                      "  cd rep$i/ \n"
+                      "  " + mpirun + jobs[jobname]["commandline"] +
+                      " & \n"
+                      "done \n"
+                      "wait \n")
+
+    # Close the file (housekeeping)
+    jobfile.close()
+
+    # Append lsf file to list of files ready for staging.
+    jobs[jobname]["filelist"].extend(["submit.sge"])
+    jobs[jobname]["subfile"] = "submit.sge"
+
+    LOGGER.info("  Complete")
 
 
 def sge_status(host, jobid):
@@ -478,7 +519,8 @@ def sge_submit(host, jobname, jobs):
 
     path = os.path.join(jobs[jobname]["remoteworkdir"], jobname)
     # Change into the working directory and submit the job.
-    cmd = ["cd " + path + "\n", "qsub " + jobs[jobname]["subfile"]]
+    cmd = ["cd " + path + "\n", "qsub " + jobs[jobname]["subfile"] +
+           "| grep -P -o '(?<= )[0-9]*(?= )'"]
 
     # Process the submit
     try:
