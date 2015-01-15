@@ -21,12 +21,13 @@ import time
 import os
 import logging
 import core.shellwrappers as shellwrappers
+import core.configuration as config
 import core.staging as staging
 
 LOGGER = logging.getLogger("Longbow")
 
 
-def testenv(hosts, jobs):
+def testenv(hostconf, hosts, jobs):
 
     """."""
 
@@ -34,6 +35,10 @@ def testenv(hosts, jobs):
                   "LSF": ["env | grep -i 'lsf' &> /dev/null"],
                   "SGE": ["env | grep -i 'sge' &> /dev/null"]
                   }
+
+    handlers = {"aprun": ["which aprun"],
+                "mpirun": ["which mpirun"]
+                }
 
     save = False
 
@@ -53,11 +58,10 @@ def testenv(hosts, jobs):
                     shellwrappers.sendtossh(hosts[resource],
                                             schedulers[param])
                     hosts[resource]["scheduler"] = param
-                    LOGGER.info("The environment on this host " +
-                                "appears to be %s " % param)
+                    LOGGER.info("  The environment on this host is: %s", param)
                     break
                 except RuntimeError:
-                    LOGGER.debug("Environment is not %s", param)
+                    LOGGER.debug("  Environment is not %s", param)
 
             save = True
 
@@ -65,7 +69,27 @@ def testenv(hosts, jobs):
             LOGGER.info("The environment on host: %s is %s", resource,
                         hosts[resource]["scheduler"])
 
-    return save
+        if hosts[resource]["handler"] is "":
+            LOGGER.info("No queue handler was specified for host %s - " +
+                        "attempting to find it", resource)
+
+            for param in handlers:
+                try:
+                    shellwrappers.sendtossh(hosts[resource], handlers[param])
+                    hosts[resource]["handler"] = param
+                    LOGGER.info("  The batch queue handler is %s", param)
+                    break
+                except RuntimeError:
+                    LOGGER.debug("  The batch queue handler is not %s", param)
+
+            save = True
+
+        else:
+            LOGGER.info("The handler on host: %s is %s", resource,
+                        hosts[resource]["handler"])
+
+    if save is True:
+        config.saveconfigs(hostconf, hosts)
 
 
 def delete(hosts, jobs):
@@ -154,13 +178,13 @@ def prepare(hosts, jobs):
         scheduler = hosts[jobs[job]["resource"]]["scheduler"]
 
         if scheduler == "PBS":
-            pbs_prepare(job, jobs)
+            pbs_prepare(hosts, job, jobs)
 
         elif scheduler == "LSF":
-            lsf_prepare(job, jobs)
+            lsf_prepare(hosts, job, jobs)
 
         elif scheduler == "SGE":
-            sge_prepare(job, jobs)
+            sge_prepare(hosts, job, jobs)
 
         elif scheduler == "AMAZON":
             amazon_prepare()
@@ -205,7 +229,7 @@ def pbs_delete(host, jobid):
     return shellout[0]
 
 
-def pbs_prepare(jobname, jobs):
+def pbs_prepare(hosts, jobname, jobs):
 
     """Create the PBS jobfile ready for submitting jobs"""
 
@@ -230,9 +254,11 @@ def pbs_prepare(jobname, jobs):
             module.replace(" ", "")
             jobfile.write("module load %s \n\n" % module)
 
+    mpirun = hosts[jobs[jobname]["resource"]]["handler"]
+
     if int(jobs[jobname]["batch"]) == 1:
 
-        jobfile.write("aprun -n " + jobs[jobname]["cores"] + " -N " +
+        jobfile.write(mpirun + " -n " + jobs[jobname]["cores"] + " -N " +
                       jobs[jobname]["corespernode"] + " " +
                       jobs[jobname]["commandline"] + " \n")
 
@@ -242,8 +268,8 @@ def pbs_prepare(jobname, jobs):
                       "for i in {1.." + jobs[jobname]["batch"] + "}; \n"
                       "do \n"
                       "  cd $basedir/rep$i/ \n"
-                      "  aprun -n " + jobs[jobname]["cores"] + " -N " +
-                      jobs[jobname]["corespernode"] + " " +
+                      "  " + mpirun + " -n " + jobs[jobname]["cores"] +
+                      " -N " + jobs[jobname]["corespernode"] + " " +
                       jobs[jobname]["commandline"] + " & \n"
                       "done \n"
                       "wait \n")
@@ -323,7 +349,7 @@ def lsf_delete(host, jobid):
     return shellout[0]
 
 
-def lsf_prepare(jobname, jobs):
+def lsf_prepare(hosts, jobname, jobs):
 
     """Create the LSF jobfile ready for submitting jobs"""
 
@@ -344,9 +370,11 @@ def lsf_prepare(jobname, jobs):
             module.replace(" ", "")
             jobfile.write("module load %s \n\n" % module)
 
+    mpirun = hosts[jobs[jobname]["resource"]]["handler"]
+
     if int(jobs[jobname]["batch"]) == 1:
 
-        jobfile.write("mpirun -lsf " + jobs[jobname]["corespernode"] + " " +
+        jobfile.write(mpirun + " -lsf " + jobs[jobname]["corespernode"] + " " +
                       jobs[jobname]["commandline"] + " \n")
 
     elif int(jobs[jobname]["batch"]) > 1:
@@ -354,7 +382,8 @@ def lsf_prepare(jobname, jobs):
         jobfile.write("for i in {1.." + jobs[jobname]["batch"] + "}; \n"
                       "do \n"
                       "  cd rep$i/ \n"
-                      "  mpirun -lsf " + jobs[jobname]["commandline"] + " & \n"
+                      "  " + mpirun + " -lsf " + jobs[jobname]["commandline"] +
+                      " & \n"
                       "done \n"
                       "wait \n")
 
@@ -425,11 +454,11 @@ def sge_delete(host, jobid):
     print host, jobid
 
 
-def sge_prepare(jobname, jobs):
+def sge_prepare(hosts, jobname, jobs):
 
     """."""
 
-    print jobname, jobs
+    print hosts, jobname, jobs
 
 
 def sge_status(host, jobid):

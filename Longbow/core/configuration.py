@@ -44,6 +44,7 @@ def loadhosts(confile):
         "host": "",
         "port": "22",
         "scheduler": "",
+        "handler": "",
         "user": ""
     }
 

@@ -51,8 +51,6 @@ def console(args, files, overrides, mode):
         "logs": cwd
         }
 
-    save = False
-
     # -----------------------------------------------------------------
     # Setup some basic file paths.
 
@@ -102,11 +100,7 @@ def console(args, files, overrides, mode):
 
         # Test the hosts listed in the jobs configuration file have their
         # scheduler environments listed, if not then test and save them.
-        save = core.testenv(hosts, jobs)
-
-        # Do we have anything to save.
-        if save:
-            core.saveconfigs(files["hosts"], hosts)
+        core.testenv(files["hosts"], hosts, jobs)
 
         # Test that for the applications listed in the job configuration
         # file are available and that the executable is present.
