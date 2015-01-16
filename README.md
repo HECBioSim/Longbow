@@ -1,29 +1,32 @@
-# README #
-
-This README would normally document whatever steps are necessary to get your application up and running.
+                                                                               
+                                                                               
+                                                                               
+       888                                888                                  
+       888                                888                                  
+       888                                888                                  
+       888      .d88b.  88888b.   .d88b.  88888b.   .d88b.  888  888  888      
+       888     d88""88b 888 "88b d88P"88b 888 "88b d88""88b 888  888  888      
+       888     888  888 888  888 888  888 888  888 888  888 888  888  888      
+       888     Y88..88P 888  888 Y88b 888 888 d88P Y88..88P Y88b 888 d88P      
+       88888888 "Y88P"  888  888  "Y88888 88888P"   "Y88P"   "Y8888888P"       
+                                      888                                      
+                                 Y8b d88P                                      
+                                  "Y88P"                                       
+                                                                               
+                                                                               
+                                                                               
 
 ### What is this repository for? ###
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+<Brief description here>
 
-### How do I get set up? ###
+### Instructions ###
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+Documentation can be found here:
 
-### Contribution guidelines ###
 
-* Writing tests
-* Code review
-* Other guidelines
+### Contact ###
 
-### Who do I talk to? ###
+For further information please contact James Gebbie-Rayet:
 
-* Repo owner or admin
-* Other community or team contact
+james.gebbie@stfc.ac.uk
