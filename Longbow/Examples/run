@@ -1,10 +1,10 @@
 single
-proxy.py -hosts hosts.conf -jobs job.conf -logs proxy.log -debug -i test.in -c test.min2 -p test.top -o test.out
+longbow.py -hosts hosts.conf -jobs job.conf -logs proxy.log -debug -i test.in -c test.min2 -p test.top -o test.out
 
 
 batch
-proxy.py -hosts hosts.conf -jobs job.conf -logs proxy.log -debug -i test.in -c test.min2 -p test.top -o test.out
+longbow.py -hosts hosts.conf -jobs job.conf -logs proxy.log -debug -i test.in -c test.min2 -p test.top -o test.out
 
 
 multi
-proxy.py -hosts hosts.conf -jobs jobs.conf -logs proxy.log -debug
+longbow.py -hosts hosts.conf -jobs jobs.conf -logs proxy.log -debug

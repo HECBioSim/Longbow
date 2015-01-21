@@ -1,16 +1,35 @@
-ProxyApp is designed to be a remote job submitting and management utility. It 
+###############################################################################
+#                                                                             #
+#                                                                             #
+#      888                                888                                 #
+#      888                                888                                 #
+#      888                                888                                 #
+#      888      .d88b.  88888b.   .d88b.  88888b.   .d88b.  888  888  888     #
+#      888     d88""88b 888 "88b d88P"88b 888 "88b d88""88b 888  888  888     #
+#      888     888  888 888  888 888  888 888  888 888  888 888  888  888     #
+#      888     Y88..88P 888  888 Y88b 888 888 d88P Y88..88P Y88b 888 d88P     #
+#      88888888 "Y88P"  888  888  "Y88888 88888P"   "Y88P"   "Y8888888P"      #
+#                                     888                                     #
+#                                Y8b d88P                                     #
+#                                 "Y88P"                                      #
+#                                                                             #
+#                                                                             #
+###############################################################################
+
+
+Longbow is designed to be a remote job submitting and management utility. It 
 is designed to be run either on a local machine or on a local cluster 
 environment but the jobs are sent to a more powerful resource (such as Archer)
 to run and all files are automatically staged up and back.
 
-The ProxyApp is designed to read the same command line as the original 
+Longbow is designed to read the same command line as the original 
 application (if it is one of the supported codes) with a small change in the 
 executable name and provision of some config information. So if your job is 
 normally submitted using the following:
 
 	pmemd -i md1.in -c prot.crd -p prot.top -o md1.out 
 
-then if you are using the ProxyApp default config file locations then your job 
+then if you are using the Longbow default config file locations then your job 
 could be as simple as:
 
 	pmemd.py -i md1.in -c prot.crd -p prot.top -o md1.out
@@ -19,13 +38,13 @@ or with correct config use the generic Proxy:
 	
 	proxy.py -i md1.in -c prot.crd -p prot.top -o md1.out
 
-Detailed information about the workings of the ProxyApp are as follows.
+Detailed information about the workings of the Longbow are as follows.
 
 
 1. Setup
 
 
-1.1 First download a copy of the ProxyApp from the repositories and extract 
+1.1 First download a copy of Longbow from the repositories and extract 
     the archive to find the main directory "Proxy". Place this "Proxy" 
     directory and all of its contents into a directory of your choosing (this 
     is where you intend to run the application from so choose someplace you 
@@ -37,15 +56,15 @@ Detailed information about the workings of the ProxyApp are as follows.
         PATH="/home/jamesgebbie/Proxy:${PATH}"
         export PATH
     
-    This will enable you to call the ProxyApp without specifying the full path 
+    This will enable you to call the Longbow without specifying the full path 
     to the executable. If you are using this on a local machine or want to make
-    use of ProxyApp without restarting your session then you will need to source
+    use of Longbow without restarting your session then you will need to source
     you bash profile again:
     
     	source .bashrc
     	
     
-1.2 Set up passwordless SSH access between the machine you have the ProxyApp 
+1.2 Set up passwordless SSH access between the machine you have the Longbow 
     installed on and the remote machine you intend jobs to be proxied to. If 
     you are already familiar with generating key pairs and placing them on 
     other machines then ignore the following steps (this is assuming linux-linux):
@@ -98,7 +117,7 @@ Detailed information about the workings of the ProxyApp are as follows.
     behind this is that it should be possible to add the connection details of
     many machines making it very simple to submit jobs between them with very
     little reconfiguration. The basic structure of the ini files consists of
-    sections in square brackets (ProxyApp uses this as a name of host) followed
+    sections in square brackets (Longbow uses this as a name of host) followed
     by a list of named parameters and their values.
     
     The list of possible parameters that can be used in the host config are 
@@ -109,12 +128,12 @@ Detailed information about the workings of the ProxyApp are as follows.
 		host*        - The address of the remote machine (required).
 		
 		port         - The port number if the machine is using a strange port 
-		               for ssh, if not supplied ProxyApp internally defaults 
+		               for ssh, if not supplied Longbow internally defaults 
 		               to 22.
 		               
 		scheduler    - This is the name of the job shceduling environment 
 		               (PBS/LSF) this is generally used for internal 
-		               cacheing by ProxyApp and is found by a testing function
+		               cacheing by Longbow and is found by a testing function
 		               so this is safe to leave unset.
     
     A typical entry in the host config for Archer might look like this (note the 
@@ -142,7 +161,7 @@ Detailed information about the workings of the ProxyApp are as follows.
     behind this is that it should be possible to specify the settings of many
     jobs making it very simple to submit jobs with very different configuration
     with very little effort. The basic structure of the ini files consists of
-    sections in square brackets (ProxyApp uses this as a name of job) followed
+    sections in square brackets (Longbow uses this as a name of job) followed
     by a list of named parameters and their values.
     
     The list of possible parameters that can be used in the job config are 
@@ -153,7 +172,7 @@ Detailed information about the workings of the ProxyApp are as follows.
 	                        in the host config file.
 	                        
 		program           - This is the name of the program (only needed if
-		                    using the generic ProxyApp proxy.py).
+		                    using the generic Longbow proxy.py).
 		                    
 		executable*       - The name of the executable in the case where there
 		                    different executables for example Amber (pmemd.MPI).
@@ -182,7 +201,7 @@ Detailed information about the workings of the ProxyApp are as follows.
 		
 		corespernode      - The number of cores per node.
 		
-		frequency         - The interval for ProxyApp to query the status of a 
+		frequency         - The interval for Longbow to query the status of a 
 		                    job/s this is given in seconds and should not be
 		                    set too small (not less than 60) otherwise the 
 		                    sysadmins may not like you.
@@ -200,13 +219,13 @@ Detailed information about the workings of the ProxyApp are as follows.
 		
 		will override the default log file from the one that is normally used,
 		the default logging location is in the main Proxy directory, if the 
-		-log flag is used then it will log where you are launching ProxyApp 
+		-log flag is used then it will log where you are launching Longbow 
 		from (ie your experiment directory).
 		
 		-debug
 		
 		This flag will cause a copy of the information to be written to the 
-		console window, this can be helpful if you intend to run ProxyApp on
+		console window, this can be helpful if you intend to run Longbow on
 		a local desktop machine and would like to see the process. The
 		will still be written into the log file.
 		
@@ -216,14 +235,14 @@ Detailed information about the workings of the ProxyApp are as follows.
 
 	Once the host and job config files have been prepared, you are then ready
 	to submit a job. The following are some simple examples of using the 
-	ProxyApp:
+	Longbow:
 	
 	For a simple Amber job that may be submitted with the following:
 	
 		pmemd -i md1.in -c prot.crd -p prot.top -o md1.out
 	
 	
-	The ProxyApp equivalent could be as simple as (if the default config file 
+	The Longbow equivalent could be as simple as (if the default config file 
 	locations are used):
 	
 	    pmemd.py -i md1.in -c prot.crd -p prot.top -o md1.out
@@ -237,7 +256,7 @@ Detailed information about the workings of the ProxyApp are as follows.
 	
 		pmemd.py -conf hosts.conf -job job.conf -log log -i md1.in -c prot.crd -p prot.top -o md1.out -debug
 		
-	One could also use the generic ProxyApp and specify the program flag in 
+	One could also use the generic Longbow and specify the program flag in 
 	the job config file which would make the submit look like:
 	
 		proxy.py -conf hosts.conf -job job.conf -log log -i md1.in -c prot.crd -p prot.top -o md1.out -debug
@@ -249,7 +268,7 @@ Detailed information about the workings of the ProxyApp are as follows.
 3.2 Array of Jobs
 
     To submit this type of job a special file structure has to be set up so 
-    that ProxyApp can find all the jobs properly. Firstly each job must 
+    that Longbow can find all the jobs properly. Firstly each job must 
     be placed within number directories of the following format where 
     the input files are named the same in each directory:
     
@@ -269,7 +288,7 @@ Detailed information about the workings of the ProxyApp are as follows.
     In the job config file the batch parameter has to be set with the 
     number of jobs. Then submitting is as straight forward as submitting
     a normal job, there is no need to point the input files to the subdirs
-    they are simply used to tell ProxyApp the naming scheme, it will
+    they are simply used to tell Longbow the naming scheme, it will
     determine whether a file is a global or not by checking if a file 
     with a given name is present in the main work directory, if not
     it will assume it is non global and look for them in the repXX
