@@ -32,6 +32,7 @@ import time
 import os
 import logging
 import sys
+import math
 import corelibs.shellwrappers as shellwrappers
 import corelibs.configuration as config
 import corelibs.staging as staging
@@ -211,6 +212,8 @@ def prepare(hosts, jobs):
     """The generic methods for preparing jobs, this points to the correct
     scheduler specific method for job preparation."""
 
+    LOGGER.info("Creating submit files for job/s.")
+
     for job in jobs:
 
         scheduler = hosts[jobs[job]["resource"]]["scheduler"]
@@ -218,11 +221,15 @@ def prepare(hosts, jobs):
         getattr(sys.modules[__name__], scheduler.lower() +
                 "_prepare")(hosts, job, jobs)
 
+    LOGGER.info("Submit file/s created.")
+
 
 def submit(hosts, jobs):
 
     """Generic method for submitting jobs, this points to the scheduler
     specific method for job submission."""
+
+    LOGGER.info("Submitting job/s.")
 
     for job in jobs:
 
@@ -232,6 +239,8 @@ def submit(hosts, jobs):
 
         getattr(sys.modules[__name__], scheduler.lower() +
                 "_submit")(host, job, jobs)
+
+    LOGGER.info("Submission complete.")
 
 
 def pbs_delete(host, jobid):
@@ -253,59 +262,104 @@ def pbs_prepare(hosts, jobname, jobs):
 
     """Create the PBS jobfile ready for submitting jobs"""
 
-    LOGGER.info("Creating submit file for job: %s", jobname)
+    LOGGER.info("  Creating submit file for job: %s", jobname)
 
     # Open file for PBS script.
     pbsfile = os.path.join(jobs[jobname]["localworkdir"], "submit.pbs")
     jobfile = open(pbsfile, "w+")
 
     # Write the PBS script
-    jobfile.write("#!/bin/bash \n")
+    jobfile.write("#!/bin/bash --login\n")
 
+    # Job name (if supplied)
     if jobname is not "":
         jobfile.write("#PBS -N " + jobname + "\n")
 
+    # Queue to submit to (if supplied)
     if jobs[jobname]["queue"] is not "":
         jobfile.write("#PBS -q " + jobs[jobname]["queue"] + "\n")
 
+    # Account to charge (if supplied).
     if jobs[jobname]["account"] is not "":
         jobfile.write("#PBS -A " + jobs[jobname]["account"] + "\n")
 
-    # TODO: "#PBS -l select=" + jobs[jobname]["nodes"] + "\n"
-    jobfile.write("#PBS -l select=" + jobs[jobname]["nodes"] + "\n")
+    # If user hasn't specified corespernode for under utilisation then
+    # user the hosts max corespernode.
+    if jobs[jobname]["nodes"] is not "":
+        nodes = jobs[jobname]["nodes"]
+    else:
+        if jobs[jobname]["corespernode"] is not "":
+            nodes = jobs[jobname]["cores"] / jobs[jobname]["corespernode"]
+        else:
+            nodes = int(jobs[jobname]["cores"]) / \
+                int(hosts[jobs[jobname]["resource"]]["corespernode"])
 
+        # Makes sure nodes is rounded up to the next highest integer.
+        nodes = str(int(math.ceil(nodes)))
+
+    # Number of cpus per node (most machines will charge for all whether you
+    # are using them or not)
+    ncpus = hosts[jobs[jobname]["resource"]]["corespernode"]
+
+    # If user hasn't specified corespernode for the job (for under utilisation)
+    # then default to hosts max corespernode (max utilised).
+    if jobs[jobname]["corespernode"] is not "":
+        mpiprocs = jobs[jobname]["corespernode"]
+    else:
+        mpiprocs = hosts[jobs[jobname]["resource"]]["corespernode"]
+
+    # Memory size (used to select nodes with minimum memory).
+    memory = jobs[jobname]["memory"]
+
+    tmp = "select=" + nodes + ":ncpus=" + ncpus + ":mpiprocs=" + mpiprocs
+
+    # If user has specified memory append the flag (not all machines support
+    # this).
+    if memory is not "":
+        tmp = tmp + ":mem=" + memory + "gb"
+
+    # Write the resource requests
+    jobfile.write("#PBS -l " + tmp + "\n")
+
+    # Walltime for job.
     jobfile.write("#PBS -l walltime=" + jobs[jobname]["maxtime"] + ":00\n")
 
+    # Set some environment variables for PBS.
     jobfile.write("\n"
-                  "export PBS_O_WORKDIR=$(readlink -f $PBS_O_WORKDIR) \n"
-                  "cd $PBS_O_WORKDIR \n"
-                  "export OMP_NUM_THREADS=1 \n"
+                  "export PBS_O_WORKDIR=$(readlink -f $PBS_O_WORKDIR)\n"
+                  "cd $PBS_O_WORKDIR\n"
+                  "export OMP_NUM_THREADS=1\n"
                   "\n")
 
+    # Load up modules if required.
     if jobs[jobname]["modules"] is not "":
         for module in jobs[jobname]["modules"].split(","):
             module.replace(" ", "")
-            jobfile.write("module load %s \n\n" % module)
+            jobfile.write("module load %s\n\n" % module)
 
+    # Handler that is used for job submission.
     mpirun = hosts[jobs[jobname]["resource"]]["handler"]
 
+    # CRAY's use aprun which has slightly different requirements to mpirun.
+    if mpirun == "aprun":
+        mpirun = mpirun + " -n " + jobs[jobname]["cores"] + " -N " + mpiprocs
+
+    # Single jobs only need one run command.
     if int(jobs[jobname]["batch"]) == 1:
 
-        jobfile.write(mpirun + " -n " + jobs[jobname]["cores"] + " -N " +
-                      jobs[jobname]["corespernode"] + " " +
-                      jobs[jobname]["commandline"] + " \n")
+        jobfile.write(mpirun + " " + jobs[jobname]["commandline"] + "\n")
 
+    # Ensemble jobs need a loop.
     elif int(jobs[jobname]["batch"]) > 1:
 
         jobfile.write("basedir=$PBS_O_WORKDIR \n"
-                      "for i in {1.." + jobs[jobname]["batch"] + "}; \n"
-                      "do \n"
-                      "  cd $basedir/rep$i/ \n"
-                      "  " + mpirun + " -n " + jobs[jobname]["cores"] +
-                      " -N " + jobs[jobname]["corespernode"] + " " +
-                      jobs[jobname]["commandline"] + " & \n"
-                      "done \n"
-                      "wait \n")
+                      "for i in {1.." + jobs[jobname]["batch"] + "};\n"
+                      "do\n"
+                      "  cd $basedir/rep$i/\n"
+                      "  " + mpirun + " " + jobs[jobname]["commandline"] +
+                      " &\n"
+                      "done\n"
+                      "wait\n")
 
     # Close the file (housekeeping)
     jobfile.close()
@@ -313,8 +367,6 @@ def pbs_prepare(hosts, jobname, jobs):
     # Append pbs file to list of files ready for staging.
     jobs[jobname]["filelist"].extend(["submit.pbs"])
     jobs[jobname]["subfile"] = "submit.pbs"
-
-    LOGGER.info("  Complete")
 
 
 def pbs_status(host, jobid):
@@ -347,8 +399,6 @@ def pbs_submit(host, jobname, jobs):
 
     """Method for submitting a job."""
 
-    LOGGER.info("Submitting the job: %s to the remote host.", jobname)
-
     path = os.path.join(jobs[jobname]["remoteworkdir"], jobname)
     # Change into the working directory and submit the job.
     cmd = ["cd " + path + "\n", "qsub " + jobs[jobname]["subfile"]]
@@ -361,7 +411,7 @@ def pbs_submit(host, jobname, jobs):
 
     output = shellout.rstrip("\r\n")
 
-    LOGGER.info("  Job submitted with id: %s", output)
+    LOGGER.info("  Job: %s submitted with id: %s", jobname, output)
 
     jobs[jobname]["jobid"] = output
 
@@ -386,17 +436,17 @@ def lsf_prepare(hosts, jobname, jobs):
 
     """Create the LSF jobfile ready for submitting jobs"""
 
-    LOGGER.info("Creating submit file for job: %s", jobname)
+    LOGGER.info("  Creating submit file for job: %s", jobname)
 
     # Open file for LSF script.
     lsffile = os.path.join(jobs[jobname]["localworkdir"], "submit.lsf")
     jobfile = open(lsffile, "w+")
 
     # Write the PBS script
-    jobfile.write("#!/bin/bash \n")
+    jobfile.write("#!/bin/bash --login\n")
 
     if jobname is not "":
-        jobfile.write("#BSUB -J " + jobname + " \n")
+        jobfile.write("#BSUB -J " + jobname + "\n")
 
     if jobs[jobname]["queue"] is not "":
         jobfile.write("#BSUB -q " + jobs[jobname]["queue"] + "\n")
@@ -412,23 +462,23 @@ def lsf_prepare(hosts, jobname, jobs):
     if jobs[jobname]["modules"] is not "":
         for module in jobs[jobname]["modules"].split(","):
             module.replace(" ", "")
-            jobfile.write("\n" + "module load %s \n\n" % module)
+            jobfile.write("\n" + "module load %s\n\n" % module)
 
     mpirun = hosts[jobs[jobname]["resource"]]["handler"]
 
     if int(jobs[jobname]["batch"]) == 1:
 
-        jobfile.write(mpirun + " -lsf " + jobs[jobname]["commandline"] + " \n")
+        jobfile.write(mpirun + " -lsf " + jobs[jobname]["commandline"] + "\n")
 
     elif int(jobs[jobname]["batch"]) > 1:
 
-        jobfile.write("for i in {1.." + jobs[jobname]["batch"] + "}; \n"
-                      "do \n"
-                      "  cd rep$i/ \n"
+        jobfile.write("for i in {1.." + jobs[jobname]["batch"] + "};\n"
+                      "do\n"
+                      "  cd rep$i/\n"
                       "  " + mpirun + " -lsf " + jobs[jobname]["commandline"] +
-                      " & \n"
-                      "done \n"
-                      "wait \n")
+                      " &\n"
+                      "done\n"
+                      "wait\n")
 
     # Close the file (housekeeping)
     jobfile.close()
@@ -436,8 +486,6 @@ def lsf_prepare(hosts, jobname, jobs):
     # Append lsf file to list of files ready for staging.
     jobs[jobname]["filelist"].extend(["submit.lsf"])
     jobs[jobname]["subfile"] = "submit.lsf"
-
-    LOGGER.info("  Complete")
 
 
 def lsf_status(host, jobid):
@@ -470,8 +518,6 @@ def lsf_submit(host, jobname, jobs):
 
     """Method for submitting job."""
 
-    LOGGER.info("Submitting the job: %s to the remote host.", jobname)
-
     # cd into the working directory and submit the job.
     path = os.path.join(jobs[jobname]["remoteworkdir"], jobname)
     cmd = ["cd " + path + "\n", "bsub < " +
@@ -485,7 +531,7 @@ def lsf_submit(host, jobname, jobs):
 
     output = shellout.splitlines()[0]
 
-    LOGGER.info("  Job submitted with id: %s", output)
+    LOGGER.info("  Job: %s submitted with id: %s", jobname, output)
 
     jobs[jobname]["jobid"] = output
 
@@ -509,18 +555,18 @@ def sge_prepare(hosts, jobname, jobs):
 
     """Create the SGE jobfile ready for submitting jobs"""
 
-    LOGGER.info("Creating submit file for job: %s", jobname)
+    LOGGER.info("  Creating submit file for job: %s", jobname)
 
     # Open file for LSF script.
     sgefile = os.path.join(jobs[jobname]["localworkdir"], "submit.sge")
     jobfile = open(sgefile, "w+")
 
     # Write the PBS script
-    jobfile.write("#!/bin/bash \n"
+    jobfile.write("#!/bin/bash --login\n"
                   "#$ -cwd -V")
 
     if jobname is not "":
-        jobfile.write("#$ -N " + jobname + " \n")
+        jobfile.write("#$ -N " + jobname + "\n")
 
     if jobs[jobname]["queue"] is not "":
         jobfile.write("#$ -q " + jobs[jobname]["queue"] + "\n")
@@ -528,30 +574,30 @@ def sge_prepare(hosts, jobname, jobs):
     if jobs[jobname]["account"] is not "":
         jobfile.write("#$ -A " + jobs[jobname]["account"] + "\n")
 
-    jobfile.write("#$ -l h_rt=" + jobs[jobname]["maxtime"] + ":00 \n")
+    jobfile.write("#$ -l h_rt=" + jobs[jobname]["maxtime"] + ":00\n")
 
     # TODO: "#$ -pe ib " + jobs[jobname]["cores"] + "\n\n")
 
     if jobs[jobname]["modules"] is not "":
         for module in jobs[jobname]["modules"].split(","):
             module.replace(" ", "")
-            jobfile.write("module load %s \n\n" % module)
+            jobfile.write("module load %s\n\n" % module)
 
     mpirun = hosts[jobs[jobname]["resource"]]["handler"]
 
     if int(jobs[jobname]["batch"]) == 1:
 
-        jobfile.write(mpirun + " " + jobs[jobname]["commandline"] + " \n")
+        jobfile.write(mpirun + " " + jobs[jobname]["commandline"] + "\n")
 
     elif int(jobs[jobname]["batch"]) > 1:
 
-        jobfile.write("for i in {1.." + jobs[jobname]["batch"] + "}; \n"
-                      "do \n"
-                      "  cd rep$i/ \n"
+        jobfile.write("for i in {1.." + jobs[jobname]["batch"] + "};\n"
+                      "do\n"
+                      "  cd rep$i/\n"
                       "  " + mpirun + jobs[jobname]["commandline"] +
-                      " & \n"
-                      "done \n"
-                      "wait \n")
+                      " &\n"
+                      "done\n"
+                      "wait\n")
 
     # Close the file (housekeeping)
     jobfile.close()
@@ -559,8 +605,6 @@ def sge_prepare(hosts, jobname, jobs):
     # Append lsf file to list of files ready for staging.
     jobs[jobname]["filelist"].extend(["submit.sge"])
     jobs[jobname]["subfile"] = "submit.sge"
-
-    LOGGER.info("  Complete")
 
 
 def sge_status(host, jobid):
@@ -593,8 +637,6 @@ def sge_submit(host, jobname, jobs):
 
     """Method for submitting a job."""
 
-    LOGGER.info("Submitting the job: %s to the remote host.", jobname)
-
     path = os.path.join(jobs[jobname]["remoteworkdir"], jobname)
     # Change into the working directory and submit the job.
     cmd = ["cd " + path + "\n", "qsub " + jobs[jobname]["subfile"] +
@@ -606,34 +648,34 @@ def sge_submit(host, jobname, jobs):
     except:
         raise RuntimeError("  Something went wrong when submitting.")
 
-    LOGGER.info("  Job submitted with id: %s", shellout)
+    LOGGER.info("  Job: %s submitted with id: %s", jobname, shellout)
 
     jobs[jobname]["jobid"] = shellout
 
 
 def amazon_delete():
 
-    """."""
+    """Delete call to Crossbow."""
 
     pass
 
 
 def amazon_prepare():
 
-    """."""
+    """Prepare call to Crossbow.."""
 
     pass
 
 
 def amazon_status():
 
-    """."""
+    """Status call to Crossbow.."""
 
     pass
 
 
 def amazon_submit():
 
-    """."""
+    """Submit call to Crossbow."""
 
     pass

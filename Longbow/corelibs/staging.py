@@ -38,10 +38,9 @@ def stage_upstream(hosts, jobs):
     a dictionary of jobs and processes the information from the filelist.
     """
 
-    for job in jobs:
+    LOGGER.info("Staging files for job/s.")
 
-        LOGGER.info("For job '%s' preparing to transfer files to " %
-                    job + "'%s'." % jobs[job]["resource"])
+    for job in jobs:
 
         # Check that the working directory exists.
         try:
@@ -60,7 +59,7 @@ def stage_upstream(hosts, jobs):
         try:
             shellwrappers.remotelist(hosts[jobs[job]["resource"]], path)
             LOGGER.debug("  directory '%s' already exists, emptying" +
-                         " its contents in preparation for staging.")
+                         " its contents in preparation for staging.", path)
             shellwrappers.remotedelete(hosts[jobs[job]["resource"]], path)
             shellwrappers.sendtossh(hosts[jobs[job]["resource"]],
                                     ["mkdir " + path])
@@ -70,7 +69,9 @@ def stage_upstream(hosts, jobs):
                                     ["mkdir " + path])
 
         # Loop through all files.
-        LOGGER.info("  Transfering files for job '%s'", job)
+        LOGGER.info("  Transfering files for job: '%s' to host: %s",
+                    job, jobs[job]["resource"])
+
         for item in jobs[job]["filelist"]:
 
             # Source of the file locally.

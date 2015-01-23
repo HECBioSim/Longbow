@@ -74,6 +74,7 @@ def loadjobs(cwd, confile, overrides):
         "localworkdir": cwd,
         "modules": "",
         "maxtime": "",
+        "memory": "",
         "nodes": "",
         "program": "",
         "remoteworkdir": "",

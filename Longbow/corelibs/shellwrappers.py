@@ -66,44 +66,40 @@ def sendtoshell(cmd):
 
     LOGGER.debug("  Sending the following to subprocess: %s", cmd)
 
-    # Call to python subprocess, here we will send commands to be run in a
-    # terminal as a list and return the output back. The [0] on the
-    # communicate is basically because at the moment information from
-    # stderr is not needed.
     i = 0
+
+    # This loop is essentially so we can do 3 retries on commands that fail,
+    # this is to catch when things go wrong over SSH like dropped connections,
+    # issues with latency etc.
     while i is not 3:
-        try:
-            handle = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                                      stderr=subprocess.PIPE)
 
-            stdout, stderr = handle.communicate()
+        handle = subprocess.Popen(cmd,
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.PIPE)
 
-            # Grab the return code.
-            errorstate = handle.returncode
+        stdout, stderr = handle.communicate()
 
-            if errorstate is not 0:
-                raise RuntimeError()
+        # Grab the return code.
+        errorstate = handle.returncode
 
-        except RuntimeError:
-            i = i + 1
-
-        # If the command succeeds then break out of loop.
+        # If no error exit loop, if errorcode is not 0 raise exception unless
+        # code is 255
         if errorstate is 0:
             break
-
-        LOGGER.debug("  Retry last command after a 10 second wait.")
+        elif errorstate is 255:
+            i = i + 1
+        else:
+            raise RuntimeError("Command returned error.")
 
         # If number of retries or the standard output and error
         # is coming back blank then give up.
-        if i is 3 or (stdout is "" and stderr is ""):
+        if i is 3:
             raise RuntimeError("Subprocess error: something went wrong.")
 
-        time.sleep(10)
+        LOGGER.debug("  Retry last command after a 10 second wait.")
 
-    # The returned information is in byte format so lets put it into a
-    # useful string format.
-    # stdout = stdout.decode("utf-8")
-    # stderr = stderr.decode("utf-8")
+        # Wait 10 seconds to see if problem goes away before trying again.
+        time.sleep(10)
 
     return stdout, stderr, errorstate
 
