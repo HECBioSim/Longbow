@@ -1,0 +1,101 @@
+import logging                                                  # IMPORTANT
+
+#------------------------------------------------------------------------------
+# Boiler plate for logging.
+
+LOGGER = logging.getLogger("Longbow")                           # IMPORTANT
+
+#------------------------------------------------------------------------------
+# For schedulers a unique string to identify the scheduler should go here.
+# Sometimes "env | grep -i 'something specific'" will suffice.
+
+QUERY_STRING = "unique identifier here."                        # IMPORTANT
+
+#------------------------------------------------------------------------------
+# Delete method (not currently used).
+
+def delete(host, jobid):                                        # IMPORTANT
+
+    """Method for deleting job."""
+
+    LOGGER.info("Deleting the job with id: %s", jobid)
+
+    ########################################################
+    #                                                      #
+    #                                                      #
+    #                  Your code here.                     #
+    #                                                      #
+    #                                                      #
+    ########################################################
+
+    LOGGER.info("  Deleted successfully")
+
+
+#------------------------------------------------------------------------------
+# Prepare method
+
+def prepare(hosts, jobname, jobs):                             # IMPORTANT
+
+    """Create the LSF jobfile ready for submitting jobs"""
+
+    LOGGER.info("  Creating submit file for job: %s", jobname)
+    
+    # Open file for LSF script.
+    lsffile = os.path.join(jobs[jobname]["localworkdir"], "submit.lsf")
+    jobfile = open(lsffile, "w+")
+
+    # Write the PBS script
+    jobfile.write("#!/bin/bash --login\n")
+    
+    ########################################################
+    #                                                      #
+    #                                                      #
+    #                  Your code here.                     #
+    #                                                      #
+    #                                                      #
+    ########################################################
+    
+    # Append submitfile to list of files ready for staging.
+    jobs[jobname]["filelist"].extend(["submit.lsf"])            # IMPORTANT
+    jobs[jobname]["subfile"] = "submit.lsf"                     # IMPORTANT
+
+
+#------------------------------------------------------------------------------
+# Status method
+
+def status(host, jobid):                                        # IMPORTANT
+
+    """Method for querying job."""
+    
+    ########################################################
+    #                                                      #
+    #                                                      #
+    #                  Your code here.                     #
+    #                                                      #
+    #                                                      #
+    ########################################################    
+    
+    return state (return the state of job)                      # IMPORTANT
+    
+    
+    
+#------------------------------------------------------------------------------
+# Submit method
+    
+def submit(host, jobname, jobs):                                # IMPORTANT
+
+    """Method for submitting job."""
+
+    ########################################################
+    #                                                      #
+    #                                                      #
+    #                  Your code here.                     #
+    #                                                      #
+    #                                                      #
+    ########################################################    
+    
+    LOGGER.info("  Job: %s submitted with id: %s", jobname, output)
+
+    jobs[jobname]["jobid"] = output                             # IMPORTANT
+    
+    

@@ -1,4 +1,4 @@
-# Longbow is Copyright (C) of James T Gebbie-Rayet and Gareth B Shannon 2015.
+# Longbow is Copyright (C) of James T Gebbie-Rayet 2015.
 #
 # This file is part of Longbow.
 #
@@ -15,8 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
+"""."""
 
-Corelibs - the Longbow library
+import pkgutil
+import os
+import sys
 
-"""
+PATH = os.path.dirname(__file__)
+PACKAGES = pkgutil.walk_packages(path=[PATH])
+PLUGINS = {}
+
+for packageloader, packagename, ispkg in PACKAGES:
+    package = __import__("plugins." + packagename)
+    PLUGINS[packagename] = "plugins." + packagename
