@@ -36,11 +36,6 @@ def console(args, files, overrides, mode):
     # Get the execution directory (where we are installed).
     execdir = os.path.dirname(os.path.realpath(__file__))
 
-    paths = {
-        "hosts": execdir,
-        "jobs": cwd,
-        "logs": cwd
-        }
 
     # -----------------------------------------------------------------
     # Setup some basic file paths.
@@ -52,15 +47,19 @@ def console(args, files, overrides, mode):
         for param in files:
             if files[param] is "":
                 raise RuntimeError("Error: nothing was supplied for the " +
-                                   "%s file, please supply either " %
-                                   param + "the absolute path or place " +
-                                   "the file in the directory: %s" %
-                                   paths[param] +
-                                   " and supply its name with the -%s " %
+                                   "%s file, please supply " %
+                                   param + "its name with the -%s " %
                                    param + "flag.")
             else:
                 if os.path.isabs(files[param]) is False:
-                    files[param] = os.path.join(paths[param], files[param])
+                    if param == "hosts" or param == "jobs":
+                        if os.path.isfile(cwd + "/" + files[param]):
+                            paths = cwd
+                        elif os.path.isfile(execdir + "/" + files[param]):
+                            paths = execdir
+                    elif param == "logs":
+                        paths = cwd
+                    files[param] = os.path.join(paths, files[param])
 
     except RuntimeError as ex:
         sys.exit(ex)

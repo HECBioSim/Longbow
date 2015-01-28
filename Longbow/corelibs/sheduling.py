@@ -181,13 +181,15 @@ def monitor(hosts, jobs):
 
                 # If the job is running and we set the polling frequency higher
                 # higher than 0 (off) then stage files.
-                if jobs[job]["laststatus"] == "Running" and interval is not 0:
+                if jobs[job]["laststatus"] != "Finished" and interval is not 0:
                     staging.stage_downstream(hosts, jobs, job)
 
                 # If job is done then transfer files (this is to stop users
                 # having to wait till all jobs end to grab last bit of staged
                 # files.)
                 if jobs[job]["laststatus"] == "Finished":
+                    LOGGER.info("Job is finishing, staging will begin in 60 seconds")
+                    time.sleep(60.0)
                     staging.stage_downstream(hosts, jobs, job)
 
         # Find out if all jobs are completed.
@@ -388,6 +390,30 @@ def pbs_status(host, jobid):
 
         elif stat[4] == "R":
             status = "Running"
+        
+        elif stat[4] == "B":
+            status == "Subjob(s) running"
+    
+        elif stat[4] == "E":
+            status == "Exiting"
+
+        elif stat[4] == "M":
+            status == "Job moved to server"
+
+        elif stat[4] == "S":
+            status == "Suspended"
+
+        elif stat[4] == "T":
+            status == "Job moved to new location"
+
+        elif stat[4] == "U":
+            status == "Cycle-harvesting job is suspended due to keyboard activity"
+
+        elif stat[4] == "W":
+            status == "Waiting for start time"
+
+        elif stat[4] == "X":
+            status == "Subjob completed execution/has been deleted"
 
     except RuntimeError:
         status = "Finished"
@@ -401,7 +427,7 @@ def pbs_submit(host, jobname, jobs):
 
     path = os.path.join(jobs[jobname]["remoteworkdir"], jobname)
     # Change into the working directory and submit the job.
-    cmd = ["cd " + path + "\n", "qsub " + jobs[jobname]["subfile"]]
+    cmd = ["cd " + path + "\n", "qsub " + jobs[jobname]["subfile"] + "| grep -P -o '[0-9]*(?=.)'"]
 
     # Process the submit
     try:
