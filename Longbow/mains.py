@@ -36,31 +36,31 @@ def console(args, files, overrides, mode):
     # Get the execution directory (where we are installed).
     execdir = os.path.dirname(os.path.realpath(__file__))
 
-    paths = {
-        "hosts": execdir,
-        "jobs": cwd,
-        "logs": cwd
-        }
 
     # -----------------------------------------------------------------
     # Setup some basic file paths.
 
-    # Check if a file name/path is supplied, if just the name is supplied
-    # then assume we are launching from the same place as it so it should
-    # be in the current working directory.
+    # Check if a file name/path is supplied. If just the name is supplied
+    # then for logs output to the current working directory. For hosts 
+    # and jobs prioritise the named files in the current working directory 
+    # over those in the execution directory if they exist.
     try:
         for param in files:
             if files[param] is "":
                 raise RuntimeError("Error: nothing was supplied for the " +
-                                   "%s file, please supply either " %
-                                   param + "the absolute path or place " +
-                                   "the file in the directory: %s" %
-                                   paths[param] +
-                                   " and supply its name with the -%s " %
+                                   "%s file, please supply " %
+                                   param + "its name with the -%s " %
                                    param + "flag.")
             else:
                 if os.path.isabs(files[param]) is False:
-                    files[param] = os.path.join(paths[param], files[param])
+                    if param == "hosts" or param == "jobs":
+                        if os.path.isfile(cwd + "/" + files[param]):
+                            paths = cwd
+                        elif os.path.isfile(execdir + "/" + files[param]):
+                            paths = execdir
+                    elif param == "logs":
+                        paths = cwd
+                    files[param] = os.path.join(paths, files[param])
 
     except RuntimeError as ex:
         sys.exit(ex)
