@@ -21,7 +21,12 @@ different modes of Longbow, the main entry types are console and GUI based."""
 import os
 import sys
 import logging
-import corelibs
+import corelibs.applications as applications
+import corelibs.configuration as configuration
+import corelibs.logger as log
+import corelibs.sheduling as scheduling
+import corelibs.shellwrappers as shellwrappers
+import corelibs.staging as staging
 
 
 def console(args, files, overrides, mode):
@@ -68,7 +73,7 @@ def console(args, files, overrides, mode):
     # -----------------------------------------------------------------
     # Setup the logger.
 
-    corelibs.setuplogger(files["logs"], "Longbow", mode)
+    log.setuplogger(files["logs"], "Longbow", mode)
 
     logger = logging.getLogger("Longbow")
 
@@ -81,49 +86,49 @@ def console(args, files, overrides, mode):
     try:
 
         # Load the configuration of the hosts.
-        hosts = corelibs.loadhosts(files["hosts"])
+        hosts = configuration.loadhosts(files["hosts"])
 
         # Load the configuration of the jobs.
-        jobs = corelibs.loadjobs(cwd, files["jobs"], overrides)
+        jobs = configuration.loadjobs(cwd, files["jobs"], overrides)
 
         # Test the connection/s specified in the job configurations
-        corelibs.testconnections(hosts, jobs)
+        shellwrappers.testconnections(hosts, jobs)
 
         # Test the hosts listed in the jobs configuration file have their
         # scheduler environments listed, if not then test and save them.
-        corelibs.testenv(files["hosts"], hosts, jobs)
+        scheduling.testenv(files["hosts"], hosts, jobs)
 
         # Test that for the applications listed in the job configuration
         # file are available and that the executable is present.
-        corelibs.testapp(hosts, jobs)
+        applications.testapp(hosts, jobs)
 
         # -----------------------------------------------------------------
         # Start processing the setup and staging for each job.
 
         # Process the jobs command line arguments and find files for
         # staging.
-        corelibs.processjobs(args, jobs)
+        applications.processjobs(args, jobs)
 
         # Create jobfile and add it to the list of files that needs
         # uploading.
-        corelibs.prepare(hosts, jobs)
+        scheduling.prepare(hosts, jobs)
 
         # Stage all of the job files along with the scheduling script.
-        corelibs.stage_upstream(hosts, jobs)
+        staging.stage_upstream(hosts, jobs)
 
         # -----------------------------------------------------------------
         # Submit the job/s to the scheduler.
-        corelibs.submit(hosts, jobs)
+        scheduling.submit(hosts, jobs)
 
         # -----------------------------------------------------------------
         # Monitor job/s.
-        corelibs.monitor(hosts, jobs)
+        scheduling.monitor(hosts, jobs)
 
         # -----------------------------------------------------------------
         # Clean up.
 
         # Remove the remote directory.
-        corelibs.cleanup(hosts, jobs)
+        staging.cleanup(hosts, jobs)
 
     except RuntimeError as ex:
         if mode["debug"]:

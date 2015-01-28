@@ -16,3 +16,19 @@
 # along with Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
 """."""
+
+import sys
+import os
+import pkgutil
+
+QUERY = {}
+
+PATH = os.path.dirname(__file__)
+MODULES = pkgutil.iter_modules(path=[PATH])
+
+for loader, modulename, ispkg in MODULES:
+
+    if modulename not in sys.modules:
+        mod = __import__("plugins.schedulers." + modulename,
+                         fromlist=[""])
+        QUERY[modulename] = [getattr(mod, "QUERY_STRING")]

@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""This module containst the methods for preparing, submitting, deleting and
+"""This module contains the methods for preparing, submitting, deleting and
 monitoring jobs. The following methods abstract the schedulers:
 
 delete()
@@ -30,10 +30,10 @@ necessary.
 
 import time
 import logging
-import sys
 import corelibs.shellwrappers as shellwrappers
-import corelibs.configuration as config
+import corelibs.configuration as configuration
 import corelibs.staging as staging
+import plugins.schedulers as schedulers
 
 LOGGER = logging.getLogger("Longbow")
 
@@ -44,10 +44,7 @@ def testenv(hostconf, hosts, jobs):
     a pre-configured list what scheduler and job submission handler is present
     on the machine."""
 
-    schedulers = {"PBS": ["env | grep -i 'pbs' &> /dev/null"],
-                  "LSF": ["env | grep -i 'lsf' &> /dev/null"],
-                  "SGE": ["env | grep -i 'sge' &> /dev/null"]
-                  }
+    schedulerqueries = getattr(schedulers, "QUERY")
 
     handlers = {"aprun": ["which aprun"],
                 "mpirun": ["which mpirun"]
@@ -67,15 +64,19 @@ def testenv(hostconf, hosts, jobs):
                         "to determine it!")
 
             # Go through the schedulers we are supporting.
-            for param in schedulers:
+            for param in schedulerqueries:
                 try:
                     shellwrappers.sendtossh(hosts[resource],
-                                            schedulers[param])
+                                            schedulerqueries[param])
                     hosts[resource]["scheduler"] = param
                     LOGGER.info("  The environment on this host is: %s", param)
                     break
                 except RuntimeError:
                     LOGGER.debug("  Environment is not %s", param)
+
+            if hosts[resource]["scheduler"] is "":
+                raise RuntimeError("  Could not find the job scheduling " +
+                                   "system.")
 
             # If we changed anything then mark for saving.
             save = True
@@ -99,6 +100,9 @@ def testenv(hostconf, hosts, jobs):
                 except RuntimeError:
                     LOGGER.debug("  The batch queue handler is not %s", param)
 
+            if hosts[resource]["handler"] is "":
+                raise RuntimeError("  Could not find the batch queue handler.")
+
             # If we changed anything then mark for saving.
             save = True
 
@@ -108,7 +112,7 @@ def testenv(hostconf, hosts, jobs):
 
     # Do we have anything to change in the host file.
     if save is True:
-        config.saveconfigs(hostconf, hosts)
+        configuration.saveconfigs(hostconf, hosts)
 
 
 def delete(hosts, jobs, jobname):
@@ -123,8 +127,7 @@ def delete(hosts, jobs, jobname):
             host = hosts[jobs[job]["resource"]]
             jobid = jobs[job]["jobid"]
 
-            getattr(sys.modules[__name__], scheduler.lower() +
-                    "_delete")(host, jobid)
+            getattr(schedulers, scheduler.lower()).delete(host, jobid)
 
     else:
 
@@ -132,8 +135,7 @@ def delete(hosts, jobs, jobname):
         host = hosts[jobs[jobname]["resource"]]
         jobid = jobs[jobname]["jobid"]
 
-        getattr(sys.modules[__name__], scheduler.lower() +
-                "_delete")(host, jobid)
+        getattr(schedulers, scheduler.lower()).delete(host, jobid)
 
 
 def monitor(hosts, jobs):
@@ -167,8 +169,9 @@ def monitor(hosts, jobs):
                 host = hosts[machine]
 
                 # Get the job status.
-                status = getattr(sys.modules[__name__], scheduler.lower() +
-                                 "_status")(host, jobs[job]["jobid"])
+                status = getattr(schedulers,
+                                 scheduler.lower()).status(host,
+                                                           jobs[job]["jobid"])
 
                 # If the last status is different then change the flag (stops
                 # logfile getting flooded!)
@@ -216,8 +219,7 @@ def prepare(hosts, jobs):
 
         scheduler = hosts[jobs[job]["resource"]]["scheduler"]
 
-        getattr(sys.modules[__name__], scheduler.lower() +
-                "_prepare")(hosts, job, jobs)
+        getattr(schedulers, scheduler.lower()).prepare(hosts, job, jobs)
 
     LOGGER.info("Submit file/s created.")
 
@@ -235,7 +237,6 @@ def submit(hosts, jobs):
         scheduler = hosts[machine]["scheduler"]
         host = hosts[machine]
 
-        getattr(sys.modules[__name__], scheduler.lower() +
-                "_submit")(host, job, jobs)
+        getattr(schedulers, scheduler.lower()).submit(host, job, jobs)
 
     LOGGER.info("Submission complete.")

@@ -1,0 +1,20 @@
+import logging
+import os
+import corelibs
+
+LOGGER = logging.getLogger("Longbow")
+
+QUERY_STRING = "unique identifier here."
+
+def delete(host, jobid):
+
+    """Method for deleting job."""
+
+    LOGGER.info("Deleting the job with id: %s", jobid)
+
+
+
+
+    LOGGER.info("  Deleted successfully")
+
+	return shellout[0]

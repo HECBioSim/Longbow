@@ -16,4 +16,15 @@
 # along with Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
 """."""
- 
+
+import pkgutil
+import os
+import sys
+
+PATH = os.path.dirname(__file__)
+PACKAGES = pkgutil.walk_packages(path=[PATH])
+PLUGINS = {}
+
+for packageloader, packagename, ispkg in PACKAGES:
+    package = __import__("plugins." + packagename)
+    PLUGINS[packagename] = "plugins." + packagename
