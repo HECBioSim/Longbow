@@ -40,9 +40,10 @@ def console(args, files, overrides, mode):
     # -----------------------------------------------------------------
     # Setup some basic file paths.
 
-    # Check if a file name/path is supplied, if just the name is supplied
-    # then assume we are launching from the same place as it so it should
-    # be in the current working directory.
+    # Check if a file name/path is supplied. If just the name is supplied
+    # then for logs output to the current working directory. For hosts 
+    # and jobs prioritise the named files in the current working directory 
+    # over those in the execution directory if they exist.
     try:
         for param in files:
             if files[param] is "":

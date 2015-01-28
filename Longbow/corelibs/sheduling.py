@@ -179,12 +179,12 @@ def monitor(hosts, jobs):
                     LOGGER.info("  Job: %s with id: %s is %s", job,
                                 jobs[job]["jobid"], status)
 
-                # If the job is running and we set the polling frequency higher
+                # If the job is not finished and we set the polling frequency higher
                 # higher than 0 (off) then stage files.
                 if jobs[job]["laststatus"] != "Finished" and interval is not 0:
                     staging.stage_downstream(hosts, jobs, job)
 
-                # If job is done then transfer files (this is to stop users
+                # If job is done wait 60 seconds then transfer files (this is to stop users
                 # having to wait till all jobs end to grab last bit of staged
                 # files.)
                 if jobs[job]["laststatus"] == "Finished":
