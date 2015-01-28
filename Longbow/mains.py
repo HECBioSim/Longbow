@@ -24,7 +24,7 @@ import logging
 import corelibs.applications as applications
 import corelibs.configuration as configuration
 import corelibs.logger as log
-import corelibs.sheduling as scheduling
+import corelibs.scheduling as scheduling
 import corelibs.shellwrappers as shellwrappers
 import corelibs.staging as staging
 
