@@ -61,6 +61,9 @@ def prepare(hosts, jobname, jobs):
     if jobs[jobname]["queue"] is not "":
         jobfile.write("#BSUB -q " + jobs[jobname]["queue"] + "\n")
 
+    if jobs[jobname]["cluster"] is not "":
+        jobfile.write("#BSUB -m " + jobs[jobname]["cluster"] + "\n")
+
     if jobs[jobname]["account"] is not "":
         jobfile.write("#BSUB -P " + jobs[jobname]["account"] + "\n")
 

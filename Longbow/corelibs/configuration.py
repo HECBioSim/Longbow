@@ -66,6 +66,7 @@ def loadjobs(cwd, confile, overrides):
     jobtemplate = {
         "account": "",
         "batch": "1",
+        "cluster": "",
         "commandline": "",
         "cores": "",
         "corespernode": "",

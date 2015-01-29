@@ -143,7 +143,7 @@ def sendtorsync(host, src, dst):
     """A method for constructing rsync commands."""
 
     # Basic rsync command.
-    cmd = ["rsync", "-rP", "-e", "ssh -p %s" %
+    cmd = ["rsync", "-azP", "-e", "ssh -p %s" %
            host["port"], src, dst]
 
     # Send to rsync.

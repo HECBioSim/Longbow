@@ -113,7 +113,7 @@ def stage_downstream(hosts, jobs, jobname):
 
             # Download the whole directory with rsync.
             host = hosts[jobs[job]["resource"]]
-            src = os.path.join(jobs[job]["remoteworkdir"], job + "/*")
+            src = os.path.join(jobs[job]["remoteworkdir"], job + "/")
             dst = jobs[job]["localworkdir"]
             shellwrappers.download("rsync", host, src, dst)
 
@@ -124,7 +124,7 @@ def stage_downstream(hosts, jobs, jobname):
         LOGGER.info("  For job %s staging files downstream.", jobname)
 
         host = hosts[jobs[jobname]["resource"]]
-        src = os.path.join(jobs[jobname]["remoteworkdir"], jobname + "/*")
+        src = os.path.join(jobs[jobname]["remoteworkdir"], jobname + "/")
         dst = jobs[jobname]["localworkdir"]
         # Download the whole directory with rsync.
         shellwrappers.download("rsync", host, src, dst)
