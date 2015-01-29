@@ -41,12 +41,13 @@ def console(args, files, overrides, mode):
     # Get the execution directory (where we are installed).
     execdir = os.path.dirname(os.path.realpath(__file__))
 
+
     # -----------------------------------------------------------------
     # Setup some basic file paths.
 
     # Check if a file name/path is supplied. If just the name is supplied
-    # then for logs output to the current working directory. For hosts
-    # and jobs prioritise the named files in the current working directory
+    # then for logs output to the current working directory. For hosts 
+    # and jobs prioritise the named files in the current working directory 
     # over those in the execution directory if they exist.
     try:
         for param in files:
