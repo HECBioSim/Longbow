@@ -1,4 +1,4 @@
-# Longbow is Copyright (C) of James T Gebbie-Rayet 2015.
+# Longbow is Copyright (C) of James T Gebbie-Rayet and Gareth B Shannon 2015.
 #
 # This file is part of Longbow.
 #
@@ -15,7 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""."""
+"""The schedulers plugin, add modules to this directory to be auto-detected
+and imported. Added plugins are instantly available for use without modifying
+Longbow corelibs."""
 
 import sys
 import os
