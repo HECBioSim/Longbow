@@ -189,8 +189,8 @@ def monitor(hosts, jobs):
                 # to stop users having to wait till all jobs end to grab last
                 # bit of staged files.)
                 if jobs[job]["laststatus"] == "Finished":
-                    LOGGER.info("Job %s is finishing, staging will begin in " +
-                                "60 seconds" % job)
+                    LOGGER.info("  Job %s is finishing, staging will " % job +
+                                "begin in 60 seconds")
                     time.sleep(60.0)
                     staging.stage_downstream(hosts, jobs, job)
 
