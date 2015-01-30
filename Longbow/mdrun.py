@@ -1,5 +1,22 @@
 #!/usr/bin/env python
 
+# Longbow is Copyright (C) of James T Gebbie-Rayet and Gareth B Shannon 2015.
+#
+# This file is part of Longbow.
+#
+# Longbow is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Longbow is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Longbow.  If not, see <http://www.gnu.org/licenses/>.
+
 """Contains the main entry point for the Longbow program, this version calls
 the main for a console based session. This version is intended for proxying of
 GROMACS jobs, if the user wants to proxy using the names of popular biosim
@@ -16,12 +33,12 @@ if __name__ == "__main__":
     The following files must be provided:
 
     -hosts
-    -jobs
-    -logs
+    -job
+    -log
 
     User should specify either the absolute path to the file or if just the
-    name is given then the current working directory will be used for jobs and
-    logs whilst the hosts file will fall back to the one inside the
+    name is given then the current working directory will be used for job and
+    log whilst the hosts file will fall back to the one inside the
     installation directory.
 
     To put the app in DEBUG mode supply -debug this will give enhanced logging
@@ -44,8 +61,8 @@ if __name__ == "__main__":
     # paths if not supplied.
     FILES = {
         "hosts": "",
-        "jobs": "",
-        "logs": ""
+        "job": "",
+        "log": ""
     }
     OVERRIDES = {
         "program": "gromacs",
@@ -69,17 +86,17 @@ if __name__ == "__main__":
 
     # Take out the job config file path, then remove it from the command
     # line argument list.
-    if COMMANDLINEARGS.count("-jobs") == 1:
-        POSITION = COMMANDLINEARGS.index("-jobs")
-        FILES["jobs"] = COMMANDLINEARGS[POSITION + 1]
+    if COMMANDLINEARGS.count("-job") == 1:
+        POSITION = COMMANDLINEARGS.index("-job")
+        FILES["job"] = COMMANDLINEARGS[POSITION + 1]
         COMMANDLINEARGS.pop(POSITION)
         COMMANDLINEARGS.pop(POSITION)
 
     # Take out the log file path, then remove it from the command
     # line argument list.
-    if COMMANDLINEARGS.count("-logs") == 1:
-        POSITION = COMMANDLINEARGS.index("-logs")
-        FILES["logs"] = COMMANDLINEARGS[POSITION + 1]
+    if COMMANDLINEARGS.count("-log") == 1:
+        POSITION = COMMANDLINEARGS.index("-log")
+        FILES["log"] = COMMANDLINEARGS[POSITION + 1]
         COMMANDLINEARGS.pop(POSITION)
         COMMANDLINEARGS.pop(POSITION)
 
