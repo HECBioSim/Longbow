@@ -47,23 +47,30 @@ def console(args, files, overrides, mode):
 
     # Check if a file name/path is supplied. If just the name is supplied
     # then for log output to the current working directory. For hosts 
-    # and jobs prioritise the named files in the current working directory 
-    # over those in the execution directory if they exist.
+    # and job, prioritise the named files in the current working directory 
+    # over those in the execution directory if they exist. If no hosts filename
+    # is specified default to the name hosts.conf
     try:
         for param in files:
+            # If no hosts file is specified default to the name hosts.conf
             if param == "hosts" and files["hosts"] is "":
-                    files[param] = "hosts.conf"       
+                files[param] = "hosts.conf"
+            # If no filename is specified for job or log issue error        
             if files[param] is "":        
                 raise RuntimeError("Error: nothing was supplied for the " +
                                    "%s file, please supply " %
                                    param + "its name with the -%s " %
                                    param + "flag.")
             else:
+                # If the path of the hosts or job file is not provided look in  
+                # the current working directory and then in the execution  
+                # directory if it's not found. If the desired path for the log 
+                # file is not specified output to the current working directory   
                 if os.path.isabs(files[param]) is False:
                     if param == "hosts" or param == "job":
-                        if os.path.isfile(cwd + "/" + files[param]):
+                        if os.path.isfile(os.path.join(cwd, files[param])):
                             paths = cwd
-                        elif os.path.isfile(execdir + "/" + files[param]):
+                        elif os.path.isfile(os.path.join(execdir, files[param])):
                             paths = execdir
                         else:
                             raise RuntimeError("Error: %s file not supplied." % 

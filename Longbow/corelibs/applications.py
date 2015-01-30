@@ -71,7 +71,7 @@ def processjobs(args, jobs):
     LOGGER.info("Processing job/s and detecting files that require upload.")
 
     required = {"amber": ["-c", "-i", "-p"],
-                "charmm": ["<"],
+                "charmm": [],
                 "gromacs": ["-s"],
                 "lammps": ["-i"],
                 "namd": ["?"]
