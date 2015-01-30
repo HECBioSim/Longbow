@@ -51,7 +51,9 @@ def console(args, files, overrides, mode):
     # over those in the execution directory if they exist.
     try:
         for param in files:
-            if files[param] is "":
+            if param == "hosts" and files["hosts"] is "":
+                    files[param] = "hosts.conf"       
+            if files[param] is "":        
                 raise RuntimeError("Error: nothing was supplied for the " +
                                    "%s file, please supply " %
                                    param + "its name with the -%s " %
@@ -63,9 +65,12 @@ def console(args, files, overrides, mode):
                             paths = cwd
                         elif os.path.isfile(execdir + "/" + files[param]):
                             paths = execdir
+                        else:
+                            raise RuntimeError("Error: %s file not supplied." % 
+                                               param)
                     elif param == "log":
                         paths = cwd
-                    files[param] = os.path.join(paths, files[param])
+                files[param] = os.path.join(paths, files[param])
 
     except RuntimeError as ex:
         sys.exit(ex)
