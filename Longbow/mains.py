@@ -77,7 +77,7 @@ def console(args, files, overrides, mode):
                                                param)
                     elif param == "log":
                         paths = cwd
-                files[param] = os.path.join(paths, files[param])
+                    files[param] = os.path.join(paths, files[param])
 
     except RuntimeError as ex:
         sys.exit(ex)
