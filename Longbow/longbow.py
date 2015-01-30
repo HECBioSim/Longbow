@@ -33,12 +33,12 @@ if __name__ == "__main__":
     The following files must be provided:
 
     -hosts
-    -jobs
-    -logs
+    -job
+    -log
 
     User should specify either the absolute path to the file or if just the
-    name is given then the current working directory will be used for jobs and
-    logs whilst the hosts file will fall back to the one inside the
+    name is given then the current working directory will be used for job and
+    log whilst the hosts file will fall back to the one inside the
     installation directory.
 
     To put the app in DEBUG mode supply -debug this will give enhanced logging
@@ -61,8 +61,8 @@ if __name__ == "__main__":
     # paths if not supplied.
     FILES = {
         "hosts": "",
-        "jobs": "",
-        "logs": ""
+        "job": "",
+        "log": ""
     }
     OVERRIDES = {}
     MODE = {
@@ -84,17 +84,17 @@ if __name__ == "__main__":
 
     # Take out the job config file path, then remove it from the command
     # line argument list.
-    if COMMANDLINEARGS.count("-jobs") == 1:
-        POSITION = COMMANDLINEARGS.index("-jobs")
-        FILES["jobs"] = COMMANDLINEARGS[POSITION + 1]
+    if COMMANDLINEARGS.count("-job") == 1:
+        POSITION = COMMANDLINEARGS.index("-job")
+        FILES["job"] = COMMANDLINEARGS[POSITION + 1]
         COMMANDLINEARGS.pop(POSITION)
         COMMANDLINEARGS.pop(POSITION)
 
     # Take out the log file path, then remove it from the command
     # line argument list.
-    if COMMANDLINEARGS.count("-logs") == 1:
-        POSITION = COMMANDLINEARGS.index("-logs")
-        FILES["logs"] = COMMANDLINEARGS[POSITION + 1]
+    if COMMANDLINEARGS.count("-log") == 1:
+        POSITION = COMMANDLINEARGS.index("-log")
+        FILES["log"] = COMMANDLINEARGS[POSITION + 1]
         COMMANDLINEARGS.pop(POSITION)
         COMMANDLINEARGS.pop(POSITION)
 

@@ -46,7 +46,7 @@ def console(args, files, overrides, mode):
     # Setup some basic file paths.
 
     # Check if a file name/path is supplied. If just the name is supplied
-    # then for logs output to the current working directory. For hosts 
+    # then for log output to the current working directory. For hosts 
     # and jobs prioritise the named files in the current working directory 
     # over those in the execution directory if they exist.
     try:
@@ -58,12 +58,12 @@ def console(args, files, overrides, mode):
                                    param + "flag.")
             else:
                 if os.path.isabs(files[param]) is False:
-                    if param == "hosts" or param == "jobs":
+                    if param == "hosts" or param == "job":
                         if os.path.isfile(cwd + "/" + files[param]):
                             paths = cwd
                         elif os.path.isfile(execdir + "/" + files[param]):
                             paths = execdir
-                    elif param == "logs":
+                    elif param == "log":
                         paths = cwd
                     files[param] = os.path.join(paths, files[param])
 
@@ -73,7 +73,7 @@ def console(args, files, overrides, mode):
     # -----------------------------------------------------------------
     # Setup the logger.
 
-    log.setuplogger(files["logs"], "Longbow", mode)
+    log.setuplogger(files["log"], "Longbow", mode)
 
     logger = logging.getLogger("Longbow")
 
@@ -89,7 +89,7 @@ def console(args, files, overrides, mode):
         hosts = configuration.loadhosts(files["hosts"])
 
         # Load the configuration of the jobs.
-        jobs = configuration.loadjobs(cwd, files["jobs"], overrides)
+        jobs = configuration.loadjobs(cwd, files["job"], overrides)
 
         # Test the connection/s specified in the job configurations
         shellwrappers.testconnections(hosts, jobs)

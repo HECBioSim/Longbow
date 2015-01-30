@@ -19,7 +19,7 @@
 
 """Contains the main entry point for the Longbow program, this version calls
 the main for a console based session. This version is intended for proxying of
-NAMD jobs, if the user wants to proxy using the names of popular biosim
+AMBER jobs, if the user wants to proxy using the names of popular biosim
 executables (mdrun, pmemd etc) then they can call them using the appropriately
 named .py file in the same directory as this file."""
 
@@ -53,7 +53,7 @@ if __name__ == "__main__":
 
     # Fetch command line arguments
     COMMANDLINEARGS = sys.argv
-
+    
     # Remove the first argument (the application path)
     COMMANDLINEARGS.pop(0)
 
@@ -65,8 +65,8 @@ if __name__ == "__main__":
         "log": ""
     }
     OVERRIDES = {
-        "program": "NAMD",
-        "executable": "namd2"
+        "program": "charmm",
+        "executable": "charmm"
         }
     MODE = {
         "debug": False,

@@ -71,7 +71,7 @@ def processjobs(args, jobs):
     LOGGER.info("Processing job/s and detecting files that require upload.")
 
     required = {"amber": ["-c", "-i", "-p"],
-                "charmm": ["-i"],
+                "charmm": ["<"],
                 "gromacs": ["-s"],
                 "lammps": ["-i"],
                 "namd": ["?"]
@@ -94,8 +94,12 @@ def processjobs(args, jobs):
         # Otherwise check if it came in on the command line to the main
         # app, this should be the case for single and single batch jobs.
         elif len(args) is 0:
-
-            raise RuntimeError("Commandline arguments were not provided.")
+            if jobs[job]["program"] == "charmm":
+                raise RuntimeError("Commandline arguments were not " + 
+                                   "detected. Make sure you have typed " +
+                                   "< in quotation marks on the command line")
+            else:
+                raise RuntimeError("Commandline arguments were not provided")
 
         LOGGER.debug("  Args for job '%s': %s", job, args)
 
