@@ -53,7 +53,7 @@ if __name__ == "__main__":
 
     # Fetch command line arguments
     COMMANDLINEARGS = sys.argv
-    
+
     # Remove the first argument (the application path)
     COMMANDLINEARGS.pop(0)
 

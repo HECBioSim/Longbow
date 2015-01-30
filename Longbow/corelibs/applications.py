@@ -95,7 +95,7 @@ def processjobs(args, jobs):
         # app, this should be the case for single and single batch jobs.
         elif len(args) is 0:
             if jobs[job]["program"] == "charmm":
-                raise RuntimeError("Commandline arguments were not " + 
+                raise RuntimeError("Commandline arguments were not " +
                                    "detected. Make sure you have typed " +
                                    "< in quotation marks on the command line")
             else:
