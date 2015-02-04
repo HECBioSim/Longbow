@@ -65,7 +65,12 @@ def prepare(hosts, jobname, jobs):
 
     # Account to charge (if supplied).
     if jobs[jobname]["account"] is not "":
-        jobfile.write("#PBS -A " + jobs[jobname]["account"] + "\n")
+        if hosts[jobs[jobname]["resource"]]["pbsaccountflag"] is "":
+            jobfile.write("#PBS -A " + jobs[jobname]["account"] + "\n")
+        else:
+             jobfile.write("#PBS " + 
+                           hosts[jobs[jobname]["resource"]]["pbsaccountflag"] +
+                           " " + jobs[jobname]["account"] + "\n")
 
     # If user hasn't specified corespernode for under utilisation then
     # user the hosts max corespernode.
