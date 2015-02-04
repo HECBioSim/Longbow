@@ -1,21 +1,3 @@
-# Longbow is Copyright (C) of James T Gebbie-Rayet and Gareth B Shannon 2015.
-#
-# This file is part of Longbow.
-#
-# Longbow is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Longbow is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Longbow.  If not, see <http://www.gnu.org/licenses/>.
-
-
 ###############################################################################
 #                                                                             #
 #                                                                             #
@@ -35,284 +17,58 @@
 ###############################################################################
 
 
-Longbow is designed to be a remote job submitting and management utility. It 
-is designed to be run either on a local machine or on a local cluster 
-environment but the jobs are sent to a more powerful resource (such as Archer)
-to run and all files are automatically staged up and back.
+### What is this? ###
 
-Longbow is designed to read the same command line as the original 
-application (if it is one of the supported codes) with a small change in the 
-executable name and provision of some config information. So if your job is 
-normally submitted using the following:
+Longbow is a piece of software that acts as a job proxying tool for 
+biomolecular simulations, Longbow reproduces the native look and feel of using 
+popular molecular dynamics packages (AMBER, CHARMM, GROMACS, LAMMPS and NAMD), 
+with the difference that when those packages are used through Longbow 
+simulations can be run on High Performance Computing (HPC) resources such as 
+ARCHER. Longbow handles jobs setup in terms of creating job submission scripts, 
+automatically stages input files, launches and monitors jobs and stages back 
+simulation results. The option is also there to persistently monitor and stage 
+(realtime local syncing with remote simulation files) simulation files at a 
+specified time interval.
 
-	pmemd -i md1.in -c prot.crd -p prot.top -o md1.out 
-
-then if you are using the Longbow default config file locations then your job 
-could be as simple as:
-
-	pmemd.py -i md1.in -c prot.crd -p prot.top -o md1.out
-	
-or with correct config use the generic Proxy:
-	
-	proxy.py -i md1.in -c prot.crd -p prot.top -o md1.out
-
-Detailed information about the workings of the Longbow are as follows.
+This is designed to have the jobs running on the HPC resource appear to the 
+user as if the simulation has run on their local computer/cluster. Users do not
+have to concern themselves with writing submission files, nor do they have to 
+worry about staging. Longbow provides a convenient interface for generating 
+large ensembles of simulation jobs which in effect extends the packages it 
+supports.
 
 
-1. Setup
+### Licensing ###
+
+This software is released under the GPLv2 license, for more information on this
+see COPYING.txt and LICENSE.txt that should have been included with this 
+download.
 
 
-1.1 First download a copy of Longbow from the repositories and extract 
-    the archive to find the main directory "Proxy". Place this "Proxy" 
-    directory and all of its contents into a directory of your choosing (this 
-    is where you intend to run the application from so choose someplace you 
-    can leave it).
+### Instructions ###
 
-    Once uploaded you will need to add and modify the path in the following 
-    lines to your .bashrc file.
-    
-        PATH="/home/jamesgebbie/Proxy:${PATH}"
-        export PATH
-    
-    This will enable you to call the Longbow without specifying the full path 
-    to the executable. If you are using this on a local machine or want to make
-    use of Longbow without restarting your session then you will need to source
-    you bash profile again:
-    
-    	source .bashrc
-    	
-    
-1.2 Set up passwordless SSH access between the machine you have the Longbow 
-    installed on and the remote machine you intend jobs to be proxied to. If 
-    you are already familiar with generating key pairs and placing them on 
-    other machines then ignore the following steps (this is assuming linux-linux):
-    
-    Step 1 - To start generating a key pair run the following command:
-    
-    	ssh-keygen -t rsa
-    	
-    A few lines will pop up asking some questions to the effect of creating a 
-    passphrase, for automation you will want to leave the passphrase blank 
-    here. The key pair generation will finish by telling you where to find 
-    your public key.
-    	
-	Step 2 - Copy public key to remote machine (this step will still ask for 
-	your password):
-	
-		ssh-copy-id -i ~/.ssh/id_rsa.pub username@hostmachine
-		
-	where you change the id_rsa.pub, username and hostmachine to match your 
-	situation.
-	
-	Step 3 - test you have passwordless login by ssh-ing in to your remote 
-	machine from the one you created the key pair on. If you manage to login
-	without entering your password then you were successful, if not then 
-	something went wrong and you should seek help from the system admins in 
-	getting it up and running.
+Releases can be found here: 
+    http://www.hecbiosim.ac.uk/repo/category/2-software
 
-	
-1.3 Make sure that your environment is configured for running the application
-    you intend to run, so if when you normally run a job you have to have 
-    something like "module load amber" then you should add this to your 
-    .bashrc file so that it gets loaded properly during the job submitting.
-    
-    
-2. Configuration
-    	
-   
-2.1 Host configuration.
+User documentation can be found here: 
+    http://www.hecbiosim.ac.uk/wikis/index.php/Longbow_-_User_Guide
+
+Developer documentation can be found here: 
+    http://www.hecbiosim.ac.uk/wikis/index.php/Longbow_-_Developers_Guide
+
+Support can be found here: 
+    http://www.hecbiosim.ac.uk/forums/
 
 
-    This is by default provided in the hosts.conf within the main Proxy 
-    directory, however this file can be overridden by supplying:
-    
-    -conf nameofconfigfile
-    
-    If this override is set then it will look to find the config file in the 
-    directory that you launch your experiment from (ie working directory).
+### Contact ###
 
-    The host configuration file is structured in the ini file format. The idea
-    behind this is that it should be possible to add the connection details of
-    many machines making it very simple to submit jobs between them with very
-    little reconfiguration. The basic structure of the ini files consists of
-    sections in square brackets (Longbow uses this as a name of host) followed
-    by a list of named parameters and their values.
-    
-    The list of possible parameters that can be used in the host config are 
-    (the ones marked with * are compulsory):
+For further information please contact: 
 
-		user*        - Username on the remote machine (required).
-		
-		host*        - The address of the remote machine (required).
-		
-		port         - The port number if the machine is using a strange port 
-		               for ssh, if not supplied Longbow internally defaults 
-		               to 22.
-		               
-		scheduler    - This is the name of the job shceduling environment 
-		               (PBS/LSF) this is generally used for internal 
-		               cacheing by Longbow and is found by a testing function
-		               so this is safe to leave unset.
-    
-    A typical entry in the host config for Archer might look like this (note the 
-    section heading is in square brackets):
-    
-    	[Archer]
-		user = jtg
-		host = login.archer.ac.uk
-		port = 22
-		scheduler = PBS
-    
-    
-2.2 Job Configuration.    
+Dr James Gebbie-Rayet: james.gebbie@stfc.ac.uk
 
+or 
 
-    This is by default provided in the job.conf within the main Proxy 
-    directory, however this file can be overridden by supplying:
-    
-    -job nameofjobconfigfile
-    
-    If this override is set then it will look to find the job config file in 
-    the directory that you launch your experiment from (ie working directory).
-    
-    The job configuration file is structured in the ini file format. The idea
-    behind this is that it should be possible to specify the settings of many
-    jobs making it very simple to submit jobs with very different configuration
-    with very little effort. The basic structure of the ini files consists of
-    sections in square brackets (Longbow uses this as a name of job) followed
-    by a list of named parameters and their values.
-    
-    The list of possible parameters that can be used in the job config are 
-    (the ones marked with * are compulsory):
-    
-	    resource*         - This specifies the name of the remote machine, 
-	                        which is the name given within the square brackets
-	                        in the host config file.
-	                        
-		program           - This is the name of the program (only needed if
-		                    using the generic Longbow proxy.py).
-		                    
-		executable*       - The name of the executable in the case where there
-		                    different executables for example Amber (pmemd.MPI).
-		                    
-		localworkdir      - Path to the local copy of the working directory, 
-		                    this is optional and will override where you 
-		                    are launching from (most will ignore this).
-		
-		remoteworkdir*    - Name of the remote working directory (at current
-		                    only the final directory can be created if it 
-		                    doesn't exist for example in /one/two/three one
-		                    and two must already be present with three being
-		                    the workdir).
-		                    
-		account           - If the remote machine requires an account code
-		                    (Archer does) supply it here else jobs may get 
-		                    rejected.
-		                    
-		maxtime           - Maximum wall clock time this will be used to tell
-		                    the scheduler how long the job should last and will
-		                    likely be kicked if it over runs.
-		                    
-		nodes             - The number of nodes to request.
-		
-		cores             - The total number of cores to request.
-		
-		corespernode      - The number of cores per node.
-		
-		frequency         - The interval for Longbow to query the status of a 
-		                    job/s this is given in seconds and should not be
-		                    set too small (not less than 60) otherwise the 
-		                    sysadmins may not like you.
-		                    
-		batch             - For job arrays (single jobs made up of many) use
-		                    this to specify how many (see the section on array
-		                    jobs for details to set these up).
-    
+Dr Gareth Shannon: gareth.shannon@nottingham.ac.uk
 
-2.3 Miscellaneous Settings
-
-	The following settings can be called on the commandline:
-	
-		-log nameoflogfile
-		
-		will override the default log file from the one that is normally used,
-		the default logging location is in the main Proxy directory, if the 
-		-log flag is used then it will log where you are launching Longbow 
-		from (ie your experiment directory).
-		
-		-debug
-		
-		This flag will cause a copy of the information to be written to the 
-		console window, this can be helpful if you intend to run Longbow on
-		a local desktop machine and would like to see the process. The
-		will still be written into the log file.
-		
-3. Submitting a job
-
-3.1 Single Job
-
-	Once the host and job config files have been prepared, you are then ready
-	to submit a job. The following are some simple examples of using the 
-	Longbow:
-	
-	For a simple Amber job that may be submitted with the following:
-	
-		pmemd -i md1.in -c prot.crd -p prot.top -o md1.out
-	
-	
-	The Longbow equivalent could be as simple as (if the default config file 
-	locations are used):
-	
-	    pmemd.py -i md1.in -c prot.crd -p prot.top -o md1.out
-	    
-	With custom host and job config, log it would be:
-	
-		pmemd.py -conf hosts.conf -job job.conf -log log -i md1.in -c prot.crd -p prot.top -o md1.out
-	
-	The same with outputting the logfile to the console in addition to file 
-	logging would be:
-	
-		pmemd.py -conf hosts.conf -job job.conf -log log -i md1.in -c prot.crd -p prot.top -o md1.out -debug
-		
-	One could also use the generic Longbow and specify the program flag in 
-	the job config file which would make the submit look like:
-	
-		proxy.py -conf hosts.conf -job job.conf -log log -i md1.in -c prot.crd -p prot.top -o md1.out -debug
-		
-	That is all there is to it, you should now be able to proxy your jobs and
-	have the file staging handled for you (they appear on your local machine
-	as if the job/s had run there).
-	
-3.2 Array of Jobs
-
-    To submit this type of job a special file structure has to be set up so 
-    that Longbow can find all the jobs properly. Firstly each job must 
-    be placed within number directories of the following format where 
-    the input files are named the same in each directory:
-    
-    workdirectory/
-        rep1/
-            files....
-        rep2/
-            files....
-        rep3/
-            files....
-        ....
-        
-    To use global files (Amber only at the moment) one should place it
-    in the workdirectory (ie at the same directory level as the repXX
-    directories). 
-    
-    In the job config file the batch parameter has to be set with the 
-    number of jobs. Then submitting is as straight forward as submitting
-    a normal job, there is no need to point the input files to the subdirs
-    they are simply used to tell Longbow the naming scheme, it will
-    determine whether a file is a global or not by checking if a file 
-    with a given name is present in the main work directory, if not
-    it will assume it is non global and look for them in the repXX
-    directories.
-    
-    So submitting these jobs would look identical to submitting a normal
-    job.
-		
-Good luck, and you can get support by emailing james.gebbie@stfc.ac.uk
+Please do not seek support in the first instance via email, support should be 
+sought through the forums.

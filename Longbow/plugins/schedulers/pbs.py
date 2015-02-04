@@ -68,9 +68,9 @@ def prepare(hosts, jobname, jobs):
         if hosts[jobs[jobname]["resource"]]["accountflag"] is "":
             jobfile.write("#PBS -A " + jobs[jobname]["account"] + "\n")
         else:
-             jobfile.write("#PBS " + 
-                           hosts[jobs[jobname]["resource"]]["accountflag"] +
-                           " " + jobs[jobname]["account"] + "\n")
+            jobfile.write("#PBS " +
+                          hosts[jobs[jobname]["resource"]]["accountflag"] +
+                          " " + jobs[jobname]["account"] + "\n")
 
     # If user hasn't specified corespernode for under utilisation then
     # user the hosts max corespernode.
