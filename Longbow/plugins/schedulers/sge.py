@@ -62,7 +62,12 @@ def prepare(hosts, jobname, jobs):
         jobfile.write("#$ -q " + jobs[jobname]["queue"] + "\n")
 
     if jobs[jobname]["account"] is not "":
-        jobfile.write("#$ -A " + jobs[jobname]["account"] + "\n")
+        if hosts[jobs[jobname]["resource"]]["accountflag"] is "":
+            jobfile.write("#$ -A " + jobs[jobname]["account"] + "\n")
+        else:
+             jobfile.write("#$ " + 
+                           hosts[jobs[jobname]["resource"]]["accountflag"] +
+                           " " + jobs[jobname]["account"] + "\n")
 
     jobfile.write("#$ -l h_rt=" + jobs[jobname]["maxtime"] + ":00\n")
 

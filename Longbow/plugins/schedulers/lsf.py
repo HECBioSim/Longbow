@@ -65,7 +65,12 @@ def prepare(hosts, jobname, jobs):
         jobfile.write("#BSUB -m " + jobs[jobname]["cluster"] + "\n")
 
     if jobs[jobname]["account"] is not "":
-        jobfile.write("#BSUB -P " + jobs[jobname]["account"] + "\n")
+        if hosts[jobs[jobname]["resource"]]["accountflag"] is "":
+            jobfile.write("#BSUB -P " + jobs[jobname]["account"] + "\n")
+        else:
+             jobfile.write("#BSUB " + 
+                           hosts[jobs[jobname]["resource"]]["accountflag"] +
+                           " " + jobs[jobname]["account"] + "\n")
 
     jobfile.write("#BSUB -W " + jobs[jobname]["maxtime"] + "\n")
 
