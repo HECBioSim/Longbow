@@ -46,7 +46,7 @@ def loadhosts(confile):
         "scheduler": "",
         "handler": "",
         "user": "",
-        "pbsaccountflag": ""
+        "accountflag": ""
     }
 
     required = [
