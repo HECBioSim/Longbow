@@ -78,7 +78,8 @@ def prepare(hosts, jobname, jobs):
         nodes = jobs[jobname]["nodes"]
     else:
         if jobs[jobname]["corespernode"] is not "":
-            nodes = jobs[jobname]["cores"] / jobs[jobname]["corespernode"]
+            nodes = int(jobs[jobname]["cores"]) / \
+                int(jobs[jobname]["corespernode"])
         else:
             nodes = int(jobs[jobname]["cores"]) / \
                 int(hosts[jobs[jobname]["resource"]]["corespernode"])
