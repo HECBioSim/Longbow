@@ -31,36 +31,47 @@ def testapp(hosts, jobs):
     """Test whether the application executable is reachable. This method
     does support testing for modules."""
 
+    checked = {}
+
     LOGGER.info("Testing the executables defined for each job.")
 
     for job in jobs:
 
-        LOGGER.info("  Checking executable '%s' on '%s'",
-                    jobs[job]["executable"], jobs[job]["resource"])
+        executable = jobs[job]["executable"]
+        resource = jobs[job]["resource"]
 
-        cmd = []
-        if jobs[job]["modules"] is "":
+        # If we haven't checked this resource then it is likely not in the dict
+        if resource not in checked:
+            checked[resource] = []
 
-            LOGGER.debug("  Checking without modules.")
-        else:
+        # Now check if we have tested this exec already.
+        if executable not in checked[resource]:
 
-            LOGGER.debug("  Checking with modules.")
+            # If not then add it to the list now.
+            checked[resource].extend([executable])
 
-            for module in jobs[job]["modules"].split(","):
+            LOGGER.info("  Checking executable '%s' on '%s'", executable,
+                        resource)
 
-                module.replace(" ", "")
-                cmd.extend(["module load " + module])
+            cmd = []
+            if jobs[job]["modules"] is "":
+                LOGGER.debug("  Checking without modules.")
 
-        cmd.extend(["which " + jobs[job]["executable"] + " &> /dev/null"])
+            else:
+                LOGGER.debug("  Checking with modules.")
 
-        try:
+                for module in jobs[job]["modules"].split(","):
+                    module.replace(" ", "")
+                    cmd.extend(["module load " + module])
 
-            shellwrappers.sendtossh(hosts[jobs[job]["resource"]], cmd)
-            LOGGER.info("  Executable check - passed.")
+            cmd.extend(["which " + executable + " &> /dev/null"])
 
-        except Exception:
+            try:
+                shellwrappers.sendtossh(hosts[resource], cmd)
+                LOGGER.info("  Executable check - passed.")
 
-            raise RuntimeError("Executable check - failed")
+            except Exception:
+                raise RuntimeError("Executable check - failed")
 
 
 def processjobs(args, jobs):

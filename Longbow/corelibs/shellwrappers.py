@@ -37,6 +37,8 @@ def testconnections(hosts, jobs):
     LOGGER.info("Testing connections to all resources that are referenced " +
                 "in the job configurations.")
 
+    checked = []
+
     # Test all of the computers listed in jobs in the job configuration
     # file, there is no need to check all the ones listed in host
     # configuration each time if they are not used.
@@ -45,18 +47,24 @@ def testconnections(hosts, jobs):
         resource = jobs[param]["resource"]
         host = hosts[resource]
 
-        LOGGER.debug("  Testing connection to %s", resource)
+        # Have we checked this connection already?
+        if resource not in checked:
 
-        try:
-            sendtossh(host, ["ls &> /dev/null"])
-        except:
-            raise RuntimeError("Cannot reach the following resource: %s " %
-                               resource + "make sure the configuration " +
-                               "of this resource is correct in your " +
-                               "host configuration file and there is no " +
-                               "scheduled maintainence.")
+            # Make sure we don't check this again.
+            checked.extend([resource])
 
-        LOGGER.info("  Test connection to %s - passed", resource)
+            LOGGER.debug("  Testing connection to %s", resource)
+
+            try:
+                sendtossh(host, ["ls &> /dev/null"])
+            except:
+                raise RuntimeError("Cannot reach the following resource: %s " %
+                                   resource + "make sure the configuration " +
+                                   "of this resource is correct in your " +
+                                   "host configuration file and there is no " +
+                                   "scheduled maintainence.")
+
+            LOGGER.info("  Test connection to %s - passed", resource)
 
 
 def sendtoshell(cmd):
