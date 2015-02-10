@@ -53,7 +53,7 @@ def prepare(hosts, jobname, jobs):
 
     # Write the PBS script
     jobfile.write("#!/bin/bash --login\n"
-                  "#$ -cwd -V")
+                  "#$ -cwd -V\n")
 
     if jobname is not "":
         jobfile.write("#$ -N " + jobname + "\n")
@@ -72,6 +72,7 @@ def prepare(hosts, jobname, jobs):
     jobfile.write("#$ -l h_rt=" + jobs[jobname]["maxtime"] + ":00\n")
 
     # TODO: "#$ -pe ib " + jobs[jobname]["cores"] + "\n\n")
+    jobfile.write("#$ -pe ib " + jobs[jobname]["cores"] + "\n\n")
 
     if jobs[jobname]["modules"] is not "":
         for module in jobs[jobname]["modules"].split(","):
