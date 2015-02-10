@@ -52,63 +52,75 @@ def testenv(hostconf, hosts, jobs):
 
     save = False
 
+    checked = []
+
     # Take a look at each job.
     for job in jobs:
 
         resource = jobs[job]["resource"]
 
-        # If we have no scheduler defined by the user then find it.
-        if hosts[resource]["scheduler"] is "":
-            LOGGER.info("No environment for this host: %s "
-                        % resource + "is specified - attempting " +
-                        "to determine it!")
+        # If the we have not checked this host already
+        if resource not in checked:
 
-            # Go through the schedulers we are supporting.
-            for param in schedulerqueries:
-                try:
-                    shellwrappers.sendtossh(hosts[resource],
-                                            schedulerqueries[param])
-                    hosts[resource]["scheduler"] = param
-                    LOGGER.info("  The environment on this host is: %s", param)
-                    break
-                except RuntimeError:
-                    LOGGER.debug("  Environment is not %s", param)
+            # Make sure we don't check the same thing again.
+            checked.extend([resource])
 
+            # If we have no scheduler defined by the user then find it.
             if hosts[resource]["scheduler"] is "":
-                raise RuntimeError("  Could not find the job scheduling " +
-                                   "system.")
+                LOGGER.info("No environment for this host: %s "
+                            % resource + "is specified - attempting " +
+                            "to determine it!")
 
-            # If we changed anything then mark for saving.
-            save = True
+                # Go through the schedulers we are supporting.
+                for param in schedulerqueries:
+                    try:
+                        shellwrappers.sendtossh(hosts[resource],
+                                                schedulerqueries[param])
+                        hosts[resource]["scheduler"] = param
+                        LOGGER.info("  The environment on this host is: %s",
+                                    param)
+                        break
+                    except RuntimeError:
+                        LOGGER.debug("  Environment is not %s", param)
 
-        else:
-            LOGGER.info("The environment on host: %s is %s", resource,
-                        hosts[resource]["scheduler"])
+                if hosts[resource]["scheduler"] is "":
+                    raise RuntimeError("  Could not find the job scheduling " +
+                                       "system.")
 
-        # If we have no job handler defined by the user then find it.
-        if hosts[resource]["handler"] is "":
-            LOGGER.info("No queue handler was specified for host %s - " +
-                        "attempting to find it", resource)
+                # If we changed anything then mark for saving.
+                save = True
 
-            # Go through the handlers and find out which is there.
-            for param in handlers:
-                try:
-                    shellwrappers.sendtossh(hosts[resource], handlers[param])
-                    hosts[resource]["handler"] = param
-                    LOGGER.info("  The batch queue handler is %s", param)
-                    break
-                except RuntimeError:
-                    LOGGER.debug("  The batch queue handler is not %s", param)
+            else:
+                LOGGER.info("The environment on host: %s is %s", resource,
+                            hosts[resource]["scheduler"])
 
+            # If we have no job handler defined by the user then find it.
             if hosts[resource]["handler"] is "":
-                raise RuntimeError("  Could not find the batch queue handler.")
+                LOGGER.info("No queue handler was specified for host %s - " +
+                            "attempting to find it", resource)
 
-            # If we changed anything then mark for saving.
-            save = True
+                # Go through the handlers and find out which is there.
+                for param in handlers:
+                    try:
+                        shellwrappers.sendtossh(hosts[resource],
+                                                handlers[param])
+                        hosts[resource]["handler"] = param
+                        LOGGER.info("  The batch queue handler is %s", param)
+                        break
+                    except RuntimeError:
+                        LOGGER.debug("  The batch queue handler is not %s",
+                                     param)
 
-        else:
-            LOGGER.info("The handler on host: %s is %s", resource,
-                        hosts[resource]["handler"])
+                if hosts[resource]["handler"] is "":
+                    raise RuntimeError("  Could not find the batch queue " +
+                                       "handler.")
+
+                # If we changed anything then mark for saving.
+                save = True
+
+            else:
+                LOGGER.info("The handler on host: %s is %s", resource,
+                            hosts[resource]["handler"])
 
     # Do we have anything to change in the host file.
     if save is True:
