@@ -73,16 +73,16 @@ def prepare(hosts, jobname, jobs):
                           " " + jobs[jobname]["account"] + "\n")
 
     # If user hasn't specified corespernode for under utilisation then
-    # user the hosts max corespernode.
+    # use the hosts max corespernode.
     if jobs[jobname]["nodes"] is not "":
         nodes = jobs[jobname]["nodes"]
     else:
         if jobs[jobname]["corespernode"] is not "":
-            nodes = int(jobs[jobname]["cores"]) / \
-                int(jobs[jobname]["corespernode"])
+            nodes = float(jobs[jobname]["cores"]) / \
+                float(jobs[jobname]["corespernode"])
         else:
-            nodes = int(jobs[jobname]["cores"]) / \
-                int(hosts[jobs[jobname]["resource"]]["corespernode"])
+            nodes = float(jobs[jobname]["cores"]) / \
+                float(hosts[jobs[jobname]["resource"]]["corespernode"])
 
         # Makes sure nodes is rounded up to the next highest integer.
         nodes = str(int(math.ceil(nodes)))
