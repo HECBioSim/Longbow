@@ -72,20 +72,17 @@ def prepare(hosts, jobname, jobs):
                           hosts[jobs[jobname]["resource"]]["accountflag"] +
                           " " + jobs[jobname]["account"] + "\n")
 
-    # If user hasn't specified corespernode for under utilisation then
-    # use the hosts max corespernode.
-    if jobs[jobname]["nodes"] is not "":
-        nodes = jobs[jobname]["nodes"]
+    # If user has specified cores per node in job.conf then use it to override
+    # the system wide setting in hosts.conf.
+    if jobs[jobname]["corespernode"] is not "":
+        nodes = float(jobs[jobname]["cores"]) / \
+            float(jobs[jobname]["corespernode"])
     else:
-        if jobs[jobname]["corespernode"] is not "":
-            nodes = float(jobs[jobname]["cores"]) / \
-                float(jobs[jobname]["corespernode"])
-        else:
-            nodes = float(jobs[jobname]["cores"]) / \
-                float(hosts[jobs[jobname]["resource"]]["corespernode"])
+        nodes = float(jobs[jobname]["cores"]) / \
+            float(hosts[jobs[jobname]["resource"]]["corespernode"])
 
-        # Makes sure nodes is rounded up to the next highest integer.
-        nodes = str(int(math.ceil(nodes)))
+    # Makes sure nodes is rounded up to the next highest integer.
+    nodes = str(int(math.ceil(nodes)))
 
     # Number of cpus per node (most machines will charge for all whether you
     # are using them or not)
