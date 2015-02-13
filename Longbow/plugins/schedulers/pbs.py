@@ -72,31 +72,33 @@ def prepare(hosts, jobname, jobs):
                           hosts[jobs[jobname]["resource"]]["accountflag"] +
                           " " + jobs[jobname]["account"] + "\n")
 
-    # If user hasn't specified corespernode for under utilisation then
-    # use the hosts max corespernode.
-    if jobs[jobname]["nodes"] is not "":
-        nodes = jobs[jobname]["nodes"]
-    else:
-        if jobs[jobname]["corespernode"] is not "":
-            nodes = float(jobs[jobname]["cores"]) / \
-                float(jobs[jobname]["corespernode"])
-        else:
-            nodes = float(jobs[jobname]["cores"]) / \
-                float(hosts[jobs[jobname]["resource"]]["corespernode"])
+    cores = jobs[jobname]["cores"]
 
-        # Makes sure nodes is rounded up to the next highest integer.
-        nodes = str(int(math.ceil(nodes)))
-
-    # Number of cpus per node (most machines will charge for all whether you
-    # are using them or not)
-    ncpus = hosts[jobs[jobname]["resource"]]["corespernode"]
-
-    # If user hasn't specified corespernode for the job (for under utilisation)
-    # then default to hosts max corespernode (max utilised).
     if jobs[jobname]["corespernode"] is not "":
-        mpiprocs = jobs[jobname]["corespernode"]
+        cpn = jobs[jobname]["corespernode"]
+    elif hosts[jobs[jobname]["resource"]]["corespernode"] is not "":
+        cpn = hosts[jobs[jobname]["resource"]]["corespernode"]
     else:
-        mpiprocs = hosts[jobs[jobname]["resource"]]["corespernode"]
+        raise RuntimeError("parameter 'corespernode' was not set in either " +
+                           "the host nor job configuration files.")
+
+    # Load levelling override. In cases where # of cores is less than
+    # corespernode, user is likely to be undersubscribing.
+    if int(cores) < int(cpn):
+        cpn = cores
+
+    # Calculate the number of nodes.
+    nodes = float(cores) / float(cpn)
+
+    # Makes sure nodes is rounded up to the next highest integer.
+    nodes = str(int(math.ceil(nodes)))
+
+    # Number of cpus per node (most machines will charge for all available cpus
+    # per node whether you are using them or not)
+    ncpus = cpn
+
+    # Number of mpi processes per node.
+    mpiprocs = cpn
 
     # Memory size (used to select nodes with minimum memory).
     memory = jobs[jobname]["memory"]
