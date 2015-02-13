@@ -136,7 +136,7 @@ def submit(host, jobname, jobs):
     path = os.path.join(jobs[jobname]["remoteworkdir"], jobname)
     # Change into the working directory and submit the job.
     cmd = ["cd " + path + "\n", "qsub " + jobs[jobname]["subfile"] +
-           "| grep -P -o '(?<= )[0-9]*(?= )'"]
+           " | grep -P -o '(?<= )[0-9]*(?= )'"]
 
     # Process the submit
     try:
