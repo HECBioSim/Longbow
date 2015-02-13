@@ -69,7 +69,7 @@ def prepare(hosts, jobname, jobs):
                           hosts[jobs[jobname]["resource"]]["accountflag"] +
                           " " + jobs[jobname]["account"] + "\n")
 
-    jobfile.write("#$ -l h_rt=" + jobs[jobname]["maxtime"] + ":00\n")
+    jobfile.write("#$ -l h_rt=" + jobs[jobname]["maxtime"] + ":00:00\n")
 
     # TODO: "#$ -pe ib " + jobs[jobname]["cores"] + "\n\n")
     jobfile.write("#$ -pe ib " + jobs[jobname]["cores"] + "\n\n")
