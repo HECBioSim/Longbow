@@ -18,6 +18,7 @@
 """."""
 
 import logging
+import math
 import os
 import corelibs.shellwrappers as shellwrappers
 
@@ -70,6 +71,39 @@ def prepare(hosts, jobname, jobs):
                           " " + jobs[jobname]["account"] + "\n")
 
     jobfile.write("#$ -l h_rt=" + jobs[jobname]["maxtime"] + ":00:00\n")
+
+    cores = jobs[jobname]["cores"]
+
+    if jobs[jobname]["corespernode"] is not "":
+        cpn = jobs[jobname]["corespernode"]
+    elif hosts[jobs[jobname]["resource"]]["corespernode"] is not "":
+        cpn = hosts[jobs[jobname]["resource"]]["corespernode"]
+    else:
+        raise RuntimeError("parameter 'corespernode' was not set in either " +
+                           "the host nor job configuration files.")
+
+    # Load levelling override. In cases where # of cores is less than
+    # corespernode, user is likely to be undersubscribing.
+    if int(cores) < int(cpn):
+        cpn = cores
+
+    # Calculate the number of nodes.
+    nodes = float(cores) / float(cpn)
+
+    # Makes sure nodes is rounded up to the next highest integer.
+    nodes = str(int(math.ceil(nodes)))
+
+    # Number of cpus per node (most machines will charge for all available cpus
+    # per node whether you are using them or not)
+    # ncpus = cpn
+
+    # Number of mpi processes per node.
+    # mpiprocs = cpn
+
+    tmp = "select=" + nodes
+
+    # Write the resource requests
+    jobfile.write("#PBS -l " + tmp + "\n")
 
     # TODO: "#$ -pe ib " + jobs[jobname]["cores"] + "\n\n")
     jobfile.write("#$ -pe ib " + jobs[jobname]["cores"] + "\n\n")
