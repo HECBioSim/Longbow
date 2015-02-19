@@ -140,10 +140,20 @@ def cleanup(hosts, jobs):
 
     for job in jobs:
 
-        path = os.path.join(jobs[job]["remoteworkdir"], job)
+        try:
 
-        LOGGER.info("  Deleting directory for job '%s' - %s", job, path)
+            path = os.path.join(jobs[job]["remoteworkdir"], job)
+            host = hosts[jobs[job]["resource"]]
 
-        shellwrappers.remotedelete(hosts[jobs[job]["resource"]], path)
+            shellwrappers.remotelist(host, path)
+
+            LOGGER.info("  Deleting directory for job '%s' - %s", job, path)
+
+            shellwrappers.remotedelete(hosts[jobs[job]["resource"]], path)
+
+        except RuntimeError:
+            # directory doesn't exist.
+            LOGGER.debug("Directory on path '%s' does not exist - skipping.",
+                         path)
 
     LOGGER.info("Cleaning up complete.")

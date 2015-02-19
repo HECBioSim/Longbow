@@ -29,7 +29,7 @@ import corelibs.shellwrappers as shellwrappers
 import corelibs.staging as staging
 
 
-def console(args, files, overrides, mode):
+def console(args, files, overrides, mode): 
 
     """This is the main for a console based app, this is designed to run in a
     python/unix shell and is thus the main choice for headless machines like a
@@ -41,7 +41,7 @@ def console(args, files, overrides, mode):
     # Get the execution directory (where we are installed).
     execdir = os.path.dirname(os.path.realpath(__file__))
 
-    # -----------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Setup some basic file paths.
 
     # Check if a file name/path is supplied. If just the name is supplied
@@ -82,7 +82,7 @@ def console(args, files, overrides, mode):
     except RuntimeError as ex:
         sys.exit(ex)
 
-    # -----------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Setup the logger.
 
     log.setuplogger(files["log"], "Longbow", mode)
@@ -92,7 +92,7 @@ def console(args, files, overrides, mode):
     # Log that we are starting up.
     logger.info("Longbow - initialisation complete.")
 
-    # -----------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # setup and run some tests.
 
     try:
@@ -114,7 +114,7 @@ def console(args, files, overrides, mode):
         # file are available and that the executable is present.
         applications.testapp(hosts, jobs)
 
-        # -----------------------------------------------------------------
+        # ---------------------------------------------------------------------
         # Start processing the setup and staging for each job.
 
         # Process the jobs command line arguments and find files for
@@ -128,19 +128,16 @@ def console(args, files, overrides, mode):
         # Stage all of the job files along with the scheduling script.
         staging.stage_upstream(hosts, jobs)
 
-        # -----------------------------------------------------------------
+        # ---------------------------------------------------------------------
         # Submit the job/s to the scheduler.
         scheduling.submit(hosts, jobs)
 
-        # -----------------------------------------------------------------
+        # ---------------------------------------------------------------------
         # Monitor job/s.
         scheduling.monitor(hosts, jobs)
 
-        # -----------------------------------------------------------------
-        # Clean up.
-
-        # Remove the remote directory.
-        staging.cleanup(hosts, jobs)
+    # -------------------------------------------------------------------------
+    # Handle the errors and Longbow exit.
 
     except RuntimeError as ex:
         if mode["debug"]:
@@ -148,9 +145,34 @@ def console(args, files, overrides, mode):
         else:
             logger.error(ex)
 
-    logger.info("Closing Longbow.")
+    except (SystemExit, KeyboardInterrupt):
 
-    # -----------------------------------------------------------------
+        logger.info("User interrupt - performing cleanup.")
+
+        # User has decided to kill Longbow, check if there are any jobs still
+        # running.
+        for job in jobs:
+            if "jobid" in jobs[job]:
+                # If job is not finished delete and stage.
+                if jobs[job]["laststatus"] != "Finished":
+
+                    # Kill it.
+                    scheduling.delete(hosts, jobs, job)
+
+                    # Transfer the directories as they are.
+                    staging.stage_downstream(hosts, jobs, job)
+                # Job is finished then just stage.
+                else:
+                    # Transfer the directories as they are.
+                    staging.stage_downstream(hosts, jobs, job)
+
+    finally:
+        # Cleanup.
+        staging.cleanup(hosts, jobs)
+
+        logger.info("Closing Longbow.")
+
+    # -------------------------------------------------------------------------
 
 
 def gui():
