@@ -23,6 +23,7 @@ import sys
 import logging
 import corelibs.applications as applications
 import corelibs.configuration as configuration
+import corelibs.exceptions as ex
 import corelibs.logger as log
 import corelibs.scheduling as scheduling
 import corelibs.shellwrappers as shellwrappers
@@ -79,8 +80,8 @@ def console(args, files, overrides, mode):
                         paths = cwd
                     files[param] = os.path.join(paths, files[param])
 
-    except RuntimeError as ex:
-        sys.exit(ex)
+    except RuntimeError as err:
+        sys.exit(err)
 
     # -------------------------------------------------------------------------
     # Setup the logger.
@@ -139,11 +140,22 @@ def console(args, files, overrides, mode):
     # -------------------------------------------------------------------------
     # Handle the errors and Longbow exit.
 
-    except RuntimeError as ex:
+    except RuntimeError as err:
         if mode["debug"]:
-            logger.exception(ex)
+            logger.exception(err)
         else:
-            logger.error(ex)
+            logger.error(err)
+
+    except (ex.RsyncError, ex.SCPError, ex.SSHError) as err:
+
+        # Output the information about the problem.
+        if mode["debug"]:
+            logger.exception(err)
+        else:
+            logger.error(err)
+        logger.error("stdout: %s", str(err.stdout))
+        logger.error("stderr: %s", str(err.stderr))
+        logger.error("errorcode: %s", str(err.errorcode))
 
     except (SystemExit, KeyboardInterrupt):
 
