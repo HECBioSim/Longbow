@@ -31,6 +31,7 @@ necessary.
 import time
 import logging
 import corelibs.shellwrappers as shellwrappers
+import corelibs.exceptions as ex
 import corelibs.configuration as configuration
 import corelibs.staging as staging
 import plugins.schedulers as schedulers
@@ -76,16 +77,19 @@ def testenv(hostconf, hosts, jobs):
                     try:
                         shellwrappers.sendtossh(hosts[resource],
                                                 schedulerqueries[param])
+
                         hosts[resource]["scheduler"] = param
+
                         LOGGER.info("  The environment on this host is: %s",
                                     param)
                         break
-                    except RuntimeError:
+
+                    except ex.SSHError:
                         LOGGER.debug("  Environment is not %s", param)
 
                 if hosts[resource]["scheduler"] is "":
-                    raise RuntimeError("  Could not find the job scheduling " +
-                                       "system.")
+                    raise ex.SchedulercheckError("  Could not find the job " +
+                        "scheduling system.")
 
                 # If we changed anything then mark for saving.
                 save = True
@@ -104,16 +108,20 @@ def testenv(hostconf, hosts, jobs):
                     try:
                         shellwrappers.sendtossh(hosts[resource],
                                                 handlers[param])
+
                         hosts[resource]["handler"] = param
+
                         LOGGER.info("  The batch queue handler is %s", param)
+
                         break
-                    except RuntimeError:
+
+                    except ex.SSHError:
                         LOGGER.debug("  The batch queue handler is not %s",
                                      param)
 
                 if hosts[resource]["handler"] is "":
-                    raise RuntimeError("  Could not find the batch queue " +
-                                       "handler.")
+                    raise ex.HandlercheckError("  Could not find the batch "
+                        "queue handler.")
 
                 # If we changed anything then mark for saving.
                 save = True

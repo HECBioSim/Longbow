@@ -32,6 +32,27 @@ class AbsolutepathError(Exception):
         self.path = path
 
 # -----------------------------------------------------------------------------
+# Exceptions for applications.py
+
+class ApplicationcheckError(Exception):
+    pass
+
+# -----------------------------------------------------------------------------
+# Exceptions for scheduling.py
+
+class SchedulercheckError(Exception):
+    pass
+
+class HandlercheckError(Exception):
+    pass
+
+class JobdeleteError(Exception):
+    pass
+
+class JobsubmitError(Exception):
+    pass
+
+# -----------------------------------------------------------------------------
 # Exceptions for shellwrappers.py
 
 class LocalcopyError(Exception):
@@ -42,7 +63,7 @@ class LocalcopyError(Exception):
 
         # Bind the standard outputs.
         self.path = path
-        
+
 class LocaldeleteError(Exception):
     def __init__(self, message, path):
 
@@ -79,7 +100,7 @@ class RemotecopyError(Exception):
         # Bind the standard outputs.
         self.src = src
         self.dst = dst
-        
+
 class RemotedeleteError(Exception):
     def __init__(self, message, path):
 
@@ -130,3 +151,9 @@ class SSHError(Exception):
         self.errorcode = shellout[2]
         self.stdout = shellout[0]
         self.stderr = shellout[1]
+
+# -----------------------------------------------------------------------------
+# Exceptions for staging.py
+
+class StagingError(Exception):
+    pass

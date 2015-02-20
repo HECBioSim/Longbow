@@ -27,6 +27,7 @@ Where jobs is a dictionary of job configurations."""
 
 import os
 import logging
+import corelibs.exceptions as ex
 import corelibs.shellwrappers as shellwrappers
 
 LOGGER = logging.getLogger("Longbow")
@@ -42,31 +43,43 @@ def stage_upstream(hosts, jobs):
 
     for job in jobs:
 
+        remoteworkdir = jobs[job]["remoteworkdir"]
+        resource = jobs[job]["resource"]
+
         # Check that the working directory exists.
         try:
-            shellwrappers.remotelist(hosts[jobs[job]["resource"]],
-                                     jobs[job]["remoteworkdir"])
-            LOGGER.debug("  Work directory '%s' found.",
-                         jobs[job]["remoteworkdir"])
-        except:
-            raise RuntimeError("Work directory '%s' could not be found " %
-                               jobs[job]["remoteworkdir"] + "on remote " +
-                               "machine '%s'." % jobs[job]["resource"])
+            shellwrappers.remotelist(hosts[resource], remoteworkdir)
+
+            LOGGER.debug("  Work directory '%s' found.", remoteworkdir)
+
+        except ex.AbsolutepathError:
+            raise
+
+        except ex.RemotelistError:
+            raise ex.StagingError("Work directory '%s' could not be " +
+                "found " % remoteworkdir + "on remote " +
+                "machine '%s'." % resource)
 
         # Check if path is already on remote host and delete its contents
         # if it does.
-        path = os.path.join(jobs[job]["remoteworkdir"], job)
+        path = os.path.join(remoteworkdir, job)
+
         try:
-            shellwrappers.remotelist(hosts[jobs[job]["resource"]], path)
+            shellwrappers.remotelist(hosts[resource], path)
+
             LOGGER.debug("  directory '%s' already exists, emptying" +
                          " its contents in preparation for staging.", path)
-            shellwrappers.remotedelete(hosts[jobs[job]["resource"]], path)
-            shellwrappers.sendtossh(hosts[jobs[job]["resource"]],
-                                    ["mkdir " + path])
-        except RuntimeError:
+
+            shellwrappers.remotedelete(hosts[resource], path)
+
+            shellwrappers.sendtossh(hosts[resource], ["mkdir " + path])
+
+        except ex.AbsolutepathError:
+            raise
+
+        except ex.RemotelistError:
             # Directory doesn't exist so create it.
-            shellwrappers.sendtossh(hosts[jobs[job]["resource"]],
-                                    ["mkdir " + path])
+            shellwrappers.sendtossh(hosts[resource], ["mkdir " + path])
 
         # Loop through all files.
         LOGGER.info("  Transfering files for job: '%s' to host: %s",
@@ -79,22 +92,27 @@ def stage_upstream(hosts, jobs):
 
             # Does the item contain a sub directory.
             directory = os.path.dirname(item)
+
             if directory is not "":
 
                 subdir = os.path.join(path, directory)
 
                 # Then does it already exist
                 try:
-                    shellwrappers.remotelist(hosts[jobs[job]["resource"]],
-                                             subdir)
+                    shellwrappers.remotelist(hosts[resource], subdir)
                 # If not then make it.
-                except RuntimeError:
-                    shellwrappers.sendtossh(hosts[jobs[job]["resource"]],
+                except ex.RemotelistError:
+                    shellwrappers.sendtossh(hosts[resource],
                                             ["mkdir " + subdir])
 
             # Transfer file upstream.
-            shellwrappers.upload("rsync", hosts[jobs[job]["resource"]], src,
-                                 os.path.join(path, directory))
+            try:
+                shellwrappers.upload("rsync", hosts[resource], src,
+                                     os.path.join(path, directory))
+
+            except (ex.SCPError, ex.RsyncError):
+                raise ex.StagingError("Could not stage file '%s' upstream",
+                                      src)
 
     LOGGER.info("Staging files upstream - complete.")
 
@@ -115,7 +133,13 @@ def stage_downstream(hosts, jobs, jobname):
             host = hosts[jobs[job]["resource"]]
             src = os.path.join(jobs[job]["remoteworkdir"], job + "/")
             dst = jobs[job]["localworkdir"]
-            shellwrappers.download("rsync", host, src, dst)
+
+            try:
+                shellwrappers.download("rsync", host, src, dst)
+
+            except (ex.SCPError, ex.RsyncError):
+                raise ex.StagingError("Could not download file '%s' to " +
+                                      "location %s", src, dst)
 
         LOGGER.info("Staging files downstream - complete.")
 
@@ -126,8 +150,14 @@ def stage_downstream(hosts, jobs, jobname):
         host = hosts[jobs[jobname]["resource"]]
         src = os.path.join(jobs[jobname]["remoteworkdir"], jobname + "/")
         dst = jobs[jobname]["localworkdir"]
+
         # Download the whole directory with rsync.
-        shellwrappers.download("rsync", host, src, dst)
+        try:
+            shellwrappers.download("rsync", host, src, dst)
+
+        except (ex.SCPError, ex.RsyncError):
+            raise ex.StagingError("Could not download file '%s' to " +
+                                  "location %s", src, dst)
 
         LOGGER.info("  staging complete.")
 
@@ -151,9 +181,13 @@ def cleanup(hosts, jobs):
 
             shellwrappers.remotedelete(hosts[jobs[job]["resource"]], path)
 
-        except RuntimeError:
+        except ex.RemotelistError:
+
             # directory doesn't exist.
             LOGGER.debug("Directory on path '%s' does not exist - skipping.",
                          path)
+
+        except ex.RemotedeleteError:
+            raise
 
     LOGGER.info("Cleaning up complete.")
