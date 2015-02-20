@@ -70,6 +70,16 @@ class ConfigurationError(Exception):
     pass
 
 # -----------------------------------------------------------------------------
+# Exceptions for plugin.py
+
+class PluginattributeError(Exception):
+
+    """Missing plugin method exception."""
+
+    pass
+
+
+# -----------------------------------------------------------------------------
 # Exceptions for scheduling.py
 
 class SchedulercheckError(Exception):
