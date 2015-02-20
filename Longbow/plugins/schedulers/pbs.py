@@ -64,24 +64,45 @@ def prepare(hosts, jobname, jobs):
         jobfile.write("#PBS -q " + jobs[jobname]["queue"] + "\n")
 
     # Account to charge (if supplied).
-    if jobs[jobname]["account"] is not "":
+    if not (jobs[jobname]["account"] is "" and
+            hosts[jobs[jobname]["resource"]]["account"] is ""):
+        # if no accountflag is provided use the default
         if hosts[jobs[jobname]["resource"]]["accountflag"] is "":
-            jobfile.write("#PBS -A " + jobs[jobname]["account"] + "\n")
+            # if an account code is in the job configuration file use it
+            if jobs[jobname]["account"] is not "":
+                jobfile.write("#PBS -A " + jobs[jobname]["account"] + "\n")
+            # else use the one in the hosts configuration file
+            else:
+                jobfile.write("#PBS -A " +
+                              hosts[jobs[jobname]["resource"]]["account"] +
+                              "\n")
+        # else use the accountflag provided
         else:
-            jobfile.write("#PBS " +
-                          hosts[jobs[jobname]["resource"]]["accountflag"] +
-                          " " + jobs[jobname]["account"] + "\n")
+            # if an account code is in the job configuration file use it
+            if jobs[jobname]["account"] is not "":
+                jobfile.write("#PBS " +
+                              hosts[jobs[jobname]["resource"]]["accountflag"] +
+                              " " + jobs[jobname]["account"] + "\n")
+            # else use the one in the hosts configuration file
+            else:
+                jobfile.write("#PBS " +
+                              hosts[jobs[jobname]["resource"]]["accountflag"] +
+                              " " +
+                              hosts[jobs[jobname]["resource"]]["account"] +
+                              "\n")
 
-    # If user hasn't specified corespernode for under utilisation then
-    # use the hosts max corespernode.
+    # If the user has specified the number of nodes use that
     if jobs[jobname]["nodes"] is not "":
         nodes = jobs[jobname]["nodes"]
+    # else calculate it
     else:
-        if jobs[jobname]["corespernode"] is not "":
+        # if cores has been specified in the job configuration file use it
+        if jobs[jobname]["cores"] is not "":
             nodes = float(jobs[jobname]["cores"]) / \
-                float(jobs[jobname]["corespernode"])
+                float(hosts[jobs[jobname]["resource"]]["corespernode"])
+        # else use the cores in the hosts configuration file
         else:
-            nodes = float(jobs[jobname]["cores"]) / \
+            nodes = float(hosts[jobs[jobname]["resource"]]["cores"]) / \
                 float(hosts[jobs[jobname]["resource"]]["corespernode"])
 
         # Makes sure nodes is rounded up to the next highest integer.
@@ -91,12 +112,8 @@ def prepare(hosts, jobname, jobs):
     # are using them or not)
     ncpus = hosts[jobs[jobname]["resource"]]["corespernode"]
 
-    # If user hasn't specified corespernode for the job (for under utilisation)
-    # then default to hosts max corespernode (max utilised).
-    if jobs[jobname]["corespernode"] is not "":
-        mpiprocs = jobs[jobname]["corespernode"]
-    else:
-        mpiprocs = hosts[jobs[jobname]["resource"]]["corespernode"]
+    # set mpiprocs to be corespernode
+    mpiprocs = hosts[jobs[jobname]["resource"]]["corespernode"]
 
     # Memory size (used to select nodes with minimum memory).
     memory = jobs[jobname]["memory"]
@@ -213,8 +230,8 @@ def status(host, jobid):
 def submit(host, jobname, jobs):
 
     """Method for submitting a job."""
-
-    path = os.path.join(jobs[jobname]["remoteworkdir"], jobname)
+    print host
+    path = os.path.join(host["remoteworkdir"], jobname)
     # Change into the working directory and submit the job.
     cmd = ["cd " + path + "\n", "qsub " + jobs[jobname]["subfile"] +
            "| grep -P -o '[0-9]*(?=.)'"]

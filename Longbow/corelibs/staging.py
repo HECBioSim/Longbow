@@ -45,17 +45,18 @@ def stage_upstream(hosts, jobs):
         # Check that the working directory exists.
         try:
             shellwrappers.remotelist(hosts[jobs[job]["resource"]],
-                                     jobs[job]["remoteworkdir"])
+                                hosts[jobs[job]["resource"]]["remoteworkdir"])
             LOGGER.debug("  Work directory '%s' found.",
-                         jobs[job]["remoteworkdir"])
+                         hosts[jobs[job]["resource"]]["remoteworkdir"])
         except:
             raise RuntimeError("Work directory '%s' could not be found " %
-                               jobs[job]["remoteworkdir"] + "on remote " +
-                               "machine '%s'." % jobs[job]["resource"])
+                               hosts[jobs[job]["resource"]]["remoteworkdir"] +
+                               "on remote " + "machine '%s'." %
+                               jobs[job]["resource"])
 
         # Check if path is already on remote host and delete its contents
         # if it does.
-        path = os.path.join(jobs[job]["remoteworkdir"], job)
+        path = os.path.join(hosts[jobs[job]["resource"]]["remoteworkdir"], job)
         try:
             shellwrappers.remotelist(hosts[jobs[job]["resource"]], path)
             LOGGER.debug("  directory '%s' already exists, emptying" +
@@ -113,7 +114,8 @@ def stage_downstream(hosts, jobs, jobname):
 
             # Download the whole directory with rsync.
             host = hosts[jobs[job]["resource"]]
-            src = os.path.join(jobs[job]["remoteworkdir"], job + "/")
+            src = os.path.join(hosts[jobs[job]["resource"]]["remoteworkdir"],
+                               job + "/")
             dst = jobs[job]["localworkdir"]
             shellwrappers.download("rsync", host, src, dst)
 
@@ -124,7 +126,8 @@ def stage_downstream(hosts, jobs, jobname):
         LOGGER.info("  For job %s staging files downstream.", jobname)
 
         host = hosts[jobs[jobname]["resource"]]
-        src = os.path.join(jobs[jobname]["remoteworkdir"], jobname + "/")
+        src = os.path.join(hosts[jobs[job]["resource"]]["remoteworkdir"],
+                           jobname + "/")
         dst = jobs[jobname]["localworkdir"]
         # Download the whole directory with rsync.
         shellwrappers.download("rsync", host, src, dst)
@@ -140,7 +143,7 @@ def cleanup(hosts, jobs):
 
     for job in jobs:
 
-        path = os.path.join(jobs[job]["remoteworkdir"], job)
+        path = os.path.join(hosts[jobs[job]["resource"]]["remoteworkdir"], job)
 
         LOGGER.info("  Deleting directory for job '%s' - %s", job, path)
 

@@ -37,8 +37,8 @@ def testapp(hosts, jobs):
 
     for job in jobs:
 
-        executable = jobs[job]["executable"]
         resource = jobs[job]["resource"]
+        executable = jobs[job]["executable"]
 
         # If we haven't checked this resource then it is likely not in the dict
         if resource not in checked:
@@ -81,11 +81,12 @@ def processjobs(args, jobs):
 
     LOGGER.info("Processing job/s and detecting files that require upload.")
 
-    required = {"amber": ["-c", "-i", "-p"],
+    required = {"pmemd": ["-c", "-i", "-p"],
+                "pmemd.MPI": ["-c", "-i", "-p"],
                 "charmm": [],
-                "gromacs": ["-s"],
-                "lammps": ["-i"],
-                "namd": ["?"]
+                "mdrun": ["-s"],
+                "lmp_xc30": ["-i"],
+                "namd2": ["?"]
                 }
 
     for job in jobs:
@@ -105,7 +106,7 @@ def processjobs(args, jobs):
         # Otherwise check if it came in on the command line to the main
         # app, this should be the case for single and single batch jobs.
         elif len(args) is 0:
-            if jobs[job]["program"] == "charmm":
+            if executable == "charmm":
                 raise RuntimeError("Commandline arguments were not " +
                                    "detected. Make sure you have typed " +
                                    "< in quotation marks on the command line")
@@ -116,16 +117,16 @@ def processjobs(args, jobs):
 
         # Now we should check that the required flags have been supplied if
         # the program being used is one of the ones we are supporting.
-        if jobs[job]["program"] is not "":
+        if executable is not "":
 
             # Find missing flags.
-            flags = list(set(required[jobs[job]["program"].lower()]) -
+            flags = list(set(required[executable]) -
                          set(args))
 
             # Check for missing flags.
             if len(flags) is not 0:
 
-                # Jobs that don't use a commadline flag to denote the input
+                # Jobs that don't use a commandline flag to denote the input
                 # file, such NAMD can be dealt with like this.
                 if "?" in flags:
 
@@ -141,7 +142,7 @@ def processjobs(args, jobs):
                     raise RuntimeError("in job '%s' " % job + "there are " +
                                        "missing flags from command line: %s " %
                                        flags + "see documentation for %s " %
-                                       jobs[job]["program"])
+                                       executable)
 
         # Path correction for multijobs.
         cwd = jobs[job]["localworkdir"]

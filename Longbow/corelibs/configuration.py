@@ -40,62 +40,119 @@ def loadhosts(confile):
 
     # Dictionary for the host configuration parameters.
     hosttemplate = {
-        "corespernode": "",
+        "corespernode": "24",
+        "cores": "24",
         "host": "",
         "port": "22",
         "scheduler": "",
         "handler": "",
         "user": "",
-        "accountflag": ""
+        "accountflag": "",
+        "account": "",
+        "remoteworkdir": ""
     }
 
     required = [
         "host",
-        "user"
+        "user",
+        "remoteworkdir"
     ]
 
-    hosts = loadconfigs(confile, hosttemplate, required, {})
+    hosts = loadconfigs(confile, hosttemplate, required)
 
     return hosts
 
 
-def loadjobs(cwd, confile, overrides):
+def loadjobs(cwd, confile, executable, hostsconfile, remoteres):
 
     """Method for processing job configuration files."""
+
+    # Dictionary to determine the module to load based on the command line
+    # executable
+    modules = {
+            "charmm": "charmm",
+            "pmemd": "amber",
+            "pmemd.MPI": "amber",
+            "lmp_xc30": "lampps",
+            "namd2": "namd",
+            "mdrun": "gromacs",
+            "": ""
+        }
 
     # Dictionary for the job configurations parameters.
     jobtemplate = {
         "account": "",
-        "batch": "1",
         "cluster": "",
         "commandline": "",
         "cores": "",
-        "corespernode": "",
-        "executable": "",
         "frequency": "60",
         "localworkdir": cwd,
-        "modules": "",
-        "maxtime": "",
+        "modules": modules[executable],
+        "maxtime": "24:00",
         "memory": "",
         "nodes": "",
-        "program": "",
-        "remoteworkdir": "",
+        "executable": executable,
         "queue": "",
-        "resource": ""
+        "batch": "1",
+        "resource": "",
+        "remoteworkdir": ""
     }
 
-    required = [
-        "executable",
-        "remoteworkdir",
-        "resource"
-    ]
+    # If the executable is not specified on the command line, require
+    # it to be in a job configuration file if provided
+    if executable == "":
+        required = [
+            "executable",
+            "resource"
+        ]
+    else:
+        required = [
+            "resource"
+        ]
 
-    jobs = loadconfigs(confile, jobtemplate, required, overrides)
+    if confile is None:
+        jobs = loaddefaultjobconfigs(jobtemplate, hostsconfile, remoteres)
+    else:
+        jobs = loadconfigs(confile, jobtemplate, required)
 
     return jobs
 
 
-def loadconfigs(confile, template, required, overrides):
+def loaddefaultjobconfigs(template, hostsconfile, remoteres):
+
+    """Method to load default job configurations."""
+
+    LOGGER.info("Loading default job configuration information.")
+
+    LOGGER.info("Loading configuration information from file: %s ",
+                hostsconfile)
+
+    # Instantiate the configparser and read the configuration file.
+    configs = configparser.ConfigParser()
+
+    try:
+        configs.read(hostsconfile)
+    except:
+        raise RuntimeError("Can't read the configurations from: %s",
+                           hostsconfile)
+
+    # Grab a list of the section headers present in file.
+    sectionlist = configs.sections()
+
+    params = {}
+    params["myjob"] = template.copy()
+
+    if remoteres is not "":
+        params["myjob"]["resource"] = remoteres
+    else:
+        params["myjob"]["resource"] = sectionlist[0]
+
+    print params["myjob"]
+
+    return params
+
+
+def loadconfigs(confile, template, required):
 
     """Method to load configurations from file."""
 
@@ -133,18 +190,18 @@ def loadconfigs(confile, template, required, overrides):
 
         # Store option values in our dictionary structure.
         for option in template:
-            # Is this option being overridden.
-            if option in overrides:
-                params[section][option] = overrides[option]
-            else:
-                try:
-                    params[section][option] = configs.get(section, option)
-                except configparser.NoOptionError:
-                    if option in required:
-                        raise RuntimeError("The parameter %s is required" %
-                                           option)
-                    else:
-                        pass
+            try:
+                params[section][option] = configs.get(section, option)
+            except configparser.NoOptionError:
+                if option in required and option == "executable":
+                    raise RuntimeError("If the executable is not specified " +
+                                       "on the command line, it must be " +
+                                       "in the job configuration file")
+                elif option in required:
+                    raise RuntimeError("The parameter %s is required" %
+                                       option)
+                else:
+                    pass
 
     return params
 

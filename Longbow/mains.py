@@ -29,7 +29,7 @@ import corelibs.shellwrappers as shellwrappers
 import corelibs.staging as staging
 
 
-def console(args, files, overrides, mode):
+def console(args, files, executable, mode, machine):
 
     """This is the main for a console based app, this is designed to run in a
     python/unix shell and is thus the main choice for headless machines like a
@@ -55,29 +55,35 @@ def console(args, files, overrides, mode):
             if param == "hosts" and files["hosts"] is "":
                 files[param] = "hosts.conf"
             # If no filename is specified for job or log issue error
-            if files[param] is "":
-                raise RuntimeError("Error: nothing was supplied for the " +
-                                   "%s file, please supply " %
-                                   param + "its name with the -%s " %
-                                   param + "flag.")
-            else:
+            # if files[param] is "":
+                # raise RuntimeError("Error: nothing was supplied for the " +
+                                   # "%s file, please supply " %
+                                   # param + "its name with the -%s " %
+                                   # param + "flag.")
+            # else:
                 # If the path of the hosts or job file is not provided look in
                 # the current working directory and then in the execution
                 # directory if it's not found. If the desired path for the log
                 # file is not specified output to the current working directory
-                if os.path.isabs(files[param]) is False:
-                    if param == "hosts" or param == "job":
-                        if os.path.isfile(os.path.join(cwd, files[param])):
-                            paths = cwd
-                        elif os.path.isfile(os.path.join(execdir,
-                                                         files[param])):
-                            paths = execdir
-                        else:
-                            raise RuntimeError("Error: %s file not supplied." %
-                                               param)
-                    elif param == "log":
+            if os.path.isabs(files[param]) is False:
+                paths = None
+                if param == "hosts" or param == "job":
+                    if os.path.isfile(os.path.join(cwd, files[param])):
                         paths = cwd
+                        print param, " ", paths
+                    elif os.path.isfile(os.path.join(execdir,
+                                        files[param])):
+                        paths = execdir
+                        print param, " ", paths
+                        # else:
+                            # raise RuntimeError("Error: %s file not supplied." %
+                            #                   param)
+                elif param == "log":
+                    paths = cwd
+                if paths:
                     files[param] = os.path.join(paths, files[param])
+                else:
+                    files[param] = None
 
     except RuntimeError as ex:
         sys.exit(ex)
@@ -96,12 +102,13 @@ def console(args, files, overrides, mode):
     # setup and run some tests.
 
     try:
-
+        logger.info("hosts file is: %s" % files["hosts"])
         # Load the configuration of the hosts.
         hosts = configuration.loadhosts(files["hosts"])
 
         # Load the configuration of the jobs.
-        jobs = configuration.loadjobs(cwd, files["job"], overrides)
+        jobs = configuration.loadjobs(cwd, files["job"], executable,
+                                      files["hosts"], machine)
 
         # Test the connection/s specified in the job configurations
         shellwrappers.testconnections(hosts, jobs)
