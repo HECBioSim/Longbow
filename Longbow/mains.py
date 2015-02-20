@@ -30,7 +30,7 @@ import corelibs.shellwrappers as shellwrappers
 import corelibs.staging as staging
 
 
-def console(args, files, overrides, mode): 
+def console(args, files, overrides, mode):
 
     """This is the main for a console based app, this is designed to run in a
     python/unix shell and is thus the main choice for headless machines like a
@@ -140,12 +140,6 @@ def console(args, files, overrides, mode):
     # -------------------------------------------------------------------------
     # Handle the errors and Longbow exit.
 
-    except RuntimeError as err:
-        if mode["debug"]:
-            logger.exception(err)
-        else:
-            logger.error(err)
-
     except (ex.RsyncError, ex.SCPError, ex.SSHError) as err:
 
         # Output the information about the problem.
@@ -153,6 +147,7 @@ def console(args, files, overrides, mode):
             logger.exception(err)
         else:
             logger.error(err)
+
         logger.error("stdout: %s", str(err.stdout))
         logger.error("stderr: %s", str(err.stderr))
         logger.error("errorcode: %s", str(err.errorcode))
@@ -177,6 +172,12 @@ def console(args, files, overrides, mode):
                 else:
                     # Transfer the directories as they are.
                     staging.stage_downstream(hosts, jobs, job)
+
+    except Exception as err:
+        if mode["debug"]:
+            logger.exception(err)
+        else:
+            logger.error(err)
 
     finally:
         # Cleanup.

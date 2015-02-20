@@ -23,6 +23,13 @@ corelibrary.
 # Exceptions for paths
 
 class AbsolutepathError(Exception):
+
+    """ Exception class for absolute path errors, usage
+
+    AbsolutepathError(message, path)
+
+    """
+
     def __init__(self, message, path):
 
         # Call the base class constructor.
@@ -31,31 +38,71 @@ class AbsolutepathError(Exception):
         # Bind the standard outputs.
         self.path = path
 
+class DirectorynotfoundError(Exception):
+
+    """Directory not found exception, to provide informative exceptions
+    of why a method has failed when directory cannot be found."""
+
+    pass
+
 # -----------------------------------------------------------------------------
 # Exceptions for applications.py
 
-class ApplicationcheckError(Exception):
+class CommandlineargsError(Exception):
+
+    """Command-line arguments error."""
+
+    pass
+
+class RequiredinputError(Exception):
+
+    """Required input error exception."""
+
+    pass
+
+# -----------------------------------------------------------------------------
+# Exceptions for configuration.py
+
+class ConfigurationError(Exception):
+
+    """Configuration error."""
+
     pass
 
 # -----------------------------------------------------------------------------
 # Exceptions for scheduling.py
 
 class SchedulercheckError(Exception):
+
+    """Scheduler checking exception."""
+
     pass
 
 class HandlercheckError(Exception):
+
+    """Job handler checking exception."""
+
     pass
 
 class JobdeleteError(Exception):
+
+    """Job delete exception."""
+
     pass
 
 class JobsubmitError(Exception):
+
+    """Job submit exception."""
+
     pass
 
 # -----------------------------------------------------------------------------
 # Exceptions for shellwrappers.py
 
 class LocalcopyError(Exception):
+
+    """Copy on local machine exception."""
+
     def __init__(self, message, path):
 
         # Call the base class constructor.
@@ -65,6 +112,9 @@ class LocalcopyError(Exception):
         self.path = path
 
 class LocaldeleteError(Exception):
+
+    """Delete on local machine exception."""
+
     def __init__(self, message, path):
 
         # Call the base class constructor.
@@ -74,6 +124,9 @@ class LocaldeleteError(Exception):
         self.path = path
 
 class LocallistError(Exception):
+
+    """List on local machine exception."""
+
     def __init__(self, message, path):
 
         # Call the base class constructor.
@@ -83,6 +136,9 @@ class LocallistError(Exception):
         self.path = path
 
 class ProtocolError(Exception):
+
+    """Unknown protocol exception."""
+
     def __init__(self, message, protocol):
 
         # Call the base class constructor.
@@ -92,6 +148,9 @@ class ProtocolError(Exception):
         self.path = protocol
 
 class RemotecopyError(Exception):
+
+    """Copy on remote machine exception."""
+
     def __init__(self, message, src, dst):
 
         # Call the base class constructor.
@@ -102,6 +161,9 @@ class RemotecopyError(Exception):
         self.dst = dst
 
 class RemotedeleteError(Exception):
+
+    """Delete on remote machine exception."""
+
     def __init__(self, message, path):
 
         # Call the base class constructor.
@@ -111,6 +173,9 @@ class RemotedeleteError(Exception):
         self.path = path
 
 class RemotelistError(Exception):
+
+    """List on remote machine exception."""
+
     def __init__(self, message, path):
 
         # Call the base class constructor.
@@ -120,6 +185,9 @@ class RemotelistError(Exception):
         self.path = path
 
 class RsyncError(Exception):
+
+    """Rsync exception."""
+
     def __init__(self, message, shellout):
 
         # Call the base class constructor.
@@ -131,6 +199,9 @@ class RsyncError(Exception):
         self.stderr = shellout[1]
 
 class SCPError(Exception):
+
+    """SCP exception"""
+
     def __init__(self, message, shellout):
 
         # Call the base class constructor.
@@ -142,6 +213,9 @@ class SCPError(Exception):
         self.stderr = shellout[1]
 
 class SSHError(Exception):
+
+    """SSH exception"""
+
     def __init__(self, message, shellout):
 
         # Call the base class constructor.
@@ -156,4 +230,7 @@ class SSHError(Exception):
 # Exceptions for staging.py
 
 class StagingError(Exception):
+
+    """Generic staging error exception"""
+
     pass
