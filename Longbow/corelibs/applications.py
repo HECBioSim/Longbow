@@ -21,6 +21,7 @@ command line arguments of the job in a code specific manner."""
 
 import logging
 import os
+import corelibs.exceptions as ex
 import corelibs.shellwrappers as shellwrappers
 
 LOGGER = logging.getLogger("Longbow")
@@ -70,8 +71,8 @@ def testapp(hosts, jobs):
                 shellwrappers.sendtossh(hosts[resource], cmd)
                 LOGGER.info("  Executable check - passed.")
 
-            except Exception:
-                raise RuntimeError("Executable check - failed")
+            except ex.SSHError:
+                raise ex.ApplicationcheckError("Executable check - failed")
 
 
 def processjobs(args, jobs):

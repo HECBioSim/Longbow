@@ -24,6 +24,7 @@ import shutil
 import subprocess
 import logging
 import time
+import corelibs.exceptions as ex
 
 LOGGER = logging.getLogger("Longbow")
 
@@ -57,12 +58,8 @@ def testconnections(hosts, jobs):
 
             try:
                 sendtossh(host, ["ls &> /dev/null"])
-            except:
-                raise RuntimeError("Cannot reach the following resource: %s " %
-                                   resource + "make sure the configuration " +
-                                   "of this resource is correct in your " +
-                                   "host configuration file and there is no " +
-                                   "scheduled maintainence.")
+            except ex.SSHError:
+                raise
 
             LOGGER.info("  Test connection to %s - passed", resource)
 
@@ -116,13 +113,15 @@ def sendtossh(host, args):
         elif errorstate is 255:
             i = i + 1
         else:
-            raise RuntimeError("SSH error code = " + str(errorstate))
+            raise ex.SSHError("SSH failed, make sure a normal terminal can " +
+                              "connect to SSH to be sure there are no " +
+                              "connection issues.", shellout)
 
         # If number of retries hits 3 then give up.
         if i is 3:
-            raise RuntimeError("SSH failed make sure a normal terminal can " +
-                               "connect to SSH to be sure there are no " +
-                               "connection issues.")
+            raise ex.SSHError("SSH failed, make sure a normal terminal can " +
+                              "connect to SSH to be sure there are no " +
+                              "connection issues.", shellout)
 
         LOGGER.debug("  Retry SSH after 10 second wait.")
 
@@ -160,9 +159,9 @@ def sendtoscp(host, src, dst):
 
         # If number of retries hits 3 then give up.
         if i is 3:
-            raise RuntimeError("SCP failed, make sure a normal terminal can " +
-                               "connect to SCP to be sure there are no " +
-                               "connection issues.")
+            raise ex.SCPError("SCP failed, make sure a normal terminal can " +
+                              "connect to SCP to be sure there are no " +
+                              "connection issues.", shellout)
 
         LOGGER.debug("  Retry SCP after 10 second wait.")
 
@@ -199,9 +198,9 @@ def sendtorsync(host, src, dst):
 
         # If number of retries hits 3 then give up.
         if i is 3:
-            raise RuntimeError("rsync failed, make sure a normal terminal " +
-                               "can connect to rsync to be sure there are " +
-                               "no connection issues.")
+            raise ex.RsyncError("rsync failed, make sure a normal terminal " +
+                                "can connect to rsync to be sure there are " +
+                                "no connection issues.", shellout)
 
         LOGGER.debug("  Retry rsync after 10 second wait.")
 
@@ -219,11 +218,10 @@ def localcopy(src, dst):
 
     # Are paths absolute.
     if os.path.isabs(src) is False:
-        raise RuntimeError("The source path: %s is not absolute" % src)
+        raise ex.AbsolutepathError("The source path is not absolute", src)
 
     if os.path.isabs(dst) is False:
-        raise RuntimeError("The destination path: %s is not absolute" %
-                           dst)
+        raise ex.AbsolutepathError("The destination path is not absolute", dst)
 
     # Is the source a file or a directory? They are dealt with slightly
     # differently.
@@ -236,8 +234,8 @@ def localcopy(src, dst):
             else:
                 os.makedirs(dst)
                 shutil.copy(src, dst)
-        except:
-            raise RuntimeError("Could not copy the file: %s" % src)
+        except (shutil.Error, IOError):
+            raise ex.LocalcopyError("Could not copy the file", src)
     elif os.path.isdir(src):
         try:
             # Check if the destination exists.
@@ -248,12 +246,8 @@ def localcopy(src, dst):
             else:
                 # Copy it.
                 shutil.copytree(src, dst)
-        except:
-            raise RuntimeError("There was a problem copying the " +
-                               "directory %s" % src)
-    else:
-        raise RuntimeError("Could not determine if the source file or " +
-                           "directory: %s exists" % src)
+        except (shutil.Error, IOError):
+            raise ex.LocalcopyError("Could not copy the directory" % src)
 
 
 def localdelete(src):
@@ -265,25 +259,20 @@ def localdelete(src):
 
     # Check if path is absolute.
     if os.path.isabs(src) is False:
-        raise RuntimeError("The path: %s is not an absolute path" % src)
+        raise ex.AbsolutepathError("The source path is not absolute", src)
 
     # Check if we are deleting a file or directory and call the appropriate
     # method.
     if os.path.isfile(src):
         try:
             os.remove(src)
-        except:
-            raise RuntimeError("Something went wrong when trying to " +
-                               "delete the file %s " % src)
+        except IOError:
+            raise ex.LocaldeleteError("Could not delete file", src)
     elif os.path.isdir(src):
         try:
             shutil.rmtree(src)
-        except:
-            raise RuntimeError("Something went wrong when trying to " +
-                               "delete the directory %s " % src)
-    else:
-        raise RuntimeError("Could not determine whether the source is a " +
-                           "file or directory.")
+        except IOError:
+            raise ex.LocaldeleteError("Could not delete file", src)
 
 
 def locallist(src):
@@ -295,13 +284,13 @@ def locallist(src):
 
     # Check if path is absolute.
     if os.path.isabs(src) is False:
-        raise RuntimeError("The path: %s is not an absolute path", src)
+        raise ex.AbsolutepathError("The source path is not absolute", src)
 
     # Check if the path exists, and list if it does.
     if os.path.exists(src):
         filelist = os.listdir(src)
     else:
-        raise RuntimeError("The dir on path: %s does not exist", src)
+        raise ex.LocallistError("Local directory does not exist.", src)
 
     return filelist
 
@@ -312,15 +301,21 @@ def remotecopy(host, src, dst):
 
     LOGGER.debug("Copying %s " % src + "to %s" % dst)
 
+    # Are paths absolute.
+    if os.path.isabs(src) is False:
+        raise ex.AbsolutepathError("The source path is not absolute", src)
+
+    if os.path.isabs(dst) is False:
+        raise ex.AbsolutepathError("The destination path is not absolute", dst)
+
     # Just use cp for this with recursive set in case of directory.
     cmd = ["cp", "-r", src, dst]
 
     # Send to subprocess.
     try:
         sendtossh(host, cmd)
-    except:
-        raise RuntimeError("Could not copy the file/dir: %s " % src +
-                           "to: %s" % dst)
+    except ex.SSHError:
+        raise ex.RemotecopyError("Could not copy file to host ", src, dst)
 
 
 def remotedelete(host, src):
@@ -329,14 +324,19 @@ def remotedelete(host, src):
 
     LOGGER.debug("  Deleting: %s", src)
 
+    # Are paths absolute.
+    if os.path.isabs(src) is False:
+        raise ex.AbsolutepathError("The source path is not absolute", src)
+
     # Just use rm for this with recursive set in case of directory.
     cmd = ["rm", "-r", src]
 
     # Send to subprocess.
     try:
         sendtossh(host, cmd)
-    except:
-        raise RuntimeError("Could not delete the file/directory: %s", src)
+    except ex.SSHError:
+        raise ex.RemotedeleteError("Could not delete the file/directory on " +
+                                   "remote host", src)
 
 
 def remotelist(host, src):
@@ -347,7 +347,7 @@ def remotelist(host, src):
 
     # Are paths absolute.
     if os.path.isabs(src) is False:
-        raise RuntimeError("The source path: %s is not absolute" % src)
+        raise ex.AbsolutepathError("The source path is not absolute", src)
 
     # Shell command ls for listing in a shell.
     cmd = ["ls" + " " + src]
@@ -355,8 +355,8 @@ def remotelist(host, src):
     # Send command to subprocess.
     try:
         shellout = sendtossh(host, cmd)
-    except:
-        raise RuntimeError("Could not list the directory: %s" % src)
+    except ex.SSHError:
+        raise ex.RemotelistError("Could not list the directory", src)
 
     # Split the stdout into a list.
     filelist = shellout[0].split()
@@ -368,50 +368,59 @@ def upload(protocol, host, src, dst):
 
     """A method for uploading files to remote hosts."""
 
+    # Are paths absolute.
+    if os.path.isabs(src) is False:
+        raise ex.AbsolutepathError("The source path is not absolute", src)
+
+    if os.path.isabs(dst) is False:
+        raise ex.AbsolutepathError("The destination path is not absolute", dst)
+
     dst = (host["user"] + "@" +
            host["host"] + ":" + dst)
 
     LOGGER.debug("  Copying %s " % src + "to %s" % dst)
 
-    # Are paths absolute.
-    if os.path.isabs(src) is False:
-        raise RuntimeError("The source path: %s is not absolute", src)
-
     # Send command to subprocess.
     try:
         if protocol is "rsync":
             sendtorsync(host, src, dst)
+
         elif protocol is "scp":
             sendtoscp(host, src, dst)
+
         else:
-            raise RuntimeError("Cannot handle the protocol: " + protocol)
-    except:
-        raise RuntimeError("Could not upload: %s " % src +
-                           "to %s" % dst)
+            raise ex.ProtocolError("Unknown Protocol", protocol)
+
+    except (ex.RsyncError, ex.SCPError):
+        raise
 
 
 def download(protocol, host, src, dst):
 
     """A method for downloading files from remote hosts."""
 
+    # Are paths absolute.
+    if os.path.isabs(src) is False:
+        raise ex.AbsolutepathError("The source path is not absolute", src)
+
+    if os.path.isabs(dst) is False:
+        raise ex.AbsolutepathError("The destination path is not absolute", dst)
+
     src = (host["user"] + "@" +
            host["host"] + ":" + src)
 
     LOGGER.debug("  Copying %s " % src + "to %s" % dst)
 
-    # Are paths absolute.
-    if os.path.isabs(dst) is False:
-        raise RuntimeError("The destination path: %s is not absolute" %
-                           dst)
-
     # Send command to subprocess.
     try:
         if protocol is "rsync":
             sendtorsync(host, src, dst)
+
         elif protocol is "scp":
             sendtoscp(host, src, dst)
+
         else:
-            raise RuntimeError("Cannot handle the protocol: " + protocol)
-    except:
-        raise RuntimeError("Could not download: %s " % src +
-                           "to %s" % dst)
+            raise ex.ProtocolError("Unknown protocol", protocol)
+
+    except (ex.RsyncError, ex.SCPError):
+        raise

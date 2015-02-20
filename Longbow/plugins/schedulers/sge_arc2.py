@@ -20,6 +20,7 @@
 import logging
 import math
 import os
+import corelibs.exceptions as ex
 import corelibs.shellwrappers as shellwrappers
 
 LOGGER = logging.getLogger("Longbow")
@@ -34,8 +35,9 @@ def delete(host, jobid):
     LOGGER.info("Deleting the job with id: %s", jobid)
     try:
         shellout = shellwrappers.sendtossh(host, ["qdel " + jobid])
-    except:
-        raise RuntimeError("  Unable to delete job.")
+
+    except ex.SSHError:
+        raise ex.JobdeleteError("  Unable to delete job.")
 
     LOGGER.info("  Deleted successfully")
 
@@ -157,7 +159,7 @@ def status(host, jobid):
         elif stat[4] == "r":
             state = "Running"
 
-    except RuntimeError:
+    except ex.SSHError:
         state = "Finished"
 
     return state
@@ -168,6 +170,7 @@ def submit(host, jobname, jobs):
     """Method for submitting a job."""
 
     path = os.path.join(jobs[jobname]["remoteworkdir"], jobname)
+
     # Change into the working directory and submit the job.
     cmd = ["cd " + path + "\n", "qsub " + jobs[jobname]["subfile"] +
            " | grep -P -o '(?<= )[0-9]*(?= )'"]
@@ -175,8 +178,9 @@ def submit(host, jobname, jobs):
     # Process the submit
     try:
         shellout = shellwrappers.sendtossh(host, cmd)[0]
-    except:
-        raise RuntimeError("  Something went wrong when submitting.")
+
+    except ex.SSHError:
+        raise ex.JobsubmitError("  Something went wrong when submitting.")
 
     LOGGER.info("  Job: %s submitted with id: %s", jobname, shellout)
 
