@@ -161,7 +161,8 @@ def console(args, files, overrides, mode):
         for job in jobs:
             if "jobid" in jobs[job]:
                 # If job is not finished delete and stage.
-                if jobs[job]["laststatus"] != "Finished":
+                if (jobs[job]["laststatus"] != "Finished" and
+                    jobs[job]["laststatus"] != "Submit Error"):
 
                     # Kill it.
                     scheduling.delete(hosts, jobs, job)
@@ -169,7 +170,7 @@ def console(args, files, overrides, mode):
                     # Transfer the directories as they are.
                     staging.stage_downstream(hosts, jobs, job)
                 # Job is finished then just stage.
-                else:
+                elif jobs[job]["laststatus"] != "Submit Error":
                     # Transfer the directories as they are.
                     staging.stage_downstream(hosts, jobs, job)
 
