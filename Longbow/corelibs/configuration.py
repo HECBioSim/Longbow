@@ -30,6 +30,7 @@ saveconfigs()
 
 import ConfigParser as configparser
 import logging
+import corelibs.exceptions as ex
 
 LOGGER = logging.getLogger("Longbow")
 
@@ -99,15 +100,16 @@ def loadconfigs(confile, template, required, overrides):
 
     """Method to load configurations from file."""
 
-    LOGGER.info("Loading configuration information from file: %s ", confile)
+    LOGGER.info("Loading configuration information from file '%s'", confile)
 
     # Instantiate the configparser and read the configuration file.
     configs = configparser.ConfigParser()
 
     try:
         configs.read(confile)
-    except:
-        raise RuntimeError("Can't read the configurations from: %s", confile)
+    except IOError:
+        raise ex.ConfigurationError("Can't read the configurations from '%s'",
+                                    confile)
 
     # Grab a list of the section headers present in file.
     sectionlist = configs.sections()
@@ -115,8 +117,8 @@ def loadconfigs(confile, template, required, overrides):
 
     # If we don't have any sections then raise an exception.
     if sectioncount is 0:
-        raise RuntimeError("In file %s " % confile + "no sections can be " +
-                           "detected or the file is not in ini format.")
+        raise ex.ConfigurationError("In file '%s' " % confile + "no " +
+            "sections can be detected or the file is not in ini format.")
 
     # Temporary dictionary for storing the configurations in.
     params = {}
@@ -128,8 +130,8 @@ def loadconfigs(confile, template, required, overrides):
 
         # If we have no options then raise an exception.
         if optioncount is 0:
-            raise RuntimeError("There are no parameters listed under the" +
-                               " section %s" % section)
+            raise ex.ConfigurationError("There are no parameters listed " +
+                "under the section '%s'", section)
 
         # Store option values in our dictionary structure.
         for option in template:
@@ -141,8 +143,8 @@ def loadconfigs(confile, template, required, overrides):
                     params[section][option] = configs.get(section, option)
                 except configparser.NoOptionError:
                     if option in required:
-                        raise RuntimeError("The parameter %s is required" %
-                                           option)
+                        raise ex.ConfigurationError("The parameter %s is " +
+                            "required", option)
                     else:
                         pass
 
@@ -153,7 +155,7 @@ def saveconfigs(confile, params):
 
     """Method to save parameters to file."""
 
-    LOGGER.info("Saving configuration information to file %s ", confile)
+    LOGGER.info("Saving configuration information to file '%s'", confile)
 
     # Bind the hosts file to the config parser and read it in.
     configs = configparser.ConfigParser()

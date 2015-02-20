@@ -82,7 +82,7 @@ def stage_upstream(hosts, jobs):
             shellwrappers.sendtossh(hosts[resource], ["mkdir " + path])
 
         # Loop through all files.
-        LOGGER.info("  Transfering files for job: '%s' to host: %s",
+        LOGGER.info("  Transfering files for job: '%s' to host '%s'",
                     job, jobs[job]["resource"])
 
         for item in jobs[job]["filelist"]:
@@ -139,7 +139,7 @@ def stage_downstream(hosts, jobs, jobname):
 
             except (ex.SCPError, ex.RsyncError):
                 raise ex.StagingError("Could not download file '%s' to " +
-                                      "location %s", src, dst)
+                                      "location '%s'", src, dst)
 
         LOGGER.info("Staging files downstream - complete.")
 
@@ -157,7 +157,7 @@ def stage_downstream(hosts, jobs, jobname):
 
         except (ex.SCPError, ex.RsyncError):
             raise ex.StagingError("Could not download file '%s' to " +
-                                  "location %s", src, dst)
+                                  "location '%s'", src, dst)
 
         LOGGER.info("  staging complete.")
 
@@ -177,7 +177,7 @@ def cleanup(hosts, jobs):
 
             shellwrappers.remotelist(host, path)
 
-            LOGGER.info("  Deleting directory for job '%s' - %s", job, path)
+            LOGGER.info("  Deleting directory for job '%s' - '%s'", job, path)
 
             shellwrappers.remotedelete(hosts[jobs[job]["resource"]], path)
 

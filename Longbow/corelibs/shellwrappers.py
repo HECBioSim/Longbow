@@ -231,21 +231,27 @@ def localcopy(src, dst):
             if os.path.exists(dst):
                 # Copy it.
                 shutil.copy(src, dst)
+
             else:
                 os.makedirs(dst)
                 shutil.copy(src, dst)
+
         except (shutil.Error, IOError):
             raise ex.LocalcopyError("Could not copy the file", src)
+
     elif os.path.isdir(src):
         try:
             # Check if the destination exists.
             if os.path.exists(dst):
                 # Remove the existing and then copy it.
                 shutil.rmtree(dst)
+
                 shutil.copytree(src, dst)
+
             else:
                 # Copy it.
                 shutil.copytree(src, dst)
+
         except (shutil.Error, IOError):
             raise ex.LocalcopyError("Could not copy the directory" % src)
 
@@ -266,11 +272,14 @@ def localdelete(src):
     if os.path.isfile(src):
         try:
             os.remove(src)
+
         except IOError:
             raise ex.LocaldeleteError("Could not delete file", src)
+
     elif os.path.isdir(src):
         try:
             shutil.rmtree(src)
+
         except IOError:
             raise ex.LocaldeleteError("Could not delete file", src)
 
@@ -289,6 +298,7 @@ def locallist(src):
     # Check if the path exists, and list if it does.
     if os.path.exists(src):
         filelist = os.listdir(src)
+
     else:
         raise ex.LocallistError("Local directory does not exist.", src)
 
@@ -314,6 +324,7 @@ def remotecopy(host, src, dst):
     # Send to subprocess.
     try:
         sendtossh(host, cmd)
+
     except ex.SSHError:
         raise ex.RemotecopyError("Could not copy file to host ", src, dst)
 
@@ -334,6 +345,7 @@ def remotedelete(host, src):
     # Send to subprocess.
     try:
         sendtossh(host, cmd)
+
     except ex.SSHError:
         raise ex.RemotedeleteError("Could not delete the file/directory on " +
                                    "remote host", src)
@@ -355,6 +367,7 @@ def remotelist(host, src):
     # Send command to subprocess.
     try:
         shellout = sendtossh(host, cmd)
+
     except ex.SSHError:
         raise ex.RemotelistError("Could not list the directory", src)
 
