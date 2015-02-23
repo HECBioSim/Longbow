@@ -47,8 +47,10 @@ Support can be found here: http://www.hecbiosim.ac.uk/forums/
 
 ### Contact ###
 
-For further information please contact James Gebbie-Rayet:
+For further information please contact James Gebbie-Rayet: james.gebbie@stfc.ac.uk
 
-james.gebbie@stfc.ac.uk
+or
+
+Gareth Shannon: gareth.shannon@nottingham.ac.uk
 
 Please do not seek support in the first instance via email, support should be sought through the forums.
