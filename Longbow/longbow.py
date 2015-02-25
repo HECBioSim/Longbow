@@ -71,16 +71,11 @@ if __name__ == "__main__":
     }
 
     # Check an executable or job configuration file has been provided
-    if COMMANDLINEARGS[0] in ("charmm", "pmemd", "pmemd.MPI", "mdrun" +
-                              "lmp_xc30", "namd2"):
-        EXECUTABLE = COMMANDLINEARGS[0]
-        # Remove the executable name from the command line arguments
-        COMMANDLINEARGS.pop(0)
-    elif COMMANDLINEARGS.count("-job") == 0:
+    if COMMANDLINEARGS[0] not in ("charmm", "pmemd", "pmemd.MPI", "mdrun" +
+                                  "lmp_xc30", "namd2") and \
+                                  COMMANDLINEARGS.count("-job") == 0:
         raise RuntimeError("A recognised executable or job configuration" +
                            " file must be specified on the command line")
-    else:
-        EXECUTABLE = ""
 
     # ------------------------------------------------------------------------
     # Pull out some of the ProxyApp specific commandline args leaving behind
@@ -134,4 +129,4 @@ if __name__ == "__main__":
     # Call Longbow.
 
     # Enter the mains application.
-    console(COMMANDLINEARGS, FILES, EXECUTABLE, MODE, MACHINE)
+    console(COMMANDLINEARGS, FILES, MODE, MACHINE)

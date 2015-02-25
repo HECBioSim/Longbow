@@ -73,7 +73,7 @@ def loadjobs(cwd, confile, executable, hostsconfile, remoteres):
             "charmm": "charmm",
             "pmemd": "amber",
             "pmemd.MPI": "amber",
-            "lmp_xc30": "lampps",
+            "lmp_xc30": "lammps",
             "namd2": "namd",
             "mdrun": "gromacs",
             "": ""
@@ -146,8 +146,6 @@ def loaddefaultjobconfigs(template, hostsconfile, remoteres):
         params["myjob"]["resource"] = remoteres
     else:
         params["myjob"]["resource"] = sectionlist[0]
-
-    print params["myjob"]
 
     return params
 

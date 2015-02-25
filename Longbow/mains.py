@@ -70,11 +70,9 @@ def console(args, files, executable, mode, machine):
                 if param == "hosts" or param == "job":
                     if os.path.isfile(os.path.join(cwd, files[param])):
                         paths = cwd
-                        print param, " ", paths
                     elif os.path.isfile(os.path.join(execdir,
                                         files[param])):
                         paths = execdir
-                        print param, " ", paths
                         # else:
                             # raise RuntimeError("Error: %s file not supplied." %
                             #                   param)
