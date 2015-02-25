@@ -41,22 +41,29 @@ def stage_upstream(hosts, jobs):
     LOGGER.info("Staging files for job/s.")
 
     for job in jobs:
-
+        
+        # Determine if "remoteworkdir" is set in the job configuration file
+        # Use "remoteworkdir" in hosts.conf if not
+        if jobs[job]["remoteworkdir"] is "":
+            remoteworkdir = hosts[jobs[job]["resource"]]["remoteworkdir"]
+        else:
+            remoteworkdir = jobs[job]["remoteworkdir"] 
+        
         # Check that the working directory exists.
         try:
             shellwrappers.remotelist(hosts[jobs[job]["resource"]],
-                                hosts[jobs[job]["resource"]]["remoteworkdir"])
+                                remoteworkdir)
             LOGGER.debug("  Work directory '%s' found.",
-                         hosts[jobs[job]["resource"]]["remoteworkdir"])
+                         remoteworkdir)
         except:
             raise RuntimeError("Work directory '%s' could not be found " %
-                               hosts[jobs[job]["resource"]]["remoteworkdir"] +
+                               remoteworkdir +
                                "on remote " + "machine '%s'." %
                                jobs[job]["resource"])
 
         # Check if path is already on remote host and delete its contents
         # if it does.
-        path = os.path.join(hosts[jobs[job]["resource"]]["remoteworkdir"], job)
+        path = os.path.join(remoteworkdir, job)
         try:
             shellwrappers.remotelist(hosts[jobs[job]["resource"]], path)
             LOGGER.debug("  directory '%s' already exists, emptying" +
@@ -112,9 +119,16 @@ def stage_downstream(hosts, jobs, jobname):
         # We must have multiple jobs so loop through them.
         for job in jobs:
 
+            # Determine if "remoteworkdir" is set in the job configuration file
+            # Use "remoteworkdir" in hosts.conf if not
+            if jobs[job]["remoteworkdir"] is "":
+                remoteworkdir = hosts[jobs[job]["resource"]]["remoteworkdir"]
+            else:
+                remoteworkdir = jobs[job]["remoteworkdir"]
+
             # Download the whole directory with rsync.
             host = hosts[jobs[job]["resource"]]
-            src = os.path.join(hosts[jobs[job]["resource"]]["remoteworkdir"],
+            src = os.path.join(remoteworkdir,
                                job + "/")
             dst = jobs[job]["localworkdir"]
             shellwrappers.download("rsync", host, src, dst)
@@ -125,8 +139,15 @@ def stage_downstream(hosts, jobs, jobname):
     else:
         LOGGER.info("  For job %s staging files downstream.", jobname)
 
+        # Determine if "remoteworkdir" is set in the job configuration file
+        # Use "remoteworkdir" in hosts.conf if not
+        if jobs[jobname]["remoteworkdir"] is "":
+            remoteworkdir = hosts[jobs[jobname]["resource"]]["remoteworkdir"]
+        else:
+            remoteworkdir = jobs[jobname]["remoteworkdir"]
+
         host = hosts[jobs[jobname]["resource"]]
-        src = os.path.join(hosts[jobs[job]["resource"]]["remoteworkdir"],
+        src = os.path.join(remoteworkdir,
                            jobname + "/")
         dst = jobs[jobname]["localworkdir"]
         # Download the whole directory with rsync.
@@ -143,7 +164,14 @@ def cleanup(hosts, jobs):
 
     for job in jobs:
 
-        path = os.path.join(hosts[jobs[job]["resource"]]["remoteworkdir"], job)
+        # Determine if "remoteworkdir" is set in the job configuration file
+        # Use "remoteworkdir" in hosts.conf if not
+        if jobs[job]["remoteworkdir"] is "":
+            remoteworkdir = hosts[jobs[job]["resource"]]["remoteworkdir"]
+        else:
+            remoteworkdir = jobs[job]["remoteworkdir"]
+            
+        path = os.path.join(remoteworkdir, job)
 
         LOGGER.info("  Deleting directory for job '%s' - %s", job, path)
 
