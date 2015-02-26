@@ -66,18 +66,23 @@ def prepare(hosts, jobname, jobs):
     if jobs[jobname]["cluster"] is not "":
         jobfile.write("#BSUB -m " + jobs[jobname]["cluster"] + "\n")
 
-    if jobs[jobname]["account"] is not "":
+    # Account to charge (if supplied).
+    if hosts[jobs[jobname]["resource"]]["account"] is not "":
+        # if no accountflag is provided use the default
         if hosts[jobs[jobname]["resource"]]["accountflag"] is "":
-            jobfile.write("#BSUB -P " + jobs[jobname]["account"] + "\n")
+            jobfile.write("#BSUB -P " +
+                          hosts[jobs[jobname]["resource"]]["account"] +
+                          "\n")
         else:
             jobfile.write("#BSUB " +
                           hosts[jobs[jobname]["resource"]]["accountflag"] +
-                          " " + jobs[jobname]["account"] + "\n")
+                          " " + hosts[jobs[jobname]["resource"]]["account"] +
+                          "\n")
 
     jobfile.write("#BSUB -W " + jobs[jobname]["maxtime"] + "\n")
 
-    # TODO: "#BSUB -n " + jobs[jobname]["cores"] + "\n")
-    jobfile.write("#BSUB -n " + jobs[jobname]["cores"] + "\n")
+    jobfile.write("#BSUB -n " + hosts[jobs[jobname]["resource"]]["cores"] +
+                  "\n")
 
     if jobs[jobname]["modules"] is not "":
         for module in jobs[jobname]["modules"].split(","):
@@ -138,9 +143,10 @@ def submit(host, jobname, jobs):
 
     """Method for submitting job."""
 
-    # cd into the working directory and submit the job.
-    path = os.path.join(jobs[jobname]["remoteworkdir"], jobname)
+    # Set the path to remoteworkdir/jobname
+    path = os.path.join(host["remoteworkdir"], jobname)
 
+    # cd into the working directory and submit the job.
     cmd = ["cd " + path + "\n", "bsub < " +
            jobs[jobname]["subfile"] + "| grep -P -o '(?<=<)[0-9]*(?=>)'"]
 

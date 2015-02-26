@@ -51,14 +51,20 @@ class DirectorynotfoundError(Exception):
 class CommandlineargsError(Exception):
 
     """Command-line arguments error."""
+    
+    def __init__(self, message):
 
-    pass
+        # Call the base class constructor.
+        super(CommandlineargsError, self).__init__(message)
 
 class RequiredinputError(Exception):
 
     """Required input error exception."""
+    
+    def __init__(self, message):
 
-    pass
+        # Call the base class constructor.
+        super(RequiredinputError, self).__init__(message)
 
 # -----------------------------------------------------------------------------
 # Exceptions for configuration.py

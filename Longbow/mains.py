@@ -30,7 +30,7 @@ import corelibs.shellwrappers as shellwrappers
 import corelibs.staging as staging
 
 
-def console(args, files, overrides, mode):
+def console(args, files, mode, machine):
 
     """This is the main for a console based app, this is designed to run in a
     python/unix shell and is thus the main choice for headless machines like a
@@ -42,46 +42,62 @@ def console(args, files, overrides, mode):
     # Get the execution directory (where we are installed).
     execdir = os.path.dirname(os.path.realpath(__file__))
 
+    # Test whether the executable has been provided on the command line
+    if args[0] in ("charmm", "pmemd", "pmemd.MPI", "mdrun", "lmp_xc30" +
+                   "namd2"):
+        executable = args[0]
+        args.pop(0)
+    else:
+        executable = ""
+
     # -------------------------------------------------------------------------
     # Setup some basic file paths.
 
-    # Check if a file name/path is supplied. If just the name is supplied
-    # then for log output to the current working directory. For hosts
-    # and job, prioritise the named files in the current working directory
-    # over those in the execution directory if they exist. If no hosts filename
-    # is specified default to the name hosts.conf
     try:
-        for param in files:
-            # If no hosts file is specified default to the name hosts.conf
-            if param == "hosts" and files["hosts"] is "":
-                files[param] = "hosts.conf"
-            # If no filename is specified for job or log issue error
-            if files[param] is "":
-                raise RuntimeError("Error: nothing was supplied for the " +
-                                   "%s file, please supply " %
-                                   param + "its name with the -%s " %
-                                   param + "flag.")
+        # hosts
+        # if a filename hasn't been provided default to hosts.conf
+        if files["hosts"] is "":
+            files["hosts"] = "hosts.conf"
+        # if the path hasn't been provided look in the current working
+        # directory and then the execution directory if needs be
+        if os.path.isabs(files["hosts"]) is False:
+            if os.path.isfile(os.path.join(cwd, files["hosts"])):
+                files["hosts"] = os.path.join(cwd, files["hosts"])
+            elif os.path.isfile(os.path.join(execdir, files["hosts"])):
+                files["hosts"] = os.path.join(execdir, files["hosts"])
             else:
-                # If the path of the hosts or job file is not provided look in
-                # the current working directory and then in the execution
-                # directory if it's not found. If the desired path for the log
-                # file is not specified output to the current working directory
-                if os.path.isabs(files[param]) is False:
-                    if param == "hosts" or param == "job":
-                        if os.path.isfile(os.path.join(cwd, files[param])):
-                            paths = cwd
-                        elif os.path.isfile(os.path.join(execdir,
-                                                         files[param])):
-                            paths = execdir
-                        else:
-                            raise RuntimeError("Error: %s file not supplied." %
-                                               param)
-                    elif param == "log":
-                        paths = cwd
-                    files[param] = os.path.join(paths, files[param])
+                ex.RequiredinputError("No host configuration file found in " +
+                                      "the current working directory %s", cwd,
+                                      "or in the execution directory %s.",
+                                      execdir)
 
-    except RuntimeError as err:
-        sys.exit(err)
+        # log
+        # if a filename hasn't been provided default to log
+        if files["log"] is "":
+            files["log"] = "log"
+        # if the path hasn't been provided default to the current working
+        # directory
+        if os.path.isabs(files["log"]) is False:
+            files["log"] = os.path.join(cwd, files["log"])
+
+        # job
+        # if a job configuration file has been supplied but the path hasn't
+        # look in the current working directory and then the execution
+        # directory if needs be
+        if files["job"] is not "" and os.path.isabs(files["job"]) is False:
+            if os.path.isfile(os.path.join(cwd, files["job"])):
+                files["job"] = os.path.join(cwd, files["job"])
+            elif os.path.isfile(os.path.join(execdir, files["job"])):
+                files["job"] = os.path.join(execdir, files["job"])
+            else:
+                ex.RequiredinputError("The job configuration file %s ",
+                                      files["job"], "couldn't be found in " +
+                                      "the current working directory %s", cwd,
+                                      "or in the execution directory %s.",
+                                      execdir)
+
+    except (ex.RequiredinputError) as err:
+        logger.exception(err)
 
     # -------------------------------------------------------------------------
     # Setup the logger.
@@ -97,12 +113,20 @@ def console(args, files, overrides, mode):
     # setup and run some tests.
 
     try:
+        logger.info("hosts file is: %s" % files["hosts"])
 
         # Load the configuration of the hosts.
         hosts = configuration.loadhosts(files["hosts"])
 
-        # Load the configuration of the jobs.
-        jobs = configuration.loadjobs(cwd, files["job"], overrides)
+        # Load the configuration of the jobs, either default or specified
+        if files["job"] is not "":
+            jobs = configuration.loadjobs(cwd, files["job"], executable)
+        else:
+            jobs = configuration.loaddefaultjobconfigs(cwd, files["hosts"],
+                                                       executable, machine)
+
+        # Overload the hosts dictionary with certain job parameters
+        hosts = configuration.overloadhosts(hosts, jobs)
 
         # Test the connection/s specified in the job configurations
         shellwrappers.testconnections(hosts, jobs)

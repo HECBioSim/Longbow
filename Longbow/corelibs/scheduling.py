@@ -89,7 +89,7 @@ def testenv(hostconf, hosts, jobs):
 
                 if hosts[resource]["scheduler"] is "":
                     raise ex.SchedulercheckError("  Could not find the job " +
-                        "scheduling system.")
+                                                 "scheduling system.")
 
                 # If we changed anything then mark for saving.
                 save = True
@@ -121,7 +121,7 @@ def testenv(hostconf, hosts, jobs):
 
                 if hosts[resource]["handler"] is "":
                     raise ex.HandlercheckError("  Could not find the batch "
-                        "queue handler.")
+                                               "queue handler.")
 
                 # If we changed anything then mark for saving.
                 save = True
@@ -152,7 +152,8 @@ def delete(hosts, jobs, jobname):
 
             except AttributeError:
                 raise ex.PluginattributeError("delete method cannot be " +
-                    "found in plugin '%s'", scheduler)
+                                              "found in plugin '%s'",
+                                              scheduler)
 
             except ex.JobdeleteError:
                 LOGGER.info("  Unable to delete job '%s'", job)
@@ -168,7 +169,7 @@ def delete(hosts, jobs, jobname):
 
         except AttributeError:
             raise ex.PluginattributeError("delete method cannot be " +
-                "found in plugin '%s'", scheduler)
+                                          "found in plugin '%s'", scheduler)
 
         except ex.JobdeleteError:
             LOGGER.info("  Unable to delete job '%s'", job)
@@ -270,7 +271,7 @@ def prepare(hosts, jobs):
 
         except AttributeError:
             raise ex.PluginattributeError("prepare method cannot be found in" +
-                "plugin '%s'", scheduler)
+                                          "plugin '%s'", scheduler)
 
     LOGGER.info("Submit file/s created.")
 
@@ -293,7 +294,7 @@ def submit(hosts, jobs):
 
         except AttributeError:
             raise ex.PluginattributeError("submit method cannot be found in" +
-                "plugin '%s'", scheduler)
+                                          "plugin '%s'", scheduler)
 
         except ex.JobsubmitError as err:
             LOGGER.info("Submitting job '%s' failed with message - %s",

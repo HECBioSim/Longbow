@@ -63,18 +63,23 @@ def prepare(hosts, jobname, jobs):
     if jobs[jobname]["queue"] is not "":
         jobfile.write("#$ -q " + jobs[jobname]["queue"] + "\n")
 
-    if jobs[jobname]["account"] is not "":
+    # Account to charge (if supplied).
+    if hosts[jobs[jobname]["resource"]]["account"] is not "":
+        # if no accountflag is provided use the default
         if hosts[jobs[jobname]["resource"]]["accountflag"] is "":
-            jobfile.write("#$ -A " + jobs[jobname]["account"] + "\n")
+            jobfile.write("#$ -A " +
+                          hosts[jobs[jobname]["resource"]]["account"] + "\n")
+        # else use the accountflag provided
         else:
             jobfile.write("#$ " +
                           hosts[jobs[jobname]["resource"]]["accountflag"] +
-                          " " + jobs[jobname]["account"] + "\n")
+                          " " + hosts[jobs[jobname]["resource"]]["account"] +
+                          "\n")
 
     jobfile.write("#$ -l h_rt=" + jobs[jobname]["maxtime"] + ":00:00\n")
 
-    # TODO: "#$ -pe ib " + jobs[jobname]["cores"] + "\n\n")
-    jobfile.write("#$ -pe ib " + jobs[jobname]["cores"] + "\n\n")
+    jobfile.write("#$ -pe ib " + hosts[jobs[jobname]["resource"]]["cores"] +
+                  "\n\n")
 
     if jobs[jobname]["modules"] is not "":
         for module in jobs[jobname]["modules"].split(","):
@@ -135,7 +140,8 @@ def submit(host, jobname, jobs):
 
     """Method for submitting a job."""
 
-    path = os.path.join(jobs[jobname]["remoteworkdir"], jobname)
+    # Set the path to remoteworkdir/jobname
+    path = os.path.join(host["remoteworkdir"], jobname)
 
     # Change into the working directory and submit the job.
     cmd = ["cd " + path + "\n", "qsub " + jobs[jobname]["subfile"] +
