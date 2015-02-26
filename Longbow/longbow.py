@@ -24,6 +24,7 @@ executables (mdrun, pmemd etc) then they can call them using the appropriately
 named .py file in the same directory as this file."""
 
 import sys
+import corelibs.exceptions as ex
 from mains import console
 
 if __name__ == "__main__":
@@ -64,11 +65,18 @@ if __name__ == "__main__":
         "job": "",
         "log": ""
     }
-    OVERRIDES = {}
+    MACHINE = ""
     MODE = {
         "debug": False,
         "verbose": False
     }
+
+    # Check an executable or job configuration file has been provided
+    if COMMANDLINEARGS[0] not in ("charmm", "pmemd", "pmemd.MPI", "mdrun" +
+                                  "lmp_xc30", "namd2") and \
+                                  COMMANDLINEARGS.count("-job") == 0:
+        raise ex.CommandlineargsError("A recognised executable or job configuration" +
+                                      " file must be specified on the command line")
 
     # ------------------------------------------------------------------------
     # Pull out some of the ProxyApp specific commandline args leaving behind
@@ -110,8 +118,16 @@ if __name__ == "__main__":
         COMMANDLINEARGS.pop(POSITION)
         MODE["verbose"] = True
 
+    # Take out the machine name, then remove it from the command
+    # line argument list.
+    if COMMANDLINEARGS.count("-machine") == 1:
+        POSITION = COMMANDLINEARGS.index("-machine")
+        MACHINE = COMMANDLINEARGS[POSITION + 1]
+        COMMANDLINEARGS.pop(POSITION)
+        COMMANDLINEARGS.pop(POSITION)
+
     # ------------------------------------------------------------------------
-    # Call ProxyApp.
+    # Call Longbow.
 
     # Enter the mains application.
-    console(COMMANDLINEARGS, FILES, OVERRIDES, MODE)
+    console(COMMANDLINEARGS, FILES, MODE, MACHINE)

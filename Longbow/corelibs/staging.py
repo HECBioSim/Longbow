@@ -42,23 +42,16 @@ def stage_upstream(hosts, jobs):
     LOGGER.info("Staging files for job/s.")
 
     for job in jobs:
-
-        remoteworkdir = jobs[job]["remoteworkdir"]
         resource = jobs[job]["resource"]
+        remoteworkdir = hosts[jobs[job]["resource"]]["remoteworkdir"]
 
         # Check that the working directory exists.
         try:
             shellwrappers.remotelist(hosts[resource], remoteworkdir)
-
             LOGGER.debug("  Work directory '%s' found.", remoteworkdir)
-
-        except ex.AbsolutepathError:
-            raise
-
         except ex.RemotelistError:
             raise ex.StagingError("Work directory '%s' could not be " +
-                "found " % remoteworkdir + "on remote " +
-                "machine '%s'." % resource)
+                "found on remote machine '%s'.", remoteworkdir, resource)
 
         # Check if path is already on remote host and delete its contents
         # if it does.
@@ -128,10 +121,12 @@ def stage_downstream(hosts, jobs, jobname):
 
         # We must have multiple jobs so loop through them.
         for job in jobs:
+            remoteworkdir = hosts[jobs[job]["resource"]]["remoteworkdir"]
 
             # Download the whole directory with rsync.
             host = hosts[jobs[job]["resource"]]
-            src = os.path.join(jobs[job]["remoteworkdir"], job + "/")
+            src = os.path.join(remoteworkdir,
+                               job + "/")
             dst = jobs[job]["localworkdir"]
 
             try:
@@ -147,8 +142,10 @@ def stage_downstream(hosts, jobs, jobname):
     else:
         LOGGER.info("  For job %s staging files downstream.", jobname)
 
+        remoteworkdir = hosts[jobs[jobname]["resource"]]["remoteworkdir"]
         host = hosts[jobs[jobname]["resource"]]
-        src = os.path.join(jobs[jobname]["remoteworkdir"], jobname + "/")
+        src = os.path.join(remoteworkdir,
+                           jobname + "/")
         dst = jobs[jobname]["localworkdir"]
 
         # Download the whole directory with rsync.
@@ -169,11 +166,10 @@ def cleanup(hosts, jobs):
     LOGGER.info("Cleaning up the work directories.")
 
     for job in jobs:
-
         try:
-
-            path = os.path.join(jobs[job]["remoteworkdir"], job)
+            remoteworkdir = hosts[jobs[job]["resource"]]["remoteworkdir"]
             host = hosts[jobs[job]["resource"]]
+            path = os.path.join(remoteworkdir, job)
 
             shellwrappers.remotelist(host, path)
 
@@ -182,7 +178,6 @@ def cleanup(hosts, jobs):
             shellwrappers.remotedelete(hosts[jobs[job]["resource"]], path)
 
         except ex.RemotelistError:
-
             # directory doesn't exist.
             LOGGER.debug("Directory on path '%s' does not exist - skipping.",
                          path)

@@ -66,23 +66,22 @@ def prepare(hosts, jobname, jobs):
         jobfile.write("#PBS -q " + jobs[jobname]["queue"] + "\n")
 
     # Account to charge (if supplied).
-    if jobs[jobname]["account"] is not "":
+    if hosts[jobs[jobname]["resource"]]["account"] is not "":
+        # if no accountflag is provided use the default
         if hosts[jobs[jobname]["resource"]]["accountflag"] is "":
-            jobfile.write("#PBS -A " + jobs[jobname]["account"] + "\n")
+            jobfile.write("#PBS -A " +
+                          hosts[jobs[jobname]["resource"]]["account"] +
+                          "\n")
+        # else use the accountflag provided
         else:
             jobfile.write("#PBS " +
                           hosts[jobs[jobname]["resource"]]["accountflag"] +
-                          " " + jobs[jobname]["account"] + "\n")
+                          " " + hosts[jobs[jobname]["resource"]]["account"] +
+                          "\n")
 
-    cores = jobs[jobname]["cores"]
+    cpn = hosts[jobs[jobname]["resource"]]["corespernode"]
 
-    if jobs[jobname]["corespernode"] is not "":
-        cpn = jobs[jobname]["corespernode"]
-    elif hosts[jobs[jobname]["resource"]]["corespernode"] is not "":
-        cpn = hosts[jobs[jobname]["resource"]]["corespernode"]
-    else:
-        raise RuntimeError("parameter 'corespernode' was not set in either " +
-                           "the host nor job configuration files.")
+    cores = hosts[jobs[jobname]["resource"]]["cores"]
 
     # Load levelling override. In cases where # of cores is less than
     # corespernode, user is likely to be undersubscribing.
@@ -136,7 +135,7 @@ def prepare(hosts, jobname, jobs):
 
     # CRAY's use aprun which has slightly different requirements to mpirun.
     if mpirun == "aprun":
-        mpirun = mpirun + " -n " + jobs[jobname]["cores"] + " -N " + mpiprocs
+        mpirun = mpirun + " -n " + cores + " -N " + mpiprocs
 
     # Single jobs only need one run command.
     if int(jobs[jobname]["batch"]) == 1:
@@ -218,7 +217,8 @@ def submit(host, jobname, jobs):
 
     """Method for submitting a job."""
 
-    path = os.path.join(jobs[jobname]["remoteworkdir"], jobname)
+    # Set the path to remoteworkdir/jobname
+    path = os.path.join(host["remoteworkdir"], jobname)
 
     # Change into the working directory and submit the job.
     cmd = ["cd " + path + "\n", "qsub " + jobs[jobname]["subfile"] +
