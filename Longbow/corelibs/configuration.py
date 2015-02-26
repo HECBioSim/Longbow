@@ -195,11 +195,12 @@ def overloadhosts(hostsconfile, jobsconfile):
 
     for job in jobs:
         if jobs[job]["cores"] is not "":
-            hosts[jobs[job]["cores"]] = jobs[job]["cores"]
+            hosts[jobs[job]["resource"]]["cores"] = jobs[job]["cores"]
         if jobs[job]["account"] is not "":
-            hosts[jobs[job]["account"]] = jobs[job]["account"]
+            hosts[jobs[job]["resource"]]["account"] = jobs[job]["account"]
         if jobs[job]["remoteworkdir"] is not "":
-            hosts[jobs[job]["remoteworkdir"]] = jobs[job]["remoteworkdir"]
+            hosts[jobs[job]["resource"]]["remoteworkdir"] = \
+            jobs[job]["remoteworkdir"]
 
         # Delete parameters from the jobs dictionary
         del jobs[job]["cores"]
