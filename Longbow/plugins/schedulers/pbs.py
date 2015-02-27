@@ -25,7 +25,7 @@ import corelibs.shellwrappers as shellwrappers
 
 LOGGER = logging.getLogger("Longbow")
 
-QUERY_STRING = "env | grep -i 'pbs' &> /dev/null"
+QUERY_STRING = "env | grep -i 'pbs'"
 
 
 def delete(host, jobid):

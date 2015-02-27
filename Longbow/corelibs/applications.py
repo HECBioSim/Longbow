@@ -65,7 +65,7 @@ def testapp(hosts, jobs):
                     module.replace(" ", "")
                     cmd.extend(["module load " + module])
 
-            cmd.extend(["which " + executable + " &> /dev/null"])
+            cmd.extend(["which " + executable])
 
             try:
                 shellwrappers.sendtossh(hosts[resource], cmd)

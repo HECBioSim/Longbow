@@ -33,7 +33,7 @@ LOGGER = logging.getLogger("Longbow")                           # IMPORTANT
 # For schedulers a unique string to identify the scheduler should go here.
 # Sometimes "env | grep -i 'something specific'" will suffice.
 
-QUERY_STRING = "which sbatch >& /dev/null"                        # IMPORTANT
+QUERY_STRING = "which sbatch"                        # IMPORTANT
 
 # -----------------------------------------------------------------------------
 # Delete method (not currently used).

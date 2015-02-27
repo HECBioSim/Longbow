@@ -57,7 +57,7 @@ def testconnections(hosts, jobs):
             LOGGER.debug("  Testing connection to %s", resource)
 
             try:
-                sendtossh(host, ["ls &> /dev/null"])
+                sendtossh(host, ["ls"])
             except ex.SSHError:
                 raise
 
