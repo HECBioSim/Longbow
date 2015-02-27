@@ -79,18 +79,29 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
     if jobs[jobname]["queue"] is not "":
         jobfile.write("#SBATCH -p " + jobs[jobname]["queue"] + "\n")
 
+    resource = jobs[jobname]["resource"]
+
     # Account to charge (if supplied)
-    if jobs[jobname]["account"] is not "":
-        jobfile.write("#SBATCH -A " + jobs[jobname]["account"] + "\n")
+    if hosts[resource]["account"] is not "":
+        # if no accountflag is provided use the default
+        if hosts[resource]["accountflag"] is "":
+            jobfile.write("#SBATCH -A " + hosts[resource]["account"] + "\n")
+
+        else:
+            jobfile.write("#SBATCH " +
+                          hosts[resource]["accountflag"] +
+                          " " + hosts[resource]["account"] + "\n")
+
+    cores = hosts[resource]["cores"]
+    cpn = hosts[resource]["corespernode"]
 
     # Specify the total number of mpi tasks required
-    jobfile.write("#SBATCH -n " + jobs[jobname]["cores"] + "\n")
+    jobfile.write("#SBATCH -n " + cores + "\n")
 
     # If user has specified corespernode for under utilisation then
     # set the total nodes (-N) parameter.
-    if jobs[jobname]["corespernode"] is not "":
-        nodes = float(jobs[jobname]["cores"]) / \
-            float(jobs[jobname]["corespernode"])
+    if cpn is not "":
+        nodes = float(cores) / float(cpn)
 
         # Make sure nodes is rounded up to the next highest integer
         nodes = str(int(math.ceil(nodes)))
@@ -106,7 +117,7 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
             jobfile.write("module load %s\n\n" % module)
 
     # Handler that is used for job submission.
-    mpirun = hosts[jobs[jobname]["resource"]]["handler"]
+    mpirun = hosts[resource]["handler"]
 
     # Single jobs only need one run command.
     if int(jobs[jobname]["batch"]) == 1:
@@ -191,7 +202,7 @@ def submit(host, jobname, jobs):                                # IMPORTANT
 
     """Method for submitting job."""
 
-    path = os.path.join(jobs[jobname]["remoteworkdir"], jobname)
+    path = os.path.join(host["remoteworkdir"], jobname)
 
     # Change into the working directory and submit the job.
     cmd = ["cd " + path + "\n" + "sbatch " + jobs[jobname]["subfile"] +
