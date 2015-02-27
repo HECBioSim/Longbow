@@ -47,6 +47,7 @@ def console(args, files, mode, machine):
                    "namd2"):
         executable = args[0]
         args.pop(0)
+
     else:
         executable = ""
 
@@ -63,8 +64,10 @@ def console(args, files, mode, machine):
         if os.path.isabs(files["hosts"]) is False:
             if os.path.isfile(os.path.join(cwd, files["hosts"])):
                 files["hosts"] = os.path.join(cwd, files["hosts"])
+
             elif os.path.isfile(os.path.join(execdir, files["hosts"])):
                 files["hosts"] = os.path.join(execdir, files["hosts"])
+
             else:
                 ex.RequiredinputError("No host configuration file found in " +
                                       "the current working directory %s", cwd,
@@ -75,10 +78,20 @@ def console(args, files, mode, machine):
         # if a filename hasn't been provided default to log
         if files["log"] is "":
             files["log"] = "log"
+
         # if the path hasn't been provided default to the current working
         # directory
         if os.path.isabs(files["log"]) is False:
             files["log"] = os.path.join(cwd, files["log"])
+
+        # ---------------------------------------------------------------------
+        # Setup the logger.
+
+        log.setuplogger(files["log"], "Longbow", mode)
+
+        logger = logging.getLogger("Longbow")
+
+        # ---------------------------------------------------------------------
 
         # job
         # if a job configuration file has been supplied but the path hasn't
@@ -87,33 +100,23 @@ def console(args, files, mode, machine):
         if files["job"] is not "" and os.path.isabs(files["job"]) is False:
             if os.path.isfile(os.path.join(cwd, files["job"])):
                 files["job"] = os.path.join(cwd, files["job"])
+
             elif os.path.isfile(os.path.join(execdir, files["job"])):
                 files["job"] = os.path.join(execdir, files["job"])
+
             else:
-                ex.RequiredinputError("The job configuration file %s ",
-                                      files["job"], "couldn't be found in " +
-                                      "the current working directory %s", cwd,
-                                      "or in the execution directory %s.",
-                                      execdir)
-
-    except (ex.RequiredinputError) as err:
-        logger.exception(err)
-
-    # -------------------------------------------------------------------------
-    # Setup the logger.
-
-    log.setuplogger(files["log"], "Longbow", mode)
-
-    logger = logging.getLogger("Longbow")
-
-    # Log that we are starting up.
-    logger.info("Longbow - initialisation complete.")
+                raise ex.RequiredinputError("The job configuration file %s ",
+                    files["job"], "couldn't be found in the current working " +
+                    "directory %s", cwd, "or in the execution directory %s.",
+                    execdir)
 
     # -------------------------------------------------------------------------
     # setup and run some tests.
 
-    try:
-        logger.info("hosts file is: %s" % files["hosts"])
+        # Log that we are starting up.
+        logger.info("Longbow - initialisation complete.")
+
+        logger.info("hosts file is: %s", files["hosts"])
 
         # Load the configuration of the hosts.
         hosts = configuration.loadhosts(files["hosts"])
@@ -186,7 +189,7 @@ def console(args, files, mode, machine):
             if "jobid" in jobs[job]:
                 # If job is not finished delete and stage.
                 if (jobs[job]["laststatus"] != "Finished" and
-                    jobs[job]["laststatus"] != "Submit Error"):
+                   jobs[job]["laststatus"] != "Submit Error"):
 
                     # Kill it.
                     scheduling.delete(hosts, jobs, job)
@@ -197,6 +200,16 @@ def console(args, files, mode, machine):
                 elif jobs[job]["laststatus"] != "Submit Error":
                     # Transfer the directories as they are.
                     staging.stage_downstream(hosts, jobs, job)
+
+    except ex.RequiredinputError as err:
+        try:
+            logger.error(err)
+
+        # There is just one case where required input can be fired before
+        # the logger instance is created. The only way to handle this is
+        # to check for the variable name exception and then use sys.exit.
+        except NameError:
+            sys.exit(err)
 
     except Exception as err:
         if mode["debug"]:

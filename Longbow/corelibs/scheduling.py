@@ -200,7 +200,7 @@ def monitor(hosts, jobs):
         for job in jobs:
 
             if (jobs[job]["laststatus"] != "Finished" and
-                jobs[job]["laststatus"] != "Submit Error"):
+               jobs[job]["laststatus"] != "Submit Error"):
 
                 machine = jobs[job]["resource"]
                 scheduler = hosts[machine]["scheduler"]
@@ -241,7 +241,8 @@ def monitor(hosts, jobs):
         for job in jobs:
 
             if (jobs[job]["laststatus"] != "Finished" and
-                jobs[job]["laststatus"] != "Submit Error"):
+               jobs[job]["laststatus"] != "Submit Error"):
+
                 allfinished = False
                 break
 

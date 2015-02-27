@@ -73,13 +73,13 @@ def loadjobs(cwd, confile, executable):
     # Dictionary to determine the module to load based on the command line
     # executable
     modules = {
-            "charmm": "charmm",
-            "pmemd": "amber",
-            "pmemd.MPI": "amber",
-            "lmp_xc30": "lammps",
-            "namd2": "namd",
-            "mdrun": "gromacs",
-            "": ""
+        "charmm": "charmm",
+        "pmemd": "amber",
+        "pmemd.MPI": "amber",
+        "lmp_xc30": "lammps",
+        "namd2": "namd",
+        "mdrun": "gromacs",
+        "": ""
         }
 
     # Dictionary for the job configurations parameters.
@@ -108,6 +108,7 @@ def loadjobs(cwd, confile, executable):
             "executable",
             "resource"
         ]
+
     else:
         required = [
             "resource"
@@ -131,13 +132,13 @@ def loaddefaultjobconfigs(cwd, hostsconfile, executable, remoteres):
     # Dictionary to determine the module to load based on the command line
     # executable
     modules = {
-            "charmm": "charmm",
-            "pmemd": "amber",
-            "pmemd.MPI": "amber",
-            "lmp_xc30": "lammps",
-            "namd2": "namd",
-            "mdrun": "gromacs",
-            "": ""
+        "charmm": "charmm",
+        "pmemd": "amber",
+        "pmemd.MPI": "amber",
+        "lmp_xc30": "lammps",
+        "namd2": "namd",
+        "mdrun": "gromacs",
+        "": ""
         }
 
     # Dictionary for the default job configurations parameters.
@@ -149,7 +150,6 @@ def loaddefaultjobconfigs(cwd, hostsconfile, executable, remoteres):
         "memory": "",
         "nodes": "",
         "queue": "",
-        "resource": "",
         "remoteworkdir": "",
         "frequency": "60",
         "localworkdir": cwd,
@@ -168,7 +168,8 @@ def loaddefaultjobconfigs(cwd, hostsconfile, executable, remoteres):
 
     try:
         configs.read(hostsconfile)
-    except:
+
+    except IOError:
         ex.RequiredinputError("Can't read the configurations from: %s",
                               hostsconfile)
 
@@ -178,6 +179,7 @@ def loaddefaultjobconfigs(cwd, hostsconfile, executable, remoteres):
     # if the machine flag has not been set use the first machine in the hosts
     if remoteres is "":
         jobs["myjob"]["resource"] = sectionlist[0]
+
     elif remoteres not in sectionlist:
         raise ex.CommandlineargsError("The %s machine specified on the " +
                                       "command line is not one of: %s",
@@ -196,11 +198,13 @@ def overloadhosts(hostsconfile, jobsconfile):
     for job in jobs:
         if jobs[job]["cores"] is not "":
             hosts[jobs[job]["resource"]]["cores"] = jobs[job]["cores"]
+
         if jobs[job]["account"] is not "":
             hosts[jobs[job]["resource"]]["account"] = jobs[job]["account"]
+
         if jobs[job]["remoteworkdir"] is not "":
             hosts[jobs[job]["resource"]]["remoteworkdir"] = \
-            jobs[job]["remoteworkdir"]
+                jobs[job]["remoteworkdir"]
 
         # Delete parameters from the jobs dictionary
         del jobs[job]["cores"]
@@ -221,6 +225,7 @@ def loadconfigs(confile, template, required):
 
     try:
         configs.read(confile)
+
     except IOError:
         raise ex.ConfigurationError("Can't read the configurations from '%s'",
                                     confile)
@@ -252,6 +257,7 @@ def loadconfigs(confile, template, required):
         for option in template:
             try:
                 params[section][option] = configs.get(section, option)
+
             except configparser.NoOptionError:
                 if option in required and option == "executable":
                     raise ex.ConfigurationError("If the executable is not "
@@ -259,6 +265,7 @@ def loadconfigs(confile, template, required):
                                                 "line, it must be " +
                                                 "in the job configuration " +
                                                 "file")
+
                 elif option in required:
                     raise ex.ConfigurationError("The parameter %s is " +
                                                 "required", option)

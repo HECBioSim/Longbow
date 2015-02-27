@@ -73,10 +73,9 @@ if __name__ == "__main__":
 
     # Check an executable or job configuration file has been provided
     if COMMANDLINEARGS[0] not in ("charmm", "pmemd", "pmemd.MPI", "mdrun" +
-                                  "lmp_xc30", "namd2") and \
-                                  COMMANDLINEARGS.count("-job") == 0:
-        raise ex.CommandlineargsError("A recognised executable or job configuration" +
-                                      " file must be specified on the command line")
+       "lmp_xc30", "namd2") and COMMANDLINEARGS.count("-job") == 0:
+        raise ex.CommandlineargsError("A recognised executable or job " +
+            "configuration file must be specified on the command line")
 
     # ------------------------------------------------------------------------
     # Pull out some of the ProxyApp specific commandline args leaving behind

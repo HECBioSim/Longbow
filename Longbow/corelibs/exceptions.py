@@ -22,6 +22,7 @@ corelibrary.
 # -----------------------------------------------------------------------------
 # Exceptions for paths
 
+
 class AbsolutepathError(Exception):
 
     """ Exception class for absolute path errors, usage
@@ -38,6 +39,7 @@ class AbsolutepathError(Exception):
         # Bind the standard outputs.
         self.path = path
 
+
 class DirectorynotfoundError(Exception):
 
     """Directory not found exception, to provide informative exceptions
@@ -48,19 +50,21 @@ class DirectorynotfoundError(Exception):
 # -----------------------------------------------------------------------------
 # Exceptions for applications.py
 
+
 class CommandlineargsError(Exception):
 
     """Command-line arguments error."""
-    
+
     def __init__(self, message):
 
         # Call the base class constructor.
         super(CommandlineargsError, self).__init__(message)
 
+
 class RequiredinputError(Exception):
 
     """Required input error exception."""
-    
+
     def __init__(self, message):
 
         # Call the base class constructor.
@@ -68,6 +72,7 @@ class RequiredinputError(Exception):
 
 # -----------------------------------------------------------------------------
 # Exceptions for configuration.py
+
 
 class ConfigurationError(Exception):
 
@@ -77,6 +82,7 @@ class ConfigurationError(Exception):
 
 # -----------------------------------------------------------------------------
 # Exceptions for plugin.py
+
 
 class PluginattributeError(Exception):
 
@@ -88,11 +94,13 @@ class PluginattributeError(Exception):
 # -----------------------------------------------------------------------------
 # Exceptions for scheduling.py
 
+
 class SchedulercheckError(Exception):
 
     """Scheduler checking exception."""
 
     pass
+
 
 class HandlercheckError(Exception):
 
@@ -100,11 +108,13 @@ class HandlercheckError(Exception):
 
     pass
 
+
 class JobdeleteError(Exception):
 
     """Job delete exception."""
 
     pass
+
 
 class JobsubmitError(Exception):
 
@@ -114,6 +124,7 @@ class JobsubmitError(Exception):
 
 # -----------------------------------------------------------------------------
 # Exceptions for shellwrappers.py
+
 
 class LocalcopyError(Exception):
 
@@ -127,6 +138,7 @@ class LocalcopyError(Exception):
         # Bind the standard outputs.
         self.path = path
 
+
 class LocaldeleteError(Exception):
 
     """Delete on local machine exception."""
@@ -138,6 +150,7 @@ class LocaldeleteError(Exception):
 
         # Bind the standard outputs.
         self.path = path
+
 
 class LocallistError(Exception):
 
@@ -151,6 +164,7 @@ class LocallistError(Exception):
         # Bind the standard outputs.
         self.path = path
 
+
 class ProtocolError(Exception):
 
     """Unknown protocol exception."""
@@ -162,6 +176,7 @@ class ProtocolError(Exception):
 
         # Bind the standard outputs.
         self.path = protocol
+
 
 class RemotecopyError(Exception):
 
@@ -176,6 +191,7 @@ class RemotecopyError(Exception):
         self.src = src
         self.dst = dst
 
+
 class RemotedeleteError(Exception):
 
     """Delete on remote machine exception."""
@@ -188,6 +204,7 @@ class RemotedeleteError(Exception):
         # Bind the standard outputs.
         self.path = path
 
+
 class RemotelistError(Exception):
 
     """List on remote machine exception."""
@@ -199,6 +216,7 @@ class RemotelistError(Exception):
 
         # Bind the standard outputs.
         self.path = path
+
 
 class RsyncError(Exception):
 
@@ -214,6 +232,7 @@ class RsyncError(Exception):
         self.stdout = shellout[0]
         self.stderr = shellout[1]
 
+
 class SCPError(Exception):
 
     """SCP exception"""
@@ -227,6 +246,7 @@ class SCPError(Exception):
         self.errorcode = shellout[2]
         self.stdout = shellout[0]
         self.stderr = shellout[1]
+
 
 class SSHError(Exception):
 
@@ -244,6 +264,7 @@ class SSHError(Exception):
 
 # -----------------------------------------------------------------------------
 # Exceptions for staging.py
+
 
 class StagingError(Exception):
 
