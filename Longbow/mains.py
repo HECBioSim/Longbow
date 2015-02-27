@@ -19,7 +19,6 @@
 different modes of Longbow, the main entry types are console and GUI based."""
 
 import os
-import sys
 import logging
 import corelibs.applications as applications
 import corelibs.configuration as configuration
@@ -43,12 +42,13 @@ def console(args, files, mode, machine):
     execdir = os.path.dirname(os.path.realpath(__file__))
 
     # Test whether the executable has been provided on the command line
-    if args[0] in ("charmm", "pmemd", "pmemd.MPI", "mdrun", "lmp_xc30" +
-                   "namd2"):
-        executable = args[0]
-        args.pop(0)
+    try:
+        if args[0] in ("charmm", "pmemd", "pmemd.MPI", "mdrun", "lmp_xc30" +
+                       "namd2"):
+            executable = args[0]
+            args.pop(0)
 
-    else:
+    except IndexError:
         executable = ""
 
     # -------------------------------------------------------------------------

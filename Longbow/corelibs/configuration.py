@@ -109,6 +109,8 @@ def loadjobs(cwd, confile, executable):
             "resource"
         ]
 
+        jobs = loadconfigs(confile, jobtemplate, required)
+
     else:
         required = [
             "resource"
