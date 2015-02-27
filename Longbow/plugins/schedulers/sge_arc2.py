@@ -66,7 +66,7 @@ def prepare(hosts, jobname, jobs):
 
     # Account to charge (if supplied).
     if hosts[jobs[jobname]["resource"]]["account"] is not "":
-    # if no accountflag is provided use the default
+        # if no accountflag is provided use the default
         if hosts[jobs[jobname]["resource"]]["accountflag"] is "":
             jobfile.write("#$ -A " +
                           hosts[jobs[jobname]["resource"]]["account"] + "\n")
@@ -151,7 +151,8 @@ def status(host, jobid):
     state = ""
 
     try:
-        shellout = shellwrappers.sendtossh(host, ["qstat | grep " + jobid])
+        shellout = shellwrappers.sendtossh(host, ["qstat -u " + host["user"] +
+                                                  "| grep " + jobid])
 
         stat = shellout[0].split()
 

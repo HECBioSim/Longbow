@@ -120,7 +120,8 @@ def status(host, jobid):
     state = ""
 
     try:
-        shellout = shellwrappers.sendtossh(host, ["bjobs | grep " + jobid])
+        shellout = shellwrappers.sendtossh(host, ["bjobs -u " + host["user"] +
+                                                  " | grep " + jobid])
 
         stat = shellout[0].split()
 
