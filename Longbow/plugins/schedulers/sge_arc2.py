@@ -25,7 +25,7 @@ import corelibs.shellwrappers as shellwrappers
 
 LOGGER = logging.getLogger("Longbow")
 
-QUERY_STRING = "env | grep -i 'sge' &> /dev/null"
+QUERY_STRING = "env | grep -i 'sge'"
 
 
 def delete(host, jobid):

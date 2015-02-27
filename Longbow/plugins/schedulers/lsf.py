@@ -24,7 +24,7 @@ import corelibs.shellwrappers as shellwrappers
 
 LOGGER = logging.getLogger("Longbow")
 
-QUERY_STRING = "env | grep -i 'lsf' &> /dev/null"
+QUERY_STRING = "env | grep -i 'lsf'"
 
 
 def delete(host, jobid):
