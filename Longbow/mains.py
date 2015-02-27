@@ -43,7 +43,7 @@ def console(args, files, mode, machine):
 
     # Test whether the executable has been provided on the command line
     try:
-        if args[0] in ("charmm", "pmemd", "pmemd.MPI", "mdrun", "lmp_xc30" +
+        if args[0] in ("charmm", "pmemd", "pmemd.MPI", "mdrun", "lmp_xc30",
                        "namd2"):
             executable = args[0]
             args.pop(0)

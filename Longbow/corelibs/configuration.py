@@ -109,18 +109,16 @@ def loadjobs(cwd, confile, executable):
             "resource"
         ]
 
-        jobs = loadconfigs(confile, jobtemplate, required)
-
     else:
         required = [
             "resource"
         ]
 
-        jobs = loadconfigs(confile, jobtemplate, required)
+    jobs = loadconfigs(confile, jobtemplate, required)
 
-        for job in jobs:
-            if jobs[job]["modules"] == "":
-                jobs[job]["modules"] = modules[jobs[job]["executable"]]
+    for job in jobs:
+        if jobs[job]["modules"] == "":
+            jobs[job]["modules"] = modules[jobs[job]["executable"]]
 
     return jobs
 
