@@ -57,10 +57,10 @@ def testenv(hostconf, hosts, jobs):
 
     # Take a look at each job.
     for job in jobs:
-
+        
         resource = jobs[job]["resource"]
 
-        # If the we have not checked this host already
+        # If we have not checked this host already
         if resource not in checked:
 
             # Make sure we don't check the same thing again.
@@ -104,10 +104,19 @@ def testenv(hostconf, hosts, jobs):
                             "attempting to find it", resource)
 
                 # Go through the handlers and find out which is there.
+                # Load modules first as this is necessary for some HPCs
+                cmdmod = []
+                
+                for module in jobs[job]["modules"].split(","):
+                    module.replace(" ", "")
+                    cmdmod.extend(["module load " + module])
+                
                 for param in handlers:
                     try:
+                        cmd = cmdmod
+                        cmd.extend(handlers[param])
                         shellwrappers.sendtossh(hosts[resource],
-                                                handlers[param])
+                                                cmd)
 
                         hosts[resource]["handler"] = param
 
