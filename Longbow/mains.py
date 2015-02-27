@@ -55,25 +55,6 @@ def console(args, files, mode, machine):
     # Setup some basic file paths.
 
     try:
-        # hosts
-        # if a filename hasn't been provided default to hosts.conf
-        if files["hosts"] is "":
-            files["hosts"] = "hosts.conf"
-        # if the path hasn't been provided look in the current working
-        # directory and then the execution directory if needs be
-        if os.path.isabs(files["hosts"]) is False:
-            if os.path.isfile(os.path.join(cwd, files["hosts"])):
-                files["hosts"] = os.path.join(cwd, files["hosts"])
-
-            elif os.path.isfile(os.path.join(execdir, files["hosts"])):
-                files["hosts"] = os.path.join(execdir, files["hosts"])
-
-            else:
-                ex.RequiredinputError("No host configuration file found in " +
-                                      "the current working directory %s", cwd,
-                                      "or in the execution directory %s.",
-                                      execdir)
-
         # log
         # if a filename hasn't been provided default to log
         if files["log"] is "":
@@ -92,6 +73,25 @@ def console(args, files, mode, machine):
         logger = logging.getLogger("Longbow")
 
         # ---------------------------------------------------------------------
+
+        # hosts
+        # if a filename hasn't been provided default to hosts.conf
+        if files["hosts"] is "":
+            files["hosts"] = "hosts.conf"
+        # if the path hasn't been provided look in the current working
+        # directory and then the execution directory if needs be
+        if os.path.isabs(files["hosts"]) is False:
+            if os.path.isfile(os.path.join(cwd, files["hosts"])):
+                files["hosts"] = os.path.join(cwd, files["hosts"])
+
+            elif os.path.isfile(os.path.join(execdir, files["hosts"])):
+                files["hosts"] = os.path.join(execdir, files["hosts"])
+
+            else:
+                ex.RequiredinputError("No host configuration file found in " +
+                                      "the current working directory %s", cwd,
+                                      "or in the execution directory %s.",
+                                      execdir)
 
         # job
         # if a job configuration file has been supplied but the path hasn't
@@ -202,14 +202,7 @@ def console(args, files, mode, machine):
                     staging.stage_downstream(hosts, jobs, job)
 
     except ex.RequiredinputError as err:
-        try:
-            logger.error(err)
-
-        # There is just one case where required input can be fired before
-        # the logger instance is created. The only way to handle this is
-        # to check for the variable name exception and then use sys.exit.
-        except NameError:
-            sys.exit(err)
+        logger.error(err)
 
     except Exception as err:
         if mode["debug"]:
