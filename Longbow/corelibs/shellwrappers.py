@@ -1,9 +1,9 @@
 # Longbow is Copyright (C) of James T Gebbie-Rayet and Gareth B Shannon 2015.
 #
-# This file is part of the Longbow software which was developed as part of 
-# the HECBioSim project (http://www.hecbiosim.ac.uk/). 
+# This file is part of the Longbow software which was developed as part of
+# the HECBioSim project (http://www.hecbiosim.ac.uk/).
 #
-# HECBioSim facilitates and supports high-end computing within the 
+# HECBioSim facilitates and supports high-end computing within the
 # UK biomolecular simulation community on resources such as Archer.
 #
 # Longbow is free software: you can redistribute it and/or modify
@@ -39,8 +39,9 @@ def testconnections(hosts, jobs):
     accessible, problems raised here could be due to system maintenance/
     downtime or a mistake in your host configuration."""
 
-    LOGGER.info("Testing connections to all resources that are referenced " +
-                "in the job configurations.")
+    LOGGER.info(
+        "Testing connections to all resources that are referenced in the job "
+        "configurations.")
 
     checked = []
 
@@ -75,9 +76,10 @@ def sendtoshell(cmd):
 
     LOGGER.debug("  Sending the following to subprocess: %s", cmd)
 
-    handle = subprocess.Popen(cmd,
-                              stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE)
+    handle = subprocess.Popen(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE)
 
     stdout, stderr = handle.communicate()
 
@@ -92,8 +94,7 @@ def sendtossh(host, args):
     """A method for constructing ssh commands."""
 
     # basic ssh command.
-    cmd = ["ssh", "-p " + host["port"],
-           host["user"] + "@" + host["host"]]
+    cmd = ["ssh", "-p " + host["port"], host["user"] + "@" + host["host"]]
 
     # add the commands to be sent to ssh.
     cmd.extend(args)
@@ -117,15 +118,15 @@ def sendtossh(host, args):
         elif errorstate is 255:
             i = i + 1
         else:
-            raise ex.SSHError("SSH failed, make sure a normal terminal can " +
-                              "connect to SSH to be sure there are no " +
-                              "connection issues.", shellout)
+            raise ex.SSHError(
+                "SSH failed, make sure a normal terminal can connect to SSH "
+                "to be sure there are no connection issues.", shellout)
 
         # If number of retries hits 3 then give up.
         if i is 3:
-            raise ex.SSHError("SSH failed, make sure a normal terminal can " +
-                              "connect to SSH to be sure there are no " +
-                              "connection issues.", shellout)
+            raise ex.SSHError(
+                "SSH failed, make sure a normal terminal can connect to SSH "
+                "to be sure there are no connection issues.", shellout)
 
         LOGGER.debug("  Retry SSH after 10 second wait.")
 
@@ -163,9 +164,9 @@ def sendtoscp(host, src, dst):
 
         # If number of retries hits 3 then give up.
         if i is 3:
-            raise ex.SCPError("SCP failed, make sure a normal terminal can " +
-                              "connect to SCP to be sure there are no " +
-                              "connection issues.", shellout)
+            raise ex.SCPError(
+                "SCP failed, make sure a normal terminal can connect to SCP "
+                "to be sure there are no connection issues.", shellout)
 
         LOGGER.debug("  Retry SCP after 10 second wait.")
 
@@ -178,8 +179,7 @@ def sendtorsync(host, src, dst):
     """A method for constructing rsync commands."""
 
     # Basic rsync command.
-    cmd = ["rsync", "-azP", "-e", "ssh -p %s" %
-           host["port"], src, dst]
+    cmd = ["rsync", "-azP", "-e", "ssh -p " + host["port"], src, dst]
 
     i = 0
 
@@ -202,9 +202,9 @@ def sendtorsync(host, src, dst):
 
         # If number of retries hits 3 then give up.
         if i is 3:
-            raise ex.RsyncError("rsync failed, make sure a normal terminal " +
-                                "can connect to rsync to be sure there are " +
-                                "no connection issues.", shellout)
+            raise ex.RsyncError(
+                "rsync failed, make sure a normal terminal can connect to "
+                "rsync to be sure there are no connection issues.", shellout)
 
         LOGGER.debug("  Retry rsync after 10 second wait.")
 
@@ -219,6 +219,10 @@ def localcopy(src, dst):
     happens without asking the user). All paths should be absolute."""
 
     LOGGER.debug("  Copying %s " % src + "to %s" % dst)
+
+    # Expand tildas (if present) otherwise these will not change anything.
+    src = os.path.expanduser(src)
+    dst = os.path.expanduser(dst)
 
     # Are paths absolute.
     if os.path.isabs(src) is False:
@@ -267,6 +271,9 @@ def localdelete(src):
 
     LOGGER.debug("  Deleting: %s", src)
 
+    # Expand tildas (if present) otherwise these will not change anything.
+    src = os.path.expanduser(src)
+
     # Check if path is absolute.
     if os.path.isabs(src) is False:
         raise ex.AbsolutepathError("The source path is not absolute", src)
@@ -295,6 +302,9 @@ def locallist(src):
 
     LOGGER.debug("  Listing the contents of: %s", src)
 
+    # Expand tildas (if present) otherwise these will not change anything.
+    src = os.path.expanduser(src)
+
     # Check if path is absolute.
     if os.path.isabs(src) is False:
         raise ex.AbsolutepathError("The source path is not absolute", src)
@@ -315,6 +325,10 @@ def remotecopy(host, src, dst):
 
     LOGGER.debug("Copying %s " % src + "to %s" % dst)
 
+    # Expand tildas (if present) otherwise these will not change anything.
+    src = os.path.expanduser(src)
+    dst = os.path.expanduser(dst)
+
     # Are paths absolute.
     if os.path.isabs(src) is False:
         raise ex.AbsolutepathError("The source path is not absolute", src)
@@ -323,7 +337,7 @@ def remotecopy(host, src, dst):
         raise ex.AbsolutepathError("The destination path is not absolute", dst)
 
     # Just use cp for this with recursive set in case of directory.
-    cmd = ["cp", "-r", src, dst]
+    cmd = ["cp -r", src, dst]
 
     # Send to subprocess.
     try:
@@ -339,20 +353,23 @@ def remotedelete(host, src):
 
     LOGGER.debug("  Deleting: %s", src)
 
+    # Expand tildas (if present) otherwise these will not change anything.
+    src = os.path.expanduser(src)
+
     # Are paths absolute.
     if os.path.isabs(src) is False:
         raise ex.AbsolutepathError("The source path is not absolute", src)
 
     # Just use rm for this with recursive set in case of directory.
-    cmd = ["rm", "-r", src]
+    cmd = ["rm -r", src]
 
     # Send to subprocess.
     try:
         sendtossh(host, cmd)
 
     except ex.SSHError:
-        raise ex.RemotedeleteError("Could not delete the file/directory on " +
-                                   "remote host", src)
+        raise ex.RemotedeleteError(
+            "Could not delete the file/directory on remote host", src)
 
 
 def remotelist(host, src):
@@ -360,6 +377,9 @@ def remotelist(host, src):
     """A method to list a directory on the remote resource."""
 
     LOGGER.debug("  Listing the contents of: %s", src)
+
+    # Expand tildas (if present) otherwise these will not change anything.
+    src = os.path.expanduser(src)
 
     # Are paths absolute.
     if os.path.isabs(src) is False:
@@ -385,6 +405,10 @@ def upload(protocol, host, src, dst):
 
     """A method for uploading files to remote hosts."""
 
+    # Expand tildas (if present) otherwise these will not change anything.
+    src = os.path.expanduser(src)
+    dst = os.path.expanduser(dst)
+
     # Are paths absolute.
     if os.path.isabs(src) is False:
         raise ex.AbsolutepathError("The source path is not absolute", src)
@@ -392,8 +416,7 @@ def upload(protocol, host, src, dst):
     if os.path.isabs(dst) is False:
         raise ex.AbsolutepathError("The destination path is not absolute", dst)
 
-    dst = (host["user"] + "@" +
-           host["host"] + ":" + dst)
+    dst = (host["user"] + "@" + host["host"] + ":" + dst)
 
     LOGGER.debug("  Copying %s " % src + "to %s" % dst)
 
@@ -416,6 +439,10 @@ def download(protocol, host, src, dst):
 
     """A method for downloading files from remote hosts."""
 
+    # Expand tildas (if present) otherwise these will not change anything.
+    src = os.path.expanduser(src)
+    dst = os.path.expanduser(dst)
+
     # Are paths absolute.
     if os.path.isabs(src) is False:
         raise ex.AbsolutepathError("The source path is not absolute", src)
@@ -423,8 +450,7 @@ def download(protocol, host, src, dst):
     if os.path.isabs(dst) is False:
         raise ex.AbsolutepathError("The destination path is not absolute", dst)
 
-    src = (host["user"] + "@" +
-           host["host"] + ":" + src)
+    src = (host["user"] + "@" + host["host"] + ":" + src)
 
     LOGGER.debug("  Copying %s " % src + "to %s" % dst)
 
