@@ -1,6 +1,10 @@
 # Longbow is Copyright (C) of James T Gebbie-Rayet and Gareth B Shannon 2015.
 #
-# This file is part of Longbow.
+# This file is part of the Longbow software which was developed as part of 
+# the HECBioSim project (http://www.hecbiosim.ac.uk/). 
+#
+# HECBioSim facilitates and supports high-end computing within the 
+# UK biomolecular simulation community on resources such as Archer.
 #
 # Longbow is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -114,7 +118,14 @@ def console(args, files, mode, machine):
     # setup and run some tests.
 
         # Log that we are starting up.
-        logger.info("Longbow - initialisation complete.")
+        logger.info("Welcome to Longbow!")
+        logger.info("This software was developed as part of the HECBioSim " +
+                    "project (http://www.hecbiosim.ac.uk/)")
+        logger.info("HECBioSim facilitates high-end biomolecular simulation " +
+                    "on resources such as Archer")
+        logger.info("Longbow is Copyright (C) of James T Gebbie-Rayet and " +
+                    "Gareth B Shannon 2015.")
+        logger.info("Initialisation complete.")
 
         logger.info("hosts file is: %s", files["hosts"])
 
@@ -214,7 +225,9 @@ def console(args, files, mode, machine):
         # Cleanup.
         staging.cleanup(hosts, jobs)
 
-        logger.info("Closing Longbow.")
+        logger.info("Good bye from Longbow!")
+        logger.info("Check out http://www.hecbiosim.ac.uk/ for other " +
+                    "powerful biomolecular simulation software tools.")
 
     # -------------------------------------------------------------------------
 
