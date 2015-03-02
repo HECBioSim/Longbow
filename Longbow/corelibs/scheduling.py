@@ -1,9 +1,9 @@
 # Longbow is Copyright (C) of James T Gebbie-Rayet and Gareth B Shannon 2015.
 #
-# This file is part of the Longbow software which was developed as part of 
-# the HECBioSim project (http://www.hecbiosim.ac.uk/). 
+# This file is part of the Longbow software which was developed as part of
+# the HECBioSim project (http://www.hecbiosim.ac.uk/).
 #
-# HECBioSim facilitates and supports high-end computing within the 
+# HECBioSim facilitates and supports high-end computing within the
 # UK biomolecular simulation community on resources such as Archer.
 #
 # Longbow is free software: you can redistribute it and/or modify
@@ -61,7 +61,7 @@ def testenv(hostconf, hosts, jobs):
 
     # Take a look at each job.
     for job in jobs:
-        
+
         resource = jobs[job]["resource"]
 
         # If we have not checked this host already
@@ -110,11 +110,11 @@ def testenv(hostconf, hosts, jobs):
                 # Go through the handlers and find out which is there.
                 # Load modules first as this is necessary for some HPCs
                 cmdmod = []
-                
+
                 for module in jobs[job]["modules"].split(","):
                     module.replace(" ", "")
                     cmdmod.extend(["module load " + module])
-                
+
                 for param in handlers:
                     try:
                         cmd = cmdmod
@@ -221,13 +221,14 @@ def monitor(hosts, jobs):
 
                 # Get the job status.
                 try:
-                    status = getattr(schedulers,
-                        scheduler.lower()).status(host,
-                            jobs[job]["jobid"])
+                    status = getattr(
+                        schedulers, scheduler.lower()).status(
+                            host, jobs[job]["jobid"])
 
                 except AttributeError:
-                    raise ex.PluginattributeError("status method cannot be " +
-                        "found in plugin '%s'", scheduler)
+                    raise ex.PluginattributeError(
+                        "status method cannot be found in plugin '%s'",
+                        scheduler)
 
                 # If the last status is different then change the flag (stops
                 # logfile getting flooded!)
