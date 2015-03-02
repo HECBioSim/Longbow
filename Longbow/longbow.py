@@ -2,7 +2,11 @@
 
 # Longbow is Copyright (C) of James T Gebbie-Rayet and Gareth B Shannon 2015.
 #
-# This file is part of Longbow.
+# This file is part of the Longbow software which was developed as part of 
+# the HECBioSim project (http://www.hecbiosim.ac.uk/). 
+#
+# HECBioSim facilitates and supports high-end computing within the 
+# UK biomolecular simulation community on resources such as Archer.
 #
 # Longbow is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,11 +21,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Contains the main entry point for the ProxyApp program, this version calls
-the main for a console based session. This version is intended for generic
-proxying of jobs, if the user wants to proxy using the names of popular biosim
-executables (mdrun, pmemd etc) then they can call them using the appropriately
-named .py file in the same directory as this file."""
+"""Contains the main entry point for the Longbow program, this version calls
+the main for a console based session."""
 
 import sys
 import corelibs.exceptions as ex
@@ -29,25 +30,25 @@ from mains import console
 
 if __name__ == "__main__":
 
-    """Main entry point for the ProxyApp as a stand-alone application.
+    """Main entry point for Longbow.
 
-    The following files must be provided:
+    To run Longbow, simply write longbow.py before the command you wish to be executed using
+    your chosen simulation package e.g.:
+    
+    %longbow.py pmemd.MPI -i test.in -c test.min -p test.top -o output 
+     
+    In addition, the following flags may be provided:
 
-    -hosts
-    -job
-    -log
+    -hosts filename
+    -job filename
+    -log filename
+    -machine resource
+    -debug
+    -verbose
 
-    User should specify either the absolute path to the file or if just the
-    name is given then the current working directory will be used for job and
-    log whilst the hosts file will fall back to the one inside the
-    installation directory.
-
-    To put the app in DEBUG mode supply -debug this will give enhanced logging
-    to the console standard out and file as opposed to just file, be careful
-    with issuing this as it could make your logfile significantly larger.
-
-    To get the standard level of logging information to the console standard
-    output use -verbose"""
+    Read the documentation at http://www.hecbiosim.ac.uk/ for more information
+    on how to setup and run jobs using Longbow.
+     """
 
     # ------------------------------------------------------------------------
     # Some defaults.
@@ -78,7 +79,7 @@ if __name__ == "__main__":
             "configuration file must be specified on the command line")
 
     # ------------------------------------------------------------------------
-    # Pull out some of the ProxyApp specific commandline args leaving behind
+    # Pull out some of the specific commandline args leaving behind
     # the target app args.
 
     # Take out the config file path, then remove it from the command
