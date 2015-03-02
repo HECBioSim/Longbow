@@ -45,14 +45,6 @@ def stage_upstream(hosts, jobs):
         resource = jobs[job]["resource"]
         remoteworkdir = hosts[jobs[job]["resource"]]["remoteworkdir"]
 
-        # Check that the working directory exists.
-        try:
-            shellwrappers.remotelist(hosts[resource], remoteworkdir)
-            LOGGER.debug("  Work directory '%s' found.", remoteworkdir)
-        except ex.RemotelistError:
-            raise ex.StagingError("Work directory '%s' could not be " +
-                "found on remote machine '%s'.", remoteworkdir, resource)
-
         # Check if path is already on remote host and delete its contents
         # if it does.
         path = os.path.join(remoteworkdir, job)
@@ -72,7 +64,7 @@ def stage_upstream(hosts, jobs):
 
         except ex.RemotelistError:
             # Directory doesn't exist so create it.
-            shellwrappers.sendtossh(hosts[resource], ["mkdir " + path])
+            shellwrappers.sendtossh(hosts[resource], ["mkdir -p " + path])
 
         # Loop through all files.
         LOGGER.info("  Transfering files for job: '%s' to host '%s'",
