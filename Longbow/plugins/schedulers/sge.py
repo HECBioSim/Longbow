@@ -117,7 +117,8 @@ def status(host, jobid):
     state = ""
 
     try:
-        shellout = shellwrappers.sendtossh(host, ["qstat | grep " + jobid])
+        shellout = shellwrappers.sendtossh(host, ["qstat -u " + host["user"] +
+                                                  " | grep " + jobid])
 
         stat = shellout[0].split()
 

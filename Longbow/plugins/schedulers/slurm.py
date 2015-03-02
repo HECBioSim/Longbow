@@ -152,7 +152,8 @@ def status(host, jobid):                                        # IMPORTANT
     state = ""
 
     try:
-        shellout = shellwrappers.sendtossh(host, ["squeue | grep " + jobid])
+        shellout = shellwrappers.sendtossh(host, ["squeue -u " + host["user"] +
+                                                  "| grep " + jobid])
 
         stat = shellout[0].split()
 

@@ -169,42 +169,43 @@ def status(host, jobid):
     state = ""
 
     try:
-        shellout = shellwrappers.sendtossh(host, ["qstat | grep " + jobid])
+        shellout = shellwrappers.sendtossh(host, ["qstat -u " + host["user"] +
+                                                  " | grep " + jobid])
 
         stat = shellout[0].split()
 
-        if stat[4] == "H":
+        if stat[9] == "H":
             state = "Held"
 
-        elif stat[4] == "Q":
+        elif stat[9] == "Q":
             state = "Queued"
 
-        elif stat[4] == "R":
+        elif stat[9] == "R":
             state = "Running"
 
-        elif stat[4] == "B":
+        elif stat[9] == "B":
             state = "Subjob(s) running"
 
-        elif stat[4] == "E":
+        elif stat[9] == "E":
             state = "Exiting"
 
-        elif stat[4] == "M":
+        elif stat[9] == "M":
             state = "Job moved to server"
 
-        elif stat[4] == "S":
+        elif stat[9] == "S":
             state = "Suspended"
 
-        elif stat[4] == "T":
+        elif stat[9] == "T":
             state = "Job moved to new location"
 
-        elif stat[4] == "U":
+        elif stat[9] == "U":
             state = ("Cycle-harvesting job is suspended due to keyboard " +
                      "activity")
 
-        elif stat[4] == "W":
+        elif stat[9] == "W":
             state = "Waiting for start time"
 
-        elif stat[4] == "X":
+        elif stat[9] == "X":
             state = "Subjob completed execution/has been deleted"
 
     except ex.SSHError:
