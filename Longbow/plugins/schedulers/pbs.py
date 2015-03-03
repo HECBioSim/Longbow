@@ -258,7 +258,7 @@ def submit(host, jobname, jobs):
                                     "ABCD-01234-EFG\"")
         elif "Job must specify budget (-A option)" in inst.stderr:
             raise ex.JobsubmitError("  Something went wrong when submitting." +
-                                    " This may be because you need to " +
+                                    " This may be because you " +
                                     "provided PBS with an " +
                                     "account flag other than \"A\" " +
                                     "which your PBS install expects")
