@@ -95,11 +95,9 @@ def main(args, files, mode, machine):
                 files["hosts"] = os.path.join(execdir, files["hosts"])
 
             else:
-                raise ex.RequiredinputError("No host configuration file " +
-                                            "found in " + "the current " +
-                                            "working directory " + "%s" % cwd +
-                                            " or in the execution directory " +
-                                            "%s." % execdir)
+                raise ex.RequiredinputError("No host configuration file "
+                    "found in the current working directory %s or in the"
+                    "execution directory %s." % (cwd, execdir))
 
         # job
         # if a job configuration file has been supplied but the path hasn't
@@ -113,23 +111,21 @@ def main(args, files, mode, machine):
                 files["job"] = os.path.join(execdir, files["job"])
 
             else:
-                raise ex.RequiredinputError("The job configuration file %s ",
-                                            files["job"], "couldn't be " +
-                                            "found in the current working " +
-                                            "directory %s" % cwd + "or in " +
-                                            "the execution directory %s."
-                                            % execdir)
+                raise ex.RequiredinputError("The job configuration file %s "
+                    "couldn't be found in the current working directory %s "
+                    "or in the execution directory %s."
+                    % (files["job"], cwd, execdir))
 
     # -------------------------------------------------------------------------
     # setup and run some tests.
 
         # Log that we are starting up.
         logger.info("Welcome to Longbow!")
-        logger.info("This software was developed as part of the HECBioSim " +
-                    "project (http://www.hecbiosim.ac.uk/)")
-        logger.info("HECBioSim facilitates high-end biomolecular simulation " +
+        logger.info("This software was developed as part of the EPSRC-funded"
+                    " HECBioSim project (http://www.hecbiosim.ac.uk/)")
+        logger.info("HECBioSim facilitates high-end biomolecular simulation "
                     "on resources such as Archer")
-        logger.info("Longbow is Copyright (C) of James T Gebbie-Rayet and " +
+        logger.info("Longbow is Copyright (C) of James T Gebbie-Rayet and "
                     "Gareth B Shannon 2015.")
         logger.info("Initialisation complete.")
 

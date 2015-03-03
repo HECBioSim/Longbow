@@ -56,7 +56,7 @@ def stage_upstream(hosts, jobs):
         try:
             shellwrappers.remotelist(hosts[resource], path)
 
-            LOGGER.debug("  directory '%s' already exists, emptying" +
+            LOGGER.debug("directory '%s' already exists, emptying" +
                          " its contents in preparation for staging.", path)
 
             shellwrappers.remotedelete(hosts[resource], path)
@@ -71,7 +71,7 @@ def stage_upstream(hosts, jobs):
             shellwrappers.sendtossh(hosts[resource], ["mkdir -p " + path])
 
         # Loop through all files.
-        LOGGER.info("  Transfering files for job: '%s' to host '%s'",
+        LOGGER.info("Transfering files for job: '%s' to host '%s'",
                     job, jobs[job]["resource"])
 
         for item in jobs[job]["filelist"]:
@@ -136,7 +136,7 @@ def stage_downstream(hosts, jobs, jobname):
 
     # Else we have a single job.
     else:
-        LOGGER.info("  For job %s staging files downstream.", jobname)
+        LOGGER.info("For job %s staging files downstream.", jobname)
 
         remoteworkdir = hosts[jobs[jobname]["resource"]]["remoteworkdir"]
         host = hosts[jobs[jobname]["resource"]]
@@ -152,7 +152,7 @@ def stage_downstream(hosts, jobs, jobname):
             raise ex.StagingError("Could not download file '%s' " % src +
                                   "to location '%s'" % dst)
 
-        LOGGER.info("  staging complete.")
+        LOGGER.info("staging complete.")
 
 
 def cleanup(hosts, jobs):
@@ -169,7 +169,7 @@ def cleanup(hosts, jobs):
 
             shellwrappers.remotelist(host, path)
 
-            LOGGER.info("  Deleting directory for job '%s' - '%s'", job, path)
+            LOGGER.info("Deleting directory for job '%s' - '%s'", job, path)
 
             shellwrappers.remotedelete(hosts[jobs[job]["resource"]], path)
 

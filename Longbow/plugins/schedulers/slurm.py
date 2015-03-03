@@ -54,7 +54,7 @@ def delete(host, jobid):                                        # IMPORTANT
     except ex.SSHError:
         raise ex.JobdeleteError("  Unable to delete job.")
 
-    LOGGER.info("  Deleted successfully")
+    LOGGER.info("Deleted successfully")
 
     return shellout[0]
 
@@ -66,7 +66,7 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
 
     """Create the SLURM jobfile ready for submitting jobs"""
 
-    LOGGER.info("  Creating submit file for job: %s", jobname)
+    LOGGER.info("Creating submit file for job: %s", jobname)
 
     # Open file for SLURM script.
     slurmfile = os.path.join(jobs[jobname]["localworkdir"], "submit.slurm")
@@ -222,6 +222,6 @@ def submit(host, jobname, jobs):                                # IMPORTANT
 
     output = shellout.rstrip("\r\n")
 
-    LOGGER.info("  Job: %s submitted with id: %s", jobname, output)
+    LOGGER.info("Job: %s submitted with id: %s", jobname, output)
 
     jobs[jobname]["jobid"] = output                             # IMPORTANT

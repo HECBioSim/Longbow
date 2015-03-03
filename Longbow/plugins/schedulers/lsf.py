@@ -43,7 +43,7 @@ def delete(host, jobid):
     except ex.SSHError:
         raise ex.JobdeleteError("  Unable to delete job.")
 
-    LOGGER.info("  Deletion successful")
+    LOGGER.info("Deletion successful")
 
     return shellout[0]
 
@@ -52,7 +52,7 @@ def prepare(hosts, jobname, jobs):
 
     """Create the LSF jobfile ready for submitting jobs"""
 
-    LOGGER.info("  Creating submit file for job: %s", jobname)
+    LOGGER.info("Creating submit file for job: %s", jobname)
 
     # Open file for LSF script.
     lsffile = os.path.join(jobs[jobname]["localworkdir"], "submit.lsf")
@@ -164,6 +164,6 @@ def submit(host, jobname, jobs):
 
     output = shellout.splitlines()[0]
 
-    LOGGER.info("  Job: %s submitted with id: %s", jobname, output)
+    LOGGER.info("Job: %s submitted with id: %s", jobname, output)
 
     jobs[jobname]["jobid"] = output

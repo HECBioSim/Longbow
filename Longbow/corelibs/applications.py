@@ -56,14 +56,14 @@ def testapp(hosts, jobs):
             checked[resource].extend([executable])
 
             LOGGER.info(
-                "  Checking executable '%s' on '%s'", executable, resource)
+                "Checking executable '%s' on '%s'", executable, resource)
 
             cmd = []
             if jobs[job]["modules"] is "":
-                LOGGER.debug("  Checking without modules.")
+                LOGGER.debug("Checking without modules.")
 
             else:
-                LOGGER.debug("  Checking with modules.")
+                LOGGER.debug("Checking with modules.")
 
                 for module in jobs[job]["modules"].split(","):
                     module.replace(" ", "")
@@ -73,7 +73,7 @@ def testapp(hosts, jobs):
 
             try:
                 shellwrappers.sendtossh(hosts[resource], cmd)
-                LOGGER.info("  Executable check - passed.")
+                LOGGER.info("Executable check - passed.")
 
             except ex.SSHError:
                 LOGGER.error("Executable check - failed.")
@@ -122,7 +122,7 @@ def processjobs(args, jobs):
                     "you would normally send to your application in addition "
                     "to the Longbow ones.")
 
-        LOGGER.debug("  Args for job '%s': %s", job, args)
+        LOGGER.debug("Args for job '%s': %s", job, args)
 
         # Now we should check that the required flags have been supplied if
         # the program being used is one of the ones we are supporting.
@@ -153,10 +153,9 @@ def processjobs(args, jobs):
 
                 else:
                     raise ex.RequiredinputError(
-                        "in job '%s' " % job + "there are missing flags "
-                        "on the command line '%s'. " % flags +
-                        "See documentation for module '%s' " %
-                        jobs[job]["modules"])
+                        "in job '%s' there are missing flags on the command"
+                        "line '%s'. See documentation for module '%s' " %
+                        (job, flags, jobs[job]["modules"]))
 
         # Path correction for multijobs.
         cwd = jobs[job]["localworkdir"]
@@ -223,9 +222,9 @@ def processjobs(args, jobs):
 
         # Log results.
         LOGGER.info(
-            "  For job '%s' - files for upload: " % job + ", ".join(filelist))
+            "For job '%s' - files for upload: " % job + ", ".join(filelist))
 
         LOGGER.info(
-            "  For job '%s' - execution string: %s", job, args)
+            "For job '%s' - execution string: %s", job, args)
 
-    LOGGER.info("  Processing jobs - complete.")
+    LOGGER.info("Processing jobs - complete.")

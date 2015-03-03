@@ -59,14 +59,14 @@ def testconnections(hosts, jobs):
             # Make sure we don't check this again.
             checked.extend([resource])
 
-            LOGGER.debug("  Testing connection to %s", resource)
+            LOGGER.debug("Testing connection to %s", resource)
 
             try:
                 sendtossh(host, ["ls"])
             except ex.SSHError:
                 raise
 
-            LOGGER.info("  Test connection to %s - passed", resource)
+            LOGGER.info("Test connection to %s - passed", resource)
 
 
 def sendtoshell(cmd):
@@ -74,7 +74,7 @@ def sendtoshell(cmd):
     """The method for sending shell commands to subprocess for execution
     within a system shell."""
 
-    LOGGER.debug("  Sending the following to subprocess: %s", cmd)
+    LOGGER.debug("Sending the following to subprocess: %s", cmd)
 
     handle = subprocess.Popen(
         cmd,
@@ -128,7 +128,7 @@ def sendtossh(host, args):
                 "SSH failed, make sure a normal terminal can connect to SSH "
                 "to be sure there are no connection issues.", shellout)
 
-        LOGGER.debug("  Retry SSH after 10 second wait.")
+        LOGGER.debug("Retry SSH after 10 second wait.")
 
         # Wait 10 seconds to see if problem goes away before trying again.
         time.sleep(10)
@@ -168,7 +168,7 @@ def sendtoscp(host, src, dst):
                 "SCP failed, make sure a normal terminal can connect to SCP "
                 "to be sure there are no connection issues.", shellout)
 
-        LOGGER.debug("  Retry SCP after 10 second wait.")
+        LOGGER.debug("Retry SCP after 10 second wait.")
 
         # Wait 10 seconds to see if problem goes away before trying again.
         time.sleep(10)
@@ -206,7 +206,7 @@ def sendtorsync(host, src, dst):
                 "rsync failed, make sure a normal terminal can connect to "
                 "rsync to be sure there are no connection issues.", shellout)
 
-        LOGGER.debug("  Retry rsync after 10 second wait.")
+        LOGGER.debug("Retry rsync after 10 second wait.")
 
         # Wait 10 seconds to see if problem goes away before trying again.
         time.sleep(10)
@@ -218,7 +218,7 @@ def localcopy(src, dst):
     situations where files/directories need overwriting (beware this
     happens without asking the user). All paths should be absolute."""
 
-    LOGGER.debug("  Copying %s " % src + "to %s" % dst)
+    LOGGER.debug("Copying %s " % src + "to %s" % dst)
 
     # Expand tildas (if present) otherwise these will not change anything.
     src = os.path.expanduser(src)
@@ -269,7 +269,7 @@ def localdelete(src):
     """A method for deleting local files, is able to deal with files and
     directory trees, this method takes absolute paths only."""
 
-    LOGGER.debug("  Deleting: %s", src)
+    LOGGER.debug("Deleting: %s", src)
 
     # Expand tildas (if present) otherwise these will not change anything.
     src = os.path.expanduser(src)
@@ -300,7 +300,7 @@ def locallist(src):
     """A method for listing a local directory contents, this method takes
     absolute paths only."""
 
-    LOGGER.debug("  Listing the contents of: %s", src)
+    LOGGER.debug("Listing the contents of: %s", src)
 
     # Expand tildas (if present) otherwise these will not change anything.
     src = os.path.expanduser(src)
@@ -351,7 +351,7 @@ def remotedelete(host, src):
 
     """A method for deleting files/directories on the remote machine."""
 
-    LOGGER.debug("  Deleting: %s", src)
+    LOGGER.debug("Deleting: %s", src)
 
     # Expand tildas (if present) otherwise these will not change anything.
     src = os.path.expanduser(src)
@@ -376,7 +376,7 @@ def remotelist(host, src):
 
     """A method to list a directory on the remote resource."""
 
-    LOGGER.debug("  Listing the contents of: %s", src)
+    LOGGER.debug("Listing the contents of: %s", src)
 
     # Expand tildas (if present) otherwise these will not change anything.
     src = os.path.expanduser(src)
@@ -418,7 +418,7 @@ def upload(protocol, host, src, dst):
 
     dst = (host["user"] + "@" + host["host"] + ":" + dst)
 
-    LOGGER.debug("  Copying %s " % src + "to %s" % dst)
+    LOGGER.debug("Copying %s " % src + "to %s" % dst)
 
     # Send command to subprocess.
     try:
@@ -452,7 +452,7 @@ def download(protocol, host, src, dst):
 
     src = (host["user"] + "@" + host["host"] + ":" + src)
 
-    LOGGER.debug("  Copying %s " % src + "to %s" % dst)
+    LOGGER.debug("Copying %s " % src + "to %s" % dst)
 
     # Send command to subprocess.
     try:

@@ -92,7 +92,7 @@ def debuglogger(logfile, loggername):
     # Define a logging format.
     logformat = logging.Formatter("%(asctime)s - %(name)s - " +
                                   "%(filename)-18s - %(levelname)-8s" +
-                                  " - %(message)s")
+                                  " -   %(message)s")
 
     # Default is to write to the log file, set level and bind format.
     loghandler = logging.FileHandler(logfile, mode="w")
