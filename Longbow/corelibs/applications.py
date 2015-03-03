@@ -1,9 +1,9 @@
 # Longbow is Copyright (C) of James T Gebbie-Rayet and Gareth B Shannon 2015.
 #
-# This file is part of the Longbow software which was developed as part of 
-# the HECBioSim project (http://www.hecbiosim.ac.uk/). 
+# This file is part of the Longbow software which was developed as part of
+# the HECBioSim project (http://www.hecbiosim.ac.uk/).
 #
-# HECBioSim facilitates and supports high-end computing within the 
+# HECBioSim facilitates and supports high-end computing within the
 # UK biomolecular simulation community on resources such as Archer.
 #
 # Longbow is free software: you can redistribute it and/or modify
@@ -89,7 +89,7 @@ def processjobs(args, jobs):
 
     required = {"pmemd": ["-c", "-i", "-p"],
                 "pmemd.MPI": ["-c", "-i", "-p"],
-                "charmm": [],
+                "charmm": ["?"],
                 "mdrun": ["-s"],
                 "lmp_xc30": ["-i"],
                 "namd2": ["?"]
@@ -111,7 +111,7 @@ def processjobs(args, jobs):
         # Otherwise check if it came in on the command line to the main
         # app, this should be the case for single and single batch jobs.
         elif len(args) is 0:
-            if jobs[job]["modules"] == "charmm":
+            if executable == "charmm":
                 raise ex.CommandlineargsError("Command-line arguments were " +
                     "not detected. Make sure you have typed < in quotation " +
                     "marks on the command line")
@@ -143,7 +143,11 @@ def processjobs(args, jobs):
                     if args is "":
                         raise ex.RequiredinputError("in job '%s' " % job +
                             "it appears that the input file is missing")
-
+                        
+                    elif len(args) is 1 and args[0] is "<":
+                        raise ex.RequiredinputError("in job '%s' " % job +
+                            "it appears that the charmm input file is missing")
+                        
                 else:
                     raise ex.RequiredinputError("in job '%s' " % job +
                         "there are missing flags from command line '%s' " %
