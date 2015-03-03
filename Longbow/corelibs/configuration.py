@@ -1,9 +1,9 @@
 # Longbow is Copyright (C) of James T Gebbie-Rayet and Gareth B Shannon 2015.
 #
-# This file is part of the Longbow software which was developed as part of 
-# the HECBioSim project (http://www.hecbiosim.ac.uk/). 
+# This file is part of the Longbow software which was developed as part of
+# the HECBioSim project (http://www.hecbiosim.ac.uk/).
 #
-# HECBioSim facilitates and supports high-end computing within the 
+# HECBioSim facilitates and supports high-end computing within the
 # UK biomolecular simulation community on resources such as Archer.
 #
 # Longbow is free software: you can redistribute it and/or modify
@@ -175,8 +175,8 @@ def loaddefaultjobconfigs(cwd, hostsconfile, executable, remoteres):
         configs.read(hostsconfile)
 
     except IOError:
-        ex.RequiredinputError("Can't read the configurations from: %s",
-                              hostsconfile)
+        ex.RequiredinputError("Can't read the configurations from: %s"
+                              % hostsconfile)
 
     # Grab a list of the section headers present in file.
     sectionlist = configs.sections()
@@ -186,9 +186,9 @@ def loaddefaultjobconfigs(cwd, hostsconfile, executable, remoteres):
         jobs["myjob"]["resource"] = sectionlist[0]
 
     elif remoteres not in sectionlist:
-        raise ex.CommandlineargsError("The %s machine specified on the " +
-                                      "command line is not one of: %s",
-                                      remoteres, sectionlist)
+        raise ex.CommandlineargsError("The %s machine specified " % remoteres +
+                                      "on the command line is not one of: %s"
+                                      % sectionlist)
 
     return jobs
 
@@ -232,8 +232,8 @@ def loadconfigs(confile, template, required):
         configs.read(confile)
 
     except IOError:
-        raise ex.ConfigurationError("Can't read the configurations from '%s'",
-                                    confile)
+        raise ex.ConfigurationError("Can't read the configurations from '%s'"
+                                    % confile)
 
     # Grab a list of the section headers present in file.
     sectionlist = configs.sections()
@@ -256,7 +256,7 @@ def loadconfigs(confile, template, required):
         # If we have no options then raise an exception.
         if optioncount is 0:
             raise ex.ConfigurationError("There are no parameters listed " +
-                                        "under the section '%s'", section)
+                                        "under the section '%s'" % section)
 
         # Store option values in our dictionary structure.
         for option in template:
@@ -272,8 +272,8 @@ def loadconfigs(confile, template, required):
                                                 "file")
 
                 elif option in required:
-                    raise ex.ConfigurationError("The parameter %s is " +
-                                                "required", option)
+                    raise ex.ConfigurationError("The parameter %s " % option +
+                                                " is required")
                 else:
                     pass
 

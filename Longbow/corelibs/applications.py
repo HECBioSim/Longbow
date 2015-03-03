@@ -1,9 +1,9 @@
 # Longbow is Copyright (C) of James T Gebbie-Rayet and Gareth B Shannon 2015.
 #
-# This file is part of the Longbow software which was developed as part of 
-# the HECBioSim project (http://www.hecbiosim.ac.uk/). 
+# This file is part of the Longbow software which was developed as part of
+# the HECBioSim project (http://www.hecbiosim.ac.uk/).
 #
-# HECBioSim facilitates and supports high-end computing within the 
+# HECBioSim facilitates and supports high-end computing within the
 # UK biomolecular simulation community on resources such as Archer.
 #
 # Longbow is free software: you can redistribute it and/or modify
@@ -113,13 +113,17 @@ def processjobs(args, jobs):
         elif len(args) is 0:
             if jobs[job]["modules"] == "charmm":
                 raise ex.CommandlineargsError("Command-line arguments were " +
-                    "not detected. Make sure you have typed < in quotation " +
-                    "marks on the command line")
+                                              "not detected. Make sure you " +
+                                              "have typed < in quotation " +
+                                              "marks on the command line")
             else:
                 raise ex.CommandlineargsError("Commandline arguments were " +
-                    "not detected, please make sure you provide the" +
-                    "command-line arguments that you would normally send to " +
-                    "your application in addition to the Longbow ones.")
+                                              "not detected, please make " +
+                                              "sure you provide the" +
+                                              "command-line arguments that " +
+                                              "you would normally send to " +
+                                              "your application in addition " +
+                                              "to the Longbow ones.")
 
         LOGGER.debug("  Args for job '%s': %s", job, args)
 
@@ -142,13 +146,16 @@ def processjobs(args, jobs):
                     # is given on the cmdline.
                     if args is "":
                         raise ex.RequiredinputError("in job '%s' " % job +
-                            "it appears that the input file is missing")
+                                                    "it appears that the " +
+                                                    "input file is missing")
 
                 else:
                     raise ex.RequiredinputError("in job '%s' " % job +
-                        "there are missing flags from command line '%s' " %
-                        flags + "see documentation for '%s' " %
-                        jobs[job]["modules"])
+                                                "there are missing flags " +
+                                                "on the command line '%s'. " %
+                                                flags + "See documentation " +
+                                                "for module '%s' "
+                                                % jobs[job]["modules"])
 
         # Path correction for multijobs.
         cwd = jobs[job]["localworkdir"]
@@ -162,8 +169,9 @@ def processjobs(args, jobs):
         # Check that the directory exists.
         if os.path.isdir(cwd) is False:
 
-            raise ex.DirectorynotfoundError("The working directory '%s' " +
-                "cannot be " % cwd + "found for job '%s'" % job)
+            raise ex.DirectorynotfoundError("The working directory '%s' "
+                                            % cwd + "cannot be found for " +
+                                            "job '%s'" % job)
 
         # Run through the commandline and search the working directory for
         # any matches, any that are found we will assume they need staging.

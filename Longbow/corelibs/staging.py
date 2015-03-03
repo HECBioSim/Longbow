@@ -1,9 +1,9 @@
 # Longbow is Copyright (C) of James T Gebbie-Rayet and Gareth B Shannon 2015.
 #
-# This file is part of the Longbow software which was developed as part of 
-# the HECBioSim project (http://www.hecbiosim.ac.uk/). 
+# This file is part of the Longbow software which was developed as part of
+# the HECBioSim project (http://www.hecbiosim.ac.uk/).
 #
-# HECBioSim facilitates and supports high-end computing within the 
+# HECBioSim facilitates and supports high-end computing within the
 # UK biomolecular simulation community on resources such as Archer.
 #
 # Longbow is free software: you can redistribute it and/or modify
@@ -100,8 +100,8 @@ def stage_upstream(hosts, jobs):
                                      os.path.join(path, directory))
 
             except (ex.SCPError, ex.RsyncError):
-                raise ex.StagingError("Could not stage file '%s' upstream",
-                                      src)
+                raise ex.StagingError("Could not stage file '%s' upstream"
+                                      % src)
 
     LOGGER.info("Staging files upstream - complete.")
 
@@ -129,8 +129,8 @@ def stage_downstream(hosts, jobs, jobname):
                 shellwrappers.download("rsync", host, src, dst)
 
             except (ex.SCPError, ex.RsyncError):
-                raise ex.StagingError("Could not download file '%s' to " +
-                                      "location '%s'", src, dst)
+                raise ex.StagingError("Could not download file '%s' " % src +
+                                      "to location '%s'" % dst)
 
         LOGGER.info("Staging files downstream - complete.")
 
@@ -149,8 +149,8 @@ def stage_downstream(hosts, jobs, jobname):
             shellwrappers.download("rsync", host, src, dst)
 
         except (ex.SCPError, ex.RsyncError):
-            raise ex.StagingError("Could not download file '%s' to " +
-                                  "location '%s'", src, dst)
+            raise ex.StagingError("Could not download file '%s' " % src +
+                                  "to location '%s'" % dst)
 
         LOGGER.info("  staging complete.")
 

@@ -2,10 +2,10 @@
 
 # Longbow is Copyright (C) of James T Gebbie-Rayet and Gareth B Shannon 2015.
 #
-# This file is part of the Longbow software which was developed as part of 
-# the HECBioSim project (http://www.hecbiosim.ac.uk/). 
+# This file is part of the Longbow software which was developed as part of
+# the HECBioSim project (http://www.hecbiosim.ac.uk/).
 #
-# HECBioSim facilitates and supports high-end computing within the 
+# HECBioSim facilitates and supports high-end computing within the
 # UK biomolecular simulation community on resources such as Archer.
 #
 # Longbow is free software: you can redistribute it and/or modify
@@ -32,11 +32,11 @@ if __name__ == "__main__":
 
     """Main entry point for Longbow.
 
-    To run Longbow, simply write longbow.py before the command you wish to be executed using
-    your chosen simulation package e.g.:
-    
-    %longbow.py pmemd.MPI -i test.in -c test.min -p test.top -o output 
-     
+    To run Longbow, simply write longbow.py before the command you wish to
+    be executed using your chosen simulation package e.g.:
+
+    %longbow.py pmemd.MPI -i test.in -c test.min -p test.top -o output
+
     In addition, the following flags may be provided:
 
     -hosts filename
@@ -76,7 +76,8 @@ if __name__ == "__main__":
     if COMMANDLINEARGS[0] not in ("charmm", "pmemd", "pmemd.MPI", "mdrun" +
        "lmp_xc30", "namd2") and COMMANDLINEARGS.count("-job") == 0:
         raise ex.CommandlineargsError("A recognised executable or job " +
-            "configuration file must be specified on the command line")
+                                      "configuration file must be specified " +
+                                      "on the command line")
 
     # ------------------------------------------------------------------------
     # Pull out some of the specific commandline args leaving behind

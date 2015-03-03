@@ -1,9 +1,9 @@
 # Longbow is Copyright (C) of James T Gebbie-Rayet and Gareth B Shannon 2015.
 #
-# This file is part of the Longbow software which was developed as part of 
-# the HECBioSim project (http://www.hecbiosim.ac.uk/). 
+# This file is part of the Longbow software which was developed as part of
+# the HECBioSim project (http://www.hecbiosim.ac.uk/).
 #
-# HECBioSim facilitates and supports high-end computing within the 
+# HECBioSim facilitates and supports high-end computing within the
 # UK biomolecular simulation community on resources such as Archer.
 #
 # Longbow is free software: you can redistribute it and/or modify
@@ -61,7 +61,7 @@ def testenv(hostconf, hosts, jobs):
 
     # Take a look at each job.
     for job in jobs:
-        
+
         resource = jobs[job]["resource"]
 
         # If we have not checked this host already
@@ -110,11 +110,11 @@ def testenv(hostconf, hosts, jobs):
                 # Go through the handlers and find out which is there.
                 # Load modules first as this is necessary for some HPCs
                 cmdmod = []
-                
+
                 for module in jobs[job]["modules"].split(","):
                     module.replace(" ", "")
                     cmdmod.extend(["module load " + module])
-                
+
                 for param in handlers:
                     try:
                         cmd = cmdmod
@@ -165,8 +165,8 @@ def delete(hosts, jobs, jobname):
 
             except AttributeError:
                 raise ex.PluginattributeError("delete method cannot be " +
-                                              "found in plugin '%s'",
-                                              scheduler)
+                                              "found in plugin '%s'"
+                                              % scheduler)
 
             except ex.JobdeleteError:
                 LOGGER.info("  Unable to delete job '%s'", job)
@@ -182,7 +182,7 @@ def delete(hosts, jobs, jobname):
 
         except AttributeError:
             raise ex.PluginattributeError("delete method cannot be " +
-                                          "found in plugin '%s'", scheduler)
+                                          "found in plugin '%s'" % scheduler)
 
         except ex.JobdeleteError:
             LOGGER.info("  Unable to delete job '%s'", job)
@@ -212,8 +212,8 @@ def monitor(hosts, jobs):
 
         for job in jobs:
 
-            if (jobs[job]["laststatus"] != "Finished" and
-               jobs[job]["laststatus"] != "Submit Error"):
+            if jobs[job]["laststatus"] != "Finished" and \
+               jobs[job]["laststatus"] != "Submit Error":
 
                 machine = jobs[job]["resource"]
                 scheduler = hosts[machine]["scheduler"]
@@ -227,7 +227,8 @@ def monitor(hosts, jobs):
 
                 except AttributeError:
                     raise ex.PluginattributeError("status method cannot be " +
-                        "found in plugin '%s'", scheduler)
+                                                  "found in plugin '%s'"
+                                                  % scheduler)
 
                 # If the last status is different then change the flag (stops
                 # logfile getting flooded!)
@@ -285,7 +286,7 @@ def prepare(hosts, jobs):
 
         except AttributeError:
             raise ex.PluginattributeError("prepare method cannot be found in" +
-                                          "plugin '%s'", scheduler)
+                                          "plugin '%s'" % scheduler)
 
     LOGGER.info("Submit file/s created.")
 
@@ -308,7 +309,7 @@ def submit(hosts, jobs):
 
         except AttributeError:
             raise ex.PluginattributeError("submit method cannot be found in" +
-                                          "plugin '%s'", scheduler)
+                                          "plugin '%s'" % scheduler)
 
         except ex.JobsubmitError as err:
             LOGGER.info("Submitting job '%s' failed with message - %s",

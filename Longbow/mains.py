@@ -1,9 +1,9 @@
 # Longbow is Copyright (C) of James T Gebbie-Rayet and Gareth B Shannon 2015.
 #
-# This file is part of the Longbow software which was developed as part of 
-# the HECBioSim project (http://www.hecbiosim.ac.uk/). 
+# This file is part of the Longbow software which was developed as part of
+# the HECBioSim project (http://www.hecbiosim.ac.uk/).
 #
-# HECBioSim facilitates and supports high-end computing within the 
+# HECBioSim facilitates and supports high-end computing within the
 # UK biomolecular simulation community on resources such as Archer.
 #
 # Longbow is free software: you can redistribute it and/or modify
@@ -92,10 +92,11 @@ def console(args, files, mode, machine):
                 files["hosts"] = os.path.join(execdir, files["hosts"])
 
             else:
-                ex.RequiredinputError("No host configuration file found in " +
-                                      "the current working directory %s", cwd,
-                                      "or in the execution directory %s.",
-                                      execdir)
+                raise ex.RequiredinputError("No host configuration file " +
+                                            "found in " + "the current " +
+                                            "working directory " + "%s" % cwd +
+                                            " or in the execution directory " +
+                                            "%s." % execdir)
 
         # job
         # if a job configuration file has been supplied but the path hasn't
@@ -110,9 +111,11 @@ def console(args, files, mode, machine):
 
             else:
                 raise ex.RequiredinputError("The job configuration file %s ",
-                    files["job"], "couldn't be found in the current working " +
-                    "directory %s", cwd, "or in the execution directory %s.",
-                    execdir)
+                                            files["job"], "couldn't be " +
+                                            "found in the current working " +
+                                            "directory %s" % cwd + "or in " +
+                                            "the execution directory %s."
+                                            % execdir)
 
     # -------------------------------------------------------------------------
     # setup and run some tests.
@@ -199,8 +202,8 @@ def console(args, files, mode, machine):
         for job in jobs:
             if "jobid" in jobs[job]:
                 # If job is not finished delete and stage.
-                if (jobs[job]["laststatus"] != "Finished" and
-                   jobs[job]["laststatus"] != "Submit Error"):
+                if jobs[job]["laststatus"] != "Finished" and \
+                   jobs[job]["laststatus"] != "Submit Error":
 
                     # Kill it.
                     scheduling.delete(hosts, jobs, job)
