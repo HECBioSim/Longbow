@@ -43,7 +43,7 @@ def delete(host, jobid):
     except ex.SSHError:
         raise ex.JobdeleteError("  Unable to delete job.")
 
-    LOGGER.info("  Deleted successfully")
+    LOGGER.info("Deleted successfully")
 
     return shellout[0]
 
@@ -52,7 +52,7 @@ def prepare(hosts, jobname, jobs):
 
     """Create the SGE jobfile ready for submitting jobs"""
 
-    LOGGER.info("  Creating submit file for job: %s", jobname)
+    LOGGER.info("Creating submit file for job: %s", jobname)
 
     # Open file for LSF script.
     sgefile = os.path.join(jobs[jobname]["localworkdir"], "submit.sge")
@@ -192,6 +192,6 @@ def submit(host, jobname, jobs):
     except ex.SSHError:
         raise ex.JobsubmitError("  Something went wrong when submitting.")
 
-    LOGGER.info("  Job: %s submitted with id: %s", jobname, shellout)
+    LOGGER.info("Job: %s submitted with id: %s", jobname, shellout)
 
     jobs[jobname]["jobid"] = shellout

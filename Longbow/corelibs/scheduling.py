@@ -85,11 +85,11 @@ def testenv(hostconf, hosts, jobs):
                         hosts[resource]["scheduler"] = param
 
                         LOGGER.info(
-                            "  The environment on this host is '%s'", param)
+                            "The environment on this host is '%s'", param)
                         break
 
                     except ex.SSHError:
-                        LOGGER.debug("  Environment is not '%s'", param)
+                        LOGGER.debug("Environment is not '%s'", param)
 
                 if hosts[resource]["scheduler"] is "":
                     raise ex.SchedulercheckError(
@@ -125,17 +125,17 @@ def testenv(hostconf, hosts, jobs):
 
                         hosts[resource]["handler"] = param
 
-                        LOGGER.info("  The batch queue handler is '%s'", param)
+                        LOGGER.info("The batch queue handler is '%s'", param)
 
                         break
 
                     except ex.SSHError:
                         LOGGER.debug(
-                            "  The batch queue handler is not '%s'", param)
+                            "The batch queue handler is not '%s'", param)
 
                 if hosts[resource]["handler"] is "":
                     raise ex.HandlercheckError(
-                        "  Could not find the batch queue handler.")
+                        "Could not find the batch queue handler.")
 
                 # If we changed anything then mark for saving.
                 save = True
@@ -170,7 +170,7 @@ def delete(hosts, jobs, jobname):
                     "delete method cannot be found in plugin '%s'" % scheduler)
 
             except ex.JobdeleteError:
-                LOGGER.info("  Unable to delete job '%s'", job)
+                LOGGER.info("Unable to delete job '%s'", job)
 
     else:
 
@@ -186,7 +186,7 @@ def delete(hosts, jobs, jobname):
                 "delete method cannot be found in plugin '%s'" % scheduler)
 
         except ex.JobdeleteError:
-            LOGGER.info("  Unable to delete job '%s'", job)
+            LOGGER.info("Unable to delete job '%s'", job)
 
 
 def monitor(hosts, jobs):
@@ -236,7 +236,7 @@ def monitor(hosts, jobs):
                 if jobs[job]["laststatus"] != status:
                     jobs[job]["laststatus"] = status
                     LOGGER.info(
-                        "  Job: %s with id: %s is %s", job, jobs[job]["jobid"],
+                        "Job: %s with id: %s is %s", job, jobs[job]["jobid"],
                         status)
 
                 # If the job is not finished and we set the polling frequency
