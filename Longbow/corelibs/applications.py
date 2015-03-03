@@ -89,7 +89,7 @@ def processjobs(args, jobs):
 
     required = {"pmemd": ["-c", "-i", "-p"],
                 "pmemd.MPI": ["-c", "-i", "-p"],
-                "charmm": [],
+                "charmm": ["?"],
                 "mdrun": ["-s"],
                 "lmp_xc30": ["-i"],
                 "namd2": ["?"]
@@ -111,7 +111,7 @@ def processjobs(args, jobs):
         # Otherwise check if it came in on the command line to the main
         # app, this should be the case for single and single batch jobs.
         elif len(args) is 0:
-            if jobs[job]["modules"] == "charmm":
+            if executable == "charmm":
                 raise ex.CommandlineargsError(
                     "Command-line arguments were not detected. Make sure you "
                     "have typed < in quotation marks on the command line")
@@ -145,6 +145,11 @@ def processjobs(args, jobs):
                         raise ex.RequiredinputError(
                             "in job '%s' it appears that the input file is "
                             "missing" % job)
+
+                    elif len(args) is 1 and args[0] is "<":
+                        raise ex.RequiredinputError(
+                            "in job '%s' it appears that the charmm input "
+                            "file is missing" % job)
 
                 else:
                     raise ex.RequiredinputError(
