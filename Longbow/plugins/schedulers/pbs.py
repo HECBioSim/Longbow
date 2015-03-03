@@ -233,8 +233,45 @@ def submit(host, jobname, jobs):
     try:
         shellout = shellwrappers.sendtossh(host, cmd)[0]
 
-    except ex.SSHError:
-        raise ex.JobsubmitError("  Something went wrong when submitting.")
+    except ex.SSHError as inst:
+        if "set_booleans" in inst.stderr:
+            raise ex.JobsubmitError(
+                "  Something went wrong when submitting. The likely cause is "
+                "your particular PBS install is not receiving the "
+                "information/options/parameters it " "requires "
+                "e.g. '#PBS -l mem=20gb'. Check the PBS documentation and edit"
+                " the configuration files to provide the necessary information"
+                "e.g. 'memory = 20' in the job configuration file")
+
+        elif "Job rejected by all possible destinations" in inst.stderr:
+            raise ex.JobsubmitError(
+                "  Something went wrong when submitting. This may be because "
+                "you need to provide PBS with your account code and the "
+                "account flag your PBS install expects (Longbow defaults to "
+                "A). Check the PBS documentation and edit the configuration "
+                "files to provide the necessary information e.g. "
+                "'accountflag = P' and 'account = ABCD-01234-EFG'")
+
+        elif "Job must specify budget (-A option)" in inst.stderr:
+            raise ex.JobsubmitError(
+                "  Something went wrong when submitting. This may be because "
+                "you provided PBS with an account flag other than 'A' which "
+                "your PBS install expects")
+
+        elif "Job exceeds queue and/or server resource limits" in inst.stderr:
+            raise ex.JobsubmitError(
+                "  Something went wrong when submitting. PBS has reported "
+                "that 'Job exceeds queue and/or server resource limits'. "
+                "This may be because you set a walltime or some other "
+                "quantity that exceeds the maximum allowed on your system.")
+
+        elif "budget" in inst.stderr:
+            raise ex.JobsubmitError(
+                "  Something went wrong when submitting. This may be that you "
+                "have entered an incorrect account code.")
+
+        else:
+            raise ex.JobsubmitError("  Something went wrong when submitting.")
 
     output = shellout.rstrip("\r\n")
 

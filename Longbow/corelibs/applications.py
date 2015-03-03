@@ -55,8 +55,8 @@ def testapp(hosts, jobs):
             # If not then add it to the list now.
             checked[resource].extend([executable])
 
-            LOGGER.info("  Checking executable '%s' on '%s'", executable,
-                        resource)
+            LOGGER.info(
+                "  Checking executable '%s' on '%s'", executable, resource)
 
             cmd = []
             if jobs[job]["modules"] is "":
@@ -112,14 +112,15 @@ def processjobs(args, jobs):
         # app, this should be the case for single and single batch jobs.
         elif len(args) is 0:
             if jobs[job]["modules"] == "charmm":
-                raise ex.CommandlineargsError("Command-line arguments were " +
-                    "not detected. Make sure you have typed < in quotation " +
-                    "marks on the command line")
+                raise ex.CommandlineargsError(
+                    "Command-line arguments were not detected. Make sure you "
+                    "have typed < in quotation marks on the command line")
             else:
-                raise ex.CommandlineargsError("Commandline arguments were " +
-                    "not detected, please make sure you provide the" +
-                    "command-line arguments that you would normally send to " +
-                    "your application in addition to the Longbow ones.")
+                raise ex.CommandlineargsError(
+                    "Commandline arguments were not detected, please make "
+                    "sure you provide the command-line arguments that "
+                    "you would normally send to your application in addition "
+                    "to the Longbow ones.")
 
         LOGGER.debug("  Args for job '%s': %s", job, args)
 
@@ -141,13 +142,15 @@ def processjobs(args, jobs):
                     # The only thing we can really do is check that something
                     # is given on the cmdline.
                     if args is "":
-                        raise ex.RequiredinputError("in job '%s' " % job +
-                            "it appears that the input file is missing")
+                        raise ex.RequiredinputError(
+                            "in job '%s' it appears that the input file is "
+                            "missing" % job)
 
                 else:
-                    raise ex.RequiredinputError("in job '%s' " % job +
-                        "there are missing flags from command line '%s' " %
-                        flags + "see documentation for '%s' " %
+                    raise ex.RequiredinputError(
+                        "in job '%s' " % job + "there are missing flags "
+                        "on the command line '%s'. " % flags +
+                        "See documentation for module '%s' " %
                         jobs[job]["modules"])
 
         # Path correction for multijobs.
@@ -162,8 +165,9 @@ def processjobs(args, jobs):
         # Check that the directory exists.
         if os.path.isdir(cwd) is False:
 
-            raise ex.DirectorynotfoundError("The working directory '%s' " +
-                "cannot be " % cwd + "found for job '%s'" % job)
+            raise ex.DirectorynotfoundError(
+                "The working directory '%s' " % cwd + "cannot be found for "
+                "job '%s'" % job)
 
         # Run through the commandline and search the working directory for
         # any matches, any that are found we will assume they need staging.
@@ -213,10 +217,10 @@ def processjobs(args, jobs):
         jobs[job]["commandline"] = args
 
         # Log results.
-        LOGGER.info("  For job '%s' - files for upload: " % job +
-                    ", ".join(filelist))
+        LOGGER.info(
+            "  For job '%s' - files for upload: " % job + ", ".join(filelist))
 
-        LOGGER.info("  For job '%s' - execution string: %s",
-                    job, args)
+        LOGGER.info(
+            "  For job '%s' - execution string: %s", job, args)
 
     LOGGER.info("  Processing jobs - complete.")

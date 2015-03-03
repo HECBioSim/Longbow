@@ -72,9 +72,9 @@ def testenv(hostconf, hosts, jobs):
 
             # If we have no scheduler defined by the user then find it.
             if hosts[resource]["scheduler"] is "":
-                LOGGER.info("No environment for this host '%s' "
-                            % resource + "is specified - attempting " +
-                            "to determine it!")
+                LOGGER.info(
+                    "No environment for this host '%s' "
+                    "is specified - attempting to determine it!" % resource)
 
                 # Go through the schedulers we are supporting.
                 for param in schedulerqueries:
@@ -84,28 +84,30 @@ def testenv(hostconf, hosts, jobs):
 
                         hosts[resource]["scheduler"] = param
 
-                        LOGGER.info("  The environment on this host is '%s'",
-                                    param)
+                        LOGGER.info(
+                            "  The environment on this host is '%s'", param)
                         break
 
                     except ex.SSHError:
                         LOGGER.debug("  Environment is not '%s'", param)
 
                 if hosts[resource]["scheduler"] is "":
-                    raise ex.SchedulercheckError("  Could not find the job " +
-                                                 "scheduling system.")
+                    raise ex.SchedulercheckError(
+                        "  Could not find the job scheduling system.")
 
                 # If we changed anything then mark for saving.
                 save = True
 
             else:
-                LOGGER.info("The environment on host '%s' is '%s'", resource,
-                            hosts[resource]["scheduler"])
+                LOGGER.info(
+                    "The environment on host '%s' is '%s'", resource,
+                    hosts[resource]["scheduler"])
 
             # If we have no job handler defined by the user then find it.
             if hosts[resource]["handler"] is "":
-                LOGGER.info("No queue handler was specified for host '%s' - " +
-                            "attempting to find it", resource)
+                LOGGER.info(
+                    "No queue handler was specified for host '%s' - "
+                    "attempting to find it", resource)
 
                 # Go through the handlers and find out which is there.
                 # Load modules first as this is necessary for some HPCs
@@ -119,8 +121,7 @@ def testenv(hostconf, hosts, jobs):
                     try:
                         cmd = cmdmod
                         cmd.extend(handlers[param])
-                        shellwrappers.sendtossh(hosts[resource],
-                                                cmd)
+                        shellwrappers.sendtossh(hosts[resource], cmd)
 
                         hosts[resource]["handler"] = param
 
@@ -129,19 +130,20 @@ def testenv(hostconf, hosts, jobs):
                         break
 
                     except ex.SSHError:
-                        LOGGER.debug("  The batch queue handler is not '%s'",
-                                     param)
+                        LOGGER.debug(
+                            "  The batch queue handler is not '%s'", param)
 
                 if hosts[resource]["handler"] is "":
-                    raise ex.HandlercheckError("  Could not find the batch "
-                                               "queue handler.")
+                    raise ex.HandlercheckError(
+                        "  Could not find the batch queue handler.")
 
                 # If we changed anything then mark for saving.
                 save = True
 
             else:
-                LOGGER.info("The handler on host '%s' is '%s'", resource,
-                            hosts[resource]["handler"])
+                LOGGER.info(
+                    "The handler on host '%s' is '%s'", resource,
+                    hosts[resource]["handler"])
 
     # Do we have anything to change in the host file.
     if save is True:
@@ -164,9 +166,8 @@ def delete(hosts, jobs, jobname):
                 getattr(schedulers, scheduler.lower()).delete(host, jobid)
 
             except AttributeError:
-                raise ex.PluginattributeError("delete method cannot be " +
-                                              "found in plugin '%s'",
-                                              scheduler)
+                raise ex.PluginattributeError(
+                    "delete method cannot be found in plugin '%s'" % scheduler)
 
             except ex.JobdeleteError:
                 LOGGER.info("  Unable to delete job '%s'", job)
@@ -181,8 +182,8 @@ def delete(hosts, jobs, jobname):
             getattr(schedulers, scheduler.lower()).delete(host, jobid)
 
         except AttributeError:
-            raise ex.PluginattributeError("delete method cannot be " +
-                                          "found in plugin '%s'", scheduler)
+            raise ex.PluginattributeError(
+                "delete method cannot be found in plugin '%s'" % scheduler)
 
         except ex.JobdeleteError:
             LOGGER.info("  Unable to delete job '%s'", job)
@@ -212,8 +213,8 @@ def monitor(hosts, jobs):
 
         for job in jobs:
 
-            if (jobs[job]["laststatus"] != "Finished" and
-               jobs[job]["laststatus"] != "Submit Error"):
+            if jobs[job]["laststatus"] != "Finished" and \
+               jobs[job]["laststatus"] != "Submit Error":
 
                 machine = jobs[job]["resource"]
                 scheduler = hosts[machine]["scheduler"]
@@ -227,15 +228,16 @@ def monitor(hosts, jobs):
 
                 except AttributeError:
                     raise ex.PluginattributeError(
-                        "status method cannot be found in plugin '%s'",
+                        "status method cannot be found in plugin '%s'" %
                         scheduler)
 
                 # If the last status is different then change the flag (stops
                 # logfile getting flooded!)
                 if jobs[job]["laststatus"] != status:
                     jobs[job]["laststatus"] = status
-                    LOGGER.info("  Job: %s with id: %s is %s", job,
-                                jobs[job]["jobid"], status)
+                    LOGGER.info(
+                        "  Job: %s with id: %s is %s", job, jobs[job]["jobid"],
+                        status)
 
                 # If the job is not finished and we set the polling frequency
                 # higher than 0 (off) then stage files.
@@ -246,16 +248,19 @@ def monitor(hosts, jobs):
                 # to stop users having to wait till all jobs end to grab last
                 # bit of staged files.)
                 if jobs[job]["laststatus"] == "Finished":
-                    LOGGER.info("  Job %s is finishing, staging will " % job +
-                                "begin in 60 seconds")
+                    LOGGER.info(
+                        "  Job %s is finishing, staging will begin in 60 "
+                        "seconds" % job)
+
                     time.sleep(60.0)
+
                     staging.stage_downstream(hosts, jobs, job)
 
         # Find out if all jobs are completed.
         for job in jobs:
 
-            if (jobs[job]["laststatus"] != "Finished" and
-               jobs[job]["laststatus"] != "Submit Error"):
+            if jobs[job]["laststatus"] != "Finished" and \
+               jobs[job]["laststatus"] != "Submit Error":
 
                 allfinished = False
                 break
@@ -285,8 +290,8 @@ def prepare(hosts, jobs):
             getattr(schedulers, scheduler.lower()).prepare(hosts, job, jobs)
 
         except AttributeError:
-            raise ex.PluginattributeError("prepare method cannot be found in" +
-                                          "plugin '%s'", scheduler)
+            raise ex.PluginattributeError(
+                "prepare method cannot be found in plugin '%s'" % scheduler)
 
     LOGGER.info("Submit file/s created.")
 
@@ -308,12 +313,13 @@ def submit(hosts, jobs):
             getattr(schedulers, scheduler.lower()).submit(host, job, jobs)
 
         except AttributeError:
-            raise ex.PluginattributeError("submit method cannot be found in" +
-                                          "plugin '%s'", scheduler)
+            raise ex.PluginattributeError(
+                "submit method cannot be found in plugin '%s'" % scheduler)
 
         except ex.JobsubmitError as err:
-            LOGGER.info("Submitting job '%s' failed with message - %s",
-                        job, err)
+            LOGGER.info(
+                "Submitting job '%s' failed with message - %s", job, err)
+
             jobs[job]["laststatus"] = "Submit Error"
 
     LOGGER.info("Submission complete.")

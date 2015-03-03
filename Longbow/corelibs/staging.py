@@ -100,8 +100,8 @@ def stage_upstream(hosts, jobs):
                                      os.path.join(path, directory))
 
             except (ex.SCPError, ex.RsyncError):
-                raise ex.StagingError("Could not stage file '%s' upstream",
-                                      src)
+                raise ex.StagingError("Could not stage file '%s' upstream"
+                                      % src)
 
     LOGGER.info("Staging files upstream - complete.")
 
@@ -129,8 +129,8 @@ def stage_downstream(hosts, jobs, jobname):
                 shellwrappers.download("rsync", host, src, dst)
 
             except (ex.SCPError, ex.RsyncError):
-                raise ex.StagingError("Could not download file '%s' to " +
-                                      "location '%s'", src, dst)
+                raise ex.StagingError("Could not download file '%s' " % src +
+                                      "to location '%s'" % dst)
 
         LOGGER.info("Staging files downstream - complete.")
 
@@ -149,8 +149,8 @@ def stage_downstream(hosts, jobs, jobname):
             shellwrappers.download("rsync", host, src, dst)
 
         except (ex.SCPError, ex.RsyncError):
-            raise ex.StagingError("Could not download file '%s' to " +
-                                  "location '%s'", src, dst)
+            raise ex.StagingError("Could not download file '%s' " % src +
+                                  "to location '%s'" % dst)
 
         LOGGER.info("  staging complete.")
 
