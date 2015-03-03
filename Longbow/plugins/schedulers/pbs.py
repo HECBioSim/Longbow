@@ -256,6 +256,12 @@ def submit(host, jobname, jobs):
                                     "the necessary information e.g. " +
                                     "\"accountflag = P\" and \"account = " +
                                     "ABCD-01234-EFG\"")
+        elif "Job must specify budget (-A option)" in inst.stderr:
+            raise ex.JobsubmitError("  Something went wrong when submitting." +
+                                    " This may be because you need to " +
+                                    "provided PBS with an " +
+                                    "account flag other than \"A\" " +
+                                    "which your PBS install expects")
         elif "Job exceeds queue and/or server resource limits" in inst.stderr:
             raise ex.JobsubmitError("  Something went wrong when submitting." +
                                     " PBS has reported that \"Job exceeds " +
@@ -263,6 +269,10 @@ def submit(host, jobname, jobs):
                                     "This may be because you set a walltime " +
                                     "or some other quantity that exceeds " +
                                     "the maximum allowed on your system.")
+        elif "budget" in inst.stderr:
+            raise ex.JobsubmitError("  Something went wrong when submitting." +
+                                    " This may be that you have entered an " +
+                                    "incorrect account code.")
         else:
             raise ex.JobsubmitError("  Something went wrong when submitting.")
 
