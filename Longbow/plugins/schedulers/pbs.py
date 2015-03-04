@@ -82,7 +82,7 @@ def prepare(hosts, jobname, jobs):
                           hosts[jobs[jobname]["resource"]]["accountflag"] +
                           " " + hosts[jobs[jobname]["resource"]]["account"] +
                           "\n")
-
+    
     cpn = hosts[jobs[jobname]["resource"]]["corespernode"]
 
     cores = hosts[jobs[jobname]["resource"]]["cores"]
@@ -120,6 +120,11 @@ def prepare(hosts, jobname, jobs):
 
     # Walltime for job.
     jobfile.write("#PBS -l walltime=" + jobs[jobname]["maxtime"] + ":00\n")
+    
+    # Set up batch jobs     
+    if int(jobs[jobname]["batch"]) > 1:
+        jobfile.write("#PBS -J 1-" + jobs[jobname]["batch"] + "\n")
+        jobfile.write("#PBS -r y\n")
 
     # Set some environment variables for PBS.
     jobfile.write("\n"
@@ -150,12 +155,9 @@ def prepare(hosts, jobname, jobs):
     elif int(jobs[jobname]["batch"]) > 1:
 
         jobfile.write("basedir=$PBS_O_WORKDIR \n"
-                      "for i in {1.." + jobs[jobname]["batch"] + "};\n"
-                      "do\n"
-                      "  cd $basedir/rep$i/\n"
-                      "  " + mpirun + " " + jobs[jobname]["commandline"] +
+                      "cd $basedir/rep${PBS_ARRAY_INDEX}/\n"
+                      + mpirun + " " + jobs[jobname]["commandline"] +
                       " &\n"
-                      "done\n"
                       "wait\n")
 
     # Close the file (housekeeping)
