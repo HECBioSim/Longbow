@@ -87,7 +87,7 @@ def prepare(hosts, jobname, jobs):
 
     jobfile.write("#$ -pe ib " + hosts[jobs[jobname]["resource"]]["cores"] +
                   "\n\n")
-    
+
     if jobs[jobname]["modules"] is not "":
         for module in jobs[jobname]["modules"].split(","):
             module.replace(" ", "")

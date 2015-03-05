@@ -64,7 +64,7 @@ def prepare(hosts, jobname, jobs):
     if jobname is not "":
         if int(jobs[jobname]["batch"]) == 1:
             jobfile.write("#BSUB -J " + jobname + "\n")
-        else:
+        elif int(jobs[jobname]["batch"]) > 1:
             jobfile.write("#BSUB -J " + jobname + "[1-" +
                           jobs[jobname]["batch"] + "]\n")
 
