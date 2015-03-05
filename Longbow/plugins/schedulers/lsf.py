@@ -62,7 +62,11 @@ def prepare(hosts, jobname, jobs):
     jobfile.write("#!/bin/bash --login\n")
 
     if jobname is not "":
-        jobfile.write("#BSUB -J " + jobname + "\n")
+        if int(jobs[jobname]["batch"]) == 1:
+            jobfile.write("#BSUB -J " + jobname + "\n")
+        else:
+            jobfile.write("#BSUB -J " + jobname + "[1-" +
+                          jobs[jobname]["batch"] + "]\n")
 
     if jobs[jobname]["queue"] is not "":
         jobfile.write("#BSUB -q " + jobs[jobname]["queue"] + "\n")
@@ -101,12 +105,9 @@ def prepare(hosts, jobname, jobs):
 
     elif int(jobs[jobname]["batch"]) > 1:
 
-        jobfile.write("for i in {1.." + jobs[jobname]["batch"] + "};\n"
-                      "do\n"
-                      "  cd rep$i/\n"
-                      "  " + mpirun + " -lsf " + jobs[jobname]["commandline"] +
+        jobfile.write("cd rep${LSB_JOBINDEX}/\n" +
+                      mpirun + " -lsf " + jobs[jobname]["commandline"] +
                       " &\n"
-                      "done\n"
                       "wait\n")
 
     # Close the file (housekeeping)

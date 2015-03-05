@@ -82,9 +82,12 @@ def prepare(hosts, jobname, jobs):
 
     jobfile.write("#$ -l h_rt=" + jobs[jobname]["maxtime"] + ":00:00\n")
 
+    if int(jobs[jobname]["batch"]) > 1:
+        jobfile.write("#$ -t 1-" + jobs[jobname]["batch"] + "\n")
+
     jobfile.write("#$ -pe ib " + hosts[jobs[jobname]["resource"]]["cores"] +
                   "\n\n")
-
+    
     if jobs[jobname]["modules"] is not "":
         for module in jobs[jobname]["modules"].split(","):
             module.replace(" ", "")
@@ -98,12 +101,9 @@ def prepare(hosts, jobname, jobs):
 
     elif int(jobs[jobname]["batch"]) > 1:
 
-        jobfile.write("for i in {1.." + jobs[jobname]["batch"] + "};\n"
-                      "do\n"
-                      "  cd rep$i/\n"
-                      "  " + mpirun + jobs[jobname]["commandline"] +
+        jobfile.write("cd rep${SGE_TASK_ID}/\n" +
+                      mpirun + jobs[jobname]["commandline"] +
                       " &\n"
-                      "done\n"
                       "wait\n")
 
     # Close the file (housekeeping)
