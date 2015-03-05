@@ -115,7 +115,7 @@ def testenv(hostconf, hosts, jobs):
 
                 for module in jobs[job]["modules"].split(","):
                     module.replace(" ", "")
-                    cmdmod.extend(["module load " + module])
+                    cmdmod.extend(["module load " + module + "\n"])
 
                 for param in handlers:
                     try:
