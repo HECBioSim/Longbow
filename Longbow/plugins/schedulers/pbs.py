@@ -82,7 +82,7 @@ def prepare(hosts, jobname, jobs):
                           hosts[jobs[jobname]["resource"]]["accountflag"] +
                           " " + hosts[jobs[jobname]["resource"]]["account"] +
                           "\n")
-    
+
     cpn = hosts[jobs[jobname]["resource"]]["corespernode"]
 
     cores = hosts[jobs[jobname]["resource"]]["cores"]
@@ -120,8 +120,8 @@ def prepare(hosts, jobname, jobs):
 
     # Walltime for job.
     jobfile.write("#PBS -l walltime=" + jobs[jobname]["maxtime"] + ":00\n")
-    
-    # Set up batch jobs     
+
+    # Set up batch jobs
     if int(jobs[jobname]["batch"]) > 1:
         jobfile.write("#PBS -J 1-" + jobs[jobname]["batch"] + "\n")
         jobfile.write("#PBS -r y\n")

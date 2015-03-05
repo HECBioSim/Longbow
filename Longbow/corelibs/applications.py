@@ -67,7 +67,7 @@ def testapp(hosts, jobs):
 
                 for module in jobs[job]["modules"].split(","):
                     module.replace(" ", "")
-                    cmd.extend(["module load " + module])
+                    cmd.extend(["module load " + module + "\n"])
 
             cmd.extend(["which " + executable])
 
