@@ -205,8 +205,8 @@ def monitor(hosts, jobs):
     # that.
     for job in jobs:
         jobs[job]["laststatus"] = ""
-        if interval < jobs[job]["frequency"]:
-            interval = jobs[job]["frequency"]
+        if interval < int(jobs[job]["frequency"]):
+            interval = int(jobs[job]["frequency"])
 
     # Loop until all jobs are done.
     while allfinished is False:
@@ -255,6 +255,12 @@ def monitor(hosts, jobs):
                     time.sleep(60.0)
 
                     staging.stage_downstream(hosts, jobs, job)
+
+        # If the polling interval is set at zero then staging will be disabled
+        # however continue to poll jobs but do it on a low frequency. Staging
+        # will however still occur once the job is finished.
+        if interval is 0:
+            time.sleep(120.0)
 
         # Find out if all jobs are completed.
         for job in jobs:
