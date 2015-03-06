@@ -111,11 +111,12 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
         nodes = str(int(math.ceil(nodes)))
         jobfile.write("#SBATCH -N " + nodes + "\n")
 
-    # Walltime for job
-    jobfile.write("#SBATCH -t " + jobs[jobname]["maxtime"] + ":00\n")
-
+    # Set up a job array if desired
     if int(jobs[jobname]["batch"]) > 1:
         jobfile.write("#SBATCH --array=1-" + jobs[jobname]["batch"] + "\n")
+
+    # Walltime for job
+    jobfile.write("#SBATCH -t " + jobs[jobname]["maxtime"] + ":00\n\n")
 
     # Load up modules if required.
     if jobs[jobname]["modules"] is not "":
@@ -130,9 +131,9 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
     if int(jobs[jobname]["batch"]) == 1:
         jobfile.write(mpirun + " " + jobs[jobname]["commandline"] + "\n")
 
-    # Ensemble jobs need a loop.
+    # Ensemble jobs
     elif int(jobs[jobname]["batch"]) > 1:
-        jobfile.write("basedir = `pwd`"
+        jobfile.write("basedir = `pwd`\n"
                       "cd $basedir/rep${SLURM_ARRAY_TASK_ID}/\n" +
                       mpirun + " " + jobs[jobname]["commandline"] +
                       " &\n"

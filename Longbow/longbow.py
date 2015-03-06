@@ -42,6 +42,9 @@ def main(args, files, mode, machine):
     python/unix shell and is thus the main choice for headless machines like a
     local cluster or for users that don't require a GUI."""
 
+    # -------------------------------------------------------------------------
+    # Determine some basic information
+
     # Get current directory (where we are run from).
     cwd = os.getcwd()
 
@@ -57,6 +60,9 @@ def main(args, files, mode, machine):
 
     except IndexError:
         executable = ""
+
+    # Convert command line arguments into a space separated string
+    args = " ".join(args)
 
     # -------------------------------------------------------------------------
     # Setup some basic file paths.
@@ -134,15 +140,11 @@ def main(args, files, mode, machine):
         # Load the configuration of the hosts.
         hosts = configuration.loadhosts(files["hosts"])
 
-        # Load the configuration of the jobs, either default or specified
-        if files["job"] is not "":
-            jobs = configuration.loadjobs(cwd, files["job"], executable)
-        else:
-            jobs = configuration.loaddefaultjobconfigs(cwd, files["hosts"],
-                                                       executable, machine)
+        # Load the configuration of the jobs
+        jobs = configuration.loadjobs(files["job"], files["hosts"], machine)
 
-        # Overload the hosts dictionary with certain job parameters
-        hosts = configuration.overloadhosts(hosts, jobs)
+        # Sort and prioritise configuration parameters
+        configuration.sortconfigs(hosts, jobs, executable, cwd, args)
 
         # Test the connection/s specified in the job configurations
         shellwrappers.testconnections(hosts, jobs)
@@ -160,7 +162,7 @@ def main(args, files, mode, machine):
 
         # Process the jobs command line arguments and find files for
         # staging.
-        applications.processjobs(args, jobs)
+        applications.processjobs(jobs)
 
         # Create jobfile and add it to the list of files that needs
         # uploading.
@@ -277,13 +279,6 @@ if __name__ == "__main__":
         "debug": False,
         "verbose": False
     }
-
-    # Check an executable or job configuration file has been provided
-    if COMMANDLINEARGS[0] not in ("charmm", "pmemd", "pmemd.MPI", "mdrun" +
-       "lmp_xc30", "namd2") and COMMANDLINEARGS.count("-job") == 0:
-        raise ex.CommandlineargsError("A recognised executable or job " +
-                                      "configuration file must be specified " +
-                                      "on the command line")
 
     # ------------------------------------------------------------------------
     # Pull out some of the specific commandline args leaving behind

@@ -46,16 +46,28 @@ def loadhosts(confile):
     """Method for processing host configuration files."""
 
     # Dictionary for the host configuration parameters.
+    # Contains "user" and "host" but no "resource" unlike the jobs equivalent
     hosttemplate = {
-        "corespernode": "24",
-        "cores": "24",
+        "user": "",
         "host": "",
-        "port": "22",
+        "corespernode": "",
+        "cores": "",
+        "port": "",
         "scheduler": "",
         "handler": "",
-        "user": "",
         "accountflag": "",
         "account": "",
+        "cluster": "",
+        "commandline": "",
+        "frequency": "",
+        "localworkdir": "",
+        "modules": "",
+        "maxtime": "",
+        "memory": "",
+        "nodes": "",
+        "executable": "",
+        "queue": "",
+        "batch": "",
         "remoteworkdir": ""
     }
 
@@ -70,72 +82,82 @@ def loadhosts(confile):
     return hosts
 
 
-def loadjobs(cwd, confile, executable):
+def loadjobs(jobconfile, hostsconfile, remoteres):
 
     """Method for processing job configuration files."""
 
-    # Dictionary to determine the module to load based on the command line
-    # executable
-    modules = {
-        "charmm": "charmm",
-        "pmemd": "amber",
-        "pmemd.MPI": "amber",
-        "lmp_xc30": "lammps",
-        "namd2": "namd",
-        "mdrun": "gromacs",
-        "": ""
-        }
-
     # Dictionary for the job configurations parameters.
+    # Contains "resource" but no "user" or "host" unlike the hosts equivalent
     jobtemplate = {
+        "corespernode": "",
+        "cores": "",
+        "port": "",
+        "scheduler": "",
+        "handler": "",
+        "accountflag": "",
         "account": "",
         "cluster": "",
         "commandline": "",
-        "cores": "",
-        "frequency": "60",
-        "localworkdir": cwd,
+        "frequency": "",
+        "localworkdir": "",
         "modules": "",
-        "maxtime": "24:00",
+        "maxtime": "",
         "memory": "",
         "nodes": "",
-        "executable": executable,
+        "executable": "",
         "queue": "",
-        "batch": "1",
-        "resource": "",
-        "remoteworkdir": ""
+        "batch": "",
+        "remoteworkdir": "",
+        "resource": ""
     }
 
-    # If the executable is not specified on the command line, require
-    # it to be in a job configuration file if provided
-    if executable == "":
-        required = [
-            "executable",
-            "resource",
-            "commandline"
-        ]
+    jobs = {}
 
+    # if a job configuration file has been provided, load it
+    if jobconfile is not "":
+        jobs = loadconfigs(jobconfile, jobtemplate, "")
+
+    # else load an empty dictionary
     else:
-        required = [
-            "resource"
-        ]
+        jobs["Longbowjob"] = jobtemplate.copy()
 
-    jobs = loadconfigs(confile, jobtemplate, required)
-
+    # determine which remote resource to use if none has been set
     for job in jobs:
-        if jobs[job]["modules"] == "":
-            jobs[job]["modules"] = modules[jobs[job]["executable"]]
+        if jobs[job]["resource"] is "":
+
+            # Instantiate the configparser and read the configuration file.
+            configs = configparser.ConfigParser()
+
+            try:
+                configs.read(hostsconfile)
+
+            except IOError:
+                ex.RequiredinputError("Can't read the configurations from: %s"
+                                      % hostsconfile)
+
+            # Grab a list of the section headers present in file.
+            sectionlist = configs.sections()
+
+            # if the machine flag has not been set use the first machine in the
+            # hosts
+            if remoteres is "":
+                jobs[job]["resource"] = sectionlist[0]
+
+            elif remoteres not in sectionlist:
+                raise ex.CommandlineargsError("The %s machine specified on the"
+                    " command line is not one of: %s"
+                    % (remoteres, sectionlist))
+            else:
+                jobs[job]["resource"] = remoteres
 
     return jobs
 
 
-def loaddefaultjobconfigs(cwd, hostsconfile, executable, remoteres):
+def sortconfigs(hosts, jobs, executable, cwd, args):
 
-    """Method to load default job configuration."""
+    """Method to sort and prioritise configuration parameters."""
 
-    LOGGER.info("Loading default job configuration information.")
-
-    # Dictionary to determine the module to load based on the command line
-    # executable
+    # Dictionary to map executable to a default module
     modules = {
         "charmm": "charmm",
         "pmemd": "amber",
@@ -144,79 +166,83 @@ def loaddefaultjobconfigs(cwd, hostsconfile, executable, remoteres):
         "namd2": "namd",
         "mdrun": "gromacs",
         "": ""
-        }
+    }
 
-    # Dictionary for the default job configurations parameters.
-    jobtemplate = {
+    # Parameters to be stored in the hosts structure excluding user and host
+    hosttemplate = {
+        "corespernode": "24",
+        "cores": "24",
+        "port": "22",
+        "scheduler": "",
+        "handler": "",
+        "accountflag": "",
         "account": "",
+        "remoteworkdir": ""
+    }
+
+    # Parameters to be stored in the jobs structure excluding resource
+    jobtemplate = {
         "cluster": "",
-        "commandline": "",
-        "cores": "",
-        "memory": "",
-        "nodes": "",
-        "queue": "",
-        "remoteworkdir": "",
+        "commandline": args,
         "frequency": "60",
         "localworkdir": cwd,
         "modules": modules[executable],
         "maxtime": "24:00",
+        "memory": "",
+        "nodes": "",
         "executable": executable,
+        "queue": "",
         "batch": "1",
-        "resource": remoteres
     }
 
-    jobs = {}
-    jobs["myjob"] = jobtemplate.copy()
-
-    # Instantiate the configparser and read the configuration file.
-    configs = configparser.ConfigParser()
-
-    try:
-        configs.read(hostsconfile)
-
-    except IOError:
-        ex.RequiredinputError("Can't read the configurations from: %s"
-                              % hostsconfile)
-
-    # Grab a list of the section headers present in file.
-    sectionlist = configs.sections()
-
-    # if the machine flag has not been set use the first machine in the hosts
-    if remoteres is "":
-        jobs["myjob"]["resource"] = sectionlist[0]
-
-    elif remoteres not in sectionlist:
-        raise ex.CommandlineargsError(
-            "The %s machine specified " % remoteres + "on the command line is "
-            "not one of: %s" % sectionlist)
-
-    return jobs
-
-
-def overloadhosts(hostsconfile, jobsconfile):
-
-    """Method to overload certain parameters in the hosts."""
-
-    jobs = jobsconfile
-    hosts = hostsconfile
-
     for job in jobs:
-        if jobs[job]["cores"] is not "":
-            hosts[jobs[job]["resource"]]["cores"] = jobs[job]["cores"]
 
-        if jobs[job]["account"] is not "":
-            hosts[jobs[job]["resource"]]["account"] = jobs[job]["account"]
+        # hosts
+        for option in hosttemplate:
 
-        if jobs[job]["remoteworkdir"] is not "":
-            hosts[jobs[job]["resource"]]["remoteworkdir"] = \
-                jobs[job]["remoteworkdir"]
+            # Job configuration parameters always take priority
+            if jobs[job][option] is not "":
+                hosts[jobs[job]["resource"]][option] = jobs[job][option]
 
-        # Delete parameters from the jobs dictionary
-        del jobs[job]["cores"]
-        del jobs[job]["account"]
-        del jobs[job]["remoteworkdir"]
+            # if parameter has not been defined in hosts or jobs use default
+            elif hosts[jobs[job]["resource"]][option] is "":
+                hosts[jobs[job]["resource"]][option] = hosttemplate[option]
 
-    return hosts
+            # Clean up
+            del jobs[job][option]
+
+        # jobs
+        for option in jobtemplate:
+            if jobs[job][option] is "":
+
+                # if a parameter hasn't been defined in jobs but has been in
+                # hosts, use it
+                if hosts[jobs[job]["resource"]][option] is not "":
+                    jobs[job][option] = hosts[jobs[job]["resource"]][option]
+
+                # if parameter has not been defined in hosts or jobs use
+                # default
+                else:
+                    jobs[job][option] = jobtemplate[option]
+
+            # Clean up
+            del hosts[jobs[job]["resource"]][option]
+
+        # Check we have an executable and command line arguments provided
+        if jobs[job]["executable"] is "":
+            raise ex.CommandlineargsError(
+                "An executable has not been specified on the command line "
+                "or in a configuration file")
+
+        if jobs[job]["commandline"] is "":
+            if executable == "charmm":
+                raise ex.CommandlineargsError(
+                    "Command-line arguments were not detected. Make sure you "
+                    "have typed < in quotation marks on the command line")
+            else:
+                raise ex.CommandlineargsError(
+                    "Command line arguments have not been specified on the "
+                    "command line or in a configuration file")
 
 
 def loadconfigs(confile, template, required):
@@ -265,12 +291,7 @@ def loadconfigs(confile, template, required):
                 params[section][option] = configs.get(section, option)
 
             except configparser.NoOptionError:
-                if option in required and option == "executable":
-                    raise ex.ConfigurationError(
-                        "If the executable is not specified on the command "
-                        "line, it must be in the job configuration file")
-
-                elif option in required:
+                if option in required:
                     raise ex.ConfigurationError(
                         "The parameter %s is required" % option)
 
