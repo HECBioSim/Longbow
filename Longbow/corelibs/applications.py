@@ -102,22 +102,8 @@ def processjobs(jobs):
         flags = []
         executable = jobs[job]["executable"]
 
-        # Process the command line into a list. This should be the case for
+        # Process the command line into a list.
         args = jobs[job]["commandline"].split()
-
-        # Otherwise check if it came in on the command line to the main
-        # app, this should be the case for single and single batch jobs.
-        if len(args) is 0:
-            if executable == "charmm":
-                raise ex.CommandlineargsError(
-                    "Command-line arguments were not detected. Make sure you "
-                    "have typed < in quotation marks on the command line")
-            else:
-                raise ex.CommandlineargsError(
-                    "Commandline arguments were not detected, please make "
-                    "sure you provide the command-line arguments that "
-                    "you would normally send to your application in addition "
-                    "to the Longbow ones.")
 
         LOGGER.debug("Args for job '%s': %s", job, args)
 

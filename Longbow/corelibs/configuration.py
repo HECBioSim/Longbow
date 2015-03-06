@@ -235,9 +235,14 @@ def sortconfigs(hosts, jobs, executable, cwd, args):
                 "or in a configuration file")
 
         if jobs[job]["commandline"] is "":
-            raise ex.CommandlineargsError(
-                "Command line arguments have not been specified on the "
-                "command line or in a configuration file")
+            if executable == "charmm":
+                raise ex.CommandlineargsError(
+                    "Command-line arguments were not detected. Make sure you "
+                    "have typed < in quotation marks on the command line")
+            else:
+                raise ex.CommandlineargsError(
+                    "Command line arguments have not been specified on the "
+                    "command line or in a configuration file")
 
 
 def loadconfigs(confile, template, required):
