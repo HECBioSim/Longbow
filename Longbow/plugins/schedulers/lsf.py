@@ -62,8 +62,12 @@ def prepare(hosts, jobname, jobs):
     jobfile.write("#!/bin/bash --login\n")
 
     if jobname is not "":
+
+        # Single job
         if int(jobs[jobname]["batch"]) == 1:
             jobfile.write("#BSUB -J " + jobname + "\n")
+
+        # Job array
         elif int(jobs[jobname]["batch"]) > 1:
             jobfile.write("#BSUB -J " + jobname + "[1-" +
                           jobs[jobname]["batch"] + "]\n")
@@ -99,10 +103,12 @@ def prepare(hosts, jobname, jobs):
 
     mpirun = hosts[jobs[jobname]["resource"]]["handler"]
 
+    # Single job
     if int(jobs[jobname]["batch"]) == 1:
 
         jobfile.write(mpirun + " -lsf " + jobs[jobname]["commandline"] + "\n")
 
+    # Job array
     elif int(jobs[jobname]["batch"]) > 1:
 
         jobfile.write("cd rep${LSB_JOBINDEX}/\n" +

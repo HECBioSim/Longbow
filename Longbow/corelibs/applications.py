@@ -80,7 +80,7 @@ def testapp(hosts, jobs):
                 raise
 
 
-def processjobs(args, jobs):
+def processjobs(jobs):
 
     """Process the jobs command line, this method will extract information
     from the command line and construct a list of files to be staged."""
@@ -102,15 +102,12 @@ def processjobs(args, jobs):
         flags = []
         executable = jobs[job]["executable"]
 
-        # If the commandline was specified in the job configuration file
-        # then process it into a list. This should be the case for
-        # multijobs.
-        if jobs[job]["commandline"] is not "":
-            args = jobs[job]["commandline"].split()
+        # Process the command line into a list. This should be the case for
+        args = jobs[job]["commandline"].split()
 
         # Otherwise check if it came in on the command line to the main
         # app, this should be the case for single and single batch jobs.
-        elif len(args) is 0:
+        if len(args) is 0:
             if executable == "charmm":
                 raise ex.CommandlineargsError(
                     "Command-line arguments were not detected. Make sure you "
