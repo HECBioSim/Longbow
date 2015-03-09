@@ -93,7 +93,7 @@ def prepare(hosts, jobname, jobs):
 
     jobfile.write("#BSUB -W " + jobs[jobname]["maxtime"] + "\n")
 
-    jobfile.write("#BSUB -n " + hosts[jobs[jobname]["resource"]]["cores"] +
+    jobfile.write("#BSUB -n " + jobs[jobname]["cores"] +
                   "\n")
 
     if jobs[jobname]["modules"] is not "":

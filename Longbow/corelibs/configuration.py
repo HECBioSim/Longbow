@@ -153,9 +153,9 @@ def loadjobs(jobconfile, hostsconfile, remoteres):
     return jobs
 
 
-def sortconfigs(hosts, jobs, executable, cwd, args):
+def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args):
 
-    """Method to sort and prioritise configuration parameters."""
+    """Method to sort and prioritise jobs configuration parameters."""
 
     # Dictionary to map executable to a default module
     modules = {
@@ -168,20 +168,31 @@ def sortconfigs(hosts, jobs, executable, cwd, args):
         "": ""
     }
 
-    # Parameters to be stored in the hosts structure excluding user and host
-    hosttemplate = {
-        "corespernode": "24",
-        "cores": "24",
-        "port": "22",
-        "scheduler": "",
-        "handler": "",
-        "accountflag": "",
-        "account": "",
-        "remoteworkdir": ""
+    # Blank parameters for the jobs structure
+    jobtemplate = {
+        "cores": "",
+        "cluster": "",
+        "commandline": "",
+        "frequency": "",
+        "localworkdir": "",
+        "modules": "",
+        "maxtime": "",
+        "memory": "",
+        "nodes": "",
+        "executable": "",
+        "queue": "",
+        "batch": "",
+        "resource": ""
     }
 
-    # Parameters to be stored in the jobs structure excluding resource
-    jobtemplate = {
+    # Parameters to be copied manually from jobsconfig to jobs
+    manual = [
+        "resource"
+    ]
+
+    # Default parameters to be stored in the jobs structure excluding resource
+    jobdefaults = {
+        "cores": "24",
         "cluster": "",
         "commandline": args,
         "frequency": "60",
@@ -195,54 +206,117 @@ def sortconfigs(hosts, jobs, executable, cwd, args):
         "batch": "1",
     }
 
-    for job in jobs:
+    jobs = {}
 
-        # hosts
-        for option in hosttemplate:
+    # create jobs internal structure
+    for job in jobsconfig:
+        jobs[job] = jobtemplate.copy()
+
+        for item in manual:
+            jobs[job][item] = jobsconfig[job][item]
+
+    # prioritise parameters
+    for job in jobs:
+        for option in jobdefaults:
+            # if a parameter has been defined in jobsconfig, use it
+            if jobsconfig[job][option] is not "":
+                jobs[job][option] = jobsconfig[job][option]
+
+            # if a parameter hasn't been defined in jobsconfig but has been in
+            # hostsconfig, use it
+            elif hostsconfig[jobsconfig[job]["resource"]][option] is not "":
+                    jobs[job][option] = \
+                    hostsconfig[jobsconfig[job]["resource"]][option]
+
+            # if parameter has not been defined in hosts or jobs use
+            # default
+            else:
+                    jobs[job][option] = jobdefaults[option]
+
+    # Check we have an executable and command line arguments provided
+    if jobs[job]["executable"] is "":
+        raise ex.CommandlineargsError(
+            "An executable has not been specified on the command line "
+            "or in a configuration file")
+
+    if jobs[job]["commandline"] is "":
+        if executable == "charmm":
+            raise ex.CommandlineargsError(
+                "Command-line arguments were not detected. Make sure you "
+                "have typed < in quotation marks on the command line")
+        else:
+            raise ex.CommandlineargsError(
+                "Command line arguments have not been specified on the "
+                "command line or in a configuration file")
+
+    return jobs
+
+
+def sorthostsconfigs(hostsconfig, jobsconfig):
+
+    """Method to sort and prioritise hosts configuration parameters."""
+
+    # Parameters to be stored in the hosts structure
+    hosttemplate = {
+        "corespernode": "",
+        "port": "",
+        "scheduler": "",
+        "handler": "",
+        "accountflag": "",
+        "account": "",
+        "remoteworkdir": "",
+        "user": "",
+        "host": ""
+    }
+
+    # Parameters to be copied manually from hostsconfig to hosts
+    manual = [
+        "host",
+        "user"
+    ]
+
+    # Default parameters to be stored in the hosts structure excluding user and
+    # host
+    hostdefaults = {
+        "corespernode": "24",
+        "port": "22",
+        "scheduler": "",
+        "handler": "",
+        "accountflag": "",
+        "account": "",
+        "remoteworkdir": ""
+    }
+
+    hosts = {}
+
+    # create default hosts internal structure
+    for job in jobsconfig:
+        hosts[jobsconfig[job]["resource"]] = hosttemplate.copy()
+
+        for item in manual:
+            hosts[jobsconfig[job]["resource"]][item] = \
+            hostsconfig[jobsconfig[job]["resource"]][item]
+
+    # prioritise parameters
+    for job in jobsconfig:
+        for option in hostdefaults:
 
             # Job configuration parameters always take priority
-            if jobs[job][option] is not "":
-                hosts[jobs[job]["resource"]][option] = jobs[job][option]
+            if jobsconfig[job][option] is not "":
+                hosts[jobsconfig[job]["resource"]][option] = \
+                jobsconfig[job][option]
+
+            # else use the hosts parameter if provided
+            elif hostsconfig[jobsconfig[job]["resource"]][option] is not "":
+                hosts[jobsconfig[job]["resource"]][option] = \
+                hostsconfig[jobsconfig[job]["resource"]][option]
 
             # if parameter has not been defined in hosts or jobs use default
-            elif hosts[jobs[job]["resource"]][option] is "":
-                hosts[jobs[job]["resource"]][option] = hosttemplate[option]
-
-            # Clean up
-            del jobs[job][option]
-
-        # jobs
-        for option in jobtemplate:
-            if jobs[job][option] is "":
-
-                # if a parameter hasn't been defined in jobs but has been in
-                # hosts, use it
-                if hosts[jobs[job]["resource"]][option] is not "":
-                    jobs[job][option] = hosts[jobs[job]["resource"]][option]
-
-                # if parameter has not been defined in hosts or jobs use
-                # default
-                else:
-                    jobs[job][option] = jobtemplate[option]
-
-            # Clean up
-            del hosts[jobs[job]["resource"]][option]
-
-        # Check we have an executable and command line arguments provided
-        if jobs[job]["executable"] is "":
-            raise ex.CommandlineargsError(
-                "An executable has not been specified on the command line "
-                "or in a configuration file")
-
-        if jobs[job]["commandline"] is "":
-            if executable == "charmm":
-                raise ex.CommandlineargsError(
-                    "Command-line arguments were not detected. Make sure you "
-                    "have typed < in quotation marks on the command line")
             else:
-                raise ex.CommandlineargsError(
-                    "Command line arguments have not been specified on the "
-                    "command line or in a configuration file")
+                hosts[jobsconfig[job]["resource"]][option] = \
+                hostdefaults[option]
+
+    return hosts
 
 
 def loadconfigs(confile, template, required):

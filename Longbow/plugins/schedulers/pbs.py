@@ -85,7 +85,7 @@ def prepare(hosts, jobname, jobs):
 
     cpn = hosts[jobs[jobname]["resource"]]["corespernode"]
 
-    cores = hosts[jobs[jobname]["resource"]]["cores"]
+    cores = jobs[jobname]["cores"]
 
     # Load levelling override. In cases where # of cores is less than
     # corespernode, user is likely to be undersubscribing.

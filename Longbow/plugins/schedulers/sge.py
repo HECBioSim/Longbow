@@ -86,7 +86,7 @@ def prepare(hosts, jobname, jobs):
     if int(jobs[jobname]["batch"]) > 1:
         jobfile.write("#$ -t 1-" + jobs[jobname]["batch"] + "\n")
 
-    jobfile.write("#$ -pe ib " + hosts[jobs[jobname]["resource"]]["cores"] +
+    jobfile.write("#$ -pe ib " + jobs[jobname]["cores"] +
                   "\n\n")
 
     if jobs[jobname]["modules"] is not "":
