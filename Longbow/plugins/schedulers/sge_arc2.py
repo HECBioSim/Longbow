@@ -87,7 +87,7 @@ def prepare(hosts, jobname, jobs):
     if int(jobs[jobname]["batch"]) > 1:
         jobfile.write("#$ -t 1-" + jobs[jobname]["batch"] + "\n")
 
-    cores = hosts[jobs[jobname]["resource"]]["cores"]
+    cores = jobs[jobname]["cores"]
 
     if jobs[jobname]["corespernode"] is not "":
         cpn = jobs[jobname]["corespernode"]

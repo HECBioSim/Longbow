@@ -96,7 +96,7 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
                           hosts[resource]["accountflag"] +
                           " " + hosts[resource]["account"] + "\n")
 
-    cores = hosts[resource]["cores"]
+    cores = jobs[jobname]["cores"]
     cpn = hosts[resource]["corespernode"]
 
     # Specify the total number of mpi tasks required

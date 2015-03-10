@@ -138,13 +138,20 @@ def main(args, files, mode, machine):
         logger.info("hosts file is: %s", files["hosts"])
 
         # Load the configuration of the hosts.
-        hosts = configuration.loadhosts(files["hosts"])
+        hostsconfig = \
+        configuration.loadhosts(files["hosts"])
 
         # Load the configuration of the jobs
-        jobs = configuration.loadjobs(files["job"], files["hosts"], machine)
+        jobsconfig = \
+        configuration.loadjobs(files["job"], files["hosts"], machine)
 
-        # Sort and prioritise configuration parameters
-        configuration.sortconfigs(hosts, jobs, executable, cwd, args)
+        # Sort and prioritise jobs configuration parameters
+        jobs = \
+        configuration.sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd,
+                                      args)
+
+        # Sort and prioritise hosts configuration parameters
+        hosts = configuration.sorthostsconfigs(hostsconfig, jobsconfig)
 
         # Test the connection/s specified in the job configurations
         shellwrappers.testconnections(hosts, jobs)
