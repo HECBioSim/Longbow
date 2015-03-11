@@ -31,8 +31,9 @@ setup_args = {
                             "high-end resource. The results are automatically"
                             " brought back bringing the power of an HPC to "
                             "your desktop",
-    'author'           : "James T Gebbie-Rayet and Gareth B Shannon",
-    'author_email'     : "gareth.shannon@nottingham.ac.uk",
+    'author'           : "James T Gebbie-Rayet, Gareth B Shannon",
+    'author_email'     : "james.gebbie@stfc.ac.uk, "
+                         "gareth.shannon@nottingham.ac.uk",
     'url'              : "www.hecbiosim.ac.uk",
     'license'          : "GNU General Public License.",
     'classifiers'      : [
