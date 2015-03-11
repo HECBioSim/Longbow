@@ -13,9 +13,9 @@ print "Checking python version!"
 if not (sys.version_info[0] >= 2 and sys.version_info[1] >= 7):
     exit_with_error("You should install Python 2.7 or greater to install "
                     "Longbow")
-print "Python version checked."
 
 # download examples
+print "Downloading example files"
 subprocess.call(["wget", "-P", os.path.expanduser("~"), 
                  "http://www.hecbiosim.ac.uk/longbow-extras.zip"])
 subprocess.call(["unzip", "-d", os.path.expanduser("~"), 
@@ -37,9 +37,7 @@ setup_args = {
     'license'          : "GNU General Public License.",
     'classifiers'      : [
         'Development Status :: 4 - Beta',
-#        'Intended Audience :: Beta-testers',
         'Environment :: Console',
-#        'License :: OSI Approved :: GNU General Public License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
         'Topic :: Utilities',
@@ -47,7 +45,6 @@ setup_args = {
         'Operating System :: POSIX',
         'Operating System :: Unix'
     ],
-
     'packages'    : ["Longbow", "Longbow.plugins", 
                      "Longbow.plugins.schedulers", "Longbow.corelibs"],
     'scripts' : ['Longbow/longbow'],
