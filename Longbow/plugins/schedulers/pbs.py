@@ -24,8 +24,8 @@
 import logging
 import os
 import math
-import corelibs.exceptions as ex
-import corelibs.shellwrappers as shellwrappers
+import Longbow.corelibs.exceptions as ex
+import Longbow.corelibs.shellwrappers as shellwrappers
 
 LOGGER = logging.getLogger("Longbow")
 
@@ -154,10 +154,9 @@ def prepare(hosts, jobname, jobs):
     # Job array
     elif int(jobs[jobname]["batch"]) > 1:
         jobfile.write("basedir=$PBS_O_WORKDIR \n"
-                      "cd $basedir/rep${PBS_ARRAY_INDEX}/\n"
-                      + mpirun + " " + jobs[jobname]["commandline"] +
-                      " &\n"
-                      "wait\n")
+                      "cd $basedir/rep${PBS_ARRAY_INDEX}/\n" +
+                      mpirun + " " + jobs[jobname]["commandline"] +
+                      " &\n")
 
     # Close the file (housekeeping)
     jobfile.close()

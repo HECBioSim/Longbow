@@ -23,8 +23,8 @@
 
 import logging
 import os
-import corelibs.exceptions as ex
-import corelibs.shellwrappers as shellwrappers
+import Longbow.corelibs.exceptions as ex
+import Longbow.corelibs.shellwrappers as shellwrappers
 
 LOGGER = logging.getLogger("Longbow")
 
@@ -104,8 +104,7 @@ def prepare(hosts, jobname, jobs):
     elif int(jobs[jobname]["batch"]) > 1:
         jobfile.write("cd rep${SGE_TASK_ID}/\n" +
                       mpirun + jobs[jobname]["commandline"] +
-                      " &\n"
-                      "wait\n")
+                      " &\n")
 
     # Close the file (housekeeping)
     jobfile.close()
