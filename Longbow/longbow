@@ -27,13 +27,41 @@ the main for a console based session."""
 import os
 import sys
 import logging
-import Longbow.corelibs.applications as applications
-import Longbow.corelibs.configuration as configuration
-import Longbow.corelibs.exceptions as ex
-import Longbow.corelibs.logger as log
-import Longbow.corelibs.scheduling as scheduling
-import Longbow.corelibs.shellwrappers as shellwrappers
-import Longbow.corelibs.staging as staging
+
+try:
+    import Longbow.corelibs.applications as applications
+except ImportError:
+    import corelibs.applications as applications
+
+try:
+    import Longbow.corelibs.configuration as configuration
+except ImportError:
+    import corelibs.configuration as configuration
+
+try:
+    import Longbow.corelibs.exceptions as ex
+except ImportError:
+    import corelibs.exceptions as ex
+
+try:
+    import Longbow.corelibs.logger as log
+except ImportError:
+    import corelibs.logger as log
+
+try:
+    import Longbow.corelibs.scheduling as scheduling
+except ImportError:
+    import corelibs.scheduling as scheduling
+
+try:
+    import Longbow.corelibs.shellwrappers as shellwrappers
+except ImportError:
+    import corelibs.shellwrappers as shellwrappers
+
+try:
+    import Longbow.corelibs.staging as staging
+except ImportError:
+    import corelibs.staging as staging
 
 
 def main(args, files, mode, machine):
