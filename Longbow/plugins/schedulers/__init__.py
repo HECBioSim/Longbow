@@ -24,6 +24,9 @@
 import sys
 import os
 import pkgutil
+import logging
+
+LOGGER = logging.getLogger("Longbow")
 
 QUERY = {}
 
@@ -33,6 +36,23 @@ MODULES = pkgutil.iter_modules(path=[PATH])
 for loader, modulename, ispkg in MODULES:
 
     if modulename not in sys.modules:
-        mod = __import__("Longbow.plugins.schedulers." + modulename,
-                         fromlist=[""])
-        QUERY[modulename] = [getattr(mod, "QUERY_STRING")]
+        try:
+            mod = __import__("Longbow.plugins.schedulers." + modulename,
+                fromlist=[""])
+
+        except ImportError:
+            try:
+                mod = __import__("Longbow.plugins.schedulers." + modulename,
+                    fromlist=[""])
+
+            except ImportError:
+                LOGGER.error(
+                    "Importing the schedulers plugin '%s' - failed." %
+                    modulename)
+
+        try:
+            QUERY[modulename] = [getattr(mod, "QUERY_STRING")]
+
+        except AttributeError:
+            LOGGER.error(
+                "Importing attribute from plugin '%s' - failed." % modulename)

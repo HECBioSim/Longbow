@@ -30,5 +30,5 @@ PACKAGES = pkgutil.walk_packages(path=[PATH])
 PLUGINS = {}
 
 for packageloader, packagename, ispkg in PACKAGES:
-    package = __import__("Longbow.plugins." + packagename)
-    PLUGINS[packagename] = "Longbow.plugins." + packagename
+    package = __import__("plugins." + packagename)
+    PLUGINS[packagename] = "plugins." + packagename

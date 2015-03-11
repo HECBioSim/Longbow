@@ -43,11 +43,14 @@ for loader, modulename, ispkg in MODULES:
     if modulename not in sys.modules:
         try:
             mod = __import__(
-                "plugins.apps." + modulename, fromlist=[""])
-
+                "Longbow.plugins.apps." + modulename, fromlist=[""])
         except ImportError:
-            LOGGER.error(
-                "Importing the apps plugin '%s' - failed." % modulename)
+            try:
+                mod = __import__(
+                    "plugins.apps." + modulename, fromlist=[""])
+            except ImportError:
+                LOGGER.error(
+                    "Importing the apps plugin '%s' - failed." % modulename)
 
         try:
             APPDATA[modulename] = [getattr(mod, "EXECDATA")]
