@@ -36,7 +36,7 @@ saveconfigs()
 
 import ConfigParser as configparser
 import logging
-import corelibs.exceptions as ex
+import Longbow.corelibs.exceptions as ex
 
 LOGGER = logging.getLogger("Longbow")
 

@@ -24,8 +24,8 @@
 import logging                                                  # IMPORTANT
 import math
 import os
-import corelibs.exceptions as ex
-import corelibs.shellwrappers as shellwrappers
+import Longbow.corelibs.exceptions as ex
+import Longbow.corelibs.shellwrappers as shellwrappers
 
 
 # -----------------------------------------------------------------------------

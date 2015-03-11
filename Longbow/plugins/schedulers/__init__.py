@@ -33,6 +33,6 @@ MODULES = pkgutil.iter_modules(path=[PATH])
 for loader, modulename, ispkg in MODULES:
 
     if modulename not in sys.modules:
-        mod = __import__("plugins.schedulers." + modulename,
+        mod = __import__("Longbow.plugins.schedulers." + modulename,
                          fromlist=[""])
         QUERY[modulename] = [getattr(mod, "QUERY_STRING")]

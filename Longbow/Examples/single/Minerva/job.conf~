@@ -1,0 +1,7 @@
+[test]
+resource = Minerva 
+executable = pmemd.MPI
+maxtime = 01:00
+cores = 32
+frequency = 300
+modules = amber-uon/intel/11

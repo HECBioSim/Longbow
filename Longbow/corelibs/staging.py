@@ -31,8 +31,8 @@ Where jobs is a dictionary of job configurations."""
 
 import os
 import logging
-import corelibs.exceptions as ex
-import corelibs.shellwrappers as shellwrappers
+import Longbow.corelibs.exceptions as ex
+import Longbow.corelibs.shellwrappers as shellwrappers
 
 LOGGER = logging.getLogger("Longbow")
 
