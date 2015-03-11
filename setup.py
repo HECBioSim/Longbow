@@ -32,12 +32,14 @@ setup_args = {
                             " brought back bringing the power of an HPC to "
                             "your desktop",
     'author'           : "James T Gebbie-Rayet and Gareth B Shannon",
+    'author_email'     : "gareth.shannon@nottingham.ac.uk",
+    'url'              : "www.hecbiosim.ac.uk",
     'license'          : "GNU General Public License.",
     'classifiers'      : [
         'Development Status :: 4 - Beta',
-        'Intended Audience :: Beta-testers',
+#        'Intended Audience :: Beta-testers',
         'Environment :: Console',
-        'License :: OSI Approved :: GNU General Public License',
+#        'License :: OSI Approved :: GNU General Public License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
         'Topic :: Utilities',
