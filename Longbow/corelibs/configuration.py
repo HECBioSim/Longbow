@@ -225,13 +225,13 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args):
             # if a parameter hasn't been defined in jobsconfig but has been in
             # hostsconfig, use it
             elif hostsconfig[jobsconfig[job]["resource"]][option] is not "":
-                    jobs[job][option] = \
-                    hostsconfig[jobsconfig[job]["resource"]][option]
+                jobs[job][option] = \
+                hostsconfig[jobsconfig[job]["resource"]][option]
 
             # if parameter has not been defined in hosts or jobs use
             # default
             else:
-                    jobs[job][option] = jobdefaults[option]
+                jobs[job][option] = jobdefaults[option]
 
     # Check we have an executable and command line arguments provided
     if jobs[job]["executable"] is "":
