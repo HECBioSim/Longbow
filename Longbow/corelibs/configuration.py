@@ -36,7 +36,17 @@ saveconfigs()
 
 import ConfigParser as configparser
 import logging
-import Longbow.corelibs.exceptions as ex
+
+try:
+    import Longbow.corelibs.exceptions as ex
+except ImportError:
+    import corelibs.exceptions as ex
+
+try:
+    import Longbow.plugins.apps as apps
+except ImportError:
+    import plugins.apps as apps
+
 
 LOGGER = logging.getLogger("Longbow")
 
@@ -144,9 +154,9 @@ def loadjobs(jobconfile, hostsconfile, remoteres):
                 jobs[job]["resource"] = sectionlist[0]
 
             elif remoteres not in sectionlist:
-                raise ex.CommandlineargsError("The %s machine specified on the"
-                    " command line is not one of: %s"
-                    % (remoteres, sectionlist))
+                raise ex.CommandlineargsError(
+                    "The %s machine specified on the command line is not one "
+                    "of: %s" % (remoteres, sectionlist))
             else:
                 jobs[job]["resource"] = remoteres
 
@@ -158,15 +168,8 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args):
     """Method to sort and prioritise jobs configuration parameters."""
 
     # Dictionary to map executable to a default module
-    modules = {
-        "charmm": "charmm",
-        "pmemd": "amber",
-        "pmemd.MPI": "amber",
-        "lmp_xc30": "lammps",
-        "namd2": "namd",
-        "mdrun": "gromacs",
-        "": ""
-    }
+    modules = getattr(apps, "DEFMODULES")
+    modules[""] = ""
 
     # Blank parameters for the jobs structure
     jobtemplate = {
@@ -226,7 +229,7 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args):
             # hostsconfig, use it
             elif hostsconfig[jobsconfig[job]["resource"]][option] is not "":
                 jobs[job][option] = \
-                hostsconfig[jobsconfig[job]["resource"]][option]
+                    hostsconfig[jobsconfig[job]["resource"]][option]
 
             # if parameter has not been defined in hosts or jobs use
             # default
@@ -236,18 +239,16 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args):
     # Check we have an executable and command line arguments provided
     if jobs[job]["executable"] is "":
         raise ex.CommandlineargsError(
-            "An executable has not been specified on the command line "
+            "An executable has not been specified on the command-line "
             "or in a configuration file")
 
     if jobs[job]["commandline"] is "":
-        if executable == "charmm":
-            raise ex.CommandlineargsError(
-                "Command-line arguments were not detected. Make sure you "
-                "have typed < in quotation marks on the command line")
-        else:
-            raise ex.CommandlineargsError(
-                "Command line arguments have not been specified on the "
-                "command line or in a configuration file")
+        raise ex.CommandlineargsError(
+            "Command-line arguments could not be detected properly on the "
+            "command-line or in a configuration file. If your application "
+            "requires input of the form 'executable < input_file' then make "
+            "sure that you put the '<' in quotation marks on the command-line "
+            "to Longbow.")
 
     return jobs
 
@@ -295,7 +296,7 @@ def sorthostsconfigs(hostsconfig, jobsconfig):
 
         for item in manual:
             hosts[jobsconfig[job]["resource"]][item] = \
-            hostsconfig[jobsconfig[job]["resource"]][item]
+                hostsconfig[jobsconfig[job]["resource"]][item]
 
     # prioritise parameters
     for job in jobsconfig:
@@ -304,17 +305,17 @@ def sorthostsconfigs(hostsconfig, jobsconfig):
             # Job configuration parameters always take priority
             if jobsconfig[job][option] is not "":
                 hosts[jobsconfig[job]["resource"]][option] = \
-                jobsconfig[job][option]
+                    jobsconfig[job][option]
 
             # else use the hosts parameter if provided
             elif hostsconfig[jobsconfig[job]["resource"]][option] is not "":
                 hosts[jobsconfig[job]["resource"]][option] = \
-                hostsconfig[jobsconfig[job]["resource"]][option]
+                    hostsconfig[jobsconfig[job]["resource"]][option]
 
             # if parameter has not been defined in hosts or jobs use default
             else:
                 hosts[jobsconfig[job]["resource"]][option] = \
-                hostdefaults[option]
+                    hostdefaults[option]
 
     return hosts
 

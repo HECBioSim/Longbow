@@ -28,7 +28,11 @@ import shutil
 import subprocess
 import logging
 import time
-import Longbow.corelibs.exceptions as ex
+
+try:
+    import Longbow.corelibs.exceptions as ex
+except ImportError:
+    import corelibs.exceptions as ex
 
 LOGGER = logging.getLogger("Longbow")
 

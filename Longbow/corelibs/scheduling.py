@@ -34,11 +34,32 @@ necessary.
 
 import time
 import logging
-import Longbow.corelibs.shellwrappers as shellwrappers
-import Longbow.corelibs.exceptions as ex
-import Longbow.corelibs.configuration as configuration
-import Longbow.corelibs.staging as staging
-import Longbow.plugins.schedulers as schedulers
+
+try:
+    import Longbow.corelibs.shellwrappers as shellwrappers
+except ImportError:
+    import corelibs.shellwrappers as shellwrappers
+
+try:
+    import Longbow.corelibs.exceptions as ex
+except ImportError:
+    import corelibs.exceptions as ex
+
+try:
+    import Longbow.corelibs.configuration as configuration
+except ImportError:
+    import corelibs.configuration as configuration
+
+try:
+    import Longbow.corelibs.staging as staging
+except ImportError:
+    import corelibs.staging as staging
+
+try:
+    import Longbow.plugins.schedulers as schedulers
+except ImportError:
+    import plugins.schedulers as schedulers
+
 
 LOGGER = logging.getLogger("Longbow")
 
