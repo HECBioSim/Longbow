@@ -239,18 +239,16 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args):
     # Check we have an executable and command line arguments provided
     if jobs[job]["executable"] is "":
         raise ex.CommandlineargsError(
-            "An executable has not been specified on the command line "
+            "An executable has not been specified on the command-line "
             "or in a configuration file")
 
     if jobs[job]["commandline"] is "":
-        if executable == "charmm":
-            raise ex.CommandlineargsError(
-                "Command-line arguments were not detected. Make sure you "
-                "have typed < in quotation marks on the command line")
-        else:
-            raise ex.CommandlineargsError(
-                "Command line arguments have not been specified on the "
-                "command line or in a configuration file")
+        raise ex.CommandlineargsError(
+            "Command-line arguments could not be detected properly on the "
+            "command-line or in a configuration file. If your application "
+            "requires input of the form 'executable < input_file' then make "
+            "sure that you put the '<' in quotation marks on the command-line "
+            "to Longbow.")
 
     return jobs
 

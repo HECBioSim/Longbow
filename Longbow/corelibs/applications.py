@@ -127,6 +127,21 @@ def processjobs(jobs):
             # Check for missing flags.
             if len(flags) is not 0:
 
+                # This is to handle cases where there can be multiple required
+                # flags where the user only has to give on (-s vs -defnm).
+                for flag in flags:
+                    if " || " in flag:
+                        tmp = flag.split(" || ")
+
+                        # Now we have split the flags find and delete any that
+                        # match in the list of missing flags
+                        for item in tmp:
+                            if item in args:
+                                flags.remove(item)
+
+            # Do we still have missing flags.
+            if len(flags) is not 0:
+
                 # Jobs that don't use a commandline flag to denote the input
                 # file, such NAMD can be dealt with like this.
                 if "?" in flags:
@@ -140,8 +155,8 @@ def processjobs(jobs):
 
                     elif len(args) is 1 and args[0] is "<":
                         raise ex.RequiredinputError(
-                            "in job '%s' it appears that the charmm input "
-                            "file is missing" % job)
+                            "in job '%s' it appears that the %s input "
+                            "file is missing" % (job, jobs[job]["modules"]))
 
                 else:
                     raise ex.RequiredinputError(
