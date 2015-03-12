@@ -169,6 +169,7 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args):
 
     # Dictionary to map executable to a default module
     modules = getattr(apps, "DEFMODULES")
+    modules[""] = ""
 
     # Blank parameters for the jobs structure
     jobtemplate = {
