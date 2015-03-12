@@ -36,6 +36,12 @@ try:
 except ImportError:
     import corelibs.shellwrappers as shellwrappers
 
+try:
+    import Longbow.plugins.apps as apps
+except ImportError:
+    import plugins.apps as apps
+
+
 LOGGER = logging.getLogger("Longbow")
 
 
@@ -95,13 +101,8 @@ def processjobs(jobs):
 
     LOGGER.info("Processing job/s and detecting files that require upload.")
 
-    required = {"pmemd": ["-c", "-i", "-p"],
-                "pmemd.MPI": ["-c", "-i", "-p"],
-                "charmm": ["?"],
-                "mdrun": ["-s"],
-                "lmp_xc30": ["-i"],
-                "namd2": ["?"]
-                }
+    # Get dict of executables and their required flags.
+    required = getattr(apps, "EXECFLAGS")
 
     for job in jobs:
 

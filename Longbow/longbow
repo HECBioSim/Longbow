@@ -63,6 +63,11 @@ try:
 except ImportError:
     import corelibs.staging as staging
 
+try:
+    import Longbow.plugins.apps as apps
+except ImportError:
+    import plugins.apps as apps
+
 
 def main(args, files, mode, machine):
 
@@ -79,10 +84,11 @@ def main(args, files, mode, machine):
     # Get the execution directory (where we are installed).
     execdir = os.path.dirname(os.path.realpath(__file__))
 
+    execlist = getattr(apps, "EXECLIST")
+
     # Test whether the executable has been provided on the command line
     try:
-        if args[0] in ("charmm", "pmemd", "pmemd.MPI", "mdrun", "lmp_xc30",
-                       "namd2"):
+        if args[0] in execlist:
             executable = args[0]
             args.pop(0)
 
@@ -134,10 +140,10 @@ def main(args, files, mode, machine):
                                               files["hosts"])
 
             else:
-                raise ex.RequiredinputError("No host configuration file "
-                    "found in the current working directory %s, the"
-                    " execution directory %s or in the ~Longbow directory."
-                    % (cwd, execdir))
+                raise ex.RequiredinputError(
+                    "No host configuration file found in the current working "
+                    "directory %s, the execution directory %s or in the "
+                    "~Longbow directory." % (cwd, execdir))
 
         # job
         # if a job configuration file has been supplied but the path hasn't
@@ -156,10 +162,11 @@ def main(args, files, mode, machine):
                                             files["job"])
 
             else:
-                raise ex.RequiredinputError("The job configuration file %s "
-                    "couldn't be found in the current working directory %s "
-                    ", the execution directory %s or the ~/Longbow directory."
-                    % (files["job"], cwd, execdir))
+                raise ex.RequiredinputError(
+                    "The job configuration file %s couldn't be found in the "
+                    "current working directory %s, the execution directory %s "
+                    "or the ~/Longbow directory." %
+                    (files["job"], cwd, execdir))
 
     # -------------------------------------------------------------------------
     # setup and run some tests.
@@ -177,17 +184,15 @@ def main(args, files, mode, machine):
         logger.info("hosts file is: %s", files["hosts"])
 
         # Load the configuration of the hosts.
-        hostsconfig = \
-        configuration.loadhosts(files["hosts"])
+        hostsconfig = configuration.loadhosts(files["hosts"])
 
         # Load the configuration of the jobs
-        jobsconfig = \
-        configuration.loadjobs(files["job"], files["hosts"], machine)
+        jobsconfig = configuration.loadjobs(
+            files["job"], files["hosts"], machine)
 
         # Sort and prioritise jobs configuration parameters
-        jobs = \
-        configuration.sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd,
-                                      args)
+        jobs = configuration.sortjobsconfigs(
+            hostsconfig, jobsconfig, executable, cwd, args)
 
         # Sort and prioritise hosts configuration parameters
         hosts = configuration.sorthostsconfigs(hostsconfig, jobsconfig)
