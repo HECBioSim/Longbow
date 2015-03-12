@@ -271,6 +271,7 @@ if __name__ == "__main__":
     -machine resource
     -debug
     -verbose
+    -aboutcd Sof    
 
     Read the documentation at http://www.hecbiosim.ac.uk/ for more information
     on how to setup and run jobs using Longbow.
@@ -345,6 +346,20 @@ if __name__ == "__main__":
         MACHINE = COMMANDLINEARGS[POSITION + 1]
         COMMANDLINEARGS.pop(POSITION)
         COMMANDLINEARGS.pop(POSITION)
+
+    # Take test for the ABOUT command line flag, print message and exit if
+    # found
+    if COMMANDLINEARGS.count("-about") == 1:
+        print ("Welcome to Longbow!\n"
+            "Longbow is a remote job submission utility designed for "
+            "biomolecular simulation."
+            "This software was developed as part of the EPSRC-funded "
+            "HECBioSim project \n" "(http://www.hecbiosim.ac.uk/).\n"
+            "HECBioSim facilitates high-end biomolecular simulation "
+            "on resources such as \n" "Archer. \n"
+            "Longbow is Copyright (C) of James T Gebbie-Rayet and "
+            "Gareth B Shannon 2015.")
+        exit(0)
 
     # ------------------------------------------------------------------------
     # Call Longbow.
