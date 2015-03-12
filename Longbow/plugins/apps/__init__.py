@@ -49,12 +49,10 @@ for loader, modulename, ispkg in MODULES:
                 mod = __import__(
                     "plugins.apps." + modulename, fromlist=[""])
             except ImportError:
-                LOGGER.error(
-                    "Importing the apps plugin '%s' - failed." % modulename)
+                raise
 
         try:
             APPDATA[modulename] = [getattr(mod, "EXECDATA")]
 
         except AttributeError:
-            LOGGER.error(
-                "Importing attribute from plugin '%s' - failed." % modulename)
+            raise

@@ -38,21 +38,18 @@ for loader, modulename, ispkg in MODULES:
     if modulename not in sys.modules:
         try:
             mod = __import__("Longbow.plugins.schedulers." + modulename,
-                fromlist=[""])
+                             fromlist=[""])
 
         except ImportError:
             try:
-                mod = __import__("Longbow.plugins.schedulers." + modulename,
-                    fromlist=[""])
+                mod = __import__("plugins.schedulers." + modulename,
+                                 fromlist=[""])
 
             except ImportError:
-                LOGGER.error(
-                    "Importing the schedulers plugin '%s' - failed." %
-                    modulename)
+                raise
 
         try:
             QUERY[modulename] = [getattr(mod, "QUERY_STRING")]
 
         except AttributeError:
-            LOGGER.error(
-                "Importing attribute from plugin '%s' - failed." % modulename)
+            raise

@@ -23,8 +23,18 @@
 
 import logging
 import os
-import Longbow.corelibs.exceptions as ex
-import Longbow.corelibs.shellwrappers as shellwrappers
+
+try:
+    import Longbow.corelibs.exceptions as ex
+
+except ImportError:
+    import corelibs.exceptions as ex
+
+try:
+    import Longbow.corelibs.shellwrappers as shellwrappers
+
+except ImportError:
+    import corelibs.shellwrappers as shellwrappers
 
 LOGGER = logging.getLogger("Longbow")
 
