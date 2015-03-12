@@ -271,7 +271,7 @@ if __name__ == "__main__":
     -machine resource
     -debug
     -verbose
-    -aboutcd Sof    
+    -about 
 
     Read the documentation at http://www.hecbiosim.ac.uk/ for more information
     on how to setup and run jobs using Longbow.
