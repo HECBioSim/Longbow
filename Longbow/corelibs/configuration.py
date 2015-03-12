@@ -27,8 +27,10 @@ loadhosts()
     Method containing the structure template for host configuration files.
 loadjobs()
     Method containing the structure template for job configuration files.
-loaddefaultjobconfigs()
-    Method containing the structure template for the default job configuration
+def sortjobsconfigs()
+    Method to sort and prioritise jobs configuration parameters.
+def sorthostsconfigs():
+    Method to sort and prioritise hosts configuration parameters.
 loadconfigs()
     Method containing the code for parsing configuration files.
 saveconfigs()
