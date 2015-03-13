@@ -39,12 +39,12 @@ if not (sys.version_info[0] >= 2 and sys.version_info[1] >= 7):
 # download examples
 print "Downloading example files"
 
-if not os.path.isdir(os.path.expanduser("~/Longbow")):
+if not os.path.isdir(os.path.expanduser("~/.Longbow")):
     subprocess.call(["wget", "-P", os.path.expanduser("~"),
-                     "http://www.hecbiosim.ac.uk/longbow-extras.zip"])
+                     "http://www.hecbiosim.ac.uk/LongbowHosts.zip"])
 
     subprocess.call(["unzip", "-d", os.path.expanduser("~"),
-                     os.path.expanduser("~/longbow-extras.zip")])
+                     os.path.expanduser("~/LongbowHosts.zip")])
 
 # setup args
 setup_args = {
