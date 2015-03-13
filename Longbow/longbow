@@ -69,7 +69,7 @@ except ImportError:
     import plugins.apps as apps
 
 
-def main(args, files, mode, machine):
+def main(args, files, mode, remoteres):
 
     """This is the main for a console based app, this is designed to run in a
     python/unix shell and is thus the main choice for headless machines like a
@@ -188,7 +188,7 @@ def main(args, files, mode, machine):
 
         # Load the configuration of the jobs
         jobsconfig = configuration.loadjobs(
-            files["job"], files["hosts"], machine)
+            files["job"], files["hosts"], remoteres)
 
         # Sort and prioritise jobs configuration parameters
         jobs = configuration.sortjobsconfigs(
@@ -291,17 +291,17 @@ if __name__ == "__main__":
 
     """Main entry point for Longbow.
 
-    To run Longbow, simply write longbow.py before the command you wish to
+    To run Longbow, simply write longbow before the command you wish to
     be executed using your chosen simulation package e.g.:
 
-    %longbow.py pmemd.MPI -i test.in -c test.min -p test.top -o output
+    %longbow pmemd.MPI -i test.in -c test.min -p test.top -o output
 
     In addition, the following flags may be provided:
 
     -hosts filename
     -job filename
     -log filename
-    -machine resource
+    -resource HPCname
     -debug
     -verbose
     -about 
@@ -326,7 +326,7 @@ if __name__ == "__main__":
         "job": "",
         "log": ""
     }
-    MACHINE = ""
+    RESOURCE = ""
     MODE = {
         "debug": False,
         "verbose": False
@@ -372,10 +372,10 @@ if __name__ == "__main__":
         COMMANDLINEARGS.pop(POSITION)
         MODE["verbose"] = True
 
-    # Take out the machine name, then remove it from the command
+    # Take out the resource name, then remove it from the command
     # line argument list.
-    if COMMANDLINEARGS.count("-machine") == 1:
-        POSITION = COMMANDLINEARGS.index("-machine")
+    if COMMANDLINEARGS.count("-resource") == 1:
+        POSITION = COMMANDLINEARGS.index("-resource")
         MACHINE = COMMANDLINEARGS[POSITION + 1]
         COMMANDLINEARGS.pop(POSITION)
         COMMANDLINEARGS.pop(POSITION)
@@ -398,4 +398,4 @@ if __name__ == "__main__":
     # Call Longbow.
 
     # Enter the mains application.
-    main(COMMANDLINEARGS, FILES, MODE, MACHINE)
+    main(COMMANDLINEARGS, FILES, MODE, RESOURCE)
