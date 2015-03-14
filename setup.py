@@ -33,8 +33,9 @@ import subprocess
 print "Checking python version!"
 
 if not (sys.version_info[0] >= 2 and sys.version_info[1] >= 7):
-    exit_with_error("You should install Python 2.7 or greater to install "
-                    "Longbow")
+    print ("The Python version on your system has been detected to be prior "
+        "to version 2.7. It is recommended you upgrade to at least version "
+        "2.7.")
     
 # download examples
 print "Downloading example files"
@@ -49,7 +50,7 @@ if not os.path.isdir(os.path.expanduser("~/.Longbow")):
 # setup args
 setup_args = {
     'name': "Longbow",
-    'version': "0.9.98",
+    'version': "0.9.992",
     'description': "Biomolecular simulation remote job submission "
                    "utility.",
     'long_description': "Longbow sends jobs submitted to your desktop to a "
