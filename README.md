@@ -15,12 +15,6 @@
 
 
 
-
-### What is this repository for? ###
-
-This repository is for developers that actively contribute to the Longbow project
-to exchange ideas and share code.
-
 Longbow is a piece of software that acts as a job proxying tool for biomolecular simulations,
 Longbow reproduces the native look and feel of using popular molecular dynamics packages
 (AMBER, CHARMM, GROMACS, LAMMPS and NAMD), with the difference that when those packages are used
