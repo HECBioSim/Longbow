@@ -1,10 +1,14 @@
 # Longbow is Copyright (C) of James T Gebbie-Rayet and Gareth B Shannon 2015.
 #
-# This file is part of Longbow.
+# This file is part of the Longbow software which was developed as part of
+# the HECBioSim project (http://www.hecbiosim.ac.uk/).
+#
+# HECBioSim facilitates and supports high-end computing within the
+# UK biomolecular simulation community on resources such as Archer.
 #
 # Longbow is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
+# the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
 #
 # Longbow is distributed in the hope that it will be useful,
@@ -15,14 +19,18 @@
 # You should have received a copy of the GNU General Public License
 # along with Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""This module contains methods for loading and saving confinguration
-files as well as methods for processing host and job confinguration files.
+"""This module contains methods for loading and saving configuration
+files as well as methods for processing host and job configuration files.
 The following methods can be found:
 
-host()
+loadhosts()
     Method containing the structure template for host configuration files.
-job()
+loadjobs()
     Method containing the structure template for job configuration files.
+def sortjobsconfigs()
+    Method to sort and prioritise jobs configuration parameters.
+def sorthostsconfigs():
+    Method to sort and prioritise hosts configuration parameters.
 loadconfigs()
     Method containing the code for parsing configuration files.
 saveconfigs()
@@ -30,6 +38,17 @@ saveconfigs()
 
 import ConfigParser as configparser
 import logging
+
+try:
+    import Longbow.corelibs.exceptions as ex
+except ImportError:
+    import corelibs.exceptions as ex
+
+try:
+    import Longbow.plugins.apps as apps
+except ImportError:
+    import plugins.apps as apps
+
 
 LOGGER = logging.getLogger("Longbow")
 
@@ -39,74 +58,281 @@ def loadhosts(confile):
     """Method for processing host configuration files."""
 
     # Dictionary for the host configuration parameters.
+    # Contains "user" and "host" but no "resource" unlike the jobs equivalent
     hosttemplate = {
-        "corespernode": "",
+        "user": "",
         "host": "",
-        "port": "22",
+        "corespernode": "",
+        "cores": "",
+        "port": "",
         "scheduler": "",
         "handler": "",
-        "user": ""
+        "accountflag": "",
+        "account": "",
+        "cluster": "",
+        "commandline": "",
+        "frequency": "",
+        "localworkdir": "",
+        "modules": "",
+        "maxtime": "",
+        "memory": "",
+        "executable": "",
+        "queue": "",
+        "batch": "",
+        "remoteworkdir": ""
     }
 
     required = [
         "host",
-        "user"
+        "user",
+        "remoteworkdir"
     ]
 
-    hosts = loadconfigs(confile, hosttemplate, required, {})
+    hosts = loadconfigs(confile, hosttemplate, required)
 
     return hosts
 
 
-def loadjobs(cwd, confile, overrides):
+def loadjobs(jobconfile, hostsconfile, remoteres):
 
     """Method for processing job configuration files."""
 
     # Dictionary for the job configurations parameters.
+    # Contains "resource" but no "user" or "host" unlike the hosts equivalent
     jobtemplate = {
+        "corespernode": "",
+        "cores": "",
+        "port": "",
+        "scheduler": "",
+        "handler": "",
+        "accountflag": "",
         "account": "",
-        "batch": "1",
         "cluster": "",
         "commandline": "",
-        "cores": "",
-        "corespernode": "",
-        "executable": "",
-        "frequency": "60",
-        "localworkdir": cwd,
+        "frequency": "",
+        "localworkdir": "",
         "modules": "",
         "maxtime": "",
         "memory": "",
-        "nodes": "",
-        "program": "",
-        "remoteworkdir": "",
+        "executable": "",
         "queue": "",
+        "batch": "",
+        "remoteworkdir": "",
         "resource": ""
     }
 
-    required = [
-        "executable",
-        "remoteworkdir",
-        "resource"
-    ]
+    jobs = {}
 
-    jobs = loadconfigs(confile, jobtemplate, required, overrides)
+    # if a job configuration file has been provided, load it
+    if jobconfile is not "":
+        jobs = loadconfigs(jobconfile, jobtemplate, "")
+
+    # else load an empty dictionary
+    else:
+        jobs["Longbowjob"] = jobtemplate.copy()
+
+    # determine which remote resource to use if none has been set
+    for job in jobs:
+        if jobs[job]["resource"] is "":
+
+            # Instantiate the configparser and read the configuration file.
+            configs = configparser.ConfigParser()
+
+            try:
+                configs.read(hostsconfile)
+
+            except IOError:
+                ex.RequiredinputError("Can't read the configurations from: %s"
+                                      % hostsconfile)
+
+            # Grab a list of the section headers present in file.
+            sectionlist = configs.sections()
+
+            # if the machine flag has not been set use the first machine in the
+            # hosts
+            if remoteres is "":
+                jobs[job]["resource"] = sectionlist[0]
+
+            elif remoteres not in sectionlist:
+                raise ex.CommandlineargsError(
+                    "The %s machine specified on the command line is not one "
+                    "of: %s" % (remoteres, sectionlist))
+            else:
+                jobs[job]["resource"] = remoteres
 
     return jobs
 
 
-def loadconfigs(confile, template, required, overrides):
+def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args):
+
+    """Method to sort and prioritise jobs configuration parameters."""
+
+    # Dictionary to map executable to a default module
+    modules = getattr(apps, "DEFMODULES")
+    modules[""] = ""
+
+    # Blank parameters for the jobs structure
+    jobtemplate = {
+        "cores": "",
+        "cluster": "",
+        "commandline": "",
+        "frequency": "",
+        "localworkdir": "",
+        "modules": "",
+        "maxtime": "",
+        "memory": "",
+        "executable": "",
+        "queue": "",
+        "batch": "",
+        "resource": ""
+    }
+
+    # Parameters to be copied manually from jobsconfig to jobs
+    manual = [
+        "resource"
+    ]
+
+    # Default parameters to be stored in the jobs structure excluding resource
+    jobdefaults = {
+        "cores": "24",
+        "cluster": "",
+        "commandline": args,
+        "frequency": "60",
+        "localworkdir": cwd,
+        "modules": modules[executable],
+        "maxtime": "24:00",
+        "memory": "",
+        "executable": executable,
+        "queue": "",
+        "batch": "1",
+    }
+
+    jobs = {}
+
+    # create jobs internal structure
+    for job in jobsconfig:
+        jobs[job] = jobtemplate.copy()
+
+        for item in manual:
+            jobs[job][item] = jobsconfig[job][item]
+
+    # prioritise parameters
+    for job in jobs:
+        for option in jobdefaults:
+            # if a parameter has been defined in jobsconfig, use it
+            if jobsconfig[job][option] is not "":
+                jobs[job][option] = jobsconfig[job][option]
+
+            # if a parameter hasn't been defined in jobsconfig but has been in
+            # hostsconfig, use it
+            elif hostsconfig[jobsconfig[job]["resource"]][option] is not "":
+                jobs[job][option] = \
+                    hostsconfig[jobsconfig[job]["resource"]][option]
+
+            # if parameter has not been defined in hosts or jobs use
+            # default
+            else:
+                jobs[job][option] = jobdefaults[option]
+
+    # Check we have an executable and command line arguments provided
+    if jobs[job]["executable"] is "":
+        raise ex.CommandlineargsError(
+            "An executable has not been specified on the command-line "
+            "or in a configuration file")
+
+    if jobs[job]["commandline"] is "":
+        raise ex.CommandlineargsError(
+            "Command-line arguments could not be detected properly on the "
+            "command-line or in a configuration file. If your application "
+            "requires input of the form 'executable < input_file' then make "
+            "sure that you put the '<' in quotation marks on the command-line "
+            "to Longbow.")
+
+    return jobs
+
+
+def sorthostsconfigs(hostsconfig, jobsconfig):
+
+    """Method to sort and prioritise hosts configuration parameters."""
+
+    # Parameters to be stored in the hosts structure
+    hosttemplate = {
+        "corespernode": "",
+        "port": "",
+        "scheduler": "",
+        "handler": "",
+        "accountflag": "",
+        "account": "",
+        "remoteworkdir": "",
+        "user": "",
+        "host": ""
+    }
+
+    # Parameters to be copied manually from hostsconfig to hosts
+    manual = [
+        "host",
+        "user"
+    ]
+
+    # Default parameters to be stored in the hosts structure excluding user and
+    # host
+    hostdefaults = {
+        "corespernode": "24",
+        "port": "22",
+        "scheduler": "",
+        "handler": "",
+        "accountflag": "",
+        "account": "",
+        "remoteworkdir": ""
+    }
+
+    hosts = {}
+
+    # create default hosts internal structure
+    for job in jobsconfig:
+        hosts[jobsconfig[job]["resource"]] = hosttemplate.copy()
+
+        for item in manual:
+            hosts[jobsconfig[job]["resource"]][item] = \
+                hostsconfig[jobsconfig[job]["resource"]][item]
+
+    # prioritise parameters
+    for job in jobsconfig:
+        for option in hostdefaults:
+
+            # Job configuration parameters always take priority
+            if jobsconfig[job][option] is not "":
+                hosts[jobsconfig[job]["resource"]][option] = \
+                    jobsconfig[job][option]
+
+            # else use the hosts parameter if provided
+            elif hostsconfig[jobsconfig[job]["resource"]][option] is not "":
+                hosts[jobsconfig[job]["resource"]][option] = \
+                    hostsconfig[jobsconfig[job]["resource"]][option]
+
+            # if parameter has not been defined in hosts or jobs use default
+            else:
+                hosts[jobsconfig[job]["resource"]][option] = \
+                    hostdefaults[option]
+
+    return hosts
+
+
+def loadconfigs(confile, template, required):
 
     """Method to load configurations from file."""
 
-    LOGGER.info("Loading configuration information from file: %s ", confile)
+    LOGGER.info("Loading configuration information from file '%s'", confile)
 
     # Instantiate the configparser and read the configuration file.
     configs = configparser.ConfigParser()
 
     try:
         configs.read(confile)
-    except:
-        raise RuntimeError("Can't read the configurations from: %s", confile)
+
+    except IOError:
+        raise ex.ConfigurationError(
+            "Can't read the configurations from '%s'" % confile)
 
     # Grab a list of the section headers present in file.
     sectionlist = configs.sections()
@@ -114,8 +340,9 @@ def loadconfigs(confile, template, required, overrides):
 
     # If we don't have any sections then raise an exception.
     if sectioncount is 0:
-        raise RuntimeError("In file %s " % confile + "no sections can be " +
-                           "detected or the file is not in ini format.")
+        raise ex.ConfigurationError(
+            "In file '%s' " % confile + "no sections can be detected or the "
+            "file is not in ini format.")
 
     # Temporary dictionary for storing the configurations in.
     params = {}
@@ -127,23 +354,22 @@ def loadconfigs(confile, template, required, overrides):
 
         # If we have no options then raise an exception.
         if optioncount is 0:
-            raise RuntimeError("There are no parameters listed under the" +
-                               " section %s" % section)
+            raise ex.ConfigurationError(
+                "There are no parameters listed under the section '%s'" %
+                section)
 
         # Store option values in our dictionary structure.
         for option in template:
-            # Is this option being overridden.
-            if option in overrides:
-                params[section][option] = overrides[option]
-            else:
-                try:
-                    params[section][option] = configs.get(section, option)
-                except configparser.NoOptionError:
-                    if option in required:
-                        raise RuntimeError("The parameter %s is required" %
-                                           option)
-                    else:
-                        pass
+            try:
+                params[section][option] = configs.get(section, option)
+
+            except configparser.NoOptionError:
+                if option in required:
+                    raise ex.ConfigurationError(
+                        "The parameter %s is required" % option)
+
+                else:
+                    pass
 
     return params
 
@@ -152,7 +378,7 @@ def saveconfigs(confile, params):
 
     """Method to save parameters to file."""
 
-    LOGGER.info("Saving configuration information to file %s ", confile)
+    LOGGER.info("Saving configuration information to file '%s'", confile)
 
     # Bind the hosts file to the config parser and read it in.
     configs = configparser.ConfigParser()

@@ -1,10 +1,14 @@
-# Longbow is Copyright (C) of James T Gebbie-Rayet 2015.
+# Longbow is Copyright (C) of James T Gebbie-Rayet and Gareth B Shannon 2015.
 #
-# This file is part of Longbow.
+# This file is part of the Longbow software which was developed as part of
+# the HECBioSim project (http://www.hecbiosim.ac.uk/).
+#
+# HECBioSim facilitates and supports high-end computing within the
+# UK biomolecular simulation community on resources such as Archer.
 #
 # Longbow is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
+# the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
 #
 # Longbow is distributed in the hope that it will be useful,
@@ -19,11 +23,22 @@
 
 import logging
 import os
-import corelibs.shellwrappers as shellwrappers
+
+try:
+    import Longbow.corelibs.exceptions as ex
+
+except ImportError:
+    import corelibs.exceptions as ex
+
+try:
+    import Longbow.corelibs.shellwrappers as shellwrappers
+
+except ImportError:
+    import corelibs.shellwrappers as shellwrappers
 
 LOGGER = logging.getLogger("Longbow")
 
-QUERY_STRING = "env | grep -i 'lsf' &> /dev/null"
+QUERY_STRING = "env | grep -i 'lsf'"
 
 
 def delete(host, jobid):
@@ -34,10 +49,11 @@ def delete(host, jobid):
 
     try:
         shellout = shellwrappers.sendtossh(host, ["bkill " + jobid])
-    except:
-        raise RuntimeError("  Unable to delete job.")
 
-    LOGGER.info("  Deletion successful")
+    except ex.SSHError:
+        raise ex.JobdeleteError("  Unable to delete job.")
+
+    LOGGER.info("Deletion successful")
 
     return shellout[0]
 
@@ -46,7 +62,7 @@ def prepare(hosts, jobname, jobs):
 
     """Create the LSF jobfile ready for submitting jobs"""
 
-    LOGGER.info("  Creating submit file for job: %s", jobname)
+    LOGGER.info("Creating submit file for job: %s", jobname)
 
     # Open file for LSF script.
     lsffile = os.path.join(jobs[jobname]["localworkdir"], "submit.lsf")
@@ -56,7 +72,15 @@ def prepare(hosts, jobname, jobs):
     jobfile.write("#!/bin/bash --login\n")
 
     if jobname is not "":
-        jobfile.write("#BSUB -J " + jobname + "\n")
+
+        # Single job
+        if int(jobs[jobname]["batch"]) == 1:
+            jobfile.write("#BSUB -J " + jobname + "\n")
+
+        # Job array
+        elif int(jobs[jobname]["batch"]) > 1:
+            jobfile.write("#BSUB -J " + jobname + "[1-" +
+                          jobs[jobname]["batch"] + "]\n")
 
     if jobs[jobname]["queue"] is not "":
         jobfile.write("#BSUB -q " + jobs[jobname]["queue"] + "\n")
@@ -64,13 +88,23 @@ def prepare(hosts, jobname, jobs):
     if jobs[jobname]["cluster"] is not "":
         jobfile.write("#BSUB -m " + jobs[jobname]["cluster"] + "\n")
 
-    if jobs[jobname]["account"] is not "":
-        jobfile.write("#BSUB -P " + jobs[jobname]["account"] + "\n")
+    # Account to charge (if supplied).
+    if hosts[jobs[jobname]["resource"]]["account"] is not "":
+        # if no accountflag is provided use the default
+        if hosts[jobs[jobname]["resource"]]["accountflag"] is "":
+            jobfile.write("#BSUB -P " +
+                          hosts[jobs[jobname]["resource"]]["account"] +
+                          "\n")
+        else:
+            jobfile.write("#BSUB " +
+                          hosts[jobs[jobname]["resource"]]["accountflag"] +
+                          " " + hosts[jobs[jobname]["resource"]]["account"] +
+                          "\n")
 
     jobfile.write("#BSUB -W " + jobs[jobname]["maxtime"] + "\n")
 
-    # TODO: "#BSUB -n " + jobs[jobname]["cores"] + "\n")
-    jobfile.write("#BSUB -n " + jobs[jobname]["cores"] + "\n")
+    jobfile.write("#BSUB -n " + jobs[jobname]["cores"] +
+                  "\n")
 
     if jobs[jobname]["modules"] is not "":
         for module in jobs[jobname]["modules"].split(","):
@@ -79,19 +113,17 @@ def prepare(hosts, jobname, jobs):
 
     mpirun = hosts[jobs[jobname]["resource"]]["handler"]
 
+    # Single job
     if int(jobs[jobname]["batch"]) == 1:
 
         jobfile.write(mpirun + " -lsf " + jobs[jobname]["commandline"] + "\n")
 
+    # Job array
     elif int(jobs[jobname]["batch"]) > 1:
 
-        jobfile.write("for i in {1.." + jobs[jobname]["batch"] + "};\n"
-                      "do\n"
-                      "  cd rep$i/\n"
-                      "  " + mpirun + " -lsf " + jobs[jobname]["commandline"] +
-                      " &\n"
-                      "done\n"
-                      "wait\n")
+        jobfile.write("cd rep${LSB_JOBINDEX}/\n" +
+                      mpirun + " -lsf " + jobs[jobname]["commandline"] +
+                      " &\n")
 
     # Close the file (housekeeping)
     jobfile.close()
@@ -108,7 +140,8 @@ def status(host, jobid):
     state = ""
 
     try:
-        shellout = shellwrappers.sendtossh(host, ["bjobs | grep " + jobid])
+        shellout = shellwrappers.sendtossh(host, ["bjobs -u " + host["user"] +
+                                                  " | grep " + jobid])
 
         stat = shellout[0].split()
 
@@ -121,7 +154,7 @@ def status(host, jobid):
         elif stat[2] == "RUN":
             state = "Running"
 
-    except RuntimeError:
+    except ex.SSHError:
         state = "Finished"
 
     return state
@@ -131,19 +164,22 @@ def submit(host, jobname, jobs):
 
     """Method for submitting job."""
 
+    # Set the path to remoteworkdir/jobname
+    path = os.path.join(host["remoteworkdir"], jobname)
+
     # cd into the working directory and submit the job.
-    path = os.path.join(jobs[jobname]["remoteworkdir"], jobname)
     cmd = ["cd " + path + "\n", "bsub < " +
            jobs[jobname]["subfile"] + "| grep -P -o '(?<=<)[0-9]*(?=>)'"]
 
     # Process the submit
     try:
         shellout = shellwrappers.sendtossh(host, cmd)[0]
-    except:
-        raise RuntimeError("  Something went wrong when submitting.")
+
+    except ex.SSHError:
+        raise ex.JobsubmitError("  Something went wrong when submitting.")
 
     output = shellout.splitlines()[0]
 
-    LOGGER.info("  Job: %s submitted with id: %s", jobname, output)
+    LOGGER.info("Job: %s submitted with id: %s", jobname, output)
 
     jobs[jobname]["jobid"] = output

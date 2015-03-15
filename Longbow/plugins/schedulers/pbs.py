@@ -1,10 +1,14 @@
-# Longbow is Copyright (C) of James T Gebbie-Rayet 2015.
+# Longbow is Copyright (C) of James T Gebbie-Rayet and Gareth B Shannon 2015.
 #
-# This file is part of Longbow.
+# This file is part of the Longbow software which was developed as part of
+# the HECBioSim project (http://www.hecbiosim.ac.uk/).
+#
+# HECBioSim facilitates and supports high-end computing within the
+# UK biomolecular simulation community on resources such as Archer.
 #
 # Longbow is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
+# the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
 #
 # Longbow is distributed in the hope that it will be useful,
@@ -20,11 +24,22 @@
 import logging
 import os
 import math
-import corelibs.shellwrappers as shellwrappers
+
+try:
+    import Longbow.corelibs.exceptions as ex
+
+except ImportError:
+    import corelibs.exceptions as ex
+
+try:
+    import Longbow.corelibs.shellwrappers as shellwrappers
+
+except ImportError:
+    import corelibs.shellwrappers as shellwrappers
 
 LOGGER = logging.getLogger("Longbow")
 
-QUERY_STRING = "env | grep -i 'pbs' &> /dev/null"
+QUERY_STRING = "env | grep -i 'pbs'"
 
 
 def delete(host, jobid):
@@ -34,10 +49,11 @@ def delete(host, jobid):
     LOGGER.info("Deleting the job with id: %s" + jobid)
     try:
         shellout = shellwrappers.sendtossh(host, ["qdel " + jobid])
-    except:
-        raise RuntimeError("  Unable to delete job.")
 
-    LOGGER.info("  Deletion successful.")
+    except ex.SSHError:
+        raise ex.JobdeleteError("  Unable to delete job.")
+
+    LOGGER.info("Deletion successful.")
 
     return shellout[0]
 
@@ -46,7 +62,7 @@ def prepare(hosts, jobname, jobs):
 
     """Create the PBS jobfile ready for submitting jobs"""
 
-    LOGGER.info("  Creating submit file for job: %s", jobname)
+    LOGGER.info("Creating submit file for job: %s", jobname)
 
     # Open file for PBS script.
     pbsfile = os.path.join(jobs[jobname]["localworkdir"], "submit.pbs")
@@ -64,33 +80,40 @@ def prepare(hosts, jobname, jobs):
         jobfile.write("#PBS -q " + jobs[jobname]["queue"] + "\n")
 
     # Account to charge (if supplied).
-    if jobs[jobname]["account"] is not "":
-        jobfile.write("#PBS -A " + jobs[jobname]["account"] + "\n")
-
-    # If user hasn't specified corespernode for under utilisation then
-    # user the hosts max corespernode.
-    if jobs[jobname]["nodes"] is not "":
-        nodes = jobs[jobname]["nodes"]
-    else:
-        if jobs[jobname]["corespernode"] is not "":
-            nodes = jobs[jobname]["cores"] / jobs[jobname]["corespernode"]
+    if hosts[jobs[jobname]["resource"]]["account"] is not "":
+        # if no accountflag is provided use the default
+        if hosts[jobs[jobname]["resource"]]["accountflag"] is "":
+            jobfile.write("#PBS -A " +
+                          hosts[jobs[jobname]["resource"]]["account"] +
+                          "\n")
+        # else use the accountflag provided
         else:
-            nodes = int(jobs[jobname]["cores"]) / \
-                int(hosts[jobs[jobname]["resource"]]["corespernode"])
+            jobfile.write("#PBS " +
+                          hosts[jobs[jobname]["resource"]]["accountflag"] +
+                          " " + hosts[jobs[jobname]["resource"]]["account"] +
+                          "\n")
 
-        # Makes sure nodes is rounded up to the next highest integer.
-        nodes = str(int(math.ceil(nodes)))
+    cpn = hosts[jobs[jobname]["resource"]]["corespernode"]
 
-    # Number of cpus per node (most machines will charge for all whether you
-    # are using them or not)
-    ncpus = hosts[jobs[jobname]["resource"]]["corespernode"]
+    cores = jobs[jobname]["cores"]
 
-    # If user hasn't specified corespernode for the job (for under utilisation)
-    # then default to hosts max corespernode (max utilised).
-    if jobs[jobname]["corespernode"] is not "":
-        mpiprocs = jobs[jobname]["corespernode"]
-    else:
-        mpiprocs = hosts[jobs[jobname]["resource"]]["corespernode"]
+    # Load levelling override. In cases where # of cores is less than
+    # corespernode, user is likely to be undersubscribing.
+    if int(cores) < int(cpn):
+        cpn = cores
+
+    # Calculate the number of nodes.
+    nodes = float(cores) / float(cpn)
+
+    # Makes sure nodes is rounded up to the next highest integer.
+    nodes = str(int(math.ceil(nodes)))
+
+    # Number of cpus per node (most machines will charge for all available cpus
+    # per node whether you are using them or not)
+    ncpus = cpn
+
+    # Number of mpi processes per node.
+    mpiprocs = cpn
 
     # Memory size (used to select nodes with minimum memory).
     memory = jobs[jobname]["memory"]
@@ -107,6 +130,11 @@ def prepare(hosts, jobname, jobs):
 
     # Walltime for job.
     jobfile.write("#PBS -l walltime=" + jobs[jobname]["maxtime"] + ":00\n")
+
+    # Set up batch jobs
+    if int(jobs[jobname]["batch"]) > 1:
+        jobfile.write("#PBS -J 1-" + jobs[jobname]["batch"] + "\n")
+        jobfile.write("#PBS -r y\n")
 
     # Set some environment variables for PBS.
     jobfile.write("\n"
@@ -126,24 +154,19 @@ def prepare(hosts, jobname, jobs):
 
     # CRAY's use aprun which has slightly different requirements to mpirun.
     if mpirun == "aprun":
-        mpirun = mpirun + " -n " + jobs[jobname]["cores"] + " -N " + mpiprocs
+        mpirun = mpirun + " -n " + cores + " -N " + mpiprocs
 
     # Single jobs only need one run command.
     if int(jobs[jobname]["batch"]) == 1:
 
         jobfile.write(mpirun + " " + jobs[jobname]["commandline"] + "\n")
 
-    # Ensemble jobs need a loop.
+    # Job array
     elif int(jobs[jobname]["batch"]) > 1:
-
         jobfile.write("basedir=$PBS_O_WORKDIR \n"
-                      "for i in {1.." + jobs[jobname]["batch"] + "};\n"
-                      "do\n"
-                      "  cd $basedir/rep$i/\n"
-                      "  " + mpirun + " " + jobs[jobname]["commandline"] +
-                      " &\n"
-                      "done\n"
-                      "wait\n")
+                      "cd $basedir/rep${PBS_ARRAY_INDEX}/\n" +
+                      mpirun + " " + jobs[jobname]["commandline"] +
+                      " &\n")
 
     # Close the file (housekeeping)
     jobfile.close()
@@ -160,45 +183,46 @@ def status(host, jobid):
     state = ""
 
     try:
-        shellout = shellwrappers.sendtossh(host, ["qstat | grep " + jobid])
+        shellout = shellwrappers.sendtossh(host, ["qstat -u " + host["user"] +
+                                                  " | grep " + jobid])
 
         stat = shellout[0].split()
 
-        if stat[4] == "H":
+        if stat[9] == "H":
             state = "Held"
 
-        elif stat[4] == "Q":
+        elif stat[9] == "Q":
             state = "Queued"
 
-        elif stat[4] == "R":
+        elif stat[9] == "R":
             state = "Running"
 
-        elif stat[4] == "B":
+        elif stat[9] == "B":
             state = "Subjob(s) running"
 
-        elif stat[4] == "E":
+        elif stat[9] == "E":
             state = "Exiting"
 
-        elif stat[4] == "M":
+        elif stat[9] == "M":
             state = "Job moved to server"
 
-        elif stat[4] == "S":
+        elif stat[9] == "S":
             state = "Suspended"
 
-        elif stat[4] == "T":
+        elif stat[9] == "T":
             state = "Job moved to new location"
 
-        elif stat[4] == "U":
+        elif stat[9] == "U":
             state = ("Cycle-harvesting job is suspended due to keyboard " +
                      "activity")
 
-        elif stat[4] == "W":
+        elif stat[9] == "W":
             state = "Waiting for start time"
 
-        elif stat[4] == "X":
+        elif stat[9] == "X":
             state = "Subjob completed execution/has been deleted"
 
-    except RuntimeError:
+    except ex.SSHError:
         state = "Finished"
 
     return state
@@ -208,19 +232,59 @@ def submit(host, jobname, jobs):
 
     """Method for submitting a job."""
 
-    path = os.path.join(jobs[jobname]["remoteworkdir"], jobname)
+    # Set the path to remoteworkdir/jobname
+    path = os.path.join(host["remoteworkdir"], jobname)
+
     # Change into the working directory and submit the job.
     cmd = ["cd " + path + "\n", "qsub " + jobs[jobname]["subfile"] +
-           "| grep -P -o '[0-9]*(?=.)'"]
+           " | grep -P -o '[0-9]*(?=.)'"]
 
     # Process the submit
     try:
         shellout = shellwrappers.sendtossh(host, cmd)[0]
-    except:
-        raise RuntimeError("  Something went wrong when submitting.")
+
+    except ex.SSHError as inst:
+        if "set_booleans" in inst.stderr:
+            raise ex.JobsubmitError(
+                "  Something went wrong when submitting. The likely cause is "
+                "your particular PBS install is not receiving the "
+                "information/options/parameters it " "requires "
+                "e.g. '#PBS -l mem=20gb'. Check the PBS documentation and edit"
+                " the configuration files to provide the necessary information"
+                "e.g. 'memory = 20' in the job configuration file")
+
+        elif "Job rejected by all possible destinations" in inst.stderr:
+            raise ex.JobsubmitError(
+                "  Something went wrong when submitting. This may be because "
+                "you need to provide PBS with your account code and the "
+                "account flag your PBS install expects (Longbow defaults to "
+                "A). Check the PBS documentation and edit the configuration "
+                "files to provide the necessary information e.g. "
+                "'accountflag = P' and 'account = ABCD-01234-EFG'")
+
+        elif "Job must specify budget (-A option)" in inst.stderr:
+            raise ex.JobsubmitError(
+                "  Something went wrong when submitting. This may be because "
+                "you provided PBS with an account flag other than 'A' which "
+                "your PBS install expects")
+
+        elif "Job exceeds queue and/or server resource limits" in inst.stderr:
+            raise ex.JobsubmitError(
+                "  Something went wrong when submitting. PBS has reported "
+                "that 'Job exceeds queue and/or server resource limits'. "
+                "This may be because you set a walltime or some other "
+                "quantity that exceeds the maximum allowed on your system.")
+
+        elif "budget" in inst.stderr:
+            raise ex.JobsubmitError(
+                "  Something went wrong when submitting. This may be that you "
+                "have entered an incorrect account code.")
+
+        else:
+            raise ex.JobsubmitError("  Something went wrong when submitting.")
 
     output = shellout.rstrip("\r\n")
 
-    LOGGER.info("  Job: %s submitted with id: %s", jobname, output)
+    LOGGER.info("Job: %s submitted with id: %s", jobname, output)
 
     jobs[jobname]["jobid"] = output

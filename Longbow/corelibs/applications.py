@@ -1,10 +1,14 @@
 # Longbow is Copyright (C) of James T Gebbie-Rayet and Gareth B Shannon 2015.
 #
-# This file is part of Longbow.
+# This file is part of the Longbow software which was developed as part of
+# the HECBioSim project (http://www.hecbiosim.ac.uk/).
+#
+# HECBioSim facilitates and supports high-end computing within the
+# UK biomolecular simulation community on resources such as Archer.
 #
 # Longbow is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
+# the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
 #
 # Longbow is distributed in the hope that it will be useful,
@@ -21,7 +25,22 @@ command line arguments of the job in a code specific manner."""
 
 import logging
 import os
-import corelibs.shellwrappers as shellwrappers
+
+try:
+    import Longbow.corelibs.exceptions as ex
+except ImportError:
+    import corelibs.exceptions as ex
+
+try:
+    import Longbow.corelibs.shellwrappers as shellwrappers
+except ImportError:
+    import corelibs.shellwrappers as shellwrappers
+
+try:
+    import Longbow.plugins.apps as apps
+except ImportError:
+    import plugins.apps as apps
+
 
 LOGGER = logging.getLogger("Longbow")
 
@@ -31,51 +50,59 @@ def testapp(hosts, jobs):
     """Test whether the application executable is reachable. This method
     does support testing for modules."""
 
+    checked = {}
+
     LOGGER.info("Testing the executables defined for each job.")
 
     for job in jobs:
 
-        LOGGER.info("  Checking executable '%s' on '%s'",
-                    jobs[job]["executable"], jobs[job]["resource"])
+        resource = jobs[job]["resource"]
+        executable = jobs[job]["executable"]
 
-        cmd = []
-        if jobs[job]["modules"] is "":
+        # If we haven't checked this resource then it is likely not in the dict
+        if resource not in checked:
+            checked[resource] = []
 
-            LOGGER.debug("  Checking without modules.")
-        else:
+        # Now check if we have tested this exec already.
+        if executable not in checked[resource]:
 
-            LOGGER.debug("  Checking with modules.")
+            # If not then add it to the list now.
+            checked[resource].extend([executable])
 
-            for module in jobs[job]["modules"].split(","):
+            LOGGER.info(
+                "Checking executable '%s' on '%s'", executable, resource)
 
-                module.replace(" ", "")
-                cmd.extend(["module load " + module])
+            cmd = []
+            if jobs[job]["modules"] is "":
+                LOGGER.debug("Checking without modules.")
 
-        cmd.extend(["which " + jobs[job]["executable"] + " &> /dev/null"])
+            else:
+                LOGGER.debug("Checking with modules.")
 
-        try:
+                for module in jobs[job]["modules"].split(","):
+                    module.replace(" ", "")
+                    cmd.extend(["module load " + module + "\n"])
 
-            shellwrappers.sendtossh(hosts[jobs[job]["resource"]], cmd)
-            LOGGER.info("  Executable check - passed.")
+            cmd.extend(["which " + executable])
 
-        except Exception:
+            try:
+                shellwrappers.sendtossh(hosts[resource], cmd)
+                LOGGER.info("Executable check - passed.")
 
-            raise RuntimeError("Executable check - failed")
+            except ex.SSHError:
+                LOGGER.error("Executable check - failed.")
+                raise
 
 
-def processjobs(args, jobs):
+def processjobs(jobs):
 
     """Process the jobs command line, this method will extract information
     from the command line and construct a list of files to be staged."""
 
     LOGGER.info("Processing job/s and detecting files that require upload.")
 
-    required = {"amber": ["-c", "-i", "-p"],
-                "charmm": [],
-                "gromacs": ["-s"],
-                "lammps": ["-i"],
-                "namd": ["?"]
-                }
+    # Get dict of executables and their required flags.
+    required = getattr(apps, "EXECFLAGS")
 
     for job in jobs:
 
@@ -84,53 +111,58 @@ def processjobs(args, jobs):
         flags = []
         executable = jobs[job]["executable"]
 
-        # If the commandline was specified in the job configuration file
-        # then process it into a list. This should be the case for
-        # multijobs.
-        if jobs[job]["commandline"] is not "":
+        # Process the command line into a list.
+        args = jobs[job]["commandline"].split()
 
-            args = jobs[job]["commandline"].split()
-
-        # Otherwise check if it came in on the command line to the main
-        # app, this should be the case for single and single batch jobs.
-        elif len(args) is 0:
-            if jobs[job]["program"] == "charmm":
-                raise RuntimeError("Commandline arguments were not " +
-                                   "detected. Make sure you have typed " +
-                                   "< in quotation marks on the command line")
-            else:
-                raise RuntimeError("Commandline arguments were not provided")
-
-        LOGGER.debug("  Args for job '%s': %s", job, args)
+        LOGGER.debug("Args for job '%s': %s", job, args)
 
         # Now we should check that the required flags have been supplied if
         # the program being used is one of the ones we are supporting.
-        if jobs[job]["program"] is not "":
+        if executable is not "":
 
             # Find missing flags.
-            flags = list(set(required[jobs[job]["program"].lower()]) -
+            flags = list(set(required[executable]) -
                          set(args))
 
             # Check for missing flags.
             if len(flags) is not 0:
 
-                # Jobs that don't use a commadline flag to denote the input
+                # This is to handle cases where there can be multiple required
+                # flags where the user only has to give on (-s vs -defnm).
+                for flag in flags:
+                    if " || " in flag:
+                        tmp = flag.split(" || ")
+
+                        # Now we have split the flags find and delete any that
+                        # match in the list of missing flags
+                        for item in tmp:
+                            if item in args:
+                                flags.remove(item)
+
+            # Do we still have missing flags.
+            if len(flags) is not 0:
+
+                # Jobs that don't use a commandline flag to denote the input
                 # file, such NAMD can be dealt with like this.
                 if "?" in flags:
 
                     # The only thing we can really do is check that something
                     # is given on the cmdline.
                     if args is "":
-                        raise RuntimeError("in job '%s' " % job +
-                                           "it appears that the input file " +
-                                           "is missing")
+                        raise ex.RequiredinputError(
+                            "in job '%s' it appears that the input file is "
+                            "missing" % job)
+
+                    elif len(args) is 1 and args[0] is "<":
+                        raise ex.RequiredinputError(
+                            "in job '%s' it appears that the %s input "
+                            "file is missing" % (job, jobs[job]["modules"]))
 
                 else:
-
-                    raise RuntimeError("in job '%s' " % job + "there are " +
-                                       "missing flags from command line: %s " %
-                                       flags + "see documentation for %s " %
-                                       jobs[job]["program"])
+                    raise ex.RequiredinputError(
+                        "in job '%s' there are missing flags on the command"
+                        "line '%s'. See documentation for module '%s' " %
+                        (job, flags, jobs[job]["modules"]))
 
         # Path correction for multijobs.
         cwd = jobs[job]["localworkdir"]
@@ -144,8 +176,9 @@ def processjobs(args, jobs):
         # Check that the directory exists.
         if os.path.isdir(cwd) is False:
 
-            raise RuntimeError("The working directory '%s' cannot be " %
-                               cwd + "found for job %s" % job)
+            raise ex.DirectorynotfoundError(
+                "The working directory '%s' " % cwd + "cannot be found for "
+                "job '%s'" % job)
 
         # Run through the commandline and search the working directory for
         # any matches, any that are found we will assume they need staging.
@@ -195,9 +228,10 @@ def processjobs(args, jobs):
         jobs[job]["commandline"] = args
 
         # Log results.
-        LOGGER.info("  For job '%s' - files for upload: " % job +
-                    ", ".join(filelist))
-        LOGGER.info("  For job '%s' - execution string: %s",
-                    job, args)
+        LOGGER.info(
+            "For job '%s' - files for upload: " % job + ", ".join(filelist))
 
-    LOGGER.info("  Processing jobs - complete.")
+        LOGGER.info(
+            "For job '%s' - execution string: %s", job, args)
+
+    LOGGER.info("Processing jobs - complete.")

@@ -1,10 +1,10 @@
-single
-longbow.py -hosts hosts.conf -jobs job.conf -logs proxy.log -debug -i test.in -c test.min2 -p test.top -o test.out
+single:
+longbow pmemd.MPI -O -i test.in -c test.min -p test.top -o output -debug
 
 
-batch
-longbow.py -hosts hosts.conf -jobs job.conf -logs proxy.log -debug -i test.in -c test.min2 -p test.top -o test.out
+replicate:
+longbow pmemd.MPI -O -i test.in -c test.min -p test.top -o output -job job.conf -debug
 
 
-multi
-longbow.py -hosts hosts.conf -jobs jobs.conf -logs proxy.log -debug
+multi:
+longbow pmemd.MPI -O -i test.in -c test.min -p test.top -o output -job job.conf -debug

@@ -1,0 +1,7 @@
+[test]
+executable = pmemd.MPI
+remoteworkdir = /work/longbowTest
+maxtime = 01:00
+cores = 48
+frequency = 120
+account = ABCD-01234-EFG
