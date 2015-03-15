@@ -140,7 +140,7 @@ def testenv(hostconf, hosts, jobs):
 
                 for param in handlers:
                     try:
-                        cmd = cmdmod
+                        cmd = cmdmod[:]
                         cmd.extend(handlers[param])
                         shellwrappers.sendtossh(hosts[resource], cmd)
 

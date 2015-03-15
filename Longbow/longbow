@@ -371,7 +371,7 @@ if __name__ == "__main__":
     # line argument list.
     if COMMANDLINEARGS.count("-resource") == 1:
         POSITION = COMMANDLINEARGS.index("-resource")
-        MACHINE = COMMANDLINEARGS[POSITION + 1]
+        RESOURCE = COMMANDLINEARGS[POSITION + 1]
         COMMANDLINEARGS.pop(POSITION)
         COMMANDLINEARGS.pop(POSITION)
 
