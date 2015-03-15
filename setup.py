@@ -73,7 +73,8 @@ setup_args = {
         'Operating System :: Unix'
     ],
     'packages': ["Longbow", "Longbow.plugins",
-                 "Longbow.plugins.schedulers", "Longbow.corelibs"],
+                 "Longbow.plugins.schedulers", "Longbow.plugins.apps"
+                 "Longbow.corelibs"],
     'scripts': ['Longbow/longbow'],
 
 }
