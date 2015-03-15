@@ -27,6 +27,7 @@ the main for a console based session."""
 import os
 import sys
 import logging
+import subprocess
 
 try:
     import Longbow.corelibs.applications as applications
