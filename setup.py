@@ -36,6 +36,11 @@ if not (sys.version_info[0] >= 2 and sys.version_info[1] >= 7):
     print ("The Python version on your system has been detected to be prior "
         "to version 2.7. It is recommended you upgrade to at least version "
         "2.7.")
+    if (sys.version_info[0] == 2 and sys.version_info[1] == 6):
+        print ("The Python version on your system has been detected to be 2.6."
+            " If you wish to continue using this version please read the "
+            "troubleshooting section of the Longbow user guide: "
+            "http://www.hecbiosim.ac.uk/wikis/index.php/Longbow_-_User_Guide")
     
 # download hosts.conf
 print "Downloading hosts.conf"
@@ -48,9 +53,9 @@ if not os.path.isdir(os.path.expanduser("~/.Longbow")):
                      os.path.expanduser("~/LongbowHosts.zip")])
 
 # setup args
-setup_args = {
+setup_args={
     'name': "Longbow",
-    'version': "0.9.993",
+    'version': "0.9.994",
     'description': "Biomolecular simulation remote job submission "
                    "utility.",
     'long_description': "Longbow sends jobs submitted to your desktop to a "
