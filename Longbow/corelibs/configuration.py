@@ -136,26 +136,38 @@ def loadjobs(jobconfile, hostsconfile, remoteres):
         if jobs[job]["resource"] is "":
 
             # Instantiate the configparser and read the configuration file.
+            # Grab a list of the section headers present in file.
             configs = configparser.ConfigParser()
-
             try:
                 configs.read(hostsconfile)
-
             except IOError:
                 ex.RequiredinputError("Can't read the configurations from: %s"
                                       % hostsconfile)
-
-            # Grab a list of the section headers present in file.
             sectionlist = configs.sections()
 
             # if the machine flag has not been set use the first machine in the
             # hosts
             if remoteres is "":
-                jobs[job]["resource"] = sectionlist[0]
+                try:
+                    hostsfile = open(hostsconfile, "r")
+                except IOError:
+                    ex.RequiredinputError("Can't read the configurations from:"
+                                          " %s" % hostsconfile)
+                topremoteres = []
+                for line in hostsfile:
+                    if line[0] == "[":
+                        i = 1
+                        while line[i] is not "]":
+                            topremoteres.append(line[i])
+                            i += 1
+                        break
+                topremoteres = "".join(topremoteres)
+                jobs[job]["resource"] = topremoteres
+                hostsfile.close()
 
             elif remoteres not in sectionlist:
                 raise ex.CommandlineargsError(
-                    "The %s machine specified on the command line is not one "
+                    "The %s resource specified on the command line is not one "
                     "of: %s" % (remoteres, sectionlist))
             else:
                 jobs[job]["resource"] = remoteres
