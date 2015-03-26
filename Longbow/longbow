@@ -379,7 +379,8 @@ if __name__ == "__main__":
     # Take test for the ABOUT command line flag, print message and exit if
     # found
     if COMMANDLINEARGS.count("-about") == 1:
-        print ("Welcome to Longbow!\n"
+        print (
+            "Welcome to Longbow!\n"
             "Longbow is a remote job submission utility designed for "
             "biomolecular simulation."
             "This software was developed as part of the EPSRC-funded "

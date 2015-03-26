@@ -329,15 +329,12 @@ def remotecopy(host, src, dst):
 
     LOGGER.debug("Copying %s " % src + "to %s" % dst)
 
-    # Expand tildas (if present) otherwise these will not change anything.
-    src = os.path.expanduser(src)
-    dst = os.path.expanduser(dst)
-
-    # Are paths absolute.
-    if os.path.isabs(src) is False:
+    # Are paths absolute. Do we start with tildas, if so since we are going
+    # through the shell allow it to expand the tilda on the remote host for us.
+    if os.path.isabs(src) is False and src[0] != "~":
         raise ex.AbsolutepathError("The source path is not absolute", src)
 
-    if os.path.isabs(dst) is False:
+    if os.path.isabs(dst) is False and dst[0] != "~":
         raise ex.AbsolutepathError("The destination path is not absolute", dst)
 
     # Just use cp for this with recursive set in case of directory.
@@ -357,11 +354,8 @@ def remotedelete(host, src):
 
     LOGGER.debug("Deleting: %s", src)
 
-    # Expand tildas (if present) otherwise these will not change anything.
-    src = os.path.expanduser(src)
-
     # Are paths absolute.
-    if os.path.isabs(src) is False:
+    if os.path.isabs(src) is False and src[0] != "~":
         raise ex.AbsolutepathError("The source path is not absolute", src)
 
     # Just use rm for this with recursive set in case of directory.
@@ -382,11 +376,8 @@ def remotelist(host, src):
 
     LOGGER.debug("Listing the contents of: %s", src)
 
-    # Expand tildas (if present) otherwise these will not change anything.
-    src = os.path.expanduser(src)
-
     # Are paths absolute.
-    if os.path.isabs(src) is False:
+    if os.path.isabs(src) is False and src[0] != "~":
         raise ex.AbsolutepathError("The source path is not absolute", src)
 
     # Shell command ls for listing in a shell.
@@ -409,15 +400,11 @@ def upload(protocol, host, src, dst):
 
     """A method for uploading files to remote hosts."""
 
-    # Expand tildas (if present) otherwise these will not change anything.
-    src = os.path.expanduser(src)
-    dst = os.path.expanduser(dst)
-
     # Are paths absolute.
-    if os.path.isabs(src) is False:
+    if os.path.isabs(src) is False and src[0] != "~":
         raise ex.AbsolutepathError("The source path is not absolute", src)
 
-    if os.path.isabs(dst) is False:
+    if os.path.isabs(dst) is False and dst[0] != "~":
         raise ex.AbsolutepathError("The destination path is not absolute", dst)
 
     dst = (host["user"] + "@" + host["host"] + ":" + dst)
@@ -443,15 +430,11 @@ def download(protocol, host, src, dst):
 
     """A method for downloading files from remote hosts."""
 
-    # Expand tildas (if present) otherwise these will not change anything.
-    src = os.path.expanduser(src)
-    dst = os.path.expanduser(dst)
-
     # Are paths absolute.
-    if os.path.isabs(src) is False:
+    if os.path.isabs(src) is False and src[0] != "~":
         raise ex.AbsolutepathError("The source path is not absolute", src)
 
-    if os.path.isabs(dst) is False:
+    if os.path.isabs(dst) is False and dst[0] != "~":
         raise ex.AbsolutepathError("The destination path is not absolute", dst)
 
     src = (host["user"] + "@" + host["host"] + ":" + src)
