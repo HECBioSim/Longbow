@@ -137,7 +137,8 @@ def processjobs(jobs):
                         # match in the list of missing flags
                         for item in tmp:
                             if item in args:
-                                flags.remove(item)
+                                flags.remove(flag)
+                                break
 
             # Do we still have missing flags.
             if len(flags) is not 0:
