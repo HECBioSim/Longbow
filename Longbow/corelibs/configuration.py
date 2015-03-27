@@ -211,7 +211,7 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args):
         "commandline": args,
         "frequency": "60",
         "localworkdir": cwd,
-        "modules": modules[executable],
+        "modules": "",
         "maxtime": "24:00",
         "memory": "",
         "executable": executable,
@@ -246,19 +246,23 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args):
             else:
                 jobs[job][option] = jobdefaults[option]
 
-    # Check we have an executable and command line arguments provided
-    if jobs[job]["executable"] is "":
-        raise ex.CommandlineargsError(
-            "An executable has not been specified on the command-line "
-            "or in a configuration file")
+        # Check we have an executable and command line arguments provided
+        if jobs[job]["executable"] is "":
+            raise ex.CommandlineargsError(
+                "An executable has not been specified on the command-line "
+                "or in a configuration file")
 
-    if jobs[job]["commandline"] is "":
-        raise ex.CommandlineargsError(
-            "Command-line arguments could not be detected properly on the "
-            "command-line or in a configuration file. If your application "
-            "requires input of the form 'executable < input_file' then make "
-            "sure that you put the '<' in quotation marks on the command-line "
-            "to Longbow.")
+        if jobs[job]["commandline"] is "":
+            raise ex.CommandlineargsError(
+                "Command-line arguments could not be detected properly on the "
+                "command-line or in a configuration file. If your application "
+                "requires input of the form 'executable < input_file' then "
+                "make sure that you put the '<' in quotation marks on the "
+                "commandline to Longbow.")
+
+        # If modules hasn't been defined in a config file, use default
+        if jobs[job]["modules"] is "":
+            jobs[job]["modules"] = modules[jobs[job]["executable"]]
 
     return jobs
 
