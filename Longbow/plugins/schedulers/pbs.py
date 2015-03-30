@@ -165,8 +165,7 @@ def prepare(hosts, jobname, jobs):
     elif int(jobs[jobname]["batch"]) > 1:
         jobfile.write("basedir=$PBS_O_WORKDIR \n"
                       "cd $basedir/rep${PBS_ARRAY_INDEX}/\n" +
-                      mpirun + " " + jobs[jobname]["commandline"] +
-                      " &\n")
+                      mpirun + " " + jobs[jobname]["commandline"] + "\n")
 
     # Close the file (housekeeping)
     jobfile.close()
