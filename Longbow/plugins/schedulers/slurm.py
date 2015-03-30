@@ -121,10 +121,6 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
         nodes = str(int(math.ceil(nodes)))
         jobfile.write("#SBATCH -N " + nodes + "\n")
 
-    # Set up a job array if desired
-    # if int(jobs[jobname]["batch"]) > 1:
-    #    jobfile.write("#SBATCH --array=1-" + jobs[jobname]["batch"] + "\n")
-
     # Walltime for job
     jobfile.write("#SBATCH -t " + jobs[jobname]["maxtime"] + ":00\n\n")
 
