@@ -122,8 +122,7 @@ def prepare(hosts, jobname, jobs):
     elif int(jobs[jobname]["batch"]) > 1:
 
         jobfile.write("cd rep${LSB_JOBINDEX}/\n" +
-                      mpirun + " -lsf " + jobs[jobname]["commandline"] +
-                      " &\n")
+                      mpirun + " -lsf " + jobs[jobname]["commandline"] + "\n")
 
     # Close the file (housekeeping)
     jobfile.close()

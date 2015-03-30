@@ -121,10 +121,6 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
         nodes = str(int(math.ceil(nodes)))
         jobfile.write("#SBATCH -N " + nodes + "\n")
 
-    # Set up a job array if desired
-    # if int(jobs[jobname]["batch"]) > 1:
-    #    jobfile.write("#SBATCH --array=1-" + jobs[jobname]["batch"] + "\n")
-
     # Walltime for job
     jobfile.write("#SBATCH -t " + jobs[jobname]["maxtime"] + ":00\n\n")
 
@@ -147,18 +143,9 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
                       "for i in {1.." + jobs[jobname]["batch"] + "};\n"
                       "do\n"
                       "  cd $basedir/rep$i/\n"
-                      "  " + mpirun + " " + jobs[jobname]["commandline"] +
-                      " &\n"
+                      "  " + mpirun + " " + jobs[jobname]["commandline"] + "\n"
                       "done\n"
                       "wait\n")
-
-    # Ensemble jobs
-    # elif int(jobs[jobname]["batch"]) > 1:
-    #     jobfile.write("basedir = `pwd`\n"
-    #                   "cd $basedir/rep${SLURM_ARRAY_TASK_ID}/\n" +
-    #                   mpirun + " " + jobs[jobname]["commandline"] +
-    #                   " &\n"
-    #                   "wait\n")
 
     # Close the file
     jobfile.close()
