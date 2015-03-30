@@ -113,8 +113,7 @@ def prepare(hosts, jobname, jobs):
     # Job array
     elif int(jobs[jobname]["batch"]) > 1:
         jobfile.write("cd rep${SGE_TASK_ID}/\n" +
-                      mpirun + jobs[jobname]["commandline"] +
-                      " &\n")
+                      mpirun + jobs[jobname]["commandline"] + "\n")
 
     # Close the file (housekeeping)
     jobfile.close()
