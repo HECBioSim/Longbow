@@ -74,13 +74,13 @@ def prepare(hosts, jobname, jobs):
     if jobname is not "":
 
         # Single job
-        if int(jobs[jobname]["batch"]) == 1:
+        if int(jobs[jobname]["replicates"]) == 1:
             jobfile.write("#BSUB -J " + jobname + "\n")
 
         # Job array
-        elif int(jobs[jobname]["batch"]) > 1:
+        elif int(jobs[jobname]["replicates"]) > 1:
             jobfile.write("#BSUB -J " + jobname + "[1-" +
-                          jobs[jobname]["batch"] + "]\n")
+                          jobs[jobname]["replicates"] + "]\n")
 
     if jobs[jobname]["queue"] is not "":
         jobfile.write("#BSUB -q " + jobs[jobname]["queue"] + "\n")
@@ -114,12 +114,12 @@ def prepare(hosts, jobname, jobs):
     mpirun = hosts[jobs[jobname]["resource"]]["handler"]
 
     # Single job
-    if int(jobs[jobname]["batch"]) == 1:
+    if int(jobs[jobname]["replicates"]) == 1:
 
         jobfile.write(mpirun + " -lsf " + jobs[jobname]["commandline"] + "\n")
 
     # Job array
-    elif int(jobs[jobname]["batch"]) > 1:
+    elif int(jobs[jobname]["replicates"]) > 1:
 
         jobfile.write("cd rep${LSB_JOBINDEX}/\n" +
                       mpirun + " -lsf " + jobs[jobname]["commandline"] + "\n")

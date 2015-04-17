@@ -72,9 +72,10 @@ def testenv(hostconf, hosts, jobs):
 
     schedulerqueries = getattr(schedulers, "QUERY")
 
-    handlers = {"aprun": ["which aprun"],
-                "mpirun": ["which mpirun"]
-                }
+    handlers = {
+        "aprun": ["which aprun"],
+        "mpirun": ["which mpirun"]
+    }
 
     save = False
 

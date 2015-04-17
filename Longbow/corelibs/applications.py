@@ -193,16 +193,16 @@ def processjobs(jobs):
                 # Add it to the list.
                 filelist.append(item)
 
-                # If we have a batch job then fix for overrides.
-                if int(jobs[job]["batch"]) > 1:
+                # If we have a replicates job then fix for overrides.
+                if int(jobs[job]["replicates"]) > 1:
                     args[index] = os.path.join("../", item)
 
-            # If we have no file and batch mode is used then we should
+            # If we have no file and replicates mode is used then we should
             # have some dirs to look in.
-            elif int(jobs[job]["batch"]) > 1:
+            elif int(jobs[job]["replicates"]) > 1:
 
                 # Else we just process all the files as normal.
-                for i in range(1, int(jobs[job]["batch"])+1):
+                for i in range(1, int(jobs[job]["replicates"])+1):
 
                     filepath = os.path.join(cwd, "rep" + str(i), item)
 

@@ -131,9 +131,9 @@ def prepare(hosts, jobname, jobs):
     # Walltime for job.
     jobfile.write("#PBS -l walltime=" + jobs[jobname]["maxtime"] + ":00\n")
 
-    # Set up batch jobs
-    if int(jobs[jobname]["batch"]) > 1:
-        jobfile.write("#PBS -J 1-" + jobs[jobname]["batch"] + "\n")
+    # Set up replicates jobs
+    if int(jobs[jobname]["replicates"]) > 1:
+        jobfile.write("#PBS -J 1-" + jobs[jobname]["replicates"] + "\n")
         jobfile.write("#PBS -r y\n")
 
     # Set some environment variables for PBS.
@@ -157,12 +157,12 @@ def prepare(hosts, jobname, jobs):
         mpirun = mpirun + " -n " + cores + " -N " + mpiprocs
 
     # Single jobs only need one run command.
-    if int(jobs[jobname]["batch"]) == 1:
+    if int(jobs[jobname]["replicates"]) == 1:
 
         jobfile.write(mpirun + " " + jobs[jobname]["commandline"] + "\n")
 
     # Job array
-    elif int(jobs[jobname]["batch"]) > 1:
+    elif int(jobs[jobname]["replicates"]) > 1:
         jobfile.write("basedir=$PBS_O_WORKDIR \n"
                       "cd $basedir/rep${PBS_ARRAY_INDEX}/\n" +
                       mpirun + " " + jobs[jobname]["commandline"] + "\n")
