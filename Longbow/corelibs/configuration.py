@@ -78,7 +78,7 @@ def loadhosts(confile):
         "memory": "",
         "executable": "",
         "queue": "",
-        "batch": "",
+        "replicates": "",
         "remoteworkdir": ""
     }
 
@@ -116,16 +116,20 @@ def loadjobs(jobconfile, hostsconfile, remoteres):
         "memory": "",
         "executable": "",
         "queue": "",
-        "batch": "",
+        "replicates": "",
         "remoteworkdir": "",
         "resource": ""
     }
+
+    required = [
+        ""
+    ]
 
     jobs = {}
 
     # if a job configuration file has been provided, load it
     if jobconfile is not "":
-        jobs = loadconfigs(jobconfile, jobtemplate, "")
+        jobs = loadconfigs(jobconfile, jobtemplate, required)
 
     # else load an empty dictionary
     else:
@@ -175,7 +179,8 @@ def loadjobs(jobconfile, hostsconfile, remoteres):
     return jobs
 
 
-def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args):
+def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args,
+                    replicates):
 
     """Method to sort and prioritise jobs configuration parameters."""
 
@@ -195,7 +200,7 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args):
         "memory": "",
         "executable": "",
         "queue": "",
-        "batch": "",
+        "replicates": "",
         "resource": ""
     }
 
@@ -216,7 +221,7 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args):
         "memory": "",
         "executable": executable,
         "queue": "",
-        "batch": "1",
+        "replicates": replicates if replicates else "1",
     }
 
     jobs = {}
@@ -242,7 +247,7 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args):
                     hostsconfig[jobsconfig[job]["resource"]][option]
 
             # if parameter has not been defined in hosts or jobs use
-            # default
+            # default.
             else:
                 jobs[job][option] = jobdefaults[option]
 

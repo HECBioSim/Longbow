@@ -134,13 +134,13 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
     mpirun = hosts[resource]["handler"]
 
     # Single jobs only need one run command.
-    if int(jobs[jobname]["batch"]) == 1:
+    if int(jobs[jobname]["replicates"]) == 1:
         jobfile.write(mpirun + " " + jobs[jobname]["commandline"] + "\n")
 
     # Ensemble jobs need a loop.
-    elif int(jobs[jobname]["batch"]) > 1:
+    elif int(jobs[jobname]["replicates"]) > 1:
         jobfile.write("basedir = `pwd`"
-                      "for i in {1.." + jobs[jobname]["batch"] + "};\n"
+                      "for i in {1.." + jobs[jobname]["replicates"] + "};\n"
                       "do\n"
                       "  cd $basedir/rep$i/\n"
                       "  " + mpirun + " " + jobs[jobname]["commandline"] + "\n"

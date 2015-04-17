@@ -70,7 +70,7 @@ except ImportError:
     import plugins.apps as apps
 
 
-def main(args, files, mode, remoteres):
+def main(args, files, mode, remoteres, replicates):
 
     """This is the main for a console based app, this is designed to run in a
     python/unix shell and is thus the main choice for headless machines like a
@@ -187,7 +187,7 @@ def main(args, files, mode, remoteres):
 
         # Sort and prioritise jobs configuration parameters
         jobs = configuration.sortjobsconfigs(
-            hostsconfig, jobsconfig, executable, cwd, args)
+            hostsconfig, jobsconfig, executable, cwd, args, replicates)
 
         # Sort and prioritise hosts configuration parameters
         hosts = configuration.sorthostsconfigs(hostsconfig, jobsconfig)
@@ -297,6 +297,7 @@ if __name__ == "__main__":
     -job filename
     -log filename
     -resource HPCname
+    -replicates number
     -debug
     -verbose
     -about
@@ -323,6 +324,7 @@ if __name__ == "__main__":
         "log": ""
     }
     RESOURCE = ""
+    REPLICATES = ""
     MODE = {
         "debug": False,
         "verbose": False
@@ -376,6 +378,14 @@ if __name__ == "__main__":
         COMMANDLINEARGS.pop(POSITION)
         COMMANDLINEARGS.pop(POSITION)
 
+    # Take out the replicates name, then remove it from the command
+    # line argument list.
+    if COMMANDLINEARGS.count("-replicates") == 1:
+        POSITION = COMMANDLINEARGS.index("-replicates")
+        REPLICATES = COMMANDLINEARGS[POSITION + 1]
+        COMMANDLINEARGS.pop(POSITION)
+        COMMANDLINEARGS.pop(POSITION)
+
     # Take test for the ABOUT command line flag, print message and exit if
     # found
     if COMMANDLINEARGS.count("-about") == 1:
@@ -407,4 +417,4 @@ if __name__ == "__main__":
     # Call Longbow.
 
     # Enter the mains application.
-    main(COMMANDLINEARGS, FILES, MODE, RESOURCE)
+    main(COMMANDLINEARGS, FILES, MODE, RESOURCE, REPLICATES)

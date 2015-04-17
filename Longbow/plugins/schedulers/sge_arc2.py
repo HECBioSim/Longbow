@@ -94,8 +94,8 @@ def prepare(hosts, jobname, jobs):
     jobfile.write("#$ -l h_rt=" + jobs[jobname]["maxtime"] + ":00:00\n")
 
     # Job array
-    if int(jobs[jobname]["batch"]) > 1:
-        jobfile.write("#$ -t 1-" + jobs[jobname]["batch"] + "\n")
+    if int(jobs[jobname]["replicates"]) > 1:
+        jobfile.write("#$ -t 1-" + jobs[jobname]["replicates"] + "\n")
 
     cores = jobs[jobname]["cores"]
 
@@ -141,12 +141,12 @@ def prepare(hosts, jobname, jobs):
     mpirun = hosts[jobs[jobname]["resource"]]["handler"]
 
     # Single job
-    if int(jobs[jobname]["batch"]) == 1:
+    if int(jobs[jobname]["replicates"]) == 1:
 
         jobfile.write(mpirun + " " + jobs[jobname]["commandline"] + "\n")
 
     # Job array
-    elif int(jobs[jobname]["batch"]) > 1:
+    elif int(jobs[jobname]["replicates"]) > 1:
 
         jobfile.write("cd rep${SGE_TASK_ID}/\n" +
                       mpirun + jobs[jobname]["commandline"] + "\n")
