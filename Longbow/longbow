@@ -409,7 +409,8 @@ if __name__ == "__main__":
                 subprocess.check_output(["wget",
                     "http://www.hecbiosim.ac.uk/longbow/send/5-longbow/4-longbow-examples",
                     "-O", os.path.expanduser("~/LongbowExamples.zip")])
-            except:
+
+            except subprocess.CalledProcessError:
                 subprocess.call(["curl", "-L",
                     "http://www.hecbiosim.ac.uk/longbow/send/5-longbow/4-longbow-examples",
                     "-o", os.path.expanduser("~/LongbowExamples.zip")])
