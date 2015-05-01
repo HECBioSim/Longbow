@@ -405,9 +405,14 @@ if __name__ == "__main__":
     # found
     if COMMANDLINEARGS.count("-examples") == 1:
         if not os.path.isdir(os.path.expanduser("~/LongbowExamples")):
-            subprocess.call(["wget",
-                "http://www.hecbiosim.ac.uk/longbow/send/5-longbow/4-longbow-examples",
-                "-O", os.path.expanduser("~/LongbowExamples.zip")])
+            try:
+                subprocess.check_output(["wget",
+                    "http://www.hecbiosim.ac.uk/longbow/send/5-longbow/4-longbow-examples",
+                    "-O", os.path.expanduser("~/LongbowExamples.zip")])
+            except:
+                subprocess.call(["curl", "-L",
+                    "http://www.hecbiosim.ac.uk/longbow/send/5-longbow/4-longbow-examples",
+                    "-o", os.path.expanduser("~/LongbowExamples.zip")])
 
             subprocess.call(["unzip", "-d", os.path.expanduser("~"),
                              os.path.expanduser("~/LongbowExamples.zip")])
