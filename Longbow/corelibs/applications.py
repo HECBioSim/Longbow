@@ -181,35 +181,38 @@ def processjobs(jobs):
                 "The working directory '%s' " % cwd + "cannot be found for "
                 "job '%s'" % job)
 
-        # Run through the commandline and search the working directory for
-        # any matches, any that are found we will assume they need staging.
+        # Run through the commandline and search for
+        # matches, any that are found we will assume they need staging.
         for index, item in enumerate(args):
 
-            filepath = os.path.join(cwd, item)
+            # if single job
+            if int(jobs[job]["replicates"]) == 1:
 
-            # Check it is there.
-            if os.path.isfile(filepath) is True:
+                filepath = os.path.join(cwd, item)
 
-                # Add it to the list.
-                filelist.append(item)
+                # Check it is there.
+                if os.path.isfile(filepath) is True:
+                    # Add it to the list.
+                    filelist.append(item)
 
-                # If we have a replicates job then fix for overrides.
-                if int(jobs[job]["replicates"]) > 1:
-                    args[index] = os.path.join("../", item)
-
-            # If we have no file and replicates mode is used then we should
-            # have some dirs to look in.
-            elif int(jobs[job]["replicates"]) > 1:
-
-                # Else we just process all the files as normal.
+            # elif replicate job
+            else:
                 for i in range(1, int(jobs[job]["replicates"])+1):
 
                     filepath = os.path.join(cwd, "rep" + str(i), item)
 
+                    # if the file is in rep${i} subdirectory
                     if os.path.isfile(filepath) is True:
 
                         # Add file to list of files required to upload.
                         filelist.append(os.path.join("rep" + str(i), item))
+
+                    # elif the file is in the parent directory
+                    elif os.path.isfile(os.path.join(cwd, item)) is True:
+
+                        # Add file to list of files required to upload.
+                        filelist.append(item)
+                        args[index] = os.path.join("../", item)
 
         # If the flag is the extra files upload then pop it out of the args
         # list as the file will have been got for staging but we don't want
