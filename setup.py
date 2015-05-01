@@ -41,9 +41,14 @@ if not (sys.version_info[0] >= 2 and sys.version_info[1] >= 7):
 print "Downloading hosts.conf"
 
 if not os.path.isdir(os.path.expanduser("~/.Longbow")):
-    subprocess.call(["wget",
-        "http://www.hecbiosim.ac.uk/longbow/send/5-longbow/5-longbow-hosts",
-        "-O", os.path.expanduser("~/LongbowHosts.zip")])
+    try:
+        subprocess.check_output(["wget",
+            "http://www.hecbiosim.ac.uk/longbow/send/5-longbow/5-longbow-hosts",
+            "-O", os.path.expanduser("~/LongbowHosts.zip")])
+    except subprocess.CalledProcessError:
+        subprocess.call(["curl", "-L",
+            "http://www.hecbiosim.ac.uk/longbow/send/5-longbow/5-longbow-hosts",
+            "-o", os.path.join(os.path.expanduser("~"), "LongbowHosts.zip")])
 
     subprocess.call(["unzip", "-d", os.path.expanduser("~"),
                      os.path.expanduser("~/LongbowHosts.zip")])
@@ -51,7 +56,7 @@ if not os.path.isdir(os.path.expanduser("~/.Longbow")):
 # setup args
 setup_args = {
     'name': "Longbow",
-    'version': "0.9.997",
+    'version': "0.9.998",
     'description': "Biomolecular simulation remote job submission "
                    "utility.",
     'long_description': "Longbow sends jobs submitted to your desktop to a "
