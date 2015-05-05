@@ -22,5 +22,6 @@
 """."""
 
 EXECDATA = {
-    "mdrun": ["-s || -deffnm"]
+    "mdrun": ["-s || -deffnm"],
+    "mdrun_mpi": ["-s || -deffnm"]
     }
