@@ -98,14 +98,7 @@ def prepare(hosts, jobname, jobs):
         jobfile.write("#$ -t 1-" + jobs[jobname]["replicates"] + "\n")
 
     cores = jobs[jobname]["cores"]
-
-    if jobs[jobname]["corespernode"] is not "":
-        cpn = jobs[jobname]["corespernode"]
-    elif hosts[jobs[jobname]["resource"]]["corespernode"] is not "":
-        cpn = hosts[jobs[jobname]["resource"]]["corespernode"]
-    else:
-        raise RuntimeError("parameter 'corespernode' was not set in either " +
-                           "the host nor job configuration files.")
+    cpn = hosts[jobs[jobname]["resource"]]["corespernode"]
 
     # Load levelling override. In cases where # of cores is less than
     # corespernode, user is likely to be undersubscribing.
