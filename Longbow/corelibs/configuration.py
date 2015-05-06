@@ -135,46 +135,57 @@ def loadjobs(jobconfile, hostsconfile, remoteres):
     else:
         jobs["Longbowjob"] = jobtemplate.copy()
 
-    # determine which remote resource to use if none has been set
+    # For each job, determine which remote resource to use
+
+    # Read the section headers present in the hosts configuration file.
+    # This will be needed later.
+    configs = configparser.ConfigParser()
+    try:
+        configs.read(hostsconfile)
+    except IOError:
+        ex.RequiredinputError("Can't read the configurations from: %s"
+                              % hostsconfile)
+    sectionlist = configs.sections()
+
     for job in jobs:
-        if jobs[job]["resource"] is "":
 
-            # Instantiate the configparser and read the configuration file.
-            # Grab a list of the section headers present in file.
-            configs = configparser.ConfigParser()
-            try:
-                configs.read(hostsconfile)
-            except IOError:
-                ex.RequiredinputError("Can't read the configurations from: %s"
-                                      % hostsconfile)
-            sectionlist = configs.sections()
-
-            # if the machine flag has not been set use the first machine in the
-            # hosts
-            if remoteres is "":
-                try:
-                    hostsfile = open(hostsconfile, "r")
-                except IOError:
-                    ex.RequiredinputError("Can't read the configurations from:"
-                                          " %s" % hostsconfile)
-                topremoteres = []
-                for line in hostsfile:
-                    if line[0] == "[":
-                        i = 1
-                        while line[i] is not "]":
-                            topremoteres.append(line[i])
-                            i += 1
-                        break
-                topremoteres = "".join(topremoteres)
-                jobs[job]["resource"] = topremoteres
-                hostsfile.close()
-
-            elif remoteres not in sectionlist:
-                raise ex.CommandlineargsError(
-                    "The %s resource specified on the command line is not one "
-                    "of: %s" % (remoteres, sectionlist))
-            else:
+        # if a resource has been specified on the command line overrule
+        if remoteres is not "":
+            # Check the machine specified on the command line is in the hosts
+            # config file. If it is, use it.
+            if remoteres in sectionlist:
                 jobs[job]["resource"] = remoteres
+            else:
+                raise ex.CommandlineargsError(
+                        "The %s resource specified on the command line is not"
+                        " one of: %s" % (remoteres, sectionlist))
+
+        # elif a resource has not been specified in a job config, use the top
+        # machine in the hosts config
+        elif jobs[job]["resource"] is "":
+            try:
+                hostsfile = open(hostsconfile, "r")
+            except IOError:
+                ex.RequiredinputError("Can't read the configurations from:"
+                                      " %s" % hostsconfile)
+
+            topremoteres = []
+            for line in hostsfile:
+                if line[0] == "[":
+                    i = 1
+                    while line[i] is not "]":
+                        topremoteres.append(line[i])
+                        i += 1
+                    break
+            topremoteres = "".join(topremoteres)
+            jobs[job]["resource"] = topremoteres
+            hostsfile.close()
+
+        elif jobs[job]["resource"] not in sectionlist:
+            raise ex.RequiredinputError(
+                "The %s resource specified in the job configuration"
+                " file is not one of: %s" %
+                (jobs[job]["resource"], sectionlist))
 
     return jobs
 
@@ -209,7 +220,15 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args,
         "resource"
     ]
 
-    # Default parameters to be stored in the jobs structure excluding resource
+    # Parameters to be that can be provided on the command line that can
+    # overrule parameters in config files
+    commandline = [
+        "commandline",
+        "executable",
+        "replicates"
+    ]
+
+    # Default parameters to be stored in the jobs structure
     jobdefaults = {
         "cores": "24",
         "cluster": "",
@@ -221,7 +240,8 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args,
         "memory": "",
         "executable": executable,
         "queue": "",
-        "replicates": replicates if replicates else "1",
+        "replicates": replicates,
+        "resource": ""
     }
 
     jobs = {}
@@ -230,14 +250,20 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args,
     for job in jobsconfig:
         jobs[job] = jobtemplate.copy()
 
-        for item in manual:
-            jobs[job][item] = jobsconfig[job][item]
-
     # prioritise parameters
     for job in jobs:
         for option in jobdefaults:
-            # if a parameter has been defined in jobsconfig, use it
-            if jobsconfig[job][option] is not "":
+
+            # manually copy certain values from the jobs config from loadjobs()
+            if option in manual:
+                jobs[job][option] = jobsconfig[job][option]
+
+            # certain values provided on the command line should take priority
+            elif option in commandline and jobdefaults[option] is not "":
+                jobs[job][option] = jobdefaults[option]
+
+            # elif a parameter has been defined in jobsconfig, use it
+            elif jobsconfig[job][option] is not "":
                 jobs[job][option] = jobsconfig[job][option]
 
             # if a parameter hasn't been defined in jobsconfig but has been in
@@ -246,8 +272,7 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args,
                 jobs[job][option] = \
                     hostsconfig[jobsconfig[job]["resource"]][option]
 
-            # if parameter has not been defined in hosts or jobs use
-            # default.
+            # else use default.
             else:
                 jobs[job][option] = jobdefaults[option]
 
@@ -268,6 +293,10 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args,
         # If modules hasn't been defined in a config file, use default
         if jobs[job]["modules"] is "":
             jobs[job]["modules"] = modules[jobs[job]["executable"]]
+
+        # If replicates hasn't been defined anywhere, set to "1"
+        if jobs[job]["replicates"] is "":
+            jobs[job]["replicates"] = "1"
 
     return jobs
 
