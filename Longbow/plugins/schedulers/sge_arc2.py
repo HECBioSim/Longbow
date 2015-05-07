@@ -64,7 +64,7 @@ def prepare(hosts, jobname, jobs):
 
     LOGGER.info("Creating submit file for job: %s", jobname)
 
-    # Open file for LSF script.
+    # Open file for SGE script.
     sgefile = os.path.join(jobs[jobname]["localworkdir"], "submit.sge")
     jobfile = open(sgefile, "w+")
 
@@ -118,13 +118,12 @@ def prepare(hosts, jobname, jobs):
     # Number of mpi processes per node.
     # mpiprocs = cpn
 
-    tmp = "select=" + nodes
+    tmp = "nodes=" + nodes
 
     # Write the resource requests
-    jobfile.write("#PBS -l " + tmp + "\n")
+    jobfile.write("#$ -l " + tmp + "\n")
 
-    jobfile.write("#$ -pe ib " + hosts[jobs[jobname]["resource"]]["account"] +
-                  "\n\n")
+    jobfile.write("#$ -pe ib " + cores + "\n\n")
 
     if jobs[jobname]["modules"] is not "":
         for module in jobs[jobname]["modules"].split(","):
