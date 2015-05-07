@@ -90,7 +90,7 @@ def prepare(hosts, jobname, jobs):
                           " " + hosts[jobs[jobname]["resource"]]["account"] +
                           "\n")
 
-    jobfile.write("#$ -l h_rt=" + jobs[jobname]["maxtime"] + ":00:00\n")
+    jobfile.write("#$ -l h_rt=" + jobs[jobname]["maxtime"] + ":00\n")
 
     # Job array
     if int(jobs[jobname]["replicates"]) > 1:
