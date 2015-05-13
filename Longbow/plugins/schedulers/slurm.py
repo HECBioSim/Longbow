@@ -151,7 +151,7 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
     jobfile.close()
 
     # Append submitfile to list of files ready for staging.
-    jobs[jobname]["filelist"].extend(["submit.slurm"])            # IMPORTANT
+    jobs[jobname]["filelist"].extend([slurmfile])                 # IMPORTANT
     jobs[jobname]["subfile"] = "submit.slurm"                     # IMPORTANT
 
 

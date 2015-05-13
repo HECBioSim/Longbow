@@ -31,6 +31,7 @@ Where jobs is a dictionary of job configurations."""
 
 import os
 import logging
+import re
 
 try:
     import Longbow.corelibs.exceptions as ex
@@ -84,14 +85,19 @@ def stage_upstream(hosts, jobs):
 
         for item in jobs[job]["filelist"]:
 
-            # Source of the file locally.
-            src = os.path.join(jobs[job]["localworkdir"], item)
+            # Any items that don't have an absolute path, assume they are in
+            # localworkdir
+            src = item
+            if not os.path.isabs(src):
+                src = os.path.join(jobs[job]["localworkdir"], item)
 
             # Does the item contain a sub directory.
-            directory = os.path.dirname(item)
+            directory = ""
+            if re.search('rep\d', item):
+                before, sep, after = item.rpartition("rep")
+                directory = os.path.dirname(sep + after)
 
             if directory is not "":
-
                 subdir = os.path.join(path, directory)
 
                 # Then does it already exist
