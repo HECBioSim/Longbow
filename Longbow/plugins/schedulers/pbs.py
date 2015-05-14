@@ -171,7 +171,7 @@ def prepare(hosts, jobname, jobs):
     jobfile.close()
 
     # Append pbs file to list of files ready for staging.
-    jobs[jobname]["filelist"].extend(["submit.pbs"])
+    jobs[jobname]["filelist"].extend([pbsfile])
     jobs[jobname]["subfile"] = "submit.pbs"
 
 

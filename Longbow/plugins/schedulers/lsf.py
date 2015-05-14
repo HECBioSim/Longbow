@@ -128,7 +128,7 @@ def prepare(hosts, jobname, jobs):
     jobfile.close()
 
     # Append lsf file to list of files ready for staging.
-    jobs[jobname]["filelist"].extend(["submit.lsf"])
+    jobs[jobname]["filelist"].extend([lsffile])
     jobs[jobname]["subfile"] = "submit.lsf"
 
 
