@@ -27,7 +27,6 @@ command line arguments of the job in a code specific manner."""
 
 import logging
 import os
-import re
 
 try:
     import Longbow.corelibs.exceptions as ex
@@ -106,6 +105,7 @@ def processjobs(jobs):
 
     # Get dict of executables and their required flags.
     required = getattr(apps, "EXECFLAGS")
+    tmp = getattr(apps, "DEFMODULES")
 
     for job in jobs:
 
@@ -113,6 +113,7 @@ def processjobs(jobs):
         filelist = []
         flags = []
         executable = jobs[job]["executable"]
+        app = tmp[executable]
 
         # Process the command line into a list.
         args = jobs[job]["commandline"].split()
@@ -192,97 +193,71 @@ def processjobs(jobs):
                 "job '%s'" % job)
 
         # Detect command line substitutions
-        # Create dictionary of charmm substitutions
-        if jobs[job]["executable"] == "charmm":
-            substte = {}
-            for item in args:
-                if ":" in item:
-                    before, sep, after = item.rpartition(":")
-                    substte[before] = after
-                elif "=" in item:
-                    before, sep, after = item.rpartition("=")
-                    substte[before] = after
+        substte = {}
+        try:
+            substte = getattr(apps, app.lower()).sub_dict(args)
 
-        # Create dictionary of lammps substitutions
-        elif jobs[job]["executable"] == "lmp_xc30":
-            substte = {}
-            for index, item in enumerate(args):
-                if item == "-var" or item == "-v":
-                    substte[args[index + 1]] = args[index + 2]
+        except AttributeError:
+            pass
 
         # Run through the commandline and search for
         # matches, any that are found we will assume they need staging.
+        # Packages for which input files can be specified in other input files,
+        # the code will automatically try to determine these files
         for index, item in enumerate(args):
 
             # if single job
             if int(jobs[job]["replicates"]) == 1:
 
-                # Check it is there.
-                if item not in filelist:
-                    # charmm
-                    if executable == "charmm":
-                        CHARMM_parser(item, cwd, filelist, substte)
+                # Search for input files
+                try:
+                    getattr(apps, app.lower()).file_parser(item, cwd,
+                                                           filelist,
+                                                           substte)
 
-                    # lammps
-                    elif executable == "lmp_xc30":
-                        LAMMPS_parser(item, cwd, filelist, substte)
+                except AttributeError:
 
-                    # NAMD
-                    elif executable == "namd2":
-                        NAMD_parser(item, cwd, filelist)
+                    itemfile = os.path.join(cwd, item)
 
-                    # amber and gromacs
-                    else:
-                        filelist.append(os.path.join(cwd, item))
+                    # if not in filelist, add file to list of
+                    # files required to upload.
+                    if os.path.isfile(itemfile) and itemfile not in filelist:
+                        filelist.append(itemfile)
 
             # elif replicate job
             else:
                 for i in range(1, int(jobs[job]["replicates"])+1):
-                    if item not in filelist:
 
-                        # charmm
-                        if executable == "charmm":
-                            filepath = os.path.join(cwd, "rep" + str(i))
+                    # Search for input files
+                    filepath = os.path.join(cwd, "rep" + str(i))
+                    if os.path.isdir(filepath):
+                        try:
+                            getattr(apps,
+                                    app.lower()).file_parser(item, filepath,
+                                                             filelist, substte)
 
-                            if os.path.isdir(filepath) is True:
-                                CHARMM_parser(item, filepath, filelist,
-                                              substte)
-
-                        # lammps
-                        elif executable == "lmp_xc30":
-                            filepath = os.path.join(cwd, "rep" + str(i))
-
-                            if os.path.isdir(filepath) is True:
-                                LAMMPS_parser(item, filepath, filelist,
-                                              substte)
-
-                        # namd
-                        elif executable == "namd2":
-                            filepath = os.path.join(cwd, "rep" + str(i))
-
-                            if os.path.isdir(filepath) is True:
-                                NAMD_parser(item, filepath, filelist)
-
-                        # amber and gromacs
-                        else:
+                        except AttributeError:
 
                             # if the file is in rep${i} subdirectory
-                            if os.path.isfile(os.path.join(cwd, "rep" + str(i),
-                                                           item)) is True:
+                            if os.path.isfile(os.path.join(filepath, item)):
 
-                                # Add file to list of files required to upload.
-                                filepath = os.path.join(cwd, "rep" + str(i),
-                                                        item)
-                                filelist.append(filepath)
+                                itemfile = os.path.join(filepath, item)
+
+                                # if not in filelist, add file to list of
+                                # files required to upload.
+                                if itemfile not in filelist:
+                                    filelist.append(itemfile)
 
                             # elif the file is in the parent directory
-                            elif os.path.isfile(os.path.join(cwd, item)) \
-                                    is True:
+                            elif os.path.isfile(os.path.join(cwd, item)):
 
-                                # Add file to list of files required to upload.
-                                filepath = os.path.join(cwd, item)
-                                filelist.append(filepath)
-                                args[index] = os.path.join("../", item)
+                                itemfile = os.path.join(cwd, item)
+
+                                # if not in filelist, add file to list of
+                                # files required to upload.
+                                if itemfile not in filelist:
+                                    filelist.append(itemfile)
+                                    args[index] = os.path.join("../", item)
 
         # If the flag is the extra files upload then pop it out of the args
         # list as the file will have been got for staging but we don't want
@@ -309,412 +284,3 @@ def processjobs(jobs):
             "For job '%s' - execution string: %s", job, args)
 
     LOGGER.info("Processing jobs - complete.")
-
-
-def CHARMM_parser(filename, path, files, substitutions=None):
-    '''
-    Recursive function that will assimilate from charmm input files a list of
-    files (files) to be staged to the execution host. filename will be added
-    to the list and any files mentioned in filename will also be added and
-    searched. Substitutions is a dictionary of "@" style variables specified
-    on the command line.
-    '''
-
-    # Check the location of filename
-    addfile = ""
-
-    # if the filename has an absolute path but doesn't exist locally, assume
-    # it is on the HPC
-    if os.path.isabs(filename) is True:
-        if os.path.isfile(filename) is False:
-            addfile = ""
-
-        else:
-            raise ex.RequiredinputError(
-                    "It appears that the"
-                    "user is trying to refer to a file %s"
-                    "using an explicit path. Please just provide"
-                    "the names of input files" % filename)
-
-    # elif the file is in the given path
-    elif os.path.isfile(os.path.join(path, filename)) is True:
-            addfile = os.path.join(path, filename)
-
-    # Now look for references to other files in the input file if not done so
-    # already
-    if addfile and (addfile not in files or not files):
-
-        files.append(addfile)
-
-        # Create a dictionary for any variable substitutions
-        variables = {} if not substitutions else substitutions
-
-        fil = None
-        # Open the file
-        try:
-            fil = open(addfile, "r")
-        except IOError:
-            ex.RequiredinputError("Can't read the %s file:" % addfile)
-
-        if fil:
-            # search every line for possible input files
-            for line in fil:
-
-                # Remove comments
-                if '!' in line:
-                    end = line.index('!')
-                else:
-                    end = len(line)
-
-                words = line[:end].split()
-                if len(words) > 0:
-
-                    # allow substitutions from inside the input file as well
-                    if words[0].lower() == 'set':
-                        if words[2] == "=":
-                            variables[words[1]] = words[3]
-                        else:
-                            variables[words[1]] = words[2]
-
-                    # Try to detect other input files
-                    if ('read' in [x.lower() for x in words]) and \
-                            ('name' in [x.lower() for x in words]):
-
-                        # Grab the last word in the line
-                        newfile = words[-1]
-
-                        # Do variable substitution
-                        if '@' in newfile:
-                            before, sep, after = newfile.rpartition("@")
-                            for instance in variables:
-                                if instance in after:
-
-                                    newfile = before + after.replace(instance,
-                                                        variables[instance])
-
-                        # Remove any quotes
-                        if (newfile[0] == newfile[-1]) and \
-                                newfile.startswith(("'", '"')):
-
-                            newfile = newfile[1:-1]
-
-                        # work out the path of newfile
-                        newpath = path
-                        if newfile.count("../") == 1:
-                            if re.search('rep\d', path):
-
-                                newpath = os.path.dirname(path)
-                                before, sep, after = newfile.rpartition("/")
-                                newfile = after
-
-                            else:
-                                raise ex.RequiredinputError(
-                                    "It appears that the"
-                                    " user is trying to refer to a file %s"
-                                    % newfile + " in file %s that is a" %
-                                    addfile + " directory up from the %s"
-                                    " directory." % path + ". Only files in %s"
-                                    % path + " or a repX subdirectory can be"
-                                    " copied to the HPC. If the file you are"
-                                    " trying to refer to is on the HPC, give"
-                                    " the explicit path to the file.")
-
-                        elif newfile.count("../") > 1:
-                            if re.search('rep\d', path):
-                                raise ex.RequiredinputError(
-                                    "It appears that the"
-                                    "user is trying to refer to a file %s"
-                                    % newfile + " in file %s that is two" %
-                                    addfile + " directories up from the %s" %
-                                    path + " subdirectory. Only files in %s" %
-                                    path + " or %s can be copied to the HPC." %
-                                    os.path.dirname(path) + " If the file you"
-                                    " are trying to refer to is on the"
-                                    " HPC, give the explicit path to the file")
-                            else:
-                                raise ex.RequiredinputError(
-                                    "It appears that the"
-                                    " user is trying to refer to a file %s"
-                                    % newfile + " in file %s that is two"
-                                    % addfile + " directories up from the %s"
-                                    " directory." % path + ". Only files in %s"
-                                    % path + " or a repX subdirectory can be"
-                                    " copied to the HPC. If the file you are"
-                                    " trying to refer to is on the HPC, give"
-                                    " the explicit path to the file.")
-
-                        # recursive function
-                        CHARMM_parser(newfile, newpath, files, substitutions)
-
-            fil.close()
-
-
-def LAMMPS_parser(filename, path, files, substitutions=None):
-    '''
-    Recursive function that will assimilate from lammps input files a list of
-    files (files) to be staged to the execution host. filename will be added
-    to the list and any files mentioned in filename will also be added and
-    searched. Substitutions is a dictionary of "$" style variables specified
-    on the command line.
-    '''
-
-    # Check the location of filename
-    addfile = ""
-
-    # if the filename has an absolute path but doesn't exist locally, assume
-    # it is on the HPC
-    if os.path.isabs(filename) is True:
-        if os.path.isfile(filename) is False:
-            addfile = ""
-
-        else:
-            raise ex.RequiredinputError(
-                    "It appears that the"
-                    "user is trying to refer to a file %s"
-                    "using an explicit path. Please just provide"
-                    "the names of input files" % filename)
-
-    # elif the file is in the given path
-    elif os.path.isfile(os.path.join(path, filename)) is True:
-            addfile = os.path.join(path, filename)
-
-    # Now look for references to other files in the input file if not done so
-    # already
-    if addfile and (addfile not in files or not files):
-
-        files.append(addfile)
-
-        # Create a dictionary for any variable substitutions
-        # Define keywords and create a dictionary for variable substitutions
-        keywords = ['read_data', 'read_restart', 'read_dump']
-        variables = {} if not substitutions else substitutions
-
-        fil = None
-        # Open the file
-        try:
-            fil = open(addfile, "r")
-        except IOError:
-            ex.RequiredinputError("Can't read the %s file:" % addfile)
-
-        if fil:
-            # search every line for possible input files
-            for line in fil:
-
-                # if line commented out, skip
-                if line[0] == "#":
-                    continue
-
-                # Remove comments
-                if '#' in line:
-                    end = line.index('#')
-                else:
-                    end = len(line)
-
-                words = line[:end].split()
-                if len(words) > 0:
-
-                    # allow substitutions from inside the input file as well
-                    if words[0].lower() == 'variable':
-                        variables[words[1]] = words[3]
-
-                    # if this line is reading in an input file
-                    if words[0].lower() in keywords:
-                        newfile = words[1]
-
-                        # Do variable substitution
-                        if '$' in newfile:
-                            start = newfile.index('$')+1
-                            if newfile[start] == '{':
-                                end = newfile[start:].index('}')+start
-                                var = variables[newfile[start+1:end]]
-                                newfile = newfile[0:start-1] + var + \
-                                        newfile[end+1:]
-                            else:
-                                end = start+1
-                                var = variables[newfile[start:end]]
-                                newfile = newfile[0:start-1] + var + \
-                                        newfile[end:]
-
-                        # work out the path of newfile
-                        newpath = path
-                        if newfile.count("../") == 1:
-                            if re.search('rep\d', path):
-
-                                newpath = os.path.dirname(path)
-                                before, sep, after = newfile.rpartition("/")
-                                newfile = after
-
-                            else:
-                                raise ex.RequiredinputError(
-                                    "It appears that the"
-                                    " user is trying to refer to a file %s"
-                                    % newfile + " in file %s that is a" %
-                                    addfile + " directory up from the %s"
-                                    " directory." % path + ". Only files in %s"
-                                    % path + " or a repX subdirectory can be"
-                                    " copied to the HPC. If the file you are"
-                                    " trying to refer to is on the HPC, give"
-                                    " the explicit path to the file.")
-
-                        elif newfile.count("../") > 1:
-                            if re.search('rep\d', path):
-                                raise ex.RequiredinputError(
-                                    "It appears that the"
-                                    "user is trying to refer to a file %s"
-                                    % newfile + " in file %s that is two" %
-                                    addfile + " directories up from the %s" %
-                                    path + " subdirectory. Only files in %s" %
-                                    path + " or %s can be copied to the HPC." %
-                                    os.path.dirname(path) + " If the file you"
-                                    " are trying to refer to is on the"
-                                    " HPC, give the explicit path to the file")
-                            else:
-                                raise ex.RequiredinputError(
-                                    "It appears that the"
-                                    " user is trying to refer to a file %s"
-                                    % newfile + " in file %s that is two"
-                                    % addfile + " directories up from the %s"
-                                    " directory." % path + ". Only files in %s"
-                                    % path + " or a repX subdirectory can be"
-                                    " copied to the HPC. If the file you are"
-                                    " trying to refer to is on the HPC, give"
-                                    " the explicit path to the file.")
-
-                        # recursive function
-                        LAMMPS_parser(newfile, newpath, files, substitutions)
-
-        fil.close()
-
-
-def NAMD_parser(filename, path, files):
-    '''
-    Recursive function that will assimilate from NAMD input files a list of
-    files (files) to be staged to the execution host. filename will be added
-    to the list and any files mentioned in filename will also be added and
-    searched. Substitutions is a dictionary of "$" style variables specified
-    on the command line.
-    '''
-
-    # Check the location of filename
-    addfile = ""
-
-    # if the filename has an absolute path but doesn't exist locally, assume
-    # it is on the HPC
-    if os.path.isabs(filename) is True:
-        if os.path.isfile(filename) is False:
-            addfile = ""
-
-        else:
-            raise ex.RequiredinputError(
-                    "It appears that the"
-                    "user is trying to refer to a file %s"
-                    "using an explicit path. Please just provide"
-                    "the names of input files" % filename)
-
-    # elif the file is in the given path
-    elif os.path.isfile(os.path.join(path, filename)) is True:
-            addfile = os.path.join(path, filename)
-
-    # Now look for references to other files in the input file if not done so
-    # already
-    if addfile and (addfile not in files or not files):
-
-        files.append(addfile)
-
-        # Create a dictionary for any variable substitutions
-        # Define keywords and create a dictionary for variable substitutions
-        keywords = ['coordinates', 'ExtendedSystem', 'structure', 'parameters',
-                    'paraTypeXplor', 'paraTypeCharmm', 'velocities',
-                    'binvelocities', 'bincoordinates']
-        variables = {}
-
-        fil = None
-        # Open the file
-        try:
-            fil = open(addfile, "r")
-        except IOError:
-            ex.RequiredinputError("Can't read the %s file:" % addfile)
-
-        if fil:
-
-            # search every line for possible input files
-            for line in fil:
-
-                # Remove comments
-                if '#' in line:
-                    end = line.index('#')
-                else:
-                    end = len(line)
-
-                words = line[:end].split()
-
-                if len(words) > 0:
-
-                    # allow substitutions from inside the input file as well
-                    if words[0].lower() == 'set':
-                        if words[2] == "=":
-                            variables[words[1]] = words[3]
-                        else:
-                            variables[words[1]] = words[2]
-
-                    # if this line is reading in an input file
-                    if words[0].lower() in keywords:
-                        newfile = words[-1]
-
-                        # Do variable substitution
-                        if '$' in newfile:
-                            before, sep, after = newfile.rpartition("$")
-                            for instance in variables:
-                                if instance in after:
-                                    newfile = before + after.replace(instance,
-                                                        variables[instance])
-
-                        # work out the path of newfile
-                        newpath = path
-                        if newfile.count("../") == 1:
-                            if re.search('rep\d', path):
-
-                                newpath = os.path.dirname(path)
-                                before, sep, after = newfile.rpartition("/")
-                                newfile = after
-
-                            else:
-                                raise ex.RequiredinputError(
-                                    "It appears that the"
-                                    " user is trying to refer to a file %s"
-                                    % newfile + " in file %s that is a" %
-                                    addfile + " directory up from the %s"
-                                    " directory." % path + ". Only files in %s"
-                                    % path + " or a repX subdirectory can be"
-                                    " copied to the HPC. If the file you are"
-                                    " trying to refer to is on the HPC, give"
-                                    " the explicit path to the file.")
-
-                        elif newfile.count("../") > 1:
-                            if re.search('rep\d', path):
-                                raise ex.RequiredinputError(
-                                    "It appears that the"
-                                    "user is trying to refer to a file %s"
-                                    % newfile + " in file %s that is two" %
-                                    addfile + " directories up from the %s" %
-                                    path + " subdirectory. Only files in %s" %
-                                    path + " or %s can be copied to the HPC." %
-                                    os.path.dirname(path) + " If the file you"
-                                    " are trying to refer to is on the"
-                                    " HPC, give the explicit path to the file")
-                            else:
-                                raise ex.RequiredinputError(
-                                    "It appears that the"
-                                    " user is trying to refer to a file %s"
-                                    % newfile + " in file %s that is two"
-                                    % addfile + " directories up from the %s"
-                                    " directory." % path + ". Only files in %s"
-                                    % path + " or a repX subdirectory can be"
-                                    " copied to the HPC. If the file you are"
-                                    " trying to refer to is on the HPC, give"
-                                    " the explicit path to the file.")
-
-                        # recursive function
-                        NAMD_parser(newfile, newpath, files)
-
-        fil.close()
