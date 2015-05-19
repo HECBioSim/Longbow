@@ -40,8 +40,7 @@ def file_parser(filename, path, files, substitutions=None):
     Recursive function that will assimilate from charmm input files a list of
     files (files) to be staged to the execution host. filename will be added
     to the list and any files mentioned in filename will also be added and
-    searched. Substitutions is a dictionary of "@" style variables specified
-    on the command line.
+    searched. Substitutions is a dictionary of "@" style variables.
     '''
 
     # Check the location of filename
@@ -174,6 +173,10 @@ def file_parser(filename, path, files, substitutions=None):
 
 
 def sub_dict(args):
+    '''
+    Function to detect substitutions specified on the commandline.
+    '''
+
     sub = {}
     for item in args:
         if ":" in item:
