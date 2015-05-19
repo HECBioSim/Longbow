@@ -176,7 +176,7 @@ def sub_dict(args):
     '''
     Function to detect substitutions specified on the commandline.
     '''
-    
+
     sub = {}
     for item in args:
         if ":" in item:

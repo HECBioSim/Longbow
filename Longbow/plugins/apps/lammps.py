@@ -175,7 +175,7 @@ def sub_dict(args):
     '''
     Function to detect substitutions specified on the commandline.
     '''
-    
+
     sub = {}
     for index, item in enumerate(args):
         if item == "-var" or item == "-v":
