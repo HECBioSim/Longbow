@@ -257,6 +257,7 @@ def main(args, files, mode, remoteres, replicates):
 
                     # Transfer the directories as they are.
                     staging.stage_downstream(hosts, jobs, job)
+
                 # Job is finished then just stage.
                 elif jobs[job]["laststatus"] != "Submit Error":
                     # Transfer the directories as they are.

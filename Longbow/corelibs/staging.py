@@ -31,7 +31,6 @@ Where jobs is a dictionary of job configurations."""
 
 import os
 import logging
-import re
 
 try:
     import Longbow.corelibs.exceptions as ex
@@ -55,67 +54,39 @@ def stage_upstream(hosts, jobs):
     LOGGER.info("Staging files for job/s.")
 
     for job in jobs:
-        resource = jobs[job]["resource"]
-        remoteworkdir = hosts[jobs[job]["resource"]]["remoteworkdir"]
 
-        # Check if path is already on remote host and delete its contents
-        # if it does.
-        path = os.path.join(remoteworkdir, job)
+        host = hosts[jobs[job]["resource"]]
+        src = jobs[job]["localworkdir"]
+        dst = os.path.join(hosts[jobs[job]["resource"]]["remoteworkdir"], job)
 
+        # Check if job directory exists on the remote hosts and delete it.
         try:
-            shellwrappers.remotelist(hosts[resource], path)
+            shellwrappers.remotelist(host, dst)
 
-            LOGGER.debug("directory '%s' already exists, emptying" +
-                         " its contents in preparation for staging.", path)
+            LOGGER.debug("directory '%s' already exists, emptying its "
+                         "contents in preparation for staging.", dst)
 
-            shellwrappers.remotedelete(hosts[resource], path)
+            shellwrappers.remotedelete(host, dst)
 
-            shellwrappers.sendtossh(hosts[resource], ["mkdir " + path])
-
+        # If we have absolute path errors then we have a problem.
         except ex.AbsolutepathError:
             raise
 
+        # If it doesn't exist then move on.
         except ex.RemotelistError:
-            # Directory doesn't exist so create it.
-            shellwrappers.sendtossh(hosts[resource], ["mkdir -p " + path])
+            pass
 
-        # Loop through all files.
         LOGGER.info("Transfering files for job: '%s' to host '%s'",
                     job, jobs[job]["resource"])
 
-        for item in jobs[job]["filelist"]:
+        # Transfer files upstream.
+        try:
+            shellwrappers.upload(
+                host, src, dst, jobs[job]["rsync-include"],
+                jobs[job]["rsync-exclude"])
 
-            # Any items that don't have an absolute path, assume they are in
-            # localworkdir
-            src = item
-            if not os.path.isabs(src):
-                src = os.path.join(jobs[job]["localworkdir"], item)
-
-            # Does the item contain a sub directory.
-            directory = ""
-            if re.search('rep\d', item):
-                before, sep, after = item.rpartition("rep")
-                directory = os.path.dirname(sep + after)
-
-            if directory is not "":
-                subdir = os.path.join(path, directory)
-
-                # Then does it already exist
-                try:
-                    shellwrappers.remotelist(hosts[resource], subdir)
-                # If not then make it.
-                except ex.RemotelistError:
-                    shellwrappers.sendtossh(hosts[resource],
-                                            ["mkdir " + subdir])
-
-            # Transfer file upstream.
-            try:
-                shellwrappers.upload("rsync", hosts[resource], src,
-                                     os.path.join(path, directory))
-
-            except (ex.SCPError, ex.RsyncError):
-                raise ex.StagingError("Could not stage file '%s' upstream"
-                                      % src)
+        except ex.RsyncError:
+            raise ex.StagingError("Could not stage file '%s' upstream" % src)
 
     LOGGER.info("Staging files upstream - complete.")
 
@@ -135,12 +106,13 @@ def stage_downstream(hosts, jobs, jobname):
 
             # Download the whole directory with rsync.
             host = hosts[jobs[job]["resource"]]
-            src = os.path.join(remoteworkdir,
-                               job + "/")
+            src = os.path.join(remoteworkdir, job + "/")
             dst = jobs[job]["localworkdir"]
 
             try:
-                shellwrappers.download("rsync", host, src, dst)
+                shellwrappers.download(
+                    host, src, dst, jobs[job]["rsync-include"],
+                    jobs[job]["rsync-exclude"])
 
             except (ex.SCPError, ex.RsyncError):
                 raise ex.StagingError("Could not download file '%s' " % src +
@@ -154,8 +126,7 @@ def stage_downstream(hosts, jobs, jobname):
 
         remoteworkdir = hosts[jobs[jobname]["resource"]]["remoteworkdir"]
         host = hosts[jobs[jobname]["resource"]]
-        src = os.path.join(remoteworkdir,
-                           jobname + "/")
+        src = os.path.join(remoteworkdir, jobname + "/")
         dst = jobs[jobname]["localworkdir"]
 
         # Download the whole directory with rsync.

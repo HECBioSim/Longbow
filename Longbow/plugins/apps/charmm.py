@@ -54,14 +54,13 @@ def file_parser(filename, path, files, substitutions=None):
 
         else:
             raise ex.RequiredinputError(
-                    "It appears that the"
-                    "user is trying to refer to a file %s"
-                    "using an explicit path. Please just provide"
-                    "the names of input files" % filename)
+                "It appears that the user is trying to refer to a file %s "
+                "using an explicit path. Please just provide the names of "
+                "input files" % filename)
 
     # elif the file is in the given path
     elif os.path.isfile(os.path.join(path, filename)) is True:
-            addfile = os.path.join(path, filename)
+        addfile = os.path.join(path, filename)
 
     # Now look for references to other files in the input file if not done so
     # already
@@ -112,8 +111,8 @@ def file_parser(filename, path, files, substitutions=None):
                             for instance in variables:
                                 if instance in after:
 
-                                    newfile = before + after.replace(instance,
-                                                        variables[instance])
+                                    newfile = before + after.replace(
+                                        instance, variables[instance])
 
                         # Remove any quotes
                         if (newfile[0] == newfile[-1]) and \

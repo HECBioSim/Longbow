@@ -79,7 +79,9 @@ def loadhosts(confile):
         "executable": "",
         "queue": "",
         "replicates": "",
-        "remoteworkdir": ""
+        "remoteworkdir": "",
+        "rsync-include": "",
+        "rsync-exclude": ""
     }
 
     required = [
@@ -118,7 +120,9 @@ def loadjobs(jobconfile, hostsconfile, remoteres):
         "queue": "",
         "replicates": "",
         "remoteworkdir": "",
-        "resource": ""
+        "resource": "",
+        "rsync-include": "",
+        "rsync-exclude": ""
     }
 
     required = [
@@ -157,8 +161,8 @@ def loadjobs(jobconfile, hostsconfile, remoteres):
                 jobs[job]["resource"] = remoteres
             else:
                 raise ex.CommandlineargsError(
-                        "The %s resource specified on the command line is not"
-                        " one of: %s" % (remoteres, sectionlist))
+                    "The %s resource specified on the command line is not"
+                    " one of: %s" % (remoteres, sectionlist))
 
         # elif a resource has not been specified in a job config, use the top
         # machine in the hosts config
@@ -212,7 +216,9 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args,
         "executable": "",
         "queue": "",
         "replicates": "",
-        "resource": ""
+        "resource": "",
+        "rsync-include": "",
+        "rsync-exclude": ""
     }
 
     # Parameters to be copied manually from jobsconfig to jobs
@@ -241,7 +247,9 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args,
         "executable": executable,
         "queue": "",
         "replicates": replicates,
-        "resource": ""
+        "resource": "",
+        "rsync-include": "",
+        "rsync-exclude": ""
     }
 
     jobs = {}
