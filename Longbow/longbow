@@ -446,19 +446,19 @@ if __name__ == "__main__":
     # Take test for the EXAMPLES command line flag, download files and exit if
     # found
     if COMMANDLINEARGS.count("-examples") == 1:
-        if not os.path.isdir(os.path.expanduser("~/LongbowExamples")):
+        if not os.path.isfile(os.path.join(os.getcwd(),"LongbowExamples.zip")):
             try:
                 subprocess.check_output(["wget",
                     "http://www.hecbiosim.ac.uk/longbow/send/5-longbow/4-longbow-examples",
-                    "-O", os.path.expanduser("~/LongbowExamples.zip")])
+                    "-O", os.path.join(os.getcwd(),"LongbowExamples.zip")])
 
             except subprocess.CalledProcessError:
                 subprocess.call(["curl", "-L",
                     "http://www.hecbiosim.ac.uk/longbow/send/5-longbow/4-longbow-examples",
-                    "-o", os.path.expanduser("~/LongbowExamples.zip")])
+                    "-o", os.path.join(os.getcwd(),"LongbowExamples.zip")])
 
-            subprocess.call(["unzip", "-d", os.path.expanduser("~"),
-                             os.path.expanduser("~/LongbowExamples.zip")])
+            subprocess.call(["unzip", "-d", os.getcwd(),
+                             os.path.join(os.getcwd(),"LongbowExamples.zip")])
         exit(0)
 
     # ------------------------------------------------------------------------
