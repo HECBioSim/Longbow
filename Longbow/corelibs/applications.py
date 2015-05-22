@@ -173,13 +173,13 @@ def processjobs(jobs):
 
                     # If 'replicates' == 1 then we will only check one file,
                     # else we will proceed to check files in all replicates.
-                    for i in range(1, jobs[job]["replicates"] + 1):
+                    for i in range(1, int(jobs[job]["replicates"]) + 1):
 
                         filepath = ""
 
                         # If we do only have a single job then file path should
                         # be
-                        if jobs[job]["replicates"] == 1:
+                        if int(jobs[job]["replicates"]) == 1:
 
                             # For this type of job the file should be at [1].
                             filepath = os.path.join(cwd, args[1])
@@ -270,13 +270,13 @@ def processjobs(jobs):
 
                     # If 'replicates' == 1 then we will only check one file,
                     # else we will proceed to check files in all replicates.
-                    for i in range(1, jobs[job]["replicates"] + 1):
+                    for i in range(1, int(jobs[job]["replicates"]) + 1):
 
                         filepath = ""
 
                         # If we do only have a single job then file path should
                         # be
-                        if jobs[job]["replicates"] == 1:
+                        if int(jobs[job]["replicates"]) == 1:
 
                             # For this type of job the file should be at [0].
                             filepath = os.path.join(cwd, args[0])
@@ -398,13 +398,13 @@ def processjobs(jobs):
 
                     # If 'replicates' == 1 then we will only check one file,
                     # else we will proceed to check files in all replicates.
-                    for i in range(1, jobs[job]["replicates"] + 1):
+                    for i in range(1, int(jobs[job]["replicates"]) + 1):
 
                         filepath = ""
 
                         # If we do only have a single job then file path should
                         # be
-                        if jobs[job]["replicates"] == 1:
+                        if int(jobs[job]["replicates"]) == 1:
 
                             filepath = os.path.join(cwd, item)
 
@@ -482,6 +482,7 @@ def processjobs(jobs):
         # Replace the input command line with the execution command line.
         jobs[job]["commandline"] = executable + " " + " ".join(args)
 
-        LOGGER.info("For job '%s' - execution string: %s", job, args)
+        LOGGER.info("For job '%s' - execution string: %s",
+                    job, jobs[job]["commandline"])
 
     LOGGER.info("Processing jobs - complete.")
