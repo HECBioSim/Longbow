@@ -171,39 +171,87 @@ def processjobs(jobs):
                 # Check the length of the command line.
                 if len(args) > 1:
 
-                    # Construct file path.
-                    filepath = os.path.join(cwd, args[1])
+                    # If 'replicates' == 1 then we will only check one file,
+                    # else we will proceed to check files in all replicates.
+                    for i in range(1, jobs[job]["replicates"] + 1):
 
-                    # If the next argument along is a valid file.
-                    if os.path.isfile(filepath):
+                        filepath = ""
 
-                        # Then mark the flag as found.
-                        found_flags.append("?")
+                        # If we do only have a single job then file path should
+                        # be
+                        if jobs[job]["replicates"] == 1:
 
-                        # FAO Gareth
-                        # Search input file for any dependencies that don't
-                        # exist.
-                        # try:
-                        #    getattr(apps, app.lower()).file_parser(
-                        #        filepath, cwd, substte)
+                            # For this type of job the file should be at [1].
+                            filepath = os.path.join(cwd, args[1])
 
-                        # except AttributeError:
-                        #     pass
+                        # Otherwise we have a replicate job so we should amend
+                        # the paths.
+                        else:
 
-                        # Maybe modify the file parser to return the
-                        # ex.RequiredinputError if a file is referenced but
-                        # not found. Then we can do something like this as
-                        # long as the error message is raised in the parser
-                        # except ex.RequiredinputError:
-                        #     raise
+                            # We should check that the replicate directory
+                            # structure exists.
+                            if os.path.isdir(os.path.join(
+                                    cwd, "rep" + str(i))) is False:
 
-                    # If it is not valid then raise an exception.
-                    else:
+                                raise ex.RequiredinputError(
+                                    "In job '%s' a replicate style job has "
+                                    "been detected, but the directory '%s' "
+                                    "cannot be found" %
+                                    (job, os.path.join(cwd, "rep" + str(i))))
 
-                        raise ex.RequiredinputError(
-                            "In job '%s' it appears that the input file is "
-                            "missing, check your command line is of the form "
-                            "longbow <longbow args> app <app args>" % job)
+                            # If we have a replicate job then we should check
+                            # if the file resides within ./rep{i} or if it is
+                            # a global (common to each replicate) file.
+                            if os.path.isfile(
+                                    os.path.join(
+                                        cwd, "rep" + str(i), args[1])):
+
+                                # Set the file path
+                                filepath = os.path.join(
+                                    cwd, "rep" + str(i), args[1])
+
+                            # Otherwise do we have a file here.
+                            elif os.path.isfile(os.path.join(cwd, args[1])):
+
+                                # If we do then set file path.
+                                filepath = os.path.join(cwd, args[1])
+
+                                # Also update the command line to reflect a
+                                # global file.
+                                args[args[1]] = os.path.join("../", args[1])
+
+                        # If the next argument along is a valid file.
+                        if os.path.isfile(filepath):
+
+                            # Then mark the flag as found.
+                            found_flags.append("?")
+
+                            # FAO Gareth
+                            # Search input file for any file dependencies that
+                            # don't exist.
+                            # try:
+                            #    getattr(apps, app.lower()).file_parser(
+                            #        filepath, cwd, substte)
+
+                            # except AttributeError:
+                            #     pass
+
+                            # Maybe modify the file parser to return the
+                            # ex.RequiredinputError if a file is referenced but
+                            # not found. Then we can do something like this as
+                            # long as the error message is raised in the parser
+                            # except ex.RequiredinputError:
+                            #     raise
+
+                        # If it is not valid then raise an exception.
+                        else:
+
+                            raise ex.RequiredinputError(
+                                "In job '%s' it appears that the input file "
+                                "is missing, check your command line is of "
+                                "the form: "
+                                "longbow <longbow args> app '<' <app args>" %
+                                job)
 
                 # Looks like the command line is too short to contain the
                 # input file so raise an exception.
@@ -212,50 +260,110 @@ def processjobs(jobs):
                     raise ex.RequiredinputError(
                         "In job '%s' it appears that the input file is missing"
                         ", check your command line is of the form "
-                        "longbow <longbow args> app <app args>" % job)
+                        "longbow <longbow args> app '<' <app args>" % job)
 
             # Some programs are run with the format "executable input.file"
             elif args[0] is not "<":
 
-                filepath = os.path.join(cwd, args[0])
-
                 # Lets make sure that we actually have something to load.
-                if len(args) is 0:
+                if len(args) > 0:
+
+                    # If 'replicates' == 1 then we will only check one file,
+                    # else we will proceed to check files in all replicates.
+                    for i in range(1, jobs[job]["replicates"] + 1):
+
+                        filepath = ""
+
+                        # If we do only have a single job then file path should
+                        # be
+                        if jobs[job]["replicates"] == 1:
+
+                            # For this type of job the file should be at [0].
+                            filepath = os.path.join(cwd, args[0])
+
+                        # Otherwise we have a replicate job so we should amend
+                        # the paths.
+                        else:
+
+                            # We should check that the replicate directory
+                            # structure exists.
+                            if os.path.isdir(os.path.join(
+                                    cwd, "rep" + str(i))) is False:
+
+                                raise ex.RequiredinputError(
+                                    "In job '%s' a replicate style job has "
+                                    "been detected, but the directory '%s' "
+                                    "cannot be found" %
+                                    (job, os.path.join(cwd, "rep" + str(i))))
+
+                            # If we have a replicate job then we should check
+                            # if the file resides within ./rep{i} or if it is
+                            # a global (common to each replicate) file.
+                            if os.path.isfile(
+                                    os.path.join(
+                                        cwd, "rep" + str(i), args[0])):
+
+                                # Set the file path
+                                filepath = os.path.join(
+                                    cwd, "rep" + str(i), args[0])
+
+                            # Otherwise do we have a file here.
+                            elif os.path.isfile(os.path.join(cwd, args[0])):
+
+                                # If we do then set file path.
+                                filepath = os.path.join(cwd, args[0])
+
+                                # Also update the command line to reflect a
+                                # global file.
+                                args[args[0]] = os.path.join("../", args[0])
+
+                        # If we have something to load then check that it is a
+                        # valid file
+                        if os.path.isfile(filepath):
+
+                            # Then mark the flag as found.
+                            found_flags.append("?")
+
+                            # FAO Gareth
+                            # Search input file for any file dependencies that
+                            # don't exist.
+                            # try:
+                            #    getattr(apps, app.lower()).file_parser(
+                            #        filepath, cwd, substte)
+
+                            # except AttributeError:
+                            #     pass
+
+                            # Maybe modify the file parser to return the
+                            # ex.RequiredinputError if a file is referenced
+                            # but not found. Then we can do something like this
+                            # as long as the error message is raised in the
+                            # parser.
+                            # except ex.RequiredinputError:
+                            #     raise
+
+                        # If we can't detect a file then something is wrong.
+                        else:
+                            raise ex.RequiredinputError(
+                                "In job '%s' it appears that the input file "
+                                "is missing, check your command line is of "
+                                "the form: "
+                                "longbow <longbow args> app <input file>" %
+                                job)
+
+                else:
 
                     raise ex.RequiredinputError(
                         "In job '%s' it appears that the input file is missing"
                         ", check your command line is of the form "
-                        "longbow <longbow args> app <app args>" % job)
-
-                # If we have something to load then check that it is a
-                # valid file
-                elif os.path.isfile(filepath):
-
-                    # Then mark the flag as found.
-                    found_flags.append("?")
-
-                    # FAO Gareth
-                    # Search input file for any dependencies that don't exist.
-                    # try:
-                    #    getattr(apps, app.lower()).file_parser(
-                    #        filepath, cwd, substte)
-
-                    # except AttributeError:
-                    #     pass
-
-                    # Maybe modify the file parser to return the
-                    # ex.RequiredinputError if a file is referenced
-                    # but not found. Then we can do something like this
-                    # as long as the error message is raised in the parser.
-                    # except ex.RequiredinputError:
-                    #     raise
+                        "longbow <longbow args> app <input file>" % job)
 
         # Otherwise we have a more conventional command line of the form:
         # exec -a arg1 -b arg2 --foo bar
         else:
 
             # Run through each one.
-            for item in args:
+            for index, item in enumerate(args):
 
                 # If we have a flag (starting with '-') and it is in the list
                 # of required flags.
@@ -288,28 +396,77 @@ def processjobs(jobs):
                 # Otherwise it could just be a file or a parameter.
                 else:
 
-                    filepath = os.path.join(cwd, item)
+                    # If 'replicates' == 1 then we will only check one file,
+                    # else we will proceed to check files in all replicates.
+                    for i in range(1, jobs[job]["replicates"] + 1):
 
-                    # If we have a file then run the parser on it to check for
-                    # dependencies.
-                    if os.path.isfile(filepath):
-                        pass
-                        # FAO Gareth
-                        # Search input file for any dependencies that don't
-                        # exist.
-                        # try:
-                        #    getattr(apps, app.lower()).file_parser(
-                        #        filepath, cwd, substte)
+                        filepath = ""
 
-                        # except AttributeError:
-                        #     pass
+                        # If we do only have a single job then file path should
+                        # be
+                        if jobs[job]["replicates"] == 1:
 
-                        # Maybe modify the file parser to return the
-                        # ex.RequiredinputError if a file is referenced
-                        # but not found. Then we can do something like this
-                        # as long as the error message is raised in the parser.
-                        # except ex.RequiredinputError:
-                        #     raise
+                            filepath = os.path.join(cwd, item)
+
+                        # Otherwise we have a replicate job so we should amend
+                        # the paths.
+                        else:
+
+                            # We should check that the replicate directory
+                            # structure exists.
+                            if os.path.isdir(os.path.join(
+                                    cwd, "rep" + str(i))) is False:
+
+                                raise ex.RequiredinputError(
+                                    "In job '%s' a replicate style job has "
+                                    "been detected, but the directory '%s' "
+                                    "cannot be found" %
+                                    (job, os.path.join(cwd, "rep" + str(i))))
+
+                            # If we have a replicate job then we should check
+                            # if the file resides within ./rep{i} or if it is
+                            # a global (common to each replicate) file.
+                            if os.path.isfile(
+                                    os.path.join(cwd, "rep" + str(i), item)):
+
+                                # Set the file path
+                                filepath = os.path.join(
+                                    cwd, "rep" + str(i), item)
+
+                            # Otherwise do we have a file here.
+                            elif os.path.isfile(os.path.join(cwd, item)):
+
+                                # If we do then set file path.
+                                filepath = os.path.join(cwd, item)
+
+                                # Also update the command line to reflect a
+                                # global file.
+                                args[index] = os.path.join("../", item)
+
+                        # If we have a file then run the parser on it to check
+                        # for dependencies.
+                        if os.path.isfile(filepath):
+
+                            # Replace this with the dependancy check
+                            pass
+
+                            # FAO Gareth
+                            # Search input file for any file dependencies that
+                            # don't exist.
+                            # try:
+                            #    getattr(apps, app.lower()).file_parser(
+                            #        filepath, cwd, substte)
+
+                            # except AttributeError:
+                            #     pass
+
+                            # Maybe modify the file parser to return the
+                            # ex.RequiredinputError if a file is referenced
+                            # but not found. Then we can do something like this
+                            # as long as the error message is raised in the
+                            # parser.
+                            # except ex.RequiredinputError:
+                            #     raise
 
             # Final check for if any required flags are missing.
             flags = list(set(req_flags) - set(found_flags))
