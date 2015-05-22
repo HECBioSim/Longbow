@@ -57,16 +57,17 @@ def stage_upstream(hosts, jobs):
 
         host = hosts[jobs[job]["resource"]]
         src = jobs[job]["localworkdir"]
-        dst = os.path.join(hosts[jobs[job]["resource"]]["remoteworkdir"], job)
+        dst = hosts[jobs[job]["resource"]]["remoteworkdir"]
 
         # Check if job directory exists on the remote hosts and delete it.
         try:
-            shellwrappers.remotelist(host, dst)
+            shellwrappers.remotelist(host, os.path.join(dst, job))
 
             LOGGER.debug("directory '%s' already exists, emptying its "
-                         "contents in preparation for staging.", dst)
+                         "contents in preparation for staging.",
+                         os.path.join(dst, job))
 
-            shellwrappers.remotedelete(host, dst)
+            shellwrappers.remotedelete(host, os.path.join(dst, job))
 
         # If we have absolute path errors then we have a problem.
         except ex.AbsolutepathError:
