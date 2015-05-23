@@ -23,5 +23,7 @@
 
 EXECDATA = {
     "mdrun": ["-s || -deffnm"],
-    "mdrun_mpi": ["-s || -deffnm"]
+    "mdrun_d": ["-s || -deffnm"],
+    "mdrun_mpi": ["-s || -deffnm"],
+    "mdrun_mpi_d": ["-s || -deffnm"]
     }
