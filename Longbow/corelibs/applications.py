@@ -384,10 +384,10 @@ def processjobs(jobs):
                         if "||" in flag:
 
                             # Split them into separate args.
-                            tmp = flag.split(" || ")
+                            flags = flag.split(" || ")
 
                             # Now check if flag is present
-                            if item in tmp:
+                            if item in flags:
 
                                 # Mark it as found if it hasn't been already.
                                 if flag not in found_flags:
