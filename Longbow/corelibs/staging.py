@@ -132,7 +132,8 @@ def stage_downstream(hosts, jobs, jobname):
 
         # Download the whole directory with rsync.
         try:
-            shellwrappers.download("rsync", host, src, dst)
+            shellwrappers.download(host, src, dst,
+                jobs[jobname]["rsync-include"], jobs[jobname]["rsync-exclude"])
 
         except (ex.SCPError, ex.RsyncError):
             raise ex.StagingError("Could not download file '%s' " % src +
