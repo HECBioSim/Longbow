@@ -110,9 +110,7 @@ def processjobs(jobs):
         # Initialise some basic parameters.
         executable = jobs[job]["executable"]
         app = tmp[executable]
-
-        # Process the command line into a list.
-        args = jobs[job]["commandline"].split()
+        args = jobs[job]["commandline"]
 
         LOGGER.debug("Commandline arguments for job '%s': %s", job, args)
 
