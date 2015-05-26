@@ -144,30 +144,40 @@ def sendtorsync(src, dst, port, includemask, excludemask):
 
     """A method for constructing rsync commands."""
 
-    include = ""
-    exclude = ""
+    include = []
+    exclude = []
 
     # Figure out if we are using masks to specify files.
-    if excludemask is not "":
+    if excludemask is not "" and includemask is "":
 
         # Exclude masks are a comma separated list.
-        for mask in excludemask:
-            exclude = exclude + "--exclude='" + mask + "' "
+        for mask in excludemask.split(","):
+            mask.replace(" ", "")
+            exclude.append("--exclude")
+            exclude.append(mask)
 
-        cmd = ["rsync", "-azP " + exclude, "-e", "ssh -p " + port, src, dst]
+        cmd = ["rsync", "-azP",]
+        cmd.extend(include)
+        cmd.extend(["-e", "ssh -p " + port, src, dst])
 
     elif excludemask is not "" and includemask is not "":
 
         # Exclude masks are a comma separated list.
-        for mask in excludemask:
-            include = include + "--exclude='" + mask + "' "
+        for mask in excludemask.split(","):
+            mask.replace(" ", "")
+            exclude.append("--exclude")
+            exclude.append(mask)
 
         # Exclude masks are a comma separated list.
-        for mask in excludemask:
-            exclude = exclude + "--include='" + mask + "' "
+        for mask in includemask.split(","):
+            mask.replace(" ", "")
+            include.append("--include")
+            include.append(mask)
 
-        cmd = ["rsync", "-azP " + include + " " + exclude, "-e",
-               "ssh -p " + port, src, dst]
+        cmd = ["rsync", "-azP",]
+        cmd.extend(include)
+        cmd.extend(exclude)
+        cmd.extend(["-e", "ssh -p " + port, src, dst])
 
     else:
 

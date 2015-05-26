@@ -57,17 +57,16 @@ def stage_upstream(hosts, jobs):
 
         host = hosts[jobs[job]["resource"]]
         src = jobs[job]["localworkdir"]
-        dst = hosts[jobs[job]["resource"]]["remoteworkdir"]
+        dst = os.path.join(hosts[jobs[job]["resource"]]["remoteworkdir"], job)
 
         # Check if job directory exists on the remote hosts and delete it.
         try:
-            shellwrappers.remotelist(host, os.path.join(dst, job))
+            shellwrappers.remotelist(host, dst)
 
             LOGGER.debug("directory '%s' already exists, emptying its "
-                         "contents in preparation for staging.",
-                         os.path.join(dst, job))
+                         "contents in preparation for staging.", dst)
 
-            shellwrappers.remotedelete(host, os.path.join(dst, job))
+            shellwrappers.remotedelete(host, dst)
 
         # If we have absolute path errors then we have a problem.
         except ex.AbsolutepathError:
@@ -83,7 +82,7 @@ def stage_upstream(hosts, jobs):
         # Transfer files upstream.
         try:
             shellwrappers.upload(
-                host, src, dst, jobs[job]["rsync-include"],
+                host, src + "/", dst, jobs[job]["rsync-include"],
                 jobs[job]["rsync-exclude"])
 
         except ex.RsyncError:
