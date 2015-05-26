@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from CGIHTTPServer import executable
+from test.test_support import args_from_interpreter_flags
 
 # Longbow is Copyright (C) of James T Gebbie-Rayet and Gareth B Shannon 2015.
 #
@@ -87,17 +89,18 @@ def main(args, files, mode, remoteres, replicates):
 
     execlist = getattr(apps, "EXECLIST")
 
-    # Test whether the executable has been provided on the command line
-    try:
-        if args[0] in execlist:
-            executable = args[0]
-            args.pop(0)
+    # Test whether the executable has been provided on the command line.
+    # This should find the exec where ever it is in the command line, but
+    # more importantly it will find it in the form:
+    # longbow <longbow args> exec <exec args>
+    executable = ""
 
-    except IndexError:
-        executable = ""
-
-    # Convert command line arguments into a space separated string
-    args = " ".join(args)
+    for exe in execlist:
+        if exe in args:
+            executable = exe
+            pos = args.index(exe)
+            args.pop(pos)
+            break
 
     # -------------------------------------------------------------------------
     # Setup some basic file paths.
@@ -257,6 +260,7 @@ def main(args, files, mode, remoteres, replicates):
 
                     # Transfer the directories as they are.
                     staging.stage_downstream(hosts, jobs, job)
+
                 # Job is finished then just stage.
                 elif jobs[job]["laststatus"] != "Submit Error":
                     # Transfer the directories as they are.
@@ -273,7 +277,14 @@ def main(args, files, mode, remoteres, replicates):
 
     finally:
         # Cleanup.
-        staging.cleanup(hosts, jobs)
+
+        # There is a case where when longbow is launched without any args that
+        # a glitch here will suppress all the error messages from being seen.
+        try:
+            staging.cleanup(hosts, jobs)
+
+        except NameError:
+            pass
 
         logger.info("Good bye from Longbow!")
         logger.info("Check out http://www.hecbiosim.ac.uk/ for other " +

@@ -164,14 +164,13 @@ def prepare(hosts, jobname, jobs):
     # Job array
     elif int(jobs[jobname]["replicates"]) > 1:
         jobfile.write("basedir=$PBS_O_WORKDIR \n"
-                      "cd $basedir/rep${PBS_ARRAY_INDEX}/\n" +
+                      "cd $basedir/rep${PBS_ARRAY_INDEX}/\n\n" +
                       mpirun + " " + jobs[jobname]["commandline"] + "\n")
 
     # Close the file (housekeeping)
     jobfile.close()
 
     # Append pbs file to list of files ready for staging.
-    jobs[jobname]["filelist"].extend([pbsfile])
     jobs[jobname]["subfile"] = "submit.pbs"
 
 

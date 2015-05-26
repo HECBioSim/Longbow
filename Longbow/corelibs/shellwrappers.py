@@ -140,50 +140,49 @@ def sendtossh(host, args):
     return shellout
 
 
-def sendtoscp(host, src, dst):
-
-    """A method for constructing scp commands."""
-
-    # Basic scp command.
-    cmd = ["scp", "-P " + host["port"], "-r", src, dst]
-
-    i = 0
-
-    # This loop is essentially so we can do 3 retries on commands that fail,
-    # this is to catch when things go wrong over SSH like dropped connections,
-    # issues with latency etc.
-    while i is not 3:
-
-        # Send to SSH.
-        shellout = sendtoshell(cmd)
-
-        errorstate = shellout[2]
-
-        # If no error exit loop, if errorcode is not 0 raise exception unless
-        # code is 255
-        if errorstate is 0:
-            break
-        else:
-            i = i + 1
-
-        # If number of retries hits 3 then give up.
-        if i is 3:
-            raise ex.SCPError(
-                "SCP failed, make sure a normal terminal can connect to SCP "
-                "to be sure there are no connection issues.", shellout)
-
-        LOGGER.debug("Retry SCP after 10 second wait.")
-
-        # Wait 10 seconds to see if problem goes away before trying again.
-        time.sleep(10)
-
-
-def sendtorsync(host, src, dst):
+def sendtorsync(src, dst, port, includemask, excludemask):
 
     """A method for constructing rsync commands."""
 
-    # Basic rsync command.
-    cmd = ["rsync", "-azP", "-e", "ssh -p " + host["port"], src, dst]
+    include = []
+    exclude = []
+
+    # Figure out if we are using masks to specify files.
+    if excludemask is not "" and includemask is "":
+
+        # Exclude masks are a comma separated list.
+        for mask in excludemask.split(","):
+            mask.replace(" ", "")
+            exclude.append("--exclude")
+            exclude.append(mask)
+
+        cmd = ["rsync", "-azP",]
+        cmd.extend(include)
+        cmd.extend(["-e", "ssh -p " + port, src, dst])
+
+    elif excludemask is not "" and includemask is not "":
+
+        # Exclude masks are a comma separated list.
+        for mask in excludemask.split(","):
+            mask.replace(" ", "")
+            exclude.append("--exclude")
+            exclude.append(mask)
+
+        # Exclude masks are a comma separated list.
+        for mask in includemask.split(","):
+            mask.replace(" ", "")
+            include.append("--include")
+            include.append(mask)
+
+        cmd = ["rsync", "-azP",]
+        cmd.extend(include)
+        cmd.extend(exclude)
+        cmd.extend(["-e", "ssh -p " + port, src, dst])
+
+    else:
+
+        # Just normal rsync
+        cmd = ["rsync", "-azP", "-e", "ssh -p " + port, src, dst]
 
     i = 0
 
@@ -396,7 +395,7 @@ def remotelist(host, src):
     return filelist
 
 
-def upload(protocol, host, src, dst):
+def upload(host, src, dst, includemask, excludemask):
 
     """A method for uploading files to remote hosts."""
 
@@ -413,20 +412,13 @@ def upload(protocol, host, src, dst):
 
     # Send command to subprocess.
     try:
-        if protocol is "rsync":
-            sendtorsync(host, src, dst)
+        sendtorsync(src, dst, host["port"], includemask, excludemask)
 
-        elif protocol is "scp":
-            sendtoscp(host, src, dst)
-
-        else:
-            raise ex.ProtocolError("Unknown Protocol", protocol)
-
-    except (ex.RsyncError, ex.SCPError):
+    except ex.RsyncError:
         raise
 
 
-def download(protocol, host, src, dst):
+def download(host, src, dst, includemask, excludemask):
 
     """A method for downloading files from remote hosts."""
 
@@ -443,14 +435,7 @@ def download(protocol, host, src, dst):
 
     # Send command to subprocess.
     try:
-        if protocol is "rsync":
-            sendtorsync(host, src, dst)
+        sendtorsync(src, dst, host["port"], includemask, excludemask)
 
-        elif protocol is "scp":
-            sendtoscp(host, src, dst)
-
-        else:
-            raise ex.ProtocolError("Unknown protocol", protocol)
-
-    except (ex.RsyncError, ex.SCPError):
+    except ex.RsyncError:
         raise

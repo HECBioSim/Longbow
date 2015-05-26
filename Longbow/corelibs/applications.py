@@ -18,8 +18,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Longbow.  If not, see <http://www.gnu.org/licenses/>.
-from _ast import Sub
-from fileinput import filename
 
 """The application module provides methods for testing whether the requested
 application executable is present on the remote machine and for processing the
@@ -103,82 +101,34 @@ def processjobs(jobs):
 
     LOGGER.info("Processing job/s and detecting files that require upload.")
 
-    # Get dict of executables and their required flags.
-    required = getattr(apps, "EXECFLAGS")
+    # Get dictionary of executables and their required flags from plug-ins.
     tmp = getattr(apps, "DEFMODULES")
 
+    # Process each job.
     for job in jobs:
 
-        # Some initialisation.
-        filelist = []
-        flags = []
+        # Initialise some basic parameters.
         executable = jobs[job]["executable"]
         app = tmp[executable]
+        args = jobs[job]["commandline"]
 
-        # Process the command line into a list.
-        args = jobs[job]["commandline"].split()
+        LOGGER.debug("Commandline arguments for job '%s': %s", job, args)
 
-        LOGGER.debug("Args for job '%s': %s", job, args)
-
-        # Now we should check that the required flags have been supplied if
-        # the program being used is one of the ones we are supporting.
-        if executable is not "":
-
-            # Find missing flags.
-            flags = list(set(required[executable]) -
-                         set(args))
-
-            # Check for missing flags.
-            if len(flags) is not 0:
-
-                # This is to handle cases where there can be multiple required
-                # flags where the user only has to give on (-s vs -defnm).
-                for flag in flags:
-                    if " || " in flag:
-                        tmp = flag.split(" || ")
-
-                        # Now we have split the flags find and delete any that
-                        # match in the list of missing flags
-                        for item in tmp:
-                            if item in args:
-                                flags.remove(flag)
-                                break
-
-            # Do we still have missing flags.
-            if len(flags) is not 0:
-
-                # Jobs that don't use a commandline flag to denote the input
-                # file, such NAMD can be dealt with like this.
-                if "?" in flags:
-
-                    # The only thing we can really do is check that something
-                    # is given on the cmdline.
-                    if args is "":
-                        raise ex.RequiredinputError(
-                            "in job '%s' it appears that the input file is "
-                            "missing" % job)
-
-                    elif len(args) is 1 and args[0] is "<":
-                        raise ex.RequiredinputError(
-                            "in job '%s' it appears that the %s input "
-                            "file is missing" % (job, jobs[job]["modules"]))
-
-                else:
-                    raise ex.RequiredinputError(
-                        "in job '%s' there are missing flags on the command"
-                        "line '%s'. See documentation for module '%s' " %
-                        (job, flags, jobs[job]["modules"]))
-
+        # Check for any files that are located outside the work directory or
+        # absolute paths.
         for item in args:
-            if item.count(os.path.pardir) > 0 or os.path.isabs(item):
-                raise ex.RequiredinputError(
-                        "In job %s input files are being provided with "
-                        "explicit paths or from directories above "
-                        "localworkdir. This is not supported" % job)
 
-        # Path correction for multijobs.
+            if item.count(os.path.pardir) > 0 or os.path.isabs(item):
+
+                raise ex.RequiredinputError(
+                    "In job %s input files are being provided with absolute "
+                    "paths or from directories above localworkdir. This is "
+                    "not supported" % job)
+
+        # Base path to local job directory.
         cwd = jobs[job]["localworkdir"]
 
+        # If we have multiple jobs.
         if len(jobs) > 1:
 
             # Add the job name to the path.
@@ -188,99 +138,349 @@ def processjobs(jobs):
         # Check that the directory exists.
         if os.path.isdir(cwd) is False:
 
+            # If not, this is bad.
             raise ex.DirectorynotfoundError(
-                "The working directory '%s' " % cwd + "cannot be found for "
+                "The local job directory '%s' " % cwd + "cannot be found for "
                 "job '%s'" % job)
 
         # Detect command line substitutions
         substte = {}
+
         try:
             substte = getattr(apps, app.lower()).sub_dict(args)
 
         except AttributeError:
             pass
 
-        # Run through the commandline and search for
-        # matches, any that are found we will assume they need staging.
-        # Packages for which input files can be specified in other input files,
-        # the code will automatically try to determine these files
-        for index, item in enumerate(args):
+        # Process the command line arguments, detecting any missing flags,
+        # files or dependencies within the files.
 
-            # if single job
-            if int(jobs[job]["replicates"]) == 1:
+        # Get required flags.
+        req_flags = getattr(apps, "EXECFLAGS")[executable]
+        found_flags = []
 
-                # Search for input files
-                try:
-                    getattr(apps, app.lower()).file_parser(item, cwd,
-                                                           filelist,
-                                                           substte)
+        # Start with the case where the command line would be provided like
+        # exec < input.file or exec input.file.
+        if "?" in req_flags:
 
-                except AttributeError:
+            # Check if the first item is the "<".
+            if args[0] is "<":
 
-                    itemfile = os.path.join(cwd, item)
+                # Check the length of the command line.
+                if len(args) > 1:
 
-                    # if not in filelist, add file to list of
-                    # files required to upload.
-                    if os.path.isfile(itemfile) and itemfile not in filelist:
-                        filelist.append(itemfile)
+                    # If 'replicates' == 1 then we will only check one file,
+                    # else we will proceed to check files in all replicates.
+                    for i in range(1, int(jobs[job]["replicates"]) + 1):
 
-            # elif replicate job
-            else:
-                for i in range(1, int(jobs[job]["replicates"])+1):
+                        filepath = ""
 
-                    # Search for input files
-                    filepath = os.path.join(cwd, "rep" + str(i))
-                    if os.path.isdir(filepath):
-                        try:
-                            getattr(apps,
-                                    app.lower()).file_parser(item, filepath,
-                                                             filelist, substte)
+                        # If we do only have a single job then file path should
+                        # be
+                        if int(jobs[job]["replicates"]) == 1:
 
-                        except AttributeError:
+                            # For this type of job the file should be at [1].
+                            filepath = os.path.join(cwd, args[1])
 
-                            # if the file is in rep${i} subdirectory
-                            if os.path.isfile(os.path.join(filepath, item)):
+                        # Otherwise we have a replicate job so we should amend
+                        # the paths.
+                        else:
 
-                                itemfile = os.path.join(filepath, item)
+                            # We should check that the replicate directory
+                            # structure exists.
+                            if os.path.isdir(os.path.join(
+                                    cwd, "rep" + str(i))) is False:
 
-                                # if not in filelist, add file to list of
-                                # files required to upload.
-                                if itemfile not in filelist:
-                                    filelist.append(itemfile)
+                                raise ex.RequiredinputError(
+                                    "In job '%s' a replicate style job has "
+                                    "been detected, but the directory '%s' "
+                                    "cannot be found" %
+                                    (job, os.path.join(cwd, "rep" + str(i))))
 
-                            # elif the file is in the parent directory
+                            # If we have a replicate job then we should check
+                            # if the file resides within ./rep{i} or if it is
+                            # a global (common to each replicate) file.
+                            if os.path.isfile(
+                                    os.path.join(
+                                        cwd, "rep" + str(i), args[1])):
+
+                                # Set the file path
+                                filepath = os.path.join(
+                                    cwd, "rep" + str(i), args[1])
+
+                            # Otherwise do we have a file here.
+                            elif os.path.isfile(os.path.join(cwd, args[1])):
+
+                                # If we do then set file path.
+                                filepath = os.path.join(cwd, args[1])
+
+                                # Also update the command line to reflect a
+                                # global file.
+                                args[args[1]] = os.path.join("../", args[1])
+
+                        # If the next argument along is a valid file.
+                        if os.path.isfile(filepath):
+
+                            # Then mark the flag as found.
+                            found_flags.append("?")
+
+                            # FAO Gareth
+                            # Search input file for any file dependencies that
+                            # don't exist.
+                            # try:
+                            #    getattr(apps, app.lower()).file_parser(
+                            #        filepath, cwd, substte)
+
+                            # except AttributeError:
+                            #     pass
+
+                            # Maybe modify the file parser to return the
+                            # ex.RequiredinputError if a file is referenced but
+                            # not found. Then we can do something like this as
+                            # long as the error message is raised in the parser
+                            # except ex.RequiredinputError:
+                            #     raise
+
+                        # If it is not valid then raise an exception.
+                        else:
+
+                            raise ex.RequiredinputError(
+                                "In job '%s' it appears that the input file "
+                                "is missing, check your command line is of "
+                                "the form: "
+                                "longbow <longbow args> app '<' <app args>" %
+                                job)
+
+                # Looks like the command line is too short to contain the
+                # input file so raise an exception.
+                else:
+
+                    raise ex.RequiredinputError(
+                        "In job '%s' it appears that the input file is missing"
+                        ", check your command line is of the form "
+                        "longbow <longbow args> app '<' <app args>" % job)
+
+            # Some programs are run with the format "executable input.file"
+            elif args[0] is not "<":
+
+                # Lets make sure that we actually have something to load.
+                if len(args) > 0:
+
+                    # If 'replicates' == 1 then we will only check one file,
+                    # else we will proceed to check files in all replicates.
+                    for i in range(1, int(jobs[job]["replicates"]) + 1):
+
+                        filepath = ""
+
+                        # If we do only have a single job then file path should
+                        # be
+                        if int(jobs[job]["replicates"]) == 1:
+
+                            # For this type of job the file should be at [0].
+                            filepath = os.path.join(cwd, args[0])
+
+                        # Otherwise we have a replicate job so we should amend
+                        # the paths.
+                        else:
+
+                            # We should check that the replicate directory
+                            # structure exists.
+                            if os.path.isdir(os.path.join(
+                                    cwd, "rep" + str(i))) is False:
+
+                                raise ex.RequiredinputError(
+                                    "In job '%s' a replicate style job has "
+                                    "been detected, but the directory '%s' "
+                                    "cannot be found" %
+                                    (job, os.path.join(cwd, "rep" + str(i))))
+
+                            # If we have a replicate job then we should check
+                            # if the file resides within ./rep{i} or if it is
+                            # a global (common to each replicate) file.
+                            if os.path.isfile(
+                                    os.path.join(
+                                        cwd, "rep" + str(i), args[0])):
+
+                                # Set the file path
+                                filepath = os.path.join(
+                                    cwd, "rep" + str(i), args[0])
+
+                            # Otherwise do we have a file here.
+                            elif os.path.isfile(os.path.join(cwd, args[0])):
+
+                                # If we do then set file path.
+                                filepath = os.path.join(cwd, args[0])
+
+                                # Also update the command line to reflect a
+                                # global file.
+                                args[args[0]] = os.path.join("../", args[0])
+
+                        # If we have something to load then check that it is a
+                        # valid file
+                        if os.path.isfile(filepath):
+
+                            # Then mark the flag as found.
+                            found_flags.append("?")
+
+                            # FAO Gareth
+                            # Search input file for any file dependencies that
+                            # don't exist.
+                            # try:
+                            #    getattr(apps, app.lower()).file_parser(
+                            #        filepath, cwd, substte)
+
+                            # except AttributeError:
+                            #     pass
+
+                            # Maybe modify the file parser to return the
+                            # ex.RequiredinputError if a file is referenced
+                            # but not found. Then we can do something like this
+                            # as long as the error message is raised in the
+                            # parser.
+                            # except ex.RequiredinputError:
+                            #     raise
+
+                        # If we can't detect a file then something is wrong.
+                        else:
+                            raise ex.RequiredinputError(
+                                "In job '%s' it appears that the input file "
+                                "is missing, check your command line is of "
+                                "the form: "
+                                "longbow <longbow args> app <input file>" %
+                                job)
+
+                else:
+
+                    raise ex.RequiredinputError(
+                        "In job '%s' it appears that the input file is missing"
+                        ", check your command line is of the form "
+                        "longbow <longbow args> app <input file>" % job)
+
+        # Otherwise we have a more conventional command line of the form:
+        # exec -a arg1 -b arg2 --foo bar
+        else:
+
+            # Run through each one.
+            for index, item in enumerate(args):
+
+                # If we have a flag (starting with '-') and it is in the list
+                # of required flags.
+                if item[0] is "-" and item in req_flags:
+
+                    # Mark the flag as found
+                    found_flags.append(item)
+
+                # If we have a flag that is not in the list of required flags.
+                elif item[0] is "-" and item not in req_flags:
+
+                    # Check then if this flag belongs to a case where it is
+                    # either one or the other flag has to be provided (ie ones
+                    # listed as -foo || bar) such as gromacs -s or -deffnm)
+                    for flag in req_flags:
+
+                        # If it is the special case
+                        if "||" in flag:
+
+                            # Split them into separate args.
+                            flags = flag.split(" || ")
+
+                            # Now check if flag is present
+                            if item in flags:
+
+                                # Mark it as found if it hasn't been already.
+                                if flag not in found_flags:
+                                    found_flags.append(flag)
+
+                # Otherwise it could just be a file or a parameter.
+                else:
+
+                    # If 'replicates' == 1 then we will only check one file,
+                    # else we will proceed to check files in all replicates.
+                    for i in range(1, int(jobs[job]["replicates"]) + 1):
+
+                        filepath = ""
+
+                        # If we do only have a single job then file path should
+                        # be
+                        if int(jobs[job]["replicates"]) == 1:
+
+                            filepath = os.path.join(cwd, item)
+
+                        # Otherwise we have a replicate job so we should amend
+                        # the paths.
+                        else:
+
+                            # We should check that the replicate directory
+                            # structure exists.
+                            if os.path.isdir(os.path.join(
+                                    cwd, "rep" + str(i))) is False:
+
+                                raise ex.RequiredinputError(
+                                    "In job '%s' a replicate style job has "
+                                    "been detected, but the directory '%s' "
+                                    "cannot be found" %
+                                    (job, os.path.join(cwd, "rep" + str(i))))
+
+                            # If we have a replicate job then we should check
+                            # if the file resides within ./rep{i} or if it is
+                            # a global (common to each replicate) file.
+                            if os.path.isfile(
+                                    os.path.join(cwd, "rep" + str(i), item)):
+
+                                # Set the file path
+                                filepath = os.path.join(
+                                    cwd, "rep" + str(i), item)
+
+                            # Otherwise do we have a file here.
                             elif os.path.isfile(os.path.join(cwd, item)):
 
-                                itemfile = os.path.join(cwd, item)
+                                # If we do then set file path.
+                                filepath = os.path.join(cwd, item)
 
-                                # if not in filelist, add file to list of
-                                # files required to upload.
-                                if itemfile not in filelist:
-                                    filelist.append(itemfile)
-                                    args[index] = os.path.join("../", item)
+                                # Also update the command line to reflect a
+                                # global file.
+                                args[index] = os.path.join("../", item)
 
-        # If the flag is the extra files upload then pop it out of the args
-        # list as the file will have been got for staging but we don't want
-        # to pass this on to the MD code.
-        while "-stage" in args:
-            index = args.index("-stage")
-            args.pop(index)
-            args.pop(index)
+                        # If we have a file then run the parser on it to check
+                        # for dependencies.
+                        if os.path.isfile(filepath):
 
-        # Concatenate executable and args back into a string.
-        args = executable + " " + " ".join(args)
+                            # Replace this with the dependancy check
+                            pass
 
-        # Add the filelist to the job configuration.
-        jobs[job]["filelist"] = filelist
+                            # FAO Gareth
+                            # Search input file for any file dependencies that
+                            # don't exist.
+                            # try:
+                            #    getattr(apps, app.lower()).file_parser(
+                            #        filepath, cwd, substte)
 
-        # Replace the input commandline with the execution commandline.
-        jobs[job]["commandline"] = args
+                            # except AttributeError:
+                            #     pass
 
-        # Log results.
-        LOGGER.info(
-            "For job '%s' - files for upload: " % job + ", ".join(filelist))
+                            # Maybe modify the file parser to return the
+                            # ex.RequiredinputError if a file is referenced
+                            # but not found. Then we can do something like this
+                            # as long as the error message is raised in the
+                            # parser.
+                            # except ex.RequiredinputError:
+                            #     raise
 
-        LOGGER.info(
-            "For job '%s' - execution string: %s", job, args)
+            # Final check for if any required flags are missing.
+            flags = list(set(req_flags) - set(found_flags))
+
+            # If there are any missing still then tell the user.
+            if len(flags) is not 0:
+
+                raise ex.RequiredinputError(
+                    "In job '%s' there are missing flags on the command line "
+                    "'%s'. See user documentation for plug-in '%s' " %
+                    (job, flags, getattr(apps, "DEFMODULES")[executable]))
+
+        # Replace the input command line with the execution command line.
+        jobs[job]["commandline"] = executable + " " + " ".join(args)
+
+        LOGGER.info("For job '%s' - execution string: %s",
+                    job, jobs[job]["commandline"])
 
     LOGGER.info("Processing jobs - complete.")

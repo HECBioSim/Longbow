@@ -40,11 +40,11 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
 
     LOGGER.info("  Creating submit file for job: %s", jobname)
     
-    # Open file for LSF script.
-    lsffile = os.path.join(jobs[jobname]["localworkdir"], "submit.lsf")
+    # Open file for script.
+    lsffile = os.path.join(jobs[jobname]["localworkdir"], "submit.extension")
     jobfile = open(lsffile, "w+")
 
-    # Write the PBS script
+    # Write the script
     jobfile.write("#!/bin/bash --login\n")
     
     ########################################################
@@ -56,8 +56,7 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
     ########################################################
     
     # Append submitfile to list of files ready for staging.
-    jobs[jobname]["filelist"].extend(["submit.lsf"])            # IMPORTANT
-    jobs[jobname]["subfile"] = "submit.lsf"                     # IMPORTANT
+    jobs[jobname]["subfile"] = "submit.extension"                     # IMPORTANT
 
 
 #------------------------------------------------------------------------------
