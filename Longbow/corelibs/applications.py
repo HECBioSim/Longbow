@@ -111,6 +111,7 @@ def processjobs(jobs):
         executable = jobs[job]["executable"]
         app = tmp[executable]
         args = jobs[job]["commandline"]
+        filelist = []
 
         LOGGER.debug("Commandline arguments for job '%s': %s", job, args)
 
@@ -182,6 +183,10 @@ def processjobs(jobs):
                             # For this type of job the file should be at [1].
                             filepath = os.path.join(cwd, args[1])
 
+                            # Add file to the list for inclusion in the rysnc
+                            # mask.
+                            filelist.append(args[1])
+
                         # Otherwise we have a replicate job so we should amend
                         # the paths.
                         else:
@@ -208,11 +213,20 @@ def processjobs(jobs):
                                 filepath = os.path.join(
                                     cwd, "rep" + str(i), args[1])
 
+                                # Add file to the list for inclusion in the
+                                # rysnc mask.
+                                filelist.append(
+                                    os.path.join("rep" + str(i), args[1]))
+
                             # Otherwise do we have a file here.
                             elif os.path.isfile(os.path.join(cwd, args[1])):
 
                                 # If we do then set file path.
                                 filepath = os.path.join(cwd, args[1])
+
+                                # Add file to the list for inclusion in the
+                                # rysnc mask.
+                                filelist.append(args[1])
 
                                 # Also update the command line to reflect a
                                 # global file.
@@ -279,6 +293,10 @@ def processjobs(jobs):
                             # For this type of job the file should be at [0].
                             filepath = os.path.join(cwd, args[0])
 
+                            # Add file to the list for inclusion in the rysnc
+                            # mask.
+                            filelist.append(args[0])
+
                         # Otherwise we have a replicate job so we should amend
                         # the paths.
                         else:
@@ -305,11 +323,20 @@ def processjobs(jobs):
                                 filepath = os.path.join(
                                     cwd, "rep" + str(i), args[0])
 
+                                # Add file to the list for inclusion in the
+                                # rysnc mask.
+                                filelist.append(
+                                    os.path.join("rep" + str(i), args[0]))
+
                             # Otherwise do we have a file here.
                             elif os.path.isfile(os.path.join(cwd, args[0])):
 
                                 # If we do then set file path.
                                 filepath = os.path.join(cwd, args[0])
+
+                                # Add file to the list for inclusion in the
+                                # rysnc mask.
+                                filelist.append(args[0])
 
                                 # Also update the command line to reflect a
                                 # global file.
@@ -406,6 +433,10 @@ def processjobs(jobs):
 
                             filepath = os.path.join(cwd, item)
 
+                            # Add file to the list for inclusion in the
+                            # rysnc mask.
+                            filelist.append(item)
+
                         # Otherwise we have a replicate job so we should amend
                         # the paths.
                         else:
@@ -431,11 +462,20 @@ def processjobs(jobs):
                                 filepath = os.path.join(
                                     cwd, "rep" + str(i), item)
 
+                                # Add file to the list for inclusion in the
+                                # rysnc mask.
+                                filelist.append(
+                                    os.path.join("rep" + str(i), item))
+
                             # Otherwise do we have a file here.
                             elif os.path.isfile(os.path.join(cwd, item)):
 
                                 # If we do then set file path.
                                 filepath = os.path.join(cwd, item)
+
+                                # Add file to the list for inclusion in the
+                                # rysnc mask.
+                                filelist.append(item)
 
                                 # Also update the command line to reflect a
                                 # global file.
@@ -476,6 +516,10 @@ def processjobs(jobs):
                     "In job '%s' there are missing flags on the command line "
                     "'%s'. See user documentation for plug-in '%s' " %
                     (job, flags, getattr(apps, "DEFMODULES")[executable]))
+
+        # Setup the rysnc upload masks.
+        jobs[job]["upload-include"] = ", ".join(filelist)
+        jobs[job]["upload-exlude"] = "*"
 
         # Replace the input command line with the execution command line.
         jobs[job]["commandline"] = executable + " " + " ".join(args)

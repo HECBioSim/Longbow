@@ -80,8 +80,10 @@ def loadhosts(confile):
         "queue": "",
         "replicates": "",
         "remoteworkdir": "",
-        "rsync-include": "",
-        "rsync-exclude": ""
+        "download-include": "",
+        "download-exclude": "",
+        "upload-include": "",
+        "upload-exclude": ""
     }
 
     required = [
@@ -121,8 +123,10 @@ def loadjobs(jobconfile, hostsconfile, remoteres):
         "replicates": "",
         "remoteworkdir": "",
         "resource": "",
-        "rsync-include": "",
-        "rsync-exclude": ""
+        "download-include": "",
+        "download-exclude": "",
+        "upload-include": "",
+        "upload-exclude": ""
     }
 
     required = [
@@ -217,8 +221,10 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args,
         "queue": "",
         "replicates": "",
         "resource": "",
-        "rsync-include": "",
-        "rsync-exclude": ""
+        "download-include": "",
+        "download-exclude": "",
+        "upload-include": "",
+        "upload-exclude": ""
     }
 
     # Parameters to be copied manually from jobsconfig to jobs
@@ -248,8 +254,10 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args,
         "queue": "",
         "replicates": replicates,
         "resource": "",
-        "rsync-include": "",
-        "rsync-exclude": ""
+        "download-include": "",
+        "download-exclude": "",
+        "upload-include": "",
+        "upload-exclude": ""
     }
 
     jobs = {}

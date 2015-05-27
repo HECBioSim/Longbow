@@ -82,8 +82,8 @@ def stage_upstream(hosts, jobs):
         # Transfer files upstream.
         try:
             shellwrappers.upload(
-                host, src + "/", dst, jobs[job]["rsync-include"],
-                jobs[job]["rsync-exclude"])
+                host, src + "/", dst, jobs[job]["upload-include"],
+                jobs[job]["upload-exclude"])
 
         except ex.RsyncError:
             raise ex.StagingError("Could not stage file '%s' upstream" % src)
@@ -132,7 +132,8 @@ def stage_downstream(hosts, jobs, jobname):
         # Download the whole directory with rsync.
         try:
             shellwrappers.download(host, src, dst,
-                jobs[jobname]["rsync-include"], jobs[jobname]["rsync-exclude"])
+                jobs[jobname]["download-include"],
+                jobs[jobname]["download-exclude"])
 
         except (ex.SCPError, ex.RsyncError):
             raise ex.StagingError("Could not download file '%s' " % src +
