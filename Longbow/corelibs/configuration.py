@@ -86,6 +86,7 @@ def loadhosts(confile):
         "upload-exclude": ""
     }
 
+    # List of parameters that MUST be provided in the hosts configuration file
     required = [
         "host",
         "user",
@@ -97,7 +98,7 @@ def loadhosts(confile):
     return hosts
 
 
-def loadjobs(jobconfile, hostsconfile, remoteres):
+def loadjobs(jobconfile, hostsconfile, param):
 
     """Method for processing job configuration files."""
 
@@ -129,9 +130,13 @@ def loadjobs(jobconfile, hostsconfile, remoteres):
         "upload-exclude": ""
     }
 
+    # List of parameters that MUST be provided in the job configuration file
     required = [
         ""
     ]
+
+    resource = param["resource"]
+    jobname = param["jobname"]
 
     jobs = {}
 
@@ -139,9 +144,10 @@ def loadjobs(jobconfile, hostsconfile, remoteres):
     if jobconfile is not "":
         jobs = loadconfigs(jobconfile, jobtemplate, required)
 
-    # else load an empty dictionary
+    # else load an empty dictionary, use jobname provided on command line if
+    # specified
     else:
-        jobs["Longbowjob"] = jobtemplate.copy()
+        jobs[jobname if jobname else "Longbowjob"] = jobtemplate.copy()
 
     # For each job, determine which remote resource to use
 
@@ -158,15 +164,15 @@ def loadjobs(jobconfile, hostsconfile, remoteres):
     for job in jobs:
 
         # if a resource has been specified on the command line overrule
-        if remoteres is not "":
+        if resource is not "":
             # Check the machine specified on the command line is in the hosts
             # config file. If it is, use it.
-            if remoteres in sectionlist:
-                jobs[job]["resource"] = remoteres
+            if resource in sectionlist:
+                jobs[job]["resource"] = resource
             else:
                 raise ex.CommandlineargsError(
                     "The %s resource specified on the command line is not"
-                    " one of: %s" % (remoteres, sectionlist))
+                    " one of: %s" % (resource, sectionlist))
 
         # elif a resource has not been specified in a job config, use the top
         # machine in the hosts config
