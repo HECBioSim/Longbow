@@ -29,7 +29,6 @@ cleanup(jobs)
 
 Where jobs is a dictionary of job configurations."""
 
-import os
 import logging
 
 try:
@@ -102,7 +101,6 @@ def stage_downstream(hosts, jobs, jobname):
 
         # We must have multiple jobs so loop through them.
         for job in jobs:
-            remoteworkdir = hosts[jobs[job]["resource"]]["remoteworkdir"]
 
             # Download the whole directory with rsync.
             host = hosts[jobs[job]["resource"]]
@@ -124,14 +122,14 @@ def stage_downstream(hosts, jobs, jobname):
     else:
         LOGGER.info("For job %s staging files downstream.", jobname)
 
-        remoteworkdir = hosts[jobs[jobname]["resource"]]["remoteworkdir"]
         host = hosts[jobs[jobname]["resource"]]
         src = jobs[jobname]["destdir"] + "/"
         dst = jobs[jobname]["localworkdir"]
 
         # Download the whole directory with rsync.
         try:
-            shellwrappers.download(host, src, dst,
+            shellwrappers.download(
+                host, src, dst,
                 jobs[jobname]["download-include"],
                 jobs[jobname]["download-exclude"])
 
@@ -150,9 +148,9 @@ def cleanup(hosts, jobs):
 
     for job in jobs:
         try:
-            remoteworkdir = hosts[jobs[job]["resource"]]["remoteworkdir"]
+
             host = hosts[jobs[job]["resource"]]
-            path = os.path.join(remoteworkdir, job)
+            path = jobs[job]["destdir"]
 
             shellwrappers.remotelist(host, path)
 
