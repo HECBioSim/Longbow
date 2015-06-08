@@ -179,6 +179,9 @@ def main(executable, execargs, files, mode, parameters):
         # Sort and prioritise hosts configuration parameters
         hosts = configuration.sorthostsconfigs(hostsconfig, jobsconfig)
 
+        # Make some final amendments to jobs configuration parameters
+        configuration.amendjobsconfigs(hosts, jobs)
+
         # Test the connection/s specified in the job configurations
         shellwrappers.testconnections(hosts, jobs)
 
@@ -354,128 +357,67 @@ if __name__ == "__main__":
         "-examples"
     ]
 
-    # Initialise executable
+    # Initialise
     EXECUTABLE = ""
+    POSITION = ""
+    LONGBOWARGS = ""
+    EXECARGS = ""
 
     # ------------------------------------------------------------------------
-    # Retrieve the names of all recognised executables
+    # Split the command line into longbow arguments, the executable and
+    # executable arguments
+
+    # Get a list of recognised executables
     execlist = getattr(apps, "EXECLIST")
 
     # Search for recognised executables on the commandline
     for exe in execlist:
         if exe in COMMANDLINEARGS:
             if COMMANDLINEARGS.count(exe) == 1:
+
                 EXECUTABLE = exe
                 POSITION = COMMANDLINEARGS.index(exe)
                 LONGBOWARGS = COMMANDLINEARGS[:POSITION]
                 EXECARGS = COMMANDLINEARGS[POSITION+1:]
                 break
+
             else:
                 raise ex.CommandlineargsError(
                     "More than one recognised executable has been specified on"
                     " the Longbow command-line. Please provide just one.")
 
-    # if an executable hasn't been provided on the command line, determine if
-    # the user is trying to run a sub-functionality such as % longbow -about
-    # for example. Or has the user made a mistake...
+    # if an executable wasn't found perhaps it is specified in a configuration
+    # file. Executable arguments might still be provided on the command line so
+    # try to detect them.
     if EXECUTABLE == "":
+        for item in COMMANDLINEARGS:
 
-        # Take test for the about command line flag, print message and exit if
-        # found
-        if COMMANDLINEARGS.count("-about") == 1:
-            print (
-                "Welcome to Longbow!\n"
-                "Longbow is a remote job submission utility designed for "
-                "biomolecular simulation."
-                "This software was developed as part of the EPSRC-funded "
-                "HECBioSim project \n" "(http://www.hecbiosim.ac.uk/).\n"
-                "HECBioSim facilitates high-end biomolecular simulation "
-                "on resources such as \n" "ARCHER. \n"
-                "Longbow is Copyright (C) of James T Gebbie-Rayet and "
-                "Gareth B Shannon 2015.")
-            exit(0)
+            POSITION = COMMANDLINEARGS.index(item)
 
-        # Take test for the version command line flag, print message and exit
-        # if found
-        elif COMMANDLINEARGS.count("-version") == 1:
-            print (
-                "Longbow 1.0")
-            exit(0)
+            # if item provided on the commandline doesn't appear to be a
+            # longbow argument, assume it, and all others following it are
+            # executable arguments
+            if item not in ALLLONGBOWARGS and \
+            COMMANDLINEARGS[POSITION-1][1:] not in FILES \
+            and COMMANDLINEARGS[POSITION-1][1:] not in PARAMETERS:
 
-        # Take test for the help command line flag, print message and exit if
-        # found
-        elif COMMANDLINEARGS.count("-help") == 1:
-            print (
-                "Usage:\n\n"
-                "Before running Longbow, first setup a passwordless\n"
-                "connection with a target HPC and setup configuration files\n"
-                "according to the documentation. Submit jobs using the \n"
-                "following format:\n\n"
-                "longbow [longbow args] executable [executable args]\n\n"
-                "e.g.:\n"
-                "%longbow -verbose pmemd.MPI -i example.in -c example.min -p "
-                "example.top -o output\n\n"
-                "longbow args:\n\n"
-                "-hosts filename    : specifies the hosts configuration file"
-                " filename\n"
-                "-job filename      : specifies the job configuration file"
-                " filename\n"
-                "-log filename      : specifies the file Longbow output should"
-                " be directed to\n"
-                "-resource HPCname  : specifies the target HPC\n"
-                "-replicates number : number of replicate jobs to be "
-                "submitted\n"
-                "-jobname jobname   : the name of the job to be submitted\n"
-                "-stage filename(s) : \",\" or \" \" separated list of files"
-                " to be copied to the target HPC if not automatically done so"
-                " by Longbow\n"
-                "-debug             : additional output to assist debugging\n"
-                "-verbose           : additional run-time info to be output\n"
-                "-about             : prints Longbow description\n"
-                "-version           : prints Longbow version number\n"
-                "-help              : prints Longbow help\n"
-                "-examples          : downloads example files to "
-                "./LongbowExamples"
-                "\n\n"
-                "Read the documentation at http://www.hecbiosim.ac.uk/ for \n"
-                "more information on how to setup and run jobs using Longbow.")
-            exit(0)
+                LONGBOWARGS = COMMANDLINEARGS[:POSITION]
+                EXECARGS = COMMANDLINEARGS[POSITION:]
+                break
 
-        # Take test for the examples command line flag, download files and exit
-        # if found
-        elif COMMANDLINEARGS.count("-examples") == 1:
-            if not os.path.isfile(os.path.join(os.getcwd(),
-                                               "LongbowExamples.zip")):
-                try:
-                    subprocess.check_output(["wget",
-                        "http://www.hecbiosim.ac.uk/longbow/send/5-longbow/4-longbow-examples",
-                        "-O", os.path.join(os.getcwd(),
-                                           "LongbowExamples.zip")])
+        # if no executable arguments have been found, everything on the command
+        # line must be longbow arguments since we know the executable hasn't
+        # been provided on the command line either.
+        if EXECARGS == "":
+            LONGBOWARGS = COMMANDLINEARGS
 
-                except subprocess.CalledProcessError:
-                    subprocess.call(["curl", "-L",
-                        "http://www.hecbiosim.ac.uk/longbow/send/5-longbow/4-longbow-examples",
-                        "-o", os.path.join(os.getcwd(),
-                                           "LongbowExamples.zip")])
-
-                subprocess.call(["unzip", "-d", os.getcwd(),
-                                 os.path.join(os.getcwd(),
-                                              "LongbowExamples.zip")])
-            exit(0)
-
-        # else the user has made a mistake
-        else:
+    # Make sure the user hasn't provided longbow arguments amongst the
+    # executable arguments
+    for item in EXECARGS:
+        if item in ALLLONGBOWARGS:
             raise ex.CommandlineargsError(
-                "A recognised executable has not been provided on the Longbow"
-                " commandline.")
-
-    # Make sure the user hasn't provided longbow arguments after the executable
-    for item in ALLLONGBOWARGS:
-        if item in EXECARGS:
-            raise ex.CommandlineargsError(
-                "Longbow arguments have incorrectly been provided after the "
-                "executable on the command line. Longbow must be ran using the"
-                " format:\n\n"
+                "Longbow arguments and executable arguments seem to have"
+                " become mixed. Longbow must be ran using the format:\n\n"
                 "longbow [longbow args] executable [executable args]\n\n"
                 "For more information on longbow args do % longbow -help")
 
@@ -489,41 +431,124 @@ if __name__ == "__main__":
                 "Recognised arguments are: %s" % (item, allowedargs))
 
     # ------------------------------------------------------------------------
+    # Determine if the user is trying to run a sub-functionality such as
+    # % longbow -about for example.
+
+    # Take test for the about command line flag, print message and exit if
+    # found
+    if LONGBOWARGS.count("-about") == 1:
+        print (
+               "Welcome to Longbow!\n"
+               "Longbow is a remote job submission utility designed for "
+               "biomolecular simulation."
+               "This software was developed as part of the EPSRC-funded "
+               "HECBioSim project \n" "(http://www.hecbiosim.ac.uk/).\n"
+               "HECBioSim facilitates high-end biomolecular simulation "
+               "on resources such as \n" "ARCHER. \n"
+               "Longbow is Copyright (C) of James T Gebbie-Rayet and "
+               "Gareth B Shannon 2015.")
+        exit(0)
+
+    # Take test for the version command line flag, print message and exit
+    # if found
+    elif LONGBOWARGS.count("-version") == 1:
+        print ("Longbow 1.0")
+        exit(0)
+
+    # Take test for the help command line flag, print message and exit if
+    # found
+    elif LONGBOWARGS.count("-help") == 1:
+        print (
+               "Usage:\n\n"
+               "Before running Longbow, first setup a passwordless\n"
+               "connection with a target HPC and setup configuration files\n"
+               "according to the documentation. Submit jobs using the \n"
+               "following format:\n\n"
+               "longbow [longbow args] executable [executable args]\n\n"
+               "e.g.:\n"
+               "%longbow -verbose pmemd.MPI -i example.in -c example.min -p "
+               "example.top -o output\n\n"
+               "longbow args:\n\n"
+               "-hosts filename    : specifies the hosts configuration file"
+               " filename\n"
+               "-job filename      : specifies the job configuration file"
+               " filename\n"
+               "-log filename      : specifies the file Longbow output should"
+               " be directed to\n"
+               "-resource HPCname  : specifies the target HPC\n"
+               "-replicates number : number of replicate jobs to be "
+               "submitted\n"
+               "-jobname jobname   : the name of the job to be submitted\n"
+               "-stage filename(s) : \",\" or \" \" separated list of files"
+               " to be copied to the target HPC if not automatically done so"
+               " by Longbow\n"
+               "-debug             : additional output to assist debugging\n"
+               "-verbose           : additional run-time info to be output\n"
+               "-about             : prints Longbow description\n"
+               "-version           : prints Longbow version number\n"
+               "-help              : prints Longbow help\n"
+               "-examples          : downloads example files to "
+               "./LongbowExamples"
+               "\n\n"
+               "Read the documentation at http://www.hecbiosim.ac.uk/ for \n"
+               "more information on how to setup and run jobs using Longbow.")
+        exit(0)
+
+    # Take test for the examples command line flag, download files and exit
+    # if found
+    elif LONGBOWARGS.count("-examples") == 1:
+        if not os.path.isfile(os.path.join(os.getcwd(),
+                                           "LongbowExamples.zip")):
+            try:
+                subprocess.check_output(["wget",
+                    "http://www.hecbiosim.ac.uk/longbow/send/5-longbow/4-longbow-examples",
+                    "-O", os.path.join(os.getcwd(),
+                                       "LongbowExamples.zip")])
+
+            except subprocess.CalledProcessError:
+                subprocess.call(["curl", "-L",
+                    "http://www.hecbiosim.ac.uk/longbow/send/5-longbow/4-longbow-examples",
+                    "-o", os.path.join(os.getcwd(),
+                                       "LongbowExamples.zip")])
+
+            subprocess.call(["unzip", "-d", os.getcwd(),
+                            os.path.join(os.getcwd(),
+                                        "LongbowExamples.zip")])
+        exit(0)
+
+    # ------------------------------------------------------------------------
     # Pull out some of the specific commandline args
 
     # Store the config file path
     if LONGBOWARGS.count("-hosts") == 1:
         POSITION = LONGBOWARGS.index("-hosts")
-        if LONGBOWARGS[POSITION + 1].startswith("-") or \
-        LONGBOWARGS[POSITION + 1] == EXECUTABLE:
+        if POSITION + 1 == len(LONGBOWARGS) or \
+        LONGBOWARGS[POSITION + 1].startswith("-"):
             raise ex.CommandlineargsError(
-                "The -hosts command line parameter seems to be followed by"
-                " another flag or the executable. Please specify a valid file"
-                " e.g. longbow -hosts filename ...")
+                "Please specify a valid file for the -hosts command line"
+                " parameter e.g. longbow -hosts filename ...")
         else:
             FILES["hosts"] = LONGBOWARGS[POSITION + 1]
 
     # Store the job config file path
     if LONGBOWARGS.count("-job") == 1:
         POSITION = LONGBOWARGS.index("-job")
-        if LONGBOWARGS[POSITION + 1].startswith("-") or \
-        LONGBOWARGS[POSITION + 1] == EXECUTABLE:
+        if POSITION + 1 == len(LONGBOWARGS) or \
+        LONGBOWARGS[POSITION + 1].startswith("-"):
             raise ex.CommandlineargsError(
-                "The -job command line parameter seems to be followed by"
-                " another flag or the executable. Please specify a valid file"
-                " e.g. longbow -job filename ...")
+                "Please specify a valid file for the -job command line"
+                " parameter e.g. longbow -job filename ...")
         else:
             FILES["job"] = LONGBOWARGS[POSITION + 1]
 
     # Store the log file path
     if LONGBOWARGS.count("-log") == 1:
         POSITION = LONGBOWARGS.index("-log")
-        if LONGBOWARGS[POSITION + 1].startswith("-") or \
-        LONGBOWARGS[POSITION + 1] == EXECUTABLE:
+        if POSITION + 1 == len(LONGBOWARGS) or \
+        LONGBOWARGS[POSITION + 1].startswith("-"):
             raise ex.CommandlineargsError(
-                "The -log command line parameter seems to be followed by"
-                " another flag or the executable. Please specify a valid file"
-                " e.g. longbow -log filename ...")
+                "Please specify a valid file for the -log command line"
+                " parameter e.g. longbow -log filename ...")
         else:
             FILES["log"] = LONGBOWARGS[POSITION + 1]
 
@@ -540,36 +565,33 @@ if __name__ == "__main__":
     # Store the resource name
     if LONGBOWARGS.count("-resource") == 1:
         POSITION = LONGBOWARGS.index("-resource")
-        if LONGBOWARGS[POSITION + 1].startswith("-") or \
-        LONGBOWARGS[POSITION + 1] == EXECUTABLE:
+        if POSITION + 1 == len(LONGBOWARGS) or \
+        LONGBOWARGS[POSITION + 1].startswith("-"):
             raise ex.CommandlineargsError(
-                "The -resource command line parameter seems to be followed by"
-                " another flag or the executable. Please specify a valid "
-                "remote machine e.g. longbow -log filename ...")
+                "Please specify a valid remote machine for the -resource"
+                " command line parameter e.g. longbow -resource HPC ...")
         else:
             PARAMETERS["resource"] = LONGBOWARGS[POSITION + 1]
 
     # Store the replicates name
     if LONGBOWARGS.count("-replicates") == 1:
         POSITION = LONGBOWARGS.index("-replicates")
-        if LONGBOWARGS[POSITION + 1].startswith("-") or \
-        LONGBOWARGS[POSITION + 1] == EXECUTABLE:
+        if POSITION + 1 == len(LONGBOWARGS) or \
+        LONGBOWARGS[POSITION + 1].startswith("-"):
             raise ex.CommandlineargsError(
-                "The -replicates command line parameter seems to be followed"
-                " by another flag or the executable. Please specify a "
-                "number e.g. longbow -replicates 5 ...")
+                "Please specify a number for the -replicates command line"
+                " parameter e.g. longbow -replicates 5 ...")
         else:
             PARAMETERS["replicates"] = LONGBOWARGS[POSITION + 1]
 
     # Store the jobname name
     if LONGBOWARGS.count("-jobname") == 1:
         POSITION = LONGBOWARGS.index("-jobname")
-        if LONGBOWARGS[POSITION + 1].startswith("-") or \
-        LONGBOWARGS[POSITION + 1] == EXECUTABLE:
+        if POSITION + 1 == len(LONGBOWARGS) or \
+        LONGBOWARGS[POSITION + 1].startswith("-"):
             raise ex.CommandlineargsError(
-                "The -jobname command line parameter seems to be followed by"
-                " another flag or the executable. Please specify a "
-                "name e.g. longbow -jobname myjob ...")
+                "Please specify a name for the -jobname command line parameter"
+                " e.g. longbow -jobname myjob ...")
         else:
             PARAMETERS["jobname"] = LONGBOWARGS[POSITION + 1]
 

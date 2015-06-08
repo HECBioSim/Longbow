@@ -215,7 +215,8 @@ def submit(host, jobname, jobs):                                # IMPORTANT
 
     """Method for submitting job."""
 
-    path = os.path.join(host["remoteworkdir"], jobname)
+    # Set the path to remoteworkdir/jobnameXXXXX
+    path = os.path.join(host["remoteworkdir"], jobs[jobname]["destdir"])
 
     # Change into the working directory and submit the job.
     cmd = ["cd " + path + "\n" + "sbatch " + jobs[jobname]["subfile"] +
