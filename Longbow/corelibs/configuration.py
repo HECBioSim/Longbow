@@ -31,6 +31,8 @@ def sortjobsconfigs()
     Method to sort and prioritise jobs configuration parameters.
 def sorthostsconfigs():
     Method to sort and prioritise hosts configuration parameters.
+def amendjobsconfigs(hosts, jobs)
+    Method to make final amendments to the job configuration parameters.
 loadconfigs()
     Method containing the code for parsing configuration files.
 saveconfigs()
@@ -38,6 +40,8 @@ saveconfigs()
 
 import ConfigParser as configparser
 import logging
+import os
+from random import randint
 
 try:
     import Longbow.corelibs.exceptions as ex
@@ -207,11 +211,7 @@ def loadjobs(jobconfile, hostsconfile, param):
 def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args,
                     replicates):
 
-    """Method to sort and prioritise jobs configuration parameters."""
-
-    # Dictionary to map executable to a default module
-    modules = getattr(apps, "DEFMODULES")
-    modules[""] = ""
+    """Method to sort and prioritise job configuration parameters."""
 
     # Blank parameters for the jobs structure
     jobtemplate = {
@@ -240,7 +240,7 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args,
 
     # Parameters to be that can be provided on the command line that can
     # overrule parameters in config files
-    commandline = [
+    command = [
         "commandline",
         "executable",
         "replicates"
@@ -250,7 +250,7 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args,
     jobdefaults = {
         "cores": "24",
         "cluster": "",
-        "commandline": args,
+        "commandline": args if len(args) > 0 else "",
         "frequency": "60",
         "localworkdir": cwd,
         "modules": "",
@@ -281,7 +281,7 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args,
                 jobs[job][option] = jobsconfig[job][option]
 
             # certain values provided on the command line should take priority
-            elif option in commandline and jobdefaults[option] is not "":
+            elif option in command and jobdefaults[option] is not "":
                 jobs[job][option] = jobdefaults[option]
 
             # elif a parameter has been defined in jobsconfig, use it
@@ -297,28 +297,6 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args,
             # else use default.
             else:
                 jobs[job][option] = jobdefaults[option]
-
-        # Check we have an executable and command line arguments provided
-        if jobs[job]["executable"] is "":
-            raise ex.CommandlineargsError(
-                "An executable has not been specified on the command-line "
-                "or in a configuration file")
-
-        if jobs[job]["commandline"] is "":
-            raise ex.CommandlineargsError(
-                "Command-line arguments could not be detected properly on the "
-                "command-line or in a configuration file. If your application "
-                "requires input of the form 'executable < input_file' then "
-                "make sure that you put the '<' in quotation marks on the "
-                "commandline to Longbow.")
-
-        # If modules hasn't been defined in a config file, use default
-        if jobs[job]["modules"] is "":
-            jobs[job]["modules"] = modules[jobs[job]["executable"]]
-
-        # If replicates hasn't been defined anywhere, set to "1"
-        if jobs[job]["replicates"] is "":
-            jobs[job]["replicates"] = "1"
 
     return jobs
 
@@ -388,6 +366,53 @@ def sorthostsconfigs(hostsconfig, jobsconfig):
                     hostdefaults[option]
 
     return hosts
+
+
+def amendjobsconfigs(hosts, jobs):
+
+    """Method to make final amendments to the job configuration parameters"""
+
+    # Dictionary to map executable to a default module
+    modules = getattr(apps, "DEFMODULES")
+    modules[""] = ""
+
+    for job in jobs:
+
+        # Check we have an executable provided
+        if jobs[job]["executable"] is "":
+            raise ex.CommandlineargsError(
+                "An executable has not been specified on the command-line "
+                "or in a configuration file")
+
+        # Check we have command line arguments provided
+        if jobs[job]["commandline"] is "":
+            raise ex.CommandlineargsError(
+                "Command-line arguments could not be detected properly on the "
+                "command-line or in a configuration file. If your application "
+                "requires input of the form 'executable < input_file' then "
+                "make sure that you put the \"<\" in quotation marks on the "
+                "commandline to Longbow.")
+
+        # if the commandline parameter is a string, we need to split it up into
+        # a list of strings
+        elif isinstance(jobs[job]["commandline"], basestring):
+            jobs[job]["commandline"] = jobs[job]["commandline"].split()
+
+        # If modules hasn't been defined in a config file, use default
+        if jobs[job]["modules"] is "":
+            jobs[job]["modules"] = modules[jobs[job]["executable"]]
+
+        # If replicates hasn't been defined anywhere, set to "1"
+        if jobs[job]["replicates"] is "":
+            jobs[job]["replicates"] = "1"
+
+        # Define the remote directory in which the job will run
+        destdir = job + ''.join(["%s" % randint(0, 9) for num in range(0, 5)])
+        jobs[job]["destdir"] = os.path.join(
+                                hosts[jobs[job]["resource"]]["remoteworkdir"],
+                                destdir)
+        LOGGER.debug("Job '%s' will be run in the '%s' directory on the remote"
+                     " resource." % (job, jobs[job]["destdir"]))
 
 
 def loadconfigs(confile, template, required):

@@ -57,7 +57,7 @@ def stage_upstream(hosts, jobs):
 
         host = hosts[jobs[job]["resource"]]
         src = jobs[job]["localworkdir"]
-        dst = os.path.join(hosts[jobs[job]["resource"]]["remoteworkdir"], job)
+        dst = jobs[job]["destdir"]
 
         # Check if job directory exists on the remote hosts and delete it.
         try:
@@ -106,7 +106,7 @@ def stage_downstream(hosts, jobs, jobname):
 
             # Download the whole directory with rsync.
             host = hosts[jobs[job]["resource"]]
-            src = os.path.join(remoteworkdir, job + "/")
+            src = jobs[job]["destdir"] + "/"
             dst = jobs[job]["localworkdir"]
 
             try:
@@ -126,7 +126,7 @@ def stage_downstream(hosts, jobs, jobname):
 
         remoteworkdir = hosts[jobs[jobname]["resource"]]["remoteworkdir"]
         host = hosts[jobs[jobname]["resource"]]
-        src = os.path.join(remoteworkdir, jobname + "/")
+        src = jobs[jobname]["destdir"] + "/"
         dst = jobs[jobname]["localworkdir"]
 
         # Download the whole directory with rsync.
