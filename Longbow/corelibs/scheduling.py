@@ -263,7 +263,10 @@ def monitor(hosts, jobs):
 
                 # If the job is not finished and we set the polling frequency
                 # higher than 0 (off) then stage files.
-                if jobs[job]["laststatus"] == "Running" and interval is not 0:
+                if (jobs[job]["laststatus"] == "Running" or
+                        jobs[job]["laststatus"] == "Subjob(s) running" and
+                        interval is not 0):
+
                     staging.stage_downstream(hosts, jobs, job)
 
                 # If job is done wait 60 seconds then transfer files (this is
