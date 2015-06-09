@@ -35,31 +35,23 @@ necessary.
 import time
 import logging
 
+# Depending on how longbow is installed/utilised the import will be slightly
+# different, this should handle both cases.
 try:
-    import Longbow.corelibs.shellwrappers as shellwrappers
-except ImportError:
-    import corelibs.shellwrappers as shellwrappers
 
-try:
-    import Longbow.corelibs.exceptions as ex
-except ImportError:
-    import corelibs.exceptions as ex
+    configuration = __import__("corelibs.configuration", fromlist=[''])
+    ex = __import__("corelibs.exceptions", fromlist=[''])
+    schedulers = __import__("plugins.schedulers", fromlist=[''])
+    shellwrappers = __import__("corelibs.shellwrappers", fromlist=[''])
+    staging = __import__("corelibs.staging", fromlist=[''])
 
-try:
-    import Longbow.corelibs.configuration as configuration
 except ImportError:
-    import corelibs.configuration as configuration
 
-try:
-    import Longbow.corelibs.staging as staging
-except ImportError:
-    import corelibs.staging as staging
-
-try:
-    import Longbow.plugins.schedulers as schedulers
-except ImportError:
-    import plugins.schedulers as schedulers
-
+    configuration = __import__("Longbow.corelibs.configuration", fromlist=[''])
+    ex = __import__("Longbow.corelibs.exceptions", fromlist=[''])
+    schedulers = __import__("Longbow.plugins.schedulers", fromlist=[''])
+    shellwrappers = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
+    staging = __import__("Longbow.corelibs.staging", fromlist=[''])
 
 LOGGER = logging.getLogger("Longbow")
 
@@ -274,7 +266,7 @@ def monitor(hosts, jobs):
                 # bit of staged files.)
                 if jobs[job]["laststatus"] == "Finished":
                     LOGGER.info(
-                        "  Job %s is finishing, staging will begin in 60 "
+                        "Job %s is finishing, staging will begin in 60 "
                         "seconds" % job)
 
                     time.sleep(60.0)

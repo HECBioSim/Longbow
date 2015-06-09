@@ -29,45 +29,29 @@ import sys
 import logging
 import subprocess
 
+# Depending on how longbow is installed/utilised the import will be slightly
+# different, this should handle both cases.
 try:
-    import Longbow.corelibs.applications as applications
-except ImportError:
-    import corelibs.applications as applications
 
-try:
-    import Longbow.corelibs.configuration as configuration
-except ImportError:
-    import corelibs.configuration as configuration
+    applications = __import__("corelibs.applications", fromlist=[''])
+    apps = __import__("plugins.apps", fromlist=[''])
+    configuration = __import__("corelibs.configuration", fromlist=[''])
+    ex = __import__("corelibs.exceptions", fromlist=[''])
+    log = __import__("corelibs.logger", fromlist=[''])
+    scheduling = __import__("corelibs.scheduling", fromlist=[''])
+    shellwrappers = __import__("corelibs.shellwrappers", fromlist=[''])
+    staging = __import__("corelibs.staging", fromlist=[''])
 
-try:
-    import Longbow.corelibs.exceptions as ex
 except ImportError:
-    import corelibs.exceptions as ex
 
-try:
-    import Longbow.corelibs.logger as log
-except ImportError:
-    import corelibs.logger as log
-
-try:
-    import Longbow.corelibs.scheduling as scheduling
-except ImportError:
-    import corelibs.scheduling as scheduling
-
-try:
-    import Longbow.corelibs.shellwrappers as shellwrappers
-except ImportError:
-    import corelibs.shellwrappers as shellwrappers
-
-try:
-    import Longbow.corelibs.staging as staging
-except ImportError:
-    import corelibs.staging as staging
-
-try:
-    import Longbow.plugins.apps as apps
-except ImportError:
-    import plugins.apps as apps
+    applications = __import__("Longbow.corelibs.applications", fromlist=[''])
+    apps = __import__("Longbow.plugins.apps", fromlist=[''])
+    configuration = __import__("Longbow.corelibs.configuration", fromlist=[''])
+    ex = __import__("Longbow.corelibs.exceptions", fromlist=[''])
+    log = __import__("Longbow.corelibs.logger", fromlist=[''])
+    scheduling = __import__("Longbow.corelibs.scheduling", fromlist=[''])
+    shellwrappers = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
+    staging = __import__("Longbow.corelibs.staging", fromlist=[''])
 
 
 def main(executable, execargs, files, mode, parameters):
@@ -397,9 +381,9 @@ if __name__ == "__main__":
             # if item provided on the commandline doesn't appear to be a
             # longbow argument, assume it, and all others following it are
             # executable arguments
-            if item not in ALLLONGBOWARGS and \
-            COMMANDLINEARGS[POSITION-1][1:] not in FILES \
-            and COMMANDLINEARGS[POSITION-1][1:] not in PARAMETERS:
+            if (item not in ALLLONGBOWARGS and
+                    COMMANDLINEARGS[POSITION-1][1:] not in FILES and
+                    COMMANDLINEARGS[POSITION-1][1:] not in PARAMETERS):
 
                 LONGBOWARGS = COMMANDLINEARGS[:POSITION]
                 EXECARGS = COMMANDLINEARGS[POSITION:]
@@ -438,15 +422,16 @@ if __name__ == "__main__":
     # found
     if LONGBOWARGS.count("-about") == 1:
         print (
-               "Welcome to Longbow!\n"
-               "Longbow is a remote job submission utility designed for "
-               "biomolecular simulation."
-               "This software was developed as part of the EPSRC-funded "
-               "HECBioSim project \n" "(http://www.hecbiosim.ac.uk/).\n"
-               "HECBioSim facilitates high-end biomolecular simulation "
-               "on resources such as \n" "ARCHER. \n"
-               "Longbow is Copyright (C) of James T Gebbie-Rayet and "
-               "Gareth B Shannon 2015.")
+            "Welcome to Longbow!\n"
+            "Longbow is a remote job submission utility designed for "
+            "biomolecular simulation."
+            "This software was developed as part of the EPSRC-funded "
+            "HECBioSim project \n" "(http://www.hecbiosim.ac.uk/).\n"
+            "HECBioSim facilitates high-end biomolecular simulation "
+            "on resources such as \n" "ARCHER. \n"
+            "Longbow is Copyright (C) of James T Gebbie-Rayet and "
+            "Gareth B Shannon 2015.")
+
         exit(0)
 
     # Take test for the version command line flag, print message and exit
@@ -459,39 +444,40 @@ if __name__ == "__main__":
     # found
     elif LONGBOWARGS.count("-help") == 1:
         print (
-               "Usage:\n\n"
-               "Before running Longbow, first setup a passwordless\n"
-               "connection with a target HPC and setup configuration files\n"
-               "according to the documentation. Submit jobs using the \n"
-               "following format:\n\n"
-               "longbow [longbow args] executable [executable args]\n\n"
-               "e.g.:\n"
-               "%longbow -verbose pmemd.MPI -i example.in -c example.min -p "
-               "example.top -o output\n\n"
-               "longbow args:\n\n"
-               "-hosts filename    : specifies the hosts configuration file"
-               " filename\n"
-               "-job filename      : specifies the job configuration file"
-               " filename\n"
-               "-log filename      : specifies the file Longbow output should"
-               " be directed to\n"
-               "-resource HPCname  : specifies the target HPC\n"
-               "-replicates number : number of replicate jobs to be "
-               "submitted\n"
-               "-jobname jobname   : the name of the job to be submitted\n"
-               "-stage filename(s) : \",\" or \" \" separated list of files"
-               " to be copied to the target HPC if not automatically done so"
-               " by Longbow\n"
-               "-debug             : additional output to assist debugging\n"
-               "-verbose           : additional run-time info to be output\n"
-               "-about             : prints Longbow description\n"
-               "-version           : prints Longbow version number\n"
-               "-help              : prints Longbow help\n"
-               "-examples          : downloads example files to "
-               "./LongbowExamples"
-               "\n\n"
-               "Read the documentation at http://www.hecbiosim.ac.uk/ for \n"
-               "more information on how to setup and run jobs using Longbow.")
+            "Usage:\n\n"
+            "Before running Longbow, first setup a passwordless\n"
+            "connection with a target HPC and setup configuration files\n"
+            "according to the documentation. Submit jobs using the \n"
+            "following format:\n\n"
+            "longbow [longbow args] executable [executable args]\n\n"
+            "e.g.:\n"
+            "%longbow -verbose pmemd.MPI -i example.in -c example.min -p "
+            "example.top -o output\n\n"
+            "longbow args:\n\n"
+            "-hosts filename    : specifies the hosts configuration file"
+            " filename\n"
+            "-job filename      : specifies the job configuration file"
+            " filename\n"
+            "-log filename      : specifies the file Longbow output should"
+            " be directed to\n"
+            "-resource HPCname  : specifies the target HPC\n"
+            "-replicates number : number of replicate jobs to be "
+            "submitted\n"
+            "-jobname jobname   : the name of the job to be submitted\n"
+            "-stage filename(s) : \",\" or \" \" separated list of files"
+            " to be copied to the target HPC if not automatically done so"
+            " by Longbow\n"
+            "-debug             : additional output to assist debugging\n"
+            "-verbose           : additional run-time info to be output\n"
+            "-about             : prints Longbow description\n"
+            "-version           : prints Longbow version number\n"
+            "-help              : prints Longbow help\n"
+            "-examples          : downloads example files to "
+            "./LongbowExamples"
+            "\n\n"
+            "Read the documentation at http://www.hecbiosim.ac.uk/ for \n"
+            "more information on how to setup and run jobs using Longbow.")
+
         exit(0)
 
     # Take test for the examples command line flag, download files and exit
@@ -500,20 +486,24 @@ if __name__ == "__main__":
         if not os.path.isfile(os.path.join(os.getcwd(),
                                            "LongbowExamples.zip")):
             try:
-                subprocess.check_output(["wget",
-                    "http://www.hecbiosim.ac.uk/longbow/send/5-longbow/4-longbow-examples",
-                    "-O", os.path.join(os.getcwd(),
-                                       "LongbowExamples.zip")])
+                subprocess.check_output([
+                    "wget",
+                    "http://www.hecbiosim.ac.uk/longbow/send/5-longbow/" +
+                    "4-longbow-examples",
+                    "-O",
+                    os.path.join(os.getcwd(), "LongbowExamples.zip")])
 
             except subprocess.CalledProcessError:
-                subprocess.call(["curl", "-L",
-                    "http://www.hecbiosim.ac.uk/longbow/send/5-longbow/4-longbow-examples",
-                    "-o", os.path.join(os.getcwd(),
-                                       "LongbowExamples.zip")])
+                subprocess.call([
+                    "curl",
+                    "-L",
+                    "http://www.hecbiosim.ac.uk/longbow/send/5-longbow/" +
+                    "4-longbow-examples",
+                    "-o",
+                    os.path.join(os.getcwd(), "LongbowExamples.zip")])
 
             subprocess.call(["unzip", "-d", os.getcwd(),
-                            os.path.join(os.getcwd(),
-                                        "LongbowExamples.zip")])
+                            os.path.join(os.getcwd(), "LongbowExamples.zip")])
         exit(0)
 
     # ------------------------------------------------------------------------
@@ -521,78 +511,109 @@ if __name__ == "__main__":
 
     # Store the config file path
     if LONGBOWARGS.count("-hosts") == 1:
+
         POSITION = LONGBOWARGS.index("-hosts")
-        if POSITION + 1 == len(LONGBOWARGS) or \
-        LONGBOWARGS[POSITION + 1].startswith("-"):
+
+        if (POSITION + 1 == len(LONGBOWARGS) or
+                LONGBOWARGS[POSITION + 1].startswith("-")):
+
             raise ex.CommandlineargsError(
                 "Please specify a valid file for the -hosts command line"
                 " parameter e.g. longbow -hosts filename ...")
         else:
+
             FILES["hosts"] = LONGBOWARGS[POSITION + 1]
 
     # Store the job config file path
     if LONGBOWARGS.count("-job") == 1:
+
         POSITION = LONGBOWARGS.index("-job")
-        if POSITION + 1 == len(LONGBOWARGS) or \
-        LONGBOWARGS[POSITION + 1].startswith("-"):
+
+        if (POSITION + 1 == len(LONGBOWARGS) or
+                LONGBOWARGS[POSITION + 1].startswith("-")):
+
             raise ex.CommandlineargsError(
                 "Please specify a valid file for the -job command line"
                 " parameter e.g. longbow -job filename ...")
+
         else:
+
             FILES["job"] = LONGBOWARGS[POSITION + 1]
 
     # Store the log file path
     if LONGBOWARGS.count("-log") == 1:
+
         POSITION = LONGBOWARGS.index("-log")
-        if POSITION + 1 == len(LONGBOWARGS) or \
-        LONGBOWARGS[POSITION + 1].startswith("-"):
+
+        if (POSITION + 1 == len(LONGBOWARGS) or
+                LONGBOWARGS[POSITION + 1].startswith("-")):
+
             raise ex.CommandlineargsError(
                 "Please specify a valid file for the -log command line"
                 " parameter e.g. longbow -log filename ...")
+
         else:
+
             FILES["log"] = LONGBOWARGS[POSITION + 1]
 
     # Store the DEBUG parameter
     if LONGBOWARGS.count("-debug") == 1:
+
         POSITION = LONGBOWARGS.index("-debug")
         MODE["debug"] = True
 
     # Store the VERBOSE parameter
     if LONGBOWARGS.count("-verbose") == 1:
+
         POSITION = LONGBOWARGS.index("-verbose")
         MODE["verbose"] = True
 
     # Store the resource name
     if LONGBOWARGS.count("-resource") == 1:
+
         POSITION = LONGBOWARGS.index("-resource")
-        if POSITION + 1 == len(LONGBOWARGS) or \
-        LONGBOWARGS[POSITION + 1].startswith("-"):
+
+        if (POSITION + 1 == len(LONGBOWARGS) or
+                LONGBOWARGS[POSITION + 1].startswith("-")):
+
             raise ex.CommandlineargsError(
                 "Please specify a valid remote machine for the -resource"
                 " command line parameter e.g. longbow -resource HPC ...")
+
         else:
+
             PARAMETERS["resource"] = LONGBOWARGS[POSITION + 1]
 
     # Store the replicates name
     if LONGBOWARGS.count("-replicates") == 1:
+
         POSITION = LONGBOWARGS.index("-replicates")
-        if POSITION + 1 == len(LONGBOWARGS) or \
-        LONGBOWARGS[POSITION + 1].startswith("-"):
+
+        if (POSITION + 1 == len(LONGBOWARGS) or
+                LONGBOWARGS[POSITION + 1].startswith("-")):
+
             raise ex.CommandlineargsError(
                 "Please specify a number for the -replicates command line"
                 " parameter e.g. longbow -replicates 5 ...")
+
         else:
+
             PARAMETERS["replicates"] = LONGBOWARGS[POSITION + 1]
 
     # Store the jobname name
     if LONGBOWARGS.count("-jobname") == 1:
+
         POSITION = LONGBOWARGS.index("-jobname")
-        if POSITION + 1 == len(LONGBOWARGS) or \
-        LONGBOWARGS[POSITION + 1].startswith("-"):
+
+        if (POSITION + 1 == len(LONGBOWARGS) or
+                LONGBOWARGS[POSITION + 1].startswith("-")):
+
             raise ex.CommandlineargsError(
                 "Please specify a name for the -jobname command line parameter"
                 " e.g. longbow -jobname myjob ...")
+
         else:
+
             PARAMETERS["jobname"] = LONGBOWARGS[POSITION + 1]
 
     # ------------------------------------------------------------------------

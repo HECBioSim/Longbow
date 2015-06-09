@@ -25,9 +25,12 @@ import os
 import re
 
 try:
-    import Longbow.corelibs.exceptions as ex
+
+    ex = __import__("corelibs.exceptions", fromlist=[''])
+
 except ImportError:
-    import corelibs.exceptions as ex
+
+    ex = __import__("Longbow.corelibs.exceptions", fromlist=[''])
 
 
 EXECDATA = {

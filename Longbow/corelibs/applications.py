@@ -26,21 +26,19 @@ command line arguments of the job in a code specific manner."""
 import logging
 import os
 
+# Depending on how longbow is installed/utilised the import will be slightly
+# different, this should handle both cases.
 try:
-    import Longbow.corelibs.exceptions as ex
-except ImportError:
-    import corelibs.exceptions as ex
 
-try:
-    import Longbow.corelibs.shellwrappers as shellwrappers
-except ImportError:
-    import corelibs.shellwrappers as shellwrappers
+    ex = __import__("corelibs.exceptions", fromlist=[''])
+    shellwrappers = __import__("corelibs.shellwrappers", fromlist=[''])
+    apps = __import__("plugins.apps", fromlist=[''])
 
-try:
-    import Longbow.plugins.apps as apps
 except ImportError:
-    import plugins.apps as apps
 
+    ex = __import__("Longbow.corelibs.exceptions", fromlist=[''])
+    shellwrappers = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
+    apps = __import__("Longbow.plugins.apps", fromlist=[''])
 
 LOGGER = logging.getLogger("Longbow")
 

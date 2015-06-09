@@ -32,14 +32,14 @@ Where jobs is a dictionary of job configurations."""
 import logging
 
 try:
-    import Longbow.corelibs.exceptions as ex
-except ImportError:
-    import corelibs.exceptions as ex
 
-try:
-    import Longbow.corelibs.shellwrappers as shellwrappers
+    ex = __import__("corelibs.exceptions", fromlist=[''])
+    shellwrappers = __import__("corelibs.shellwrappers", fromlist=[''])
+
 except ImportError:
-    import corelibs.shellwrappers as shellwrappers
+
+    ex = __import__("Longbow.corelibs.exceptions", fromlist=[''])
+    shellwrappers = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
 
 LOGGER = logging.getLogger("Longbow")
 
@@ -159,9 +159,16 @@ def cleanup(hosts, jobs):
             shellwrappers.remotedelete(hosts[jobs[job]["resource"]], path)
 
         except ex.RemotelistError:
-            # directory doesn't exist.
+
+            # Directory doesn't exist.
             LOGGER.debug("Directory on path '%s' does not exist - skipping.",
                          path)
+
+        except KeyError:
+
+            # If the destdir parameter has not been set then no cleanup is
+            # required.
+            LOGGER.debug("Cleanup not required")
 
         except ex.RemotedeleteError:
             raise

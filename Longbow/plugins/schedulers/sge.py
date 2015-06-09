@@ -25,16 +25,14 @@ import logging
 import os
 
 try:
-    import Longbow.corelibs.exceptions as ex
+
+    ex = __import__("corelibs.exceptions", fromlist=[''])
+    shellwrappers = __import__("corelibs.shellwrappers", fromlist=[''])
 
 except ImportError:
-    import corelibs.exceptions as ex
 
-try:
-    import Longbow.corelibs.shellwrappers as shellwrappers
-
-except ImportError:
-    import corelibs.shellwrappers as shellwrappers
+    ex = __import__("Longbow.corelibs.exceptions", fromlist=[''])
+    shellwrappers = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
 
 LOGGER = logging.getLogger("Longbow")
 

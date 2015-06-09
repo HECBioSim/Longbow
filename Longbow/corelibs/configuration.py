@@ -43,15 +43,17 @@ import logging
 import os
 from random import randint
 
+# Depending on how longbow is installed/utilised the import will be slightly
+# different, this should handle both cases.
 try:
-    import Longbow.corelibs.exceptions as ex
-except ImportError:
-    import corelibs.exceptions as ex
 
-try:
-    import Longbow.plugins.apps as apps
+    ex = __import__("corelibs.exceptions", fromlist=[''])
+    apps = __import__("plugins.apps", fromlist=[''])
+
 except ImportError:
-    import plugins.apps as apps
+
+    ex = __import__("Longbow.corelibs.exceptions", fromlist=[''])
+    apps = __import__("Longbow.plugins.apps", fromlist=[''])
 
 
 LOGGER = logging.getLogger("Longbow")
@@ -408,9 +410,10 @@ def amendjobsconfigs(hosts, jobs):
 
         # Define the remote directory in which the job will run
         destdir = job + ''.join(["%s" % randint(0, 9) for num in range(0, 5)])
+
         jobs[job]["destdir"] = os.path.join(
-                                hosts[jobs[job]["resource"]]["remoteworkdir"],
-                                destdir)
+            hosts[jobs[job]["resource"]]["remoteworkdir"], destdir)
+
         LOGGER.debug("Job '%s' will be run in the '%s' directory on the remote"
                      " resource." % (job, jobs[job]["destdir"]))
 

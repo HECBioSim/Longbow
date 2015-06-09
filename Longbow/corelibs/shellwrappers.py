@@ -30,9 +30,12 @@ import logging
 import time
 
 try:
-    import Longbow.corelibs.exceptions as ex
+
+    ex = __import__("corelibs.exceptions", fromlist=[''])
+
 except ImportError:
-    import corelibs.exceptions as ex
+
+    ex = __import__("Longbow.corelibs.exceptions", fromlist=[''])
 
 LOGGER = logging.getLogger("Longbow")
 
@@ -156,7 +159,7 @@ def sendtorsync(src, dst, port, includemask, excludemask):
             exclude.append("--exclude")
             exclude.append(mask)
 
-        cmd = ["rsync", "-azP",]
+        cmd = ["rsync", "-azP"]
         cmd.extend(include)
         cmd.extend(["-e", "ssh -p " + port, src, dst])
 
@@ -174,7 +177,7 @@ def sendtorsync(src, dst, port, includemask, excludemask):
             include.append("--include")
             include.append(mask)
 
-        cmd = ["rsync", "-azP",]
+        cmd = ["rsync", "-azP"]
         cmd.extend(include)
         cmd.extend(exclude)
         cmd.extend(["-e", "ssh -p " + port, src, dst])
