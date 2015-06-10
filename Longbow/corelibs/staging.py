@@ -63,11 +63,14 @@ def stage_upstream(hosts, jobs):
 
         # Transfer files upstream.
         try:
+
             SHELLWRAPPERS.upload(
-                host, src + "/", dst, jobs[job]["upload-include"],
+                host, src + "/", dst,
+                jobs[job]["upload-include"],
                 jobs[job]["upload-exclude"])
 
         except EX.RsyncError:
+
             raise EX.StagingError("Could not stage file '{}' upstream"
                                   .format(src))
 
@@ -78,50 +81,26 @@ def stage_downstream(hosts, jobs, jobname):
 
     """Method for returning files from the remote machines."""
 
-    # Have we been passed a single job or set of jobs.
-    if jobname == "All":
+    LOGGER.info("For job '{}' staging files downstream." .format(jobname))
 
-        LOGGER.info("Staging from remote to local host.")
+    host = hosts[jobs[jobname]["resource"]]
+    src = jobs[jobname]["destdir"] + "/"
+    dst = jobs[jobname]["localworkdir"]
 
-        # We must have multiple jobs so loop through them.
-        for job in jobs:
+    # Download the whole directory with rsync.
+    try:
 
-            # Download the whole directory with rsync.
-            host = hosts[jobs[job]["resource"]]
-            src = jobs[job]["destdir"] + "/"
-            dst = jobs[job]["localworkdir"]
+        SHELLWRAPPERS.download(
+            host, src, dst,
+            jobs[jobname]["download-include"],
+            jobs[jobname]["download-exclude"])
 
-            try:
-                SHELLWRAPPERS.download(
-                    host, src, dst, jobs[job]["rsync-include"],
-                    jobs[job]["rsync-exclude"])
+    except (EX.SCPError, EX.RsyncError):
 
-            except (EX.SCPError, EX.RsyncError):
-                raise EX.StagingError("Could not download file '{}' "
-                                      "to location '{}'" .format(src, dst))
+        raise EX.StagingError("Could not download file '{}' "
+                              "to location '{}'" .format(src, dst))
 
-        LOGGER.info("Staging files downstream - complete.")
-
-    # Else we have a single job.
-    else:
-        LOGGER.info("For job '{}' staging files downstream." .format(jobname))
-
-        host = hosts[jobs[jobname]["resource"]]
-        src = jobs[jobname]["destdir"] + "/"
-        dst = jobs[jobname]["localworkdir"]
-
-        # Download the whole directory with rsync.
-        try:
-            SHELLWRAPPERS.download(
-                host, src, dst,
-                jobs[jobname]["download-include"],
-                jobs[jobname]["download-exclude"])
-
-        except (EX.SCPError, EX.RsyncError):
-            raise EX.StagingError("Could not download file '{}' "
-                                  "to location '{}'" .format(src, dst))
-
-        LOGGER.info("staging complete.")
+    LOGGER.info("staging complete.")
 
 
 def cleanup(hosts, jobs):
@@ -131,6 +110,7 @@ def cleanup(hosts, jobs):
     LOGGER.info("Cleaning up the work directories.")
 
     for job in jobs:
+
         try:
 
             host = hosts[jobs[job]["resource"]]
