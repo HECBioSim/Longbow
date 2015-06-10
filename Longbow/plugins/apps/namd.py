@@ -63,7 +63,13 @@ def file_parser(filename, path, files, substitutions=None):
 
     # elif the file is in the given path
     elif os.path.isfile(os.path.join(path, filename)) is True:
-        addfile = os.path.join(path, filename)
+        addfile = filename
+
+    # else issue a warning
+    else:
+        raise EX.RequiredinputError(
+                "It appears the file %s is not present in the expected"
+                " directory." % filename)
 
     # Now look for references to other files in the input file if not done so
     # already
@@ -73,7 +79,7 @@ def file_parser(filename, path, files, substitutions=None):
 
         # Create a dictionary for any variable substitutions
         # Define keywords and create a dictionary for variable substitutions
-        keywords = ['coordinates', 'ExtendedSystem', 'structure', 'parameters',
+        keywords = ['coordinates', 'extendedsystem', 'structure', 'parameters',
                     'paraTypeXplor', 'paraTypeCharmm', 'velocities',
                     'binvelocities', 'bincoordinates']
         variables = {}
@@ -83,7 +89,7 @@ def file_parser(filename, path, files, substitutions=None):
         try:
             fil = open(addfile, "r")
         except IOError:
-            EX.RequiredinputError("Can't read the %s file:" % addfile)
+            ex.RequiredinputError("Can't read the %s file:" % addfile)
 
         if fil:
 
@@ -119,52 +125,70 @@ def file_parser(filename, path, files, substitutions=None):
                                     newfile = before + after.replace(
                                         instance, variables[instance])
 
-                        # work out the path of newfile
+                        # deduce the location of newfile
                         newpath = path
                         if newfile.count("../") == 1:
-                            if re.search('rep\d', path):
 
-                                newpath = os.path.dirname(path)
+                            # if we are in a repX subdirectory, the file must
+                            # be in cwd
+                            if re.search('rep\d', addfile):
                                 before, sep, after = newfile.rpartition("/")
                                 newfile = after
 
+                            # else we must be in cwd so issue a warning about
+                            # referring to a file that is above cwd
                             else:
                                 raise EX.RequiredinputError(
                                     "It appears that the"
-                                    " user is trying to refer to a file %s"
-                                    % newfile + " in file %s that is a" %
-                                    addfile + " directory up from the %s"
-                                    " directory." % path + ". Only files in %s"
-                                    % path + " or a repX subdirectory can be"
+                                    " user is trying to refer to a file '{}'"
+                                    " in file '{}' that is a"
+                                    " directory up from the '{}'"
+                                    " directory. Only files in '{}'"
+                                    " or a repX subdirectory can be"
                                     " copied to the HPC. If the file you are"
                                     " trying to refer to is on the HPC, give"
-                                    " the explicit path to the file.")
+                                    " the explicit path to the file.".format(
+                                        newfile, addfile, path, path))
 
+                        # elif ../../ is used in an input script issue an error
                         elif newfile.count("../") > 1:
-                            if re.search('rep\d', path):
+                                raise EX.RequiredinputError(
+                                    "It appears that the "
+                                    "user is trying to refer to a file '{}'"
+                                    " in file '{}' that is multiple"
+                                    " directories up from a valid"
+                                    " directory. This is not permitted."
+                                    " If the file you are trying to refer to"
+                                    " is on the HPC, give the explicit path to"
+                                    " the file.".format(newfile, addfile))
+
+                        # elif we are in a repX subdirectory and the file
+                        # isn't in ../ or ./repX, the file is presumably in the
+                        # same directory
+                        elif re.search('rep\d', addfile) and not \
+                        re.search('rep\d', newfile):
+                            splitpath, splitfile = os.path.split(addfile)
+                            newfile = os.path.join(splitpath, newfile)
+
+                        # elif newfile is indicated to be in a repX
+                        # subdirectory...
+                        elif re.search('rep\d', newfile):
+
+                            # if we are already in a repX subdirectory issue a
+                            # warning
+                            if re.search('rep\d', addfile):
                                 raise EX.RequiredinputError(
                                     "It appears that the"
-                                    "user is trying to refer to a file %s"
-                                    % newfile + " in file %s that is two" %
-                                    addfile + " directories up from the %s" %
-                                    path + " subdirectory. Only files in %s" %
-                                    path + " or %s can be copied to the HPC." %
-                                    os.path.dirname(path) + " If the file you"
-                                    " are trying to refer to is on the"
-                                    " HPC, give the explicit path to the file")
+                                    "user is trying to refer to a file '{}'"
+                                    " that is in a repX/repX "
+                                    "subdirectory. This is not "
+                                    "permitted.".format(newfile))
+
+                            # else we must be in cwd...
                             else:
-                                raise EX.RequiredinputError(
-                                    "It appears that the"
-                                    " user is trying to refer to a file %s"
-                                    % newfile + " in file %s that is two"
-                                    % addfile + " directories up from the %s"
-                                    " directory." % path + ". Only files in %s"
-                                    % path + " or a repX subdirectory can be"
-                                    " copied to the HPC. If the file you are"
-                                    " trying to refer to is on the HPC, give"
-                                    " the explicit path to the file.")
+                                newfile = "rep" + newfile.split("rep")[1]
 
                         # recursive function
-                        file_parser(newfile, newpath, files)
+                        file_parser(newfile, newpath, files, substitutions)
 
-        fil.close()
+            fil.close()

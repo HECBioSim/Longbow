@@ -68,8 +68,8 @@ def testapp(hosts, jobs):
             checked[resource].extend([executable])
 
             LOGGER.info(
-                "Checking executable '{}' on '{}'"
-                .format(executable, resource))
+                        "Checking executable '{}' on '{}'"
+                        .format(executable, resource))
 
             cmd = []
             if jobs[job]["modules"] is "":
@@ -144,7 +144,10 @@ def processjobs(jobs):
                 "The local job directory '{}' cannot be found for job '{}'"
                 .format(cwd, job))
 
-        # Detect command line substitutions
+        # Detect command line substitutions. Make a copy of the commandline
+        # arguments as text enforcing substitutions will be removed for most
+        # of the code
+        initargs = list(args)
         substte = {}
 
         try:
@@ -174,18 +177,12 @@ def processjobs(jobs):
                     # else we will proceed to check files in all replicates.
                     for i in range(1, int(jobs[job]["replicates"]) + 1):
 
-                        filepath = ""
-
                         # If we do only have a single job then file path should
                         # be
                         if int(jobs[job]["replicates"]) == 1:
 
                             # For this type of job the file should be at [1].
-                            filepath = os.path.join(cwd, args[1])
-
-                            # Add file to the list for inclusion in the rysnc
-                            # mask.
-                            filelist.append(args[1])
+                            fileitem = args[1]
 
                         # Otherwise we have a replicate job so we should amend
                         # the paths.
@@ -210,61 +207,35 @@ def processjobs(jobs):
                                     os.path.join(
                                         cwd, "rep" + str(i), args[1])):
 
-                                # Set the file path
-                                filepath = os.path.join(
-                                    cwd, "rep" + str(i), args[1])
+                                fileitem = os.path.join("rep" + str(i),
+                                                        args[1])
 
-                                # Add file to the list for inclusion in the
-                                # rysnc mask.
-                                filelist.append(
-                                    os.path.join("rep" + str(i), args[1]))
-
-                            # Otherwise do we have a file here.
+                            # Otherwise do we have a file in cwd
                             elif os.path.isfile(os.path.join(cwd, args[1])):
 
-                                # If we do then set file path.
-                                filepath = os.path.join(cwd, args[1])
-
-                                # Add file to the list for inclusion in the
-                                # rysnc mask.
-                                filelist.append(args[1])
+                                fileitem = args[1]
 
                                 # Also update the command line to reflect a
                                 # global file.
-                                args[args[1]] = os.path.join("../", args[1])
+                                if args[1] in initargs:
+                                    initargs[initargs.index(args[1])] = \
+                                    os.path.join("../", args[1])
 
                         # If the next argument along is a valid file.
-                        if os.path.isfile(filepath):
+                        if os.path.isfile(os.path.join(cwd, fileitem)):
 
                             # Then mark the flag as found.
                             found_flags.append("?")
 
-                            # FAO Gareth
                             # Search input file for any file dependencies that
                             # don't exist.
-                            # try:
-                            #    getattr(apps, app.lower()).file_parser(
-                            #        filepath, cwd, substte)
+                            try:
+                                getattr(APPS, app.lower()).file_parser(
+                                        fileitem, cwd, filelist, substte)
 
-                            # except AttributeError:
-                            #     pass
-
-                            # Maybe modify the file parser to return the
-                            # ex.RequiredinputError if a file is referenced but
-                            # not found. Then we can do something like this as
-                            # long as the error message is raised in the parser
-                            # except ex.RequiredinputError:
-                            #     raise
-
-                        # If it is not valid then raise an exception.
-                        else:
-
-                            raise EX.RequiredinputError(
-                                "In job '{}' it appears that the input file "
-                                "is missing, check your command line is of "
-                                "the form: "
-                                "longbow <longbow args> app '<' <app args>"
-                                .format(job))
+                            except AttributeError:
+                                if fileitem not in filelist:
+                                    filelist.append(fileitem)
 
                 # Looks like the command line is too short to contain the
                 # input file so raise an exception.
@@ -273,8 +244,8 @@ def processjobs(jobs):
                     raise EX.RequiredinputError(
                         "In job '{}' it appears that the input file is missing"
                         ", check your command line is of the form "
-                        "longbow <longbow args> app '<' <app args>"
-                        .format(job))
+                        "longbow [longbow args] executable '<' "
+                        "[executable args]".format(job))
 
             # Some programs are run with the format "executable input.file"
             elif args[0] is not "<":
@@ -286,18 +257,12 @@ def processjobs(jobs):
                     # else we will proceed to check files in all replicates.
                     for i in range(1, int(jobs[job]["replicates"]) + 1):
 
-                        filepath = ""
-
                         # If we do only have a single job then file path should
                         # be
                         if int(jobs[job]["replicates"]) == 1:
 
                             # For this type of job the file should be at [0].
-                            filepath = os.path.join(cwd, args[0])
-
-                            # Add file to the list for inclusion in the rysnc
-                            # mask.
-                            filelist.append(args[0])
+                            fileitem = args[0]
 
                         # Otherwise we have a replicate job so we should amend
                         # the paths.
@@ -311,8 +276,7 @@ def processjobs(jobs):
                                 raise EX.RequiredinputError(
                                     "In job '{}' a replicate style job has "
                                     "been detected, but the directory '{}' "
-                                    "cannot be found"
-                                    .format(job, os.path.join(
+                                    "cannot be found".format(job, os.path.join(
                                         cwd, "rep" + str(i))))
 
                             # If we have a replicate job then we should check
@@ -322,70 +286,47 @@ def processjobs(jobs):
                                     os.path.join(
                                         cwd, "rep" + str(i), args[0])):
 
-                                # Set the file path
-                                filepath = os.path.join(
-                                    cwd, "rep" + str(i), args[0])
+                                fileitem = os.path.join("rep" + str(i),
+                                                        args[0])
 
-                                # Add file to the list for inclusion in the
-                                # rysnc mask.
-                                filelist.append(
-                                    os.path.join("rep" + str(i), args[0]))
-
-                            # Otherwise do we have a file here.
+                            # Otherwise do we have a file in cwd
                             elif os.path.isfile(os.path.join(cwd, args[0])):
 
-                                # If we do then set file path.
-                                filepath = os.path.join(cwd, args[0])
-
-                                # Add file to the list for inclusion in the
-                                # rysnc mask.
-                                filelist.append(args[0])
+                                fileitem = args[0]
 
                                 # Also update the command line to reflect a
                                 # global file.
-                                args[args[0]] = os.path.join("../", args[0])
+                                if args[0] in initargs:
+                                    initargs[initargs.index(args[0])] = \
+                                    os.path.join("../", args[0])
 
                         # If we have something to load then check that it is a
                         # valid file
-                        if os.path.isfile(filepath):
+                        if os.path.isfile(os.path.join(cwd, fileitem)):
 
                             # Then mark the flag as found.
                             found_flags.append("?")
 
-                            # FAO Gareth
                             # Search input file for any file dependencies that
                             # don't exist.
-                            # try:
-                            #    getattr(apps, app.lower()).file_parser(
-                            #        filepath, cwd, substte)
+                            try:
+                                getattr(APPS, app.lower()).file_parser(
+                                        fileitem, cwd, filelist, substte)
 
-                            # except AttributeError:
-                            #     pass
+                            except AttributeError:
+                                if fileitem not in filelist:
+                                    filelist.append(fileitem)
 
-                            # Maybe modify the file parser to return the
-                            # ex.RequiredinputError if a file is referenced
-                            # but not found. Then we can do something like this
-                            # as long as the error message is raised in the
-                            # parser.
-                            # except ex.RequiredinputError:
-                            #     raise
-
-                        # If we can't detect a file then something is wrong.
-                        else:
-                            raise EX.RequiredinputError(
-                                "In job '{}' it appears that the input file "
-                                "is missing, check your command line is of "
-                                "the form: "
-                                "longbow <longbow args> app <input file>"
-                                .format(job))
-
+                # Looks like the command line is too short to contain the
+                # input file so raise an exception.
                 else:
 
                     raise EX.RequiredinputError(
-                        "In job '{}' it appears that the input file is missing"
-                        ", check your command line is of the form "
-                        "longbow <longbow args> app <input file>"
-                        .format(job))
+                        "In job '{}' it appears that the input file "
+                        "is missing, check your command line is of "
+                        "the form: "
+                        "longbow [longbow args] executable '<' "
+                        "[executable args]".format(job))
 
         # Otherwise we have a more conventional command line of the form:
         # exec -a arg1 -b arg2 --foo bar
@@ -429,20 +370,11 @@ def processjobs(jobs):
                     # else we will proceed to check files in all replicates.
                     for i in range(1, int(jobs[job]["replicates"]) + 1):
 
-                        filepath = ""
-
                         # If we do only have a single job then file path should
                         # be
                         if int(jobs[job]["replicates"]) == 1:
 
-                            filepath = os.path.join(cwd, item)
-
-                            # Do we have a file to add to our list?
-                            if os.path.isfile(filepath):
-
-                                # Add file to the list for inclusion in the
-                                # rysnc mask.
-                                filelist.append(item)
+                            fileitem = item
 
                         # Otherwise we have a replicate job so we should amend
                         # the paths.
@@ -456,8 +388,7 @@ def processjobs(jobs):
                                 raise EX.RequiredinputError(
                                     "In job '{}' a replicate style job has "
                                     "been detected, but the directory '{}' "
-                                    "cannot be found"
-                                    .format(job, os.path.join(
+                                    "cannot be found".format(job, os.path.join(
                                         cwd, "rep" + str(i))))
 
                             # If we have a replicate job then we should check
@@ -467,52 +398,32 @@ def processjobs(jobs):
                                     os.path.join(cwd, "rep" + str(i), item)):
 
                                 # Set the file path
-                                filepath = os.path.join(
-                                    cwd, "rep" + str(i), item)
-
-                                # Add file to the list for inclusion in the
-                                # rysnc mask.
-                                filelist.append(
-                                    os.path.join("rep" + str(i), item))
+                                fileitem = os.path.join("rep" + str(i), item)
 
                             # Otherwise do we have a file here.
                             elif os.path.isfile(os.path.join(cwd, item)):
 
                                 # If we do then set file path.
-                                filepath = os.path.join(cwd, item)
-
-                                # Add file to the list for inclusion in the
-                                # rysnc mask.
-                                filelist.append(item)
+                                fileitem = item
 
                                 # Also update the command line to reflect a
                                 # global file.
-                                args[index] = os.path.join("../", item)
+                                if item in initargs:
+                                    initargs[initargs.index(item)] = \
+                                    os.path.join("../", item)
 
-                        # If we have a file then run the parser on it to check
-                        # for dependencies.
-                        if os.path.isfile(filepath):
+                        # If the next argument along is a valid file.
+                        if os.path.isfile(os.path.join(cwd, fileitem)):
 
-                            # Replace this with the dependancy check
-                            pass
-
-                            # FAO Gareth
                             # Search input file for any file dependencies that
                             # don't exist.
-                            # try:
-                            #    getattr(apps, app.lower()).file_parser(
-                            #        filepath, cwd, substte)
+                            try:
+                                getattr(APPS, app.lower()).file_parser(
+                                        fileitem, cwd, filelist, substte)
 
-                            # except AttributeError:
-                            #     pass
-
-                            # Maybe modify the file parser to return the
-                            # ex.RequiredinputError if a file is referenced
-                            # but not found. Then we can do something like this
-                            # as long as the error message is raised in the
-                            # parser.
-                            # except ex.RequiredinputError:
-                            #     raise
+                            except AttributeError:
+                                if fileitem not in filelist:
+                                    filelist.append(fileitem)
 
             # Final check for if any required flags are missing.
             flags = list(set(req_flags) - set(found_flags))
@@ -522,18 +433,19 @@ def processjobs(jobs):
 
                 raise EX.RequiredinputError(
                     "In job '{}' there are missing flags on the command line "
-                    "'{}'. See user documentation for plug-in '{}' "
-                    .format(
-                        job, flags, getattr(APPS, "DEFMODULES")[executable]))
+                    "'{}'. See user documentation for plug-in '{}'".format(job,
+                        flags, getattr(apps, "DEFMODULES")[executable]))
 
         # Setup the rysnc upload masks.
         jobs[job]["upload-include"] = ", ".join(filelist)
-        jobs[job]["upload-exclude"] = "*"
+        jobs[job]["upload-exlude"] = "*"
 
         # Replace the input command line with the execution command line.
-        jobs[job]["commandline"] = executable + " " + " ".join(args)
+        # initargs is a copy of the original args before text enforcing
+        # substitutions was removed
+        jobs[job]["commandline"] = executable + " " + " ".join(initargs)
 
-        LOGGER.info("For job '{}' - execution string '{}'"
-                    .format(job, jobs[job]["commandline"]))
+        LOGGER.info("For job '{}' - execution string: {}".format(job,
+            jobs[job]["commandline"]))
 
     LOGGER.info("Processing jobs - complete.")
