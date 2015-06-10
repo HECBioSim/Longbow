@@ -31,11 +31,11 @@ import time
 
 try:
 
-    ex = __import__("corelibs.exceptions", fromlist=[''])
+    EX = __import__("corelibs.exceptions", fromlist=[''])
 
 except ImportError:
 
-    ex = __import__("Longbow.corelibs.exceptions", fromlist=[''])
+    EX = __import__("Longbow.corelibs.exceptions", fromlist=[''])
 
 LOGGER = logging.getLogger("Longbow")
 
@@ -70,7 +70,7 @@ def testconnections(hosts, jobs):
 
             try:
                 sendtossh(host, ["ls"])
-            except ex.SSHError:
+            except EX.SSHError:
                 raise
 
             LOGGER.info("Test connection to %s - passed", resource)
@@ -125,13 +125,13 @@ def sendtossh(host, args):
         elif errorstate is 255:
             i = i + 1
         else:
-            raise ex.SSHError(
+            raise EX.SSHError(
                 "SSH failed, make sure a normal terminal can connect to SSH "
                 "to be sure there are no connection issues.", shellout)
 
         # If number of retries hits 3 then give up.
         if i is 3:
-            raise ex.SSHError(
+            raise EX.SSHError(
                 "SSH failed, make sure a normal terminal can connect to SSH "
                 "to be sure there are no connection issues.", shellout)
 
@@ -208,7 +208,7 @@ def sendtorsync(src, dst, port, includemask, excludemask):
 
         # If number of retries hits 3 then give up.
         if i is 3:
-            raise ex.RsyncError(
+            raise EX.RsyncError(
                 "rsync failed, make sure a normal terminal can connect to "
                 "rsync to be sure there are no connection issues.", shellout)
 
@@ -232,10 +232,10 @@ def localcopy(src, dst):
 
     # Are paths absolute.
     if os.path.isabs(src) is False:
-        raise ex.AbsolutepathError("The source path is not absolute", src)
+        raise EX.AbsolutepathError("The source path is not absolute", src)
 
     if os.path.isabs(dst) is False:
-        raise ex.AbsolutepathError("The destination path is not absolute", dst)
+        raise EX.AbsolutepathError("The destination path is not absolute", dst)
 
     # Is the source a file or a directory? They are dealt with slightly
     # differently.
@@ -251,7 +251,7 @@ def localcopy(src, dst):
                 shutil.copy(src, dst)
 
         except (shutil.Error, IOError):
-            raise ex.LocalcopyError("Could not copy the file", src)
+            raise EX.LocalcopyError("Could not copy the file", src)
 
     elif os.path.isdir(src):
         try:
@@ -267,7 +267,7 @@ def localcopy(src, dst):
                 shutil.copytree(src, dst)
 
         except (shutil.Error, IOError):
-            raise ex.LocalcopyError("Could not copy the directory" % src)
+            raise EX.LocalcopyError("Could not copy the directory" % src)
 
 
 def localdelete(src):
@@ -282,7 +282,7 @@ def localdelete(src):
 
     # Check if path is absolute.
     if os.path.isabs(src) is False:
-        raise ex.AbsolutepathError("The source path is not absolute", src)
+        raise EX.AbsolutepathError("The source path is not absolute", src)
 
     # Check if we are deleting a file or directory and call the appropriate
     # method.
@@ -291,14 +291,14 @@ def localdelete(src):
             os.remove(src)
 
         except IOError:
-            raise ex.LocaldeleteError("Could not delete file", src)
+            raise EX.LocaldeleteError("Could not delete file", src)
 
     elif os.path.isdir(src):
         try:
             shutil.rmtree(src)
 
         except IOError:
-            raise ex.LocaldeleteError("Could not delete file", src)
+            raise EX.LocaldeleteError("Could not delete file", src)
 
 
 def locallist(src):
@@ -313,14 +313,14 @@ def locallist(src):
 
     # Check if path is absolute.
     if os.path.isabs(src) is False:
-        raise ex.AbsolutepathError("The source path is not absolute", src)
+        raise EX.AbsolutepathError("The source path is not absolute", src)
 
     # Check if the path exists, and list if it does.
     if os.path.exists(src):
         filelist = os.listdir(src)
 
     else:
-        raise ex.LocallistError("Local directory does not exist.", src)
+        raise EX.LocallistError("Local directory does not exist.", src)
 
     return filelist
 
@@ -334,10 +334,10 @@ def remotecopy(host, src, dst):
     # Are paths absolute. Do we start with tildas, if so since we are going
     # through the shell allow it to expand the tilda on the remote host for us.
     if os.path.isabs(src) is False and src[0] != "~":
-        raise ex.AbsolutepathError("The source path is not absolute", src)
+        raise EX.AbsolutepathError("The source path is not absolute", src)
 
     if os.path.isabs(dst) is False and dst[0] != "~":
-        raise ex.AbsolutepathError("The destination path is not absolute", dst)
+        raise EX.AbsolutepathError("The destination path is not absolute", dst)
 
     # Just use cp for this with recursive set in case of directory.
     cmd = ["cp -r", src, dst]
@@ -346,8 +346,8 @@ def remotecopy(host, src, dst):
     try:
         sendtossh(host, cmd)
 
-    except ex.SSHError:
-        raise ex.RemotecopyError("Could not copy file to host ", src, dst)
+    except EX.SSHError:
+        raise EX.RemotecopyError("Could not copy file to host ", src, dst)
 
 
 def remotedelete(host, src):
@@ -358,7 +358,7 @@ def remotedelete(host, src):
 
     # Are paths absolute.
     if os.path.isabs(src) is False and src[0] != "~":
-        raise ex.AbsolutepathError("The source path is not absolute", src)
+        raise EX.AbsolutepathError("The source path is not absolute", src)
 
     # Just use rm for this with recursive set in case of directory.
     cmd = ["rm -r", src]
@@ -367,8 +367,8 @@ def remotedelete(host, src):
     try:
         sendtossh(host, cmd)
 
-    except ex.SSHError:
-        raise ex.RemotedeleteError(
+    except EX.SSHError:
+        raise EX.RemotedeleteError(
             "Could not delete the file/directory on remote host", src)
 
 
@@ -380,7 +380,7 @@ def remotelist(host, src):
 
     # Are paths absolute.
     if os.path.isabs(src) is False and src[0] != "~":
-        raise ex.AbsolutepathError("The source path is not absolute", src)
+        raise EX.AbsolutepathError("The source path is not absolute", src)
 
     # Shell command ls for listing in a shell.
     cmd = ["ls" + " " + src]
@@ -389,8 +389,8 @@ def remotelist(host, src):
     try:
         shellout = sendtossh(host, cmd)
 
-    except ex.SSHError:
-        raise ex.RemotelistError("Could not list the directory", src)
+    except EX.SSHError:
+        raise EX.RemotelistError("Could not list the directory", src)
 
     # Split the stdout into a list.
     filelist = shellout[0].split()
@@ -404,10 +404,10 @@ def upload(host, src, dst, includemask, excludemask):
 
     # Are paths absolute.
     if os.path.isabs(src) is False and src[0] != "~":
-        raise ex.AbsolutepathError("The source path is not absolute", src)
+        raise EX.AbsolutepathError("The source path is not absolute", src)
 
     if os.path.isabs(dst) is False and dst[0] != "~":
-        raise ex.AbsolutepathError("The destination path is not absolute", dst)
+        raise EX.AbsolutepathError("The destination path is not absolute", dst)
 
     dst = (host["user"] + "@" + host["host"] + ":" + dst)
 
@@ -417,7 +417,7 @@ def upload(host, src, dst, includemask, excludemask):
     try:
         sendtorsync(src, dst, host["port"], includemask, excludemask)
 
-    except ex.RsyncError:
+    except EX.RsyncError:
         raise
 
 
@@ -427,10 +427,10 @@ def download(host, src, dst, includemask, excludemask):
 
     # Are paths absolute.
     if os.path.isabs(src) is False and src[0] != "~":
-        raise ex.AbsolutepathError("The source path is not absolute", src)
+        raise EX.AbsolutepathError("The source path is not absolute", src)
 
     if os.path.isabs(dst) is False and dst[0] != "~":
-        raise ex.AbsolutepathError("The destination path is not absolute", dst)
+        raise EX.AbsolutepathError("The destination path is not absolute", dst)
 
     src = (host["user"] + "@" + host["host"] + ":" + src)
 
@@ -440,5 +440,5 @@ def download(host, src, dst, includemask, excludemask):
     try:
         sendtorsync(src, dst, host["port"], includemask, excludemask)
 
-    except ex.RsyncError:
+    except EX.RsyncError:
         raise

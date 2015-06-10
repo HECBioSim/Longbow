@@ -39,19 +39,19 @@ import logging
 # different, this should handle both cases.
 try:
 
-    configuration = __import__("corelibs.configuration", fromlist=[''])
-    ex = __import__("corelibs.exceptions", fromlist=[''])
-    schedulers = __import__("plugins.schedulers", fromlist=[''])
-    shellwrappers = __import__("corelibs.shellwrappers", fromlist=[''])
-    staging = __import__("corelibs.staging", fromlist=[''])
+    CONFIGURATION = __import__("corelibs.configuration", fromlist=[''])
+    EX = __import__("corelibs.exceptions", fromlist=[''])
+    SCHEDULERS = __import__("plugins.schedulers", fromlist=[''])
+    SHELLWRAPPERS = __import__("corelibs.shellwrappers", fromlist=[''])
+    STAGING = __import__("corelibs.staging", fromlist=[''])
 
 except ImportError:
 
-    configuration = __import__("Longbow.corelibs.configuration", fromlist=[''])
-    ex = __import__("Longbow.corelibs.exceptions", fromlist=[''])
-    schedulers = __import__("Longbow.plugins.schedulers", fromlist=[''])
-    shellwrappers = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
-    staging = __import__("Longbow.corelibs.staging", fromlist=[''])
+    CONFIGURATION = __import__("Longbow.corelibs.configuration", fromlist=[''])
+    EX = __import__("Longbow.corelibs.exceptions", fromlist=[''])
+    SCHEDULERS = __import__("Longbow.plugins.schedulers", fromlist=[''])
+    SHELLWRAPPERS = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
+    STAGING = __import__("Longbow.corelibs.staging", fromlist=[''])
 
 LOGGER = logging.getLogger("Longbow")
 
@@ -62,7 +62,7 @@ def testenv(hostconf, hosts, jobs):
     a pre-configured list what scheduler and job submission handler is present
     on the machine."""
 
-    schedulerqueries = getattr(schedulers, "QUERY")
+    schedulerqueries = getattr(SCHEDULERS, "QUERY")
 
     handlers = {
         "aprun": ["which aprun"],
@@ -93,7 +93,7 @@ def testenv(hostconf, hosts, jobs):
                 # Go through the schedulers we are supporting.
                 for param in schedulerqueries:
                     try:
-                        shellwrappers.sendtossh(hosts[resource],
+                        SHELLWRAPPERS.sendtossh(hosts[resource],
                                                 schedulerqueries[param])
 
                         hosts[resource]["scheduler"] = param
@@ -102,11 +102,11 @@ def testenv(hostconf, hosts, jobs):
                             "The environment on this host is '%s'", param)
                         break
 
-                    except ex.SSHError:
+                    except EX.SSHError:
                         LOGGER.debug("Environment is not '%s'", param)
 
                 if hosts[resource]["scheduler"] is "":
-                    raise ex.SchedulercheckError(
+                    raise EX.SchedulercheckError(
                         "  Could not find the job scheduling system.")
 
                 # If we changed anything then mark for saving.
@@ -135,7 +135,7 @@ def testenv(hostconf, hosts, jobs):
                     try:
                         cmd = cmdmod[:]
                         cmd.extend(handlers[param])
-                        shellwrappers.sendtossh(hosts[resource], cmd)
+                        SHELLWRAPPERS.sendtossh(hosts[resource], cmd)
 
                         hosts[resource]["handler"] = param
 
@@ -143,12 +143,12 @@ def testenv(hostconf, hosts, jobs):
 
                         break
 
-                    except ex.SSHError:
+                    except EX.SSHError:
                         LOGGER.debug(
                             "The batch queue handler is not '%s'", param)
 
                 if hosts[resource]["handler"] is "":
-                    raise ex.HandlercheckError(
+                    raise EX.HandlercheckError(
                         "Could not find the batch queue handler.")
 
                 # If we changed anything then mark for saving.
@@ -161,7 +161,7 @@ def testenv(hostconf, hosts, jobs):
 
     # Do we have anything to change in the host file.
     if save is True:
-        configuration.saveconfigs(hostconf, hosts)
+        CONFIGURATION.saveconfigs(hostconf, hosts)
 
 
 def delete(hosts, jobs, jobname):
@@ -177,13 +177,13 @@ def delete(hosts, jobs, jobname):
             jobid = jobs[job]["jobid"]
 
             try:
-                getattr(schedulers, scheduler.lower()).delete(host, jobid)
+                getattr(SCHEDULERS, scheduler.lower()).delete(host, jobid)
 
             except AttributeError:
-                raise ex.PluginattributeError(
+                raise EX.PluginattributeError(
                     "delete method cannot be found in plugin '%s'" % scheduler)
 
-            except ex.JobdeleteError:
+            except EX.JobdeleteError:
                 LOGGER.info("Unable to delete job '%s'", job)
 
     else:
@@ -193,13 +193,13 @@ def delete(hosts, jobs, jobname):
         jobid = jobs[jobname]["jobid"]
 
         try:
-            getattr(schedulers, scheduler.lower()).delete(host, jobid)
+            getattr(SCHEDULERS, scheduler.lower()).delete(host, jobid)
 
         except AttributeError:
-            raise ex.PluginattributeError(
+            raise EX.PluginattributeError(
                 "delete method cannot be found in plugin '%s'" % scheduler)
 
-        except ex.JobdeleteError:
+        except EX.JobdeleteError:
             LOGGER.info("Unable to delete job '%s'", job)
 
 
@@ -237,11 +237,11 @@ def monitor(hosts, jobs):
                 # Get the job status.
                 try:
                     status = getattr(
-                        schedulers, scheduler.lower()).status(
+                        SCHEDULERS, scheduler.lower()).status(
                             host, jobs[job]["jobid"])
 
                 except AttributeError:
-                    raise ex.PluginattributeError(
+                    raise EX.PluginattributeError(
                         "status method cannot be found in plugin '%s'" %
                         scheduler)
 
@@ -259,7 +259,7 @@ def monitor(hosts, jobs):
                         jobs[job]["laststatus"] == "Subjob(s) running" and
                         interval is not 0):
 
-                    staging.stage_downstream(hosts, jobs, job)
+                    STAGING.stage_downstream(hosts, jobs, job)
 
                 # If job is done wait 60 seconds then transfer files (this is
                 # to stop users having to wait till all jobs end to grab last
@@ -271,7 +271,7 @@ def monitor(hosts, jobs):
 
                     time.sleep(60.0)
 
-                    staging.stage_downstream(hosts, jobs, job)
+                    STAGING.stage_downstream(hosts, jobs, job)
 
         # If the polling interval is set at zero then staging will be disabled
         # however continue to poll jobs but do it on a low frequency. Staging
@@ -310,10 +310,10 @@ def prepare(hosts, jobs):
         scheduler = hosts[jobs[job]["resource"]]["scheduler"]
 
         try:
-            getattr(schedulers, scheduler.lower()).prepare(hosts, job, jobs)
+            getattr(SCHEDULERS, scheduler.lower()).prepare(hosts, job, jobs)
 
         except AttributeError:
-            raise ex.PluginattributeError(
+            raise EX.PluginattributeError(
                 "prepare method cannot be found in plugin '%s'" % scheduler)
 
     LOGGER.info("Submit file/s created.")
@@ -333,13 +333,13 @@ def submit(hosts, jobs):
         host = hosts[machine]
 
         try:
-            getattr(schedulers, scheduler.lower()).submit(host, job, jobs)
+            getattr(SCHEDULERS, scheduler.lower()).submit(host, job, jobs)
 
         except AttributeError:
-            raise ex.PluginattributeError(
+            raise EX.PluginattributeError(
                 "submit method cannot be found in plugin '%s'" % scheduler)
 
-        except ex.JobsubmitError as err:
+        except EX.JobsubmitError as err:
             LOGGER.info(
                 "Submitting job '%s' failed with message - %s", job, err)
 

@@ -30,15 +30,15 @@ import os
 # different, this should handle both cases.
 try:
 
-    ex = __import__("corelibs.exceptions", fromlist=[''])
-    shellwrappers = __import__("corelibs.shellwrappers", fromlist=[''])
-    apps = __import__("plugins.apps", fromlist=[''])
+    EX = __import__("corelibs.exceptions", fromlist=[''])
+    SHELLWRAPPERS = __import__("corelibs.shellwrappers", fromlist=[''])
+    APPS = __import__("plugins.apps", fromlist=[''])
 
 except ImportError:
 
-    ex = __import__("Longbow.corelibs.exceptions", fromlist=[''])
-    shellwrappers = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
-    apps = __import__("Longbow.plugins.apps", fromlist=[''])
+    EX = __import__("Longbow.corelibs.exceptions", fromlist=[''])
+    SHELLWRAPPERS = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
+    APPS = __import__("Longbow.plugins.apps", fromlist=[''])
 
 LOGGER = logging.getLogger("Longbow")
 
@@ -84,10 +84,10 @@ def testapp(hosts, jobs):
             cmd.extend(["which " + executable])
 
             try:
-                shellwrappers.sendtossh(hosts[resource], cmd)
+                SHELLWRAPPERS.sendtossh(hosts[resource], cmd)
                 LOGGER.info("Executable check - passed.")
 
-            except ex.SSHError:
+            except EX.SSHError:
                 LOGGER.error("Executable check - failed.")
                 raise
 
@@ -100,7 +100,7 @@ def processjobs(jobs):
     LOGGER.info("Processing job/s and detecting files that require upload.")
 
     # Get dictionary of executables and their required flags from plug-ins.
-    tmp = getattr(apps, "DEFMODULES")
+    tmp = getattr(APPS, "DEFMODULES")
 
     # Process each job.
     for job in jobs:
@@ -119,7 +119,7 @@ def processjobs(jobs):
 
             if item.count(os.path.pardir) > 0 or os.path.isabs(item):
 
-                raise ex.RequiredinputError(
+                raise EX.RequiredinputError(
                     "In job %s input files are being provided with absolute "
                     "paths or from directories above localworkdir. This is "
                     "not supported" % job)
@@ -138,7 +138,7 @@ def processjobs(jobs):
         if os.path.isdir(cwd) is False:
 
             # If not, this is bad.
-            raise ex.DirectorynotfoundError(
+            raise EX.DirectorynotfoundError(
                 "The local job directory '%s' " % cwd + "cannot be found for "
                 "job '%s'" % job)
 
@@ -146,7 +146,7 @@ def processjobs(jobs):
         substte = {}
 
         try:
-            substte = getattr(apps, app.lower()).sub_dict(args)
+            substte = getattr(APPS, app.lower()).sub_dict(args)
 
         except AttributeError:
             pass
@@ -155,7 +155,7 @@ def processjobs(jobs):
         # files or dependencies within the files.
 
         # Get required flags.
-        req_flags = getattr(apps, "EXECFLAGS")[executable]
+        req_flags = getattr(APPS, "EXECFLAGS")[executable]
         found_flags = []
 
         # Start with the case where the command line would be provided like
@@ -194,7 +194,7 @@ def processjobs(jobs):
                             if os.path.isdir(os.path.join(
                                     cwd, "rep" + str(i))) is False:
 
-                                raise ex.RequiredinputError(
+                                raise EX.RequiredinputError(
                                     "In job '%s' a replicate style job has "
                                     "been detected, but the directory '%s' "
                                     "cannot be found" %
@@ -256,7 +256,7 @@ def processjobs(jobs):
                         # If it is not valid then raise an exception.
                         else:
 
-                            raise ex.RequiredinputError(
+                            raise EX.RequiredinputError(
                                 "In job '%s' it appears that the input file "
                                 "is missing, check your command line is of "
                                 "the form: "
@@ -267,7 +267,7 @@ def processjobs(jobs):
                 # input file so raise an exception.
                 else:
 
-                    raise ex.RequiredinputError(
+                    raise EX.RequiredinputError(
                         "In job '%s' it appears that the input file is missing"
                         ", check your command line is of the form "
                         "longbow <longbow args> app '<' <app args>" % job)
@@ -304,7 +304,7 @@ def processjobs(jobs):
                             if os.path.isdir(os.path.join(
                                     cwd, "rep" + str(i))) is False:
 
-                                raise ex.RequiredinputError(
+                                raise EX.RequiredinputError(
                                     "In job '%s' a replicate style job has "
                                     "been detected, but the directory '%s' "
                                     "cannot be found" %
@@ -367,7 +367,7 @@ def processjobs(jobs):
 
                         # If we can't detect a file then something is wrong.
                         else:
-                            raise ex.RequiredinputError(
+                            raise EX.RequiredinputError(
                                 "In job '%s' it appears that the input file "
                                 "is missing, check your command line is of "
                                 "the form: "
@@ -376,7 +376,7 @@ def processjobs(jobs):
 
                 else:
 
-                    raise ex.RequiredinputError(
+                    raise EX.RequiredinputError(
                         "In job '%s' it appears that the input file is missing"
                         ", check your command line is of the form "
                         "longbow <longbow args> app <input file>" % job)
@@ -444,7 +444,7 @@ def processjobs(jobs):
                             if os.path.isdir(os.path.join(
                                     cwd, "rep" + str(i))) is False:
 
-                                raise ex.RequiredinputError(
+                                raise EX.RequiredinputError(
                                     "In job '%s' a replicate style job has "
                                     "been detected, but the directory '%s' "
                                     "cannot be found" %
@@ -510,10 +510,10 @@ def processjobs(jobs):
             # If there are any missing still then tell the user.
             if len(flags) is not 0:
 
-                raise ex.RequiredinputError(
+                raise EX.RequiredinputError(
                     "In job '%s' there are missing flags on the command line "
                     "'%s'. See user documentation for plug-in '%s' " %
-                    (job, flags, getattr(apps, "DEFMODULES")[executable]))
+                    (job, flags, getattr(APPS, "DEFMODULES")[executable]))
 
         # Setup the rysnc upload masks.
         jobs[job]["upload-include"] = ", ".join(filelist)

@@ -47,13 +47,13 @@ from random import randint
 # different, this should handle both cases.
 try:
 
-    ex = __import__("corelibs.exceptions", fromlist=[''])
-    apps = __import__("plugins.apps", fromlist=[''])
+    EX = __import__("corelibs.exceptions", fromlist=[''])
+    APPS = __import__("plugins.apps", fromlist=[''])
 
 except ImportError:
 
-    ex = __import__("Longbow.corelibs.exceptions", fromlist=[''])
-    apps = __import__("Longbow.plugins.apps", fromlist=[''])
+    EX = __import__("Longbow.corelibs.exceptions", fromlist=[''])
+    APPS = __import__("Longbow.plugins.apps", fromlist=[''])
 
 
 LOGGER = logging.getLogger("Longbow")
@@ -163,7 +163,7 @@ def loadjobs(jobconfile, hostsconfile, param):
     try:
         configs.read(hostsconfile)
     except IOError:
-        ex.RequiredinputError("Can't read the configurations from: %s"
+        EX.RequiredinputError("Can't read the configurations from: %s"
                               % hostsconfile)
     sectionlist = configs.sections()
 
@@ -176,7 +176,7 @@ def loadjobs(jobconfile, hostsconfile, param):
             if resource in sectionlist:
                 jobs[job]["resource"] = resource
             else:
-                raise ex.CommandlineargsError(
+                raise EX.CommandlineargsError(
                     "The %s resource specified on the command line is not"
                     " one of: %s" % (resource, sectionlist))
 
@@ -186,7 +186,7 @@ def loadjobs(jobconfile, hostsconfile, param):
             try:
                 hostsfile = open(hostsconfile, "r")
             except IOError:
-                ex.RequiredinputError("Can't read the configurations from:"
+                EX.RequiredinputError("Can't read the configurations from:"
                                       " %s" % hostsconfile)
 
             topremoteres = []
@@ -202,7 +202,7 @@ def loadjobs(jobconfile, hostsconfile, param):
             hostsfile.close()
 
         elif jobs[job]["resource"] not in sectionlist:
-            raise ex.RequiredinputError(
+            raise EX.RequiredinputError(
                 "The %s resource specified in the job configuration"
                 " file is not one of: %s" %
                 (jobs[job]["resource"], sectionlist))
@@ -375,20 +375,20 @@ def amendjobsconfigs(hosts, jobs):
     """Method to make final amendments to the job configuration parameters"""
 
     # Dictionary to map executable to a default module
-    modules = getattr(apps, "DEFMODULES")
+    modules = getattr(APPS, "DEFMODULES")
     modules[""] = ""
 
     for job in jobs:
 
         # Check we have an executable provided
         if jobs[job]["executable"] is "":
-            raise ex.CommandlineargsError(
+            raise EX.CommandlineargsError(
                 "An executable has not been specified on the command-line "
                 "or in a configuration file")
 
         # Check we have command line arguments provided
         if jobs[job]["commandline"] is "":
-            raise ex.CommandlineargsError(
+            raise EX.CommandlineargsError(
                 "Command-line arguments could not be detected properly on the "
                 "command-line or in a configuration file. If your application "
                 "requires input of the form 'executable < input_file' then "
@@ -431,7 +431,7 @@ def loadconfigs(confile, template, required):
         configs.read(confile)
 
     except IOError:
-        raise ex.ConfigurationError(
+        raise EX.ConfigurationError(
             "Can't read the configurations from '%s'" % confile)
 
     # Grab a list of the section headers present in file.
@@ -440,7 +440,7 @@ def loadconfigs(confile, template, required):
 
     # If we don't have any sections then raise an exception.
     if sectioncount is 0:
-        raise ex.ConfigurationError(
+        raise EX.ConfigurationError(
             "In file '%s' " % confile + "no sections can be detected or the "
             "file is not in ini format.")
 
@@ -454,7 +454,7 @@ def loadconfigs(confile, template, required):
 
         # If we have no options then raise an exception.
         if optioncount is 0:
-            raise ex.ConfigurationError(
+            raise EX.ConfigurationError(
                 "There are no parameters listed under the section '%s'" %
                 section)
 
@@ -465,7 +465,7 @@ def loadconfigs(confile, template, required):
 
             except configparser.NoOptionError:
                 if option in required:
-                    raise ex.ConfigurationError(
+                    raise EX.ConfigurationError(
                         "The parameter %s is required" % option)
 
                 else:

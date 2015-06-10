@@ -33,13 +33,13 @@ import logging
 
 try:
 
-    ex = __import__("corelibs.exceptions", fromlist=[''])
-    shellwrappers = __import__("corelibs.shellwrappers", fromlist=[''])
+    EX = __import__("corelibs.exceptions", fromlist=[''])
+    SHELLWRAPPERS = __import__("corelibs.shellwrappers", fromlist=[''])
 
 except ImportError:
 
-    ex = __import__("Longbow.corelibs.exceptions", fromlist=[''])
-    shellwrappers = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
+    EX = __import__("Longbow.corelibs.exceptions", fromlist=[''])
+    SHELLWRAPPERS = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
 
 LOGGER = logging.getLogger("Longbow")
 
@@ -60,19 +60,19 @@ def stage_upstream(hosts, jobs):
 
         # Check if job directory exists on the remote hosts and delete it.
         try:
-            shellwrappers.remotelist(host, dst)
+            SHELLWRAPPERS.remotelist(host, dst)
 
             LOGGER.debug("directory '%s' already exists, emptying its "
                          "contents in preparation for staging.", dst)
 
-            shellwrappers.remotedelete(host, dst)
+            SHELLWRAPPERS.remotedelete(host, dst)
 
         # If we have absolute path errors then we have a problem.
-        except ex.AbsolutepathError:
+        except EX.AbsolutepathError:
             raise
 
         # If it doesn't exist then move on.
-        except ex.RemotelistError:
+        except EX.RemotelistError:
             pass
 
         LOGGER.info("Transfering files for job: '%s' to host '%s'",
@@ -80,12 +80,12 @@ def stage_upstream(hosts, jobs):
 
         # Transfer files upstream.
         try:
-            shellwrappers.upload(
+            SHELLWRAPPERS.upload(
                 host, src + "/", dst, jobs[job]["upload-include"],
                 jobs[job]["upload-exclude"])
 
-        except ex.RsyncError:
-            raise ex.StagingError("Could not stage file '%s' upstream" % src)
+        except EX.RsyncError:
+            raise EX.StagingError("Could not stage file '%s' upstream" % src)
 
     LOGGER.info("Staging files upstream - complete.")
 
@@ -108,12 +108,12 @@ def stage_downstream(hosts, jobs, jobname):
             dst = jobs[job]["localworkdir"]
 
             try:
-                shellwrappers.download(
+                SHELLWRAPPERS.download(
                     host, src, dst, jobs[job]["rsync-include"],
                     jobs[job]["rsync-exclude"])
 
-            except (ex.SCPError, ex.RsyncError):
-                raise ex.StagingError("Could not download file '%s' " % src +
+            except (EX.SCPError, EX.RsyncError):
+                raise EX.StagingError("Could not download file '%s' " % src +
                                       "to location '%s'" % dst)
 
         LOGGER.info("Staging files downstream - complete.")
@@ -128,13 +128,13 @@ def stage_downstream(hosts, jobs, jobname):
 
         # Download the whole directory with rsync.
         try:
-            shellwrappers.download(
+            SHELLWRAPPERS.download(
                 host, src, dst,
                 jobs[jobname]["download-include"],
                 jobs[jobname]["download-exclude"])
 
-        except (ex.SCPError, ex.RsyncError):
-            raise ex.StagingError("Could not download file '%s' " % src +
+        except (EX.SCPError, EX.RsyncError):
+            raise EX.StagingError("Could not download file '%s' " % src +
                                   "to location '%s'" % dst)
 
         LOGGER.info("staging complete.")
@@ -152,13 +152,13 @@ def cleanup(hosts, jobs):
             host = hosts[jobs[job]["resource"]]
             path = jobs[job]["destdir"]
 
-            shellwrappers.remotelist(host, path)
+            SHELLWRAPPERS.remotelist(host, path)
 
             LOGGER.info("Deleting directory for job '%s' - '%s'", job, path)
 
-            shellwrappers.remotedelete(hosts[jobs[job]["resource"]], path)
+            SHELLWRAPPERS.remotedelete(hosts[jobs[job]["resource"]], path)
 
-        except ex.RemotelistError:
+        except EX.RemotelistError:
 
             # Directory doesn't exist.
             LOGGER.debug("Directory on path '%s' does not exist - skipping.",
@@ -170,7 +170,7 @@ def cleanup(hosts, jobs):
             # required.
             LOGGER.debug("Cleanup not required")
 
-        except ex.RemotedeleteError:
+        except EX.RemotedeleteError:
             raise
 
     LOGGER.info("Cleaning up complete.")

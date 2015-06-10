@@ -33,25 +33,25 @@ import subprocess
 # different, this should handle both cases.
 try:
 
-    applications = __import__("corelibs.applications", fromlist=[''])
-    apps = __import__("plugins.apps", fromlist=[''])
-    configuration = __import__("corelibs.configuration", fromlist=[''])
-    ex = __import__("corelibs.exceptions", fromlist=[''])
-    log = __import__("corelibs.logger", fromlist=[''])
-    scheduling = __import__("corelibs.scheduling", fromlist=[''])
-    shellwrappers = __import__("corelibs.shellwrappers", fromlist=[''])
-    staging = __import__("corelibs.staging", fromlist=[''])
+    APPLICATIONS = __import__("corelibs.applications", fromlist=[''])
+    APPS = __import__("plugins.apps", fromlist=[''])
+    CONFIGURATION = __import__("corelibs.configuration", fromlist=[''])
+    EX = __import__("corelibs.exceptions", fromlist=[''])
+    LOG = __import__("corelibs.logger", fromlist=[''])
+    SCHEDULING = __import__("corelibs.scheduling", fromlist=[''])
+    SHELLWRAPPERS = __import__("corelibs.shellwrappers", fromlist=[''])
+    STAGING = __import__("corelibs.staging", fromlist=[''])
 
 except ImportError:
 
-    applications = __import__("Longbow.corelibs.applications", fromlist=[''])
-    apps = __import__("Longbow.plugins.apps", fromlist=[''])
-    configuration = __import__("Longbow.corelibs.configuration", fromlist=[''])
-    ex = __import__("Longbow.corelibs.exceptions", fromlist=[''])
-    log = __import__("Longbow.corelibs.logger", fromlist=[''])
-    scheduling = __import__("Longbow.corelibs.scheduling", fromlist=[''])
-    shellwrappers = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
-    staging = __import__("Longbow.corelibs.staging", fromlist=[''])
+    APPLICATIONS = __import__("Longbow.corelibs.applications", fromlist=[''])
+    APPS = __import__("Longbow.plugins.apps", fromlist=[''])
+    CONFIGURATION = __import__("Longbow.corelibs.configuration", fromlist=[''])
+    EX = __import__("Longbow.corelibs.exceptions", fromlist=[''])
+    LOG = __import__("Longbow.corelibs.logger", fromlist=[''])
+    SCHEDULING = __import__("Longbow.corelibs.scheduling", fromlist=[''])
+    SHELLWRAPPERS = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
+    STAGING = __import__("Longbow.corelibs.staging", fromlist=[''])
 
 
 def main(executable, execargs, files, mode, parameters):
@@ -86,7 +86,7 @@ def main(executable, execargs, files, mode, parameters):
         # ---------------------------------------------------------------------
         # Setup the logger.
 
-        log.setuplogger(files["log"], "Longbow", mode)
+        LOG.setuplogger(files["log"], "Longbow", mode)
 
         logger = logging.getLogger("Longbow")
 
@@ -111,7 +111,7 @@ def main(executable, execargs, files, mode, parameters):
                                               files["hosts"])
 
             else:
-                raise ex.RequiredinputError(
+                raise EX.RequiredinputError(
                     "No host configuration file found in the current working "
                     "directory %s, the execution directory %s or in the "
                     "~/.Longbow directory." % (cwd, execdir))
@@ -128,7 +128,7 @@ def main(executable, execargs, files, mode, parameters):
                 files["job"] = os.path.join(execdir, files["job"])
 
             else:
-                raise ex.RequiredinputError(
+                raise EX.RequiredinputError(
                     "The job configuration file %s couldn't be found in the "
                     "current working directory %s, the execution directory %s."
                     % (files["job"], cwd, execdir))
@@ -149,60 +149,60 @@ def main(executable, execargs, files, mode, parameters):
         logger.info("hosts file is: %s", files["hosts"])
 
         # Load the configuration of the hosts.
-        hostsconfig = configuration.loadhosts(files["hosts"])
+        hostsconfig = CONFIGURATION.loadhosts(files["hosts"])
 
         # Load the configuration of the jobs
-        jobsconfig = configuration.loadjobs(
+        jobsconfig = CONFIGURATION.loadjobs(
             files["job"], files["hosts"], parameters)
 
         # Sort and prioritise jobs configuration parameters
-        jobs = configuration.sortjobsconfigs(
+        jobs = CONFIGURATION.sortjobsconfigs(
             hostsconfig, jobsconfig, executable, cwd, execargs,
             parameters["replicates"])
 
         # Sort and prioritise hosts configuration parameters
-        hosts = configuration.sorthostsconfigs(hostsconfig, jobsconfig)
+        hosts = CONFIGURATION.sorthostsconfigs(hostsconfig, jobsconfig)
 
         # Make some final amendments to jobs configuration parameters
-        configuration.amendjobsconfigs(hosts, jobs)
+        CONFIGURATION.amendjobsconfigs(hosts, jobs)
 
         # Test the connection/s specified in the job configurations
-        shellwrappers.testconnections(hosts, jobs)
+        SHELLWRAPPERS.testconnections(hosts, jobs)
 
         # Test the hosts listed in the jobs configuration file have their
         # scheduler environments listed, if not then test and save them.
-        scheduling.testenv(files["hosts"], hosts, jobs)
+        SCHEDULING.testenv(files["hosts"], hosts, jobs)
 
         # Test that for the applications listed in the job configuration
         # file are available and that the executable is present.
-        applications.testapp(hosts, jobs)
+        APPLICATIONS.testapp(hosts, jobs)
 
         # ---------------------------------------------------------------------
         # Start processing the setup and staging for each job.
 
         # Process the jobs command line arguments and find files for
         # staging.
-        applications.processjobs(jobs)
+        APPLICATIONS.processjobs(jobs)
 
         # Create jobfile and add it to the list of files that needs
         # uploading.
-        scheduling.prepare(hosts, jobs)
+        SCHEDULING.prepare(hosts, jobs)
 
         # Stage all of the job files along with the scheduling script.
-        staging.stage_upstream(hosts, jobs)
+        STAGING.stage_upstream(hosts, jobs)
 
         # ---------------------------------------------------------------------
         # Submit the job/s to the scheduler.
-        scheduling.submit(hosts, jobs)
+        SCHEDULING.submit(hosts, jobs)
 
         # ---------------------------------------------------------------------
         # Monitor job/s.
-        scheduling.monitor(hosts, jobs)
+        SCHEDULING.monitor(hosts, jobs)
 
     # -------------------------------------------------------------------------
     # Handle the errors and Longbow exit.
 
-    except (ex.RsyncError, ex.SCPError, ex.SSHError) as err:
+    except (EX.RsyncError, EX.SCPError, EX.SSHError) as err:
 
         # Output the information about the problem.
         if mode["debug"]:
@@ -227,17 +227,17 @@ def main(executable, execargs, files, mode, parameters):
                    jobs[job]["laststatus"] != "Submit Error":
 
                     # Kill it.
-                    scheduling.delete(hosts, jobs, job)
+                    SCHEDULING.delete(hosts, jobs, job)
 
                     # Transfer the directories as they are.
-                    staging.stage_downstream(hosts, jobs, job)
+                    STAGING.stage_downstream(hosts, jobs, job)
 
                 # Job is finished then just stage.
                 elif jobs[job]["laststatus"] != "Submit Error":
                     # Transfer the directories as they are.
-                    staging.stage_downstream(hosts, jobs, job)
+                    STAGING.stage_downstream(hosts, jobs, job)
 
-    except ex.RequiredinputError as err:
+    except EX.RequiredinputError as err:
         logger.error(err)
 
     except Exception as err:
@@ -252,7 +252,7 @@ def main(executable, execargs, files, mode, parameters):
         # There is a case where when longbow is launched without any args that
         # a glitch here will suppress all the error messages from being seen.
         try:
-            staging.cleanup(hosts, jobs)
+            STAGING.cleanup(hosts, jobs)
 
         except NameError:
             pass
@@ -352,7 +352,7 @@ if __name__ == "__main__":
     # executable arguments
 
     # Get a list of recognised executables
-    execlist = getattr(apps, "EXECLIST")
+    execlist = getattr(APPS, "EXECLIST")
 
     # Search for recognised executables on the commandline
     for exe in execlist:
@@ -366,7 +366,7 @@ if __name__ == "__main__":
                 break
 
             else:
-                raise ex.CommandlineargsError(
+                raise EX.CommandlineargsError(
                     "More than one recognised executable has been specified on"
                     " the Longbow command-line. Please provide just one.")
 
@@ -399,7 +399,7 @@ if __name__ == "__main__":
     # executable arguments
     for item in EXECARGS:
         if item in ALLLONGBOWARGS:
-            raise ex.CommandlineargsError(
+            raise EX.CommandlineargsError(
                 "Longbow arguments and executable arguments seem to have"
                 " become mixed. Longbow must be ran using the format:\n\n"
                 "longbow [longbow args] executable [executable args]\n\n"
@@ -410,7 +410,7 @@ if __name__ == "__main__":
     for item in LONGBOWARGS:
         if item.startswith("-") and item not in ALLLONGBOWARGS:
             allowedargs = " ".join(ALLLONGBOWARGS)
-            raise ex.CommandlineargsError(
+            raise EX.CommandlineargsError(
                 "Argument %s is not a recognised Longbow argument. "
                 "Recognised arguments are: %s" % (item, allowedargs))
 
@@ -517,7 +517,7 @@ if __name__ == "__main__":
         if (POSITION + 1 == len(LONGBOWARGS) or
                 LONGBOWARGS[POSITION + 1].startswith("-")):
 
-            raise ex.CommandlineargsError(
+            raise EX.CommandlineargsError(
                 "Please specify a valid file for the -hosts command line"
                 " parameter e.g. longbow -hosts filename ...")
         else:
@@ -532,7 +532,7 @@ if __name__ == "__main__":
         if (POSITION + 1 == len(LONGBOWARGS) or
                 LONGBOWARGS[POSITION + 1].startswith("-")):
 
-            raise ex.CommandlineargsError(
+            raise EX.CommandlineargsError(
                 "Please specify a valid file for the -job command line"
                 " parameter e.g. longbow -job filename ...")
 
@@ -548,7 +548,7 @@ if __name__ == "__main__":
         if (POSITION + 1 == len(LONGBOWARGS) or
                 LONGBOWARGS[POSITION + 1].startswith("-")):
 
-            raise ex.CommandlineargsError(
+            raise EX.CommandlineargsError(
                 "Please specify a valid file for the -log command line"
                 " parameter e.g. longbow -log filename ...")
 
@@ -576,7 +576,7 @@ if __name__ == "__main__":
         if (POSITION + 1 == len(LONGBOWARGS) or
                 LONGBOWARGS[POSITION + 1].startswith("-")):
 
-            raise ex.CommandlineargsError(
+            raise EX.CommandlineargsError(
                 "Please specify a valid remote machine for the -resource"
                 " command line parameter e.g. longbow -resource HPC ...")
 
@@ -592,7 +592,7 @@ if __name__ == "__main__":
         if (POSITION + 1 == len(LONGBOWARGS) or
                 LONGBOWARGS[POSITION + 1].startswith("-")):
 
-            raise ex.CommandlineargsError(
+            raise EX.CommandlineargsError(
                 "Please specify a number for the -replicates command line"
                 " parameter e.g. longbow -replicates 5 ...")
 
@@ -608,7 +608,7 @@ if __name__ == "__main__":
         if (POSITION + 1 == len(LONGBOWARGS) or
                 LONGBOWARGS[POSITION + 1].startswith("-")):
 
-            raise ex.CommandlineargsError(
+            raise EX.CommandlineargsError(
                 "Please specify a name for the -jobname command line parameter"
                 " e.g. longbow -jobname myjob ...")
 

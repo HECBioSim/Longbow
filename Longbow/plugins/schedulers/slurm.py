@@ -27,13 +27,13 @@ import os
 
 try:
 
-    ex = __import__("corelibs.exceptions", fromlist=[''])
-    shellwrappers = __import__("corelibs.shellwrappers", fromlist=[''])
+    EX = __import__("corelibs.exceptions", fromlist=[''])
+    SHELLWRAPPERS = __import__("corelibs.shellwrappers", fromlist=[''])
 
 except ImportError:
 
-    ex = __import__("Longbow.corelibs.exceptions", fromlist=[''])
-    shellwrappers = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
+    EX = __import__("Longbow.corelibs.exceptions", fromlist=[''])
+    SHELLWRAPPERS = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
 
 
 # -----------------------------------------------------------------------------
@@ -57,10 +57,10 @@ def delete(host, jobid):                                        # IMPORTANT
 
     LOGGER.info("Deleting the job with id: %s", jobid)
     try:
-        shellout = shellwrappers.sendtossh(host, ["scancel " + jobid])
+        shellout = SHELLWRAPPERS.sendtossh(host, ["scancel " + jobid])
 
-    except ex.SSHError:
-        raise ex.JobdeleteError("  Unable to delete job.")
+    except EX.SSHError:
+        raise EX.JobdeleteError("  Unable to delete job.")
 
     LOGGER.info("Deleted successfully")
 
@@ -162,7 +162,7 @@ def status(host, jobid):                                        # IMPORTANT
     state = ""
 
     try:
-        shellout = shellwrappers.sendtossh(host, ["squeue -u " + host["user"] +
+        shellout = SHELLWRAPPERS.sendtossh(host, ["squeue -u " + host["user"] +
                                                   "| grep " + jobid])
 
         stat = shellout[0].split()
@@ -200,7 +200,7 @@ def status(host, jobid):                                        # IMPORTANT
         elif stat[4] == "TO":
             state = "Timed out"
 
-    except ex.SSHError:
+    except EX.SSHError:
         state = "Finished"
 
     return state
@@ -213,7 +213,7 @@ def submit(host, jobname, jobs):                                # IMPORTANT
 
     """Method for submitting job."""
 
-    # Set the path to remoteworkdir/jobnameXXXXX
+    # Set the path to remoteworkdir/jobnamexxxxx
     path = jobs[jobname]["destdir"]
 
     # Change into the working directory and submit the job.
@@ -222,10 +222,10 @@ def submit(host, jobname, jobs):                                # IMPORTANT
 
     # Process the submit
     try:
-        shellout = shellwrappers.sendtossh(host, cmd)[0]
+        shellout = SHELLWRAPPERS.sendtossh(host, cmd)[0]
 
-    except ex.SSHError:
-        raise ex.JobsubmitError("  Something went wrong when submitting.")
+    except EX.SSHError:
+        raise EX.JobsubmitError("  Something went wrong when submitting.")
 
     output = shellout.rstrip("\r\n")
 
