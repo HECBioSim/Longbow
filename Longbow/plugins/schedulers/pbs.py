@@ -26,16 +26,14 @@ import os
 import math
 
 try:
-    import Longbow.corelibs.exceptions as ex
+
+    EX = __import__("corelibs.exceptions", fromlist=[''])
+    SHELLWRAPPERS = __import__("corelibs.shellwrappers", fromlist=[''])
 
 except ImportError:
-    import corelibs.exceptions as ex
 
-try:
-    import Longbow.corelibs.shellwrappers as shellwrappers
-
-except ImportError:
-    import corelibs.shellwrappers as shellwrappers
+    EX = __import__("Longbow.corelibs.exceptions", fromlist=[''])
+    SHELLWRAPPERS = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
 
 LOGGER = logging.getLogger("Longbow")
 
@@ -46,12 +44,12 @@ def delete(host, jobid):
 
     """Method for deleting job."""
 
-    LOGGER.info("Deleting the job with id: %s" + jobid)
+    LOGGER.info("Deleting the job with id '{}'" .format(jobid))
     try:
-        shellout = shellwrappers.sendtossh(host, ["qdel " + jobid])
+        shellout = SHELLWRAPPERS.sendtossh(host, ["qdel " + jobid])
 
-    except ex.SSHError:
-        raise ex.JobdeleteError("  Unable to delete job.")
+    except EX.SSHError:
+        raise EX.JobdeleteError("Unable to delete job.")
 
     LOGGER.info("Deletion successful.")
 
@@ -62,7 +60,7 @@ def prepare(hosts, jobname, jobs):
 
     """Create the PBS jobfile ready for submitting jobs"""
 
-    LOGGER.info("Creating submit file for job: %s", jobname)
+    LOGGER.info("Creating submit file for job '{}'" .format(jobname))
 
     # Open file for PBS script.
     pbsfile = os.path.join(jobs[jobname]["localworkdir"], "submit.pbs")
@@ -147,7 +145,7 @@ def prepare(hosts, jobname, jobs):
     if jobs[jobname]["modules"] is not "":
         for module in jobs[jobname]["modules"].split(","):
             module.replace(" ", "")
-            jobfile.write("module load %s\n\n" % module)
+            jobfile.write("module load {}\n\n" .format(module))
 
     # Handler that is used for job submission.
     mpirun = hosts[jobs[jobname]["resource"]]["handler"]
@@ -181,7 +179,7 @@ def status(host, jobid):
     state = ""
 
     try:
-        shellout = shellwrappers.sendtossh(host, ["qstat -u " + host["user"] +
+        shellout = SHELLWRAPPERS.sendtossh(host, ["qstat -u " + host["user"] +
                                                   " | grep " + jobid])
 
         stat = shellout[0].split()
@@ -220,7 +218,7 @@ def status(host, jobid):
         elif stat[9] == "X":
             state = "Subjob completed execution/has been deleted"
 
-    except ex.SSHError:
+    except EX.SSHError:
         state = "Finished"
 
     return state
@@ -230,7 +228,7 @@ def submit(host, jobname, jobs):
 
     """Method for submitting a job."""
 
-    # Set the path to remoteworkdir/jobnameXXXXX
+    # Set the path to remoteworkdir/jobnamexxxxx
     path = jobs[jobname]["destdir"]
 
     # Change into the working directory and submit the job.
@@ -239,11 +237,11 @@ def submit(host, jobname, jobs):
 
     # Process the submit
     try:
-        shellout = shellwrappers.sendtossh(host, cmd)[0]
+        shellout = SHELLWRAPPERS.sendtossh(host, cmd)[0]
 
-    except ex.SSHError as inst:
+    except EX.SSHError as inst:
         if "set_booleans" in inst.stderr:
-            raise ex.JobsubmitError(
+            raise EX.JobsubmitError(
                 "  Something went wrong when submitting. The likely cause is "
                 "your particular PBS install is not receiving the "
                 "information/options/parameters it " "requires "
@@ -252,7 +250,7 @@ def submit(host, jobname, jobs):
                 "e.g. 'memory = 20' in the job configuration file")
 
         elif "Job rejected by all possible destinations" in inst.stderr:
-            raise ex.JobsubmitError(
+            raise EX.JobsubmitError(
                 "  Something went wrong when submitting. This may be because "
                 "you need to provide PBS with your account code and the "
                 "account flag your PBS install expects (Longbow defaults to "
@@ -261,28 +259,28 @@ def submit(host, jobname, jobs):
                 "'accountflag = P' and 'account = ABCD-01234-EFG'")
 
         elif "Job must specify budget (-A option)" in inst.stderr:
-            raise ex.JobsubmitError(
+            raise EX.JobsubmitError(
                 "  Something went wrong when submitting. This may be because "
                 "you provided PBS with an account flag other than 'A' which "
                 "your PBS install expects")
 
         elif "Job exceeds queue and/or server resource limits" in inst.stderr:
-            raise ex.JobsubmitError(
+            raise EX.JobsubmitError(
                 "  Something went wrong when submitting. PBS has reported "
                 "that 'Job exceeds queue and/or server resource limits'. "
                 "This may be because you set a walltime or some other "
                 "quantity that exceeds the maximum allowed on your system.")
 
         elif "budget" in inst.stderr:
-            raise ex.JobsubmitError(
+            raise EX.JobsubmitError(
                 "  Something went wrong when submitting. This may be that you "
                 "have entered an incorrect account code.")
 
         else:
-            raise ex.JobsubmitError("  Something went wrong when submitting.")
+            raise EX.JobsubmitError("  Something went wrong when submitting.")
 
     output = shellout.rstrip("\r\n")
 
-    LOGGER.info("Job: %s submitted with id: %s", jobname, output)
+    LOGGER.info("Job '{}' submitted with id '{}'" .format(jobname, output))
 
     jobs[jobname]["jobid"] = output

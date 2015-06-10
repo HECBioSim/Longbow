@@ -29,8 +29,6 @@ import os
 import pkgutil
 import sys
 
-LOGGER = logging.getLogger("Longbow")
-
 PATH = os.path.dirname(__file__)
 MODULES = pkgutil.iter_modules(path=[PATH])
 

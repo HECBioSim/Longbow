@@ -25,9 +25,12 @@ import os
 import re
 
 try:
-    import Longbow.corelibs.exceptions as ex
+
+    EX = __import__("corelibs.exceptions", fromlist=[''])
+
 except ImportError:
-    import corelibs.exceptions as ex
+
+    EX = __import__("Longbow.corelibs.exceptions", fromlist=[''])
 
 
 EXECDATA = {
@@ -53,7 +56,7 @@ def file_parser(filename, path, files, substitutions=None):
             addfile = ""
 
         else:
-            raise ex.RequiredinputError(
+            raise EX.RequiredinputError(
                 "It appears that the user is trying to refer to a file %s "
                 "using an explicit path. Please just provide the names of "
                 "input files" % filename)
@@ -80,7 +83,7 @@ def file_parser(filename, path, files, substitutions=None):
         try:
             fil = open(addfile, "r")
         except IOError:
-            ex.RequiredinputError("Can't read the %s file:" % addfile)
+            EX.RequiredinputError("Can't read the %s file:" % addfile)
 
         if fil:
 
@@ -126,7 +129,7 @@ def file_parser(filename, path, files, substitutions=None):
                                 newfile = after
 
                             else:
-                                raise ex.RequiredinputError(
+                                raise EX.RequiredinputError(
                                     "It appears that the"
                                     " user is trying to refer to a file %s"
                                     % newfile + " in file %s that is a" %
@@ -139,7 +142,7 @@ def file_parser(filename, path, files, substitutions=None):
 
                         elif newfile.count("../") > 1:
                             if re.search('rep\d', path):
-                                raise ex.RequiredinputError(
+                                raise EX.RequiredinputError(
                                     "It appears that the"
                                     "user is trying to refer to a file %s"
                                     % newfile + " in file %s that is two" %
@@ -150,7 +153,7 @@ def file_parser(filename, path, files, substitutions=None):
                                     " are trying to refer to is on the"
                                     " HPC, give the explicit path to the file")
                             else:
-                                raise ex.RequiredinputError(
+                                raise EX.RequiredinputError(
                                     "It appears that the"
                                     " user is trying to refer to a file %s"
                                     % newfile + " in file %s that is two"

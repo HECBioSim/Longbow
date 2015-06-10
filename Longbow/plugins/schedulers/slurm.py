@@ -26,16 +26,14 @@ import math
 import os
 
 try:
-    import Longbow.corelibs.exceptions as ex
+
+    EX = __import__("corelibs.exceptions", fromlist=[''])
+    SHELLWRAPPERS = __import__("corelibs.shellwrappers", fromlist=[''])
 
 except ImportError:
-    import corelibs.exceptions as ex
 
-try:
-    import Longbow.corelibs.shellwrappers as shellwrappers
-
-except ImportError:
-    import corelibs.shellwrappers as shellwrappers
+    EX = __import__("Longbow.corelibs.exceptions", fromlist=[''])
+    SHELLWRAPPERS = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
 
 
 # -----------------------------------------------------------------------------
@@ -57,12 +55,12 @@ def delete(host, jobid):                                        # IMPORTANT
 
     """Method for deleting job."""
 
-    LOGGER.info("Deleting the job with id: %s", jobid)
+    LOGGER.info("Deleting the job with id '{}'" .format(jobid))
     try:
-        shellout = shellwrappers.sendtossh(host, ["scancel " + jobid])
+        shellout = SHELLWRAPPERS.sendtossh(host, ["scancel " + jobid])
 
-    except ex.SSHError:
-        raise ex.JobdeleteError("  Unable to delete job.")
+    except EX.SSHError:
+        raise EX.JobdeleteError("Unable to delete job.")
 
     LOGGER.info("Deleted successfully")
 
@@ -76,7 +74,7 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
 
     """Create the SLURM jobfile ready for submitting jobs"""
 
-    LOGGER.info("Creating submit file for job: %s", jobname)
+    LOGGER.info("Creating submit file for job '{}'" .format(jobname))
 
     # Open file for SLURM script.
     slurmfile = os.path.join(jobs[jobname]["localworkdir"], "submit.slurm")
@@ -128,7 +126,7 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
     if jobs[jobname]["modules"] is not "":
         for module in jobs[jobname]["modules"].split(","):
             module.replace(" ", "")
-            jobfile.write("module load %s\n\n" % module)
+            jobfile.write("module load {}\n\n" .format(module))
 
     # Handler that is used for job submission.
     mpirun = hosts[resource]["handler"]
@@ -164,7 +162,7 @@ def status(host, jobid):                                        # IMPORTANT
     state = ""
 
     try:
-        shellout = shellwrappers.sendtossh(host, ["squeue -u " + host["user"] +
+        shellout = SHELLWRAPPERS.sendtossh(host, ["squeue -u " + host["user"] +
                                                   "| grep " + jobid])
 
         stat = shellout[0].split()
@@ -202,7 +200,7 @@ def status(host, jobid):                                        # IMPORTANT
         elif stat[4] == "TO":
             state = "Timed out"
 
-    except ex.SSHError:
+    except EX.SSHError:
         state = "Finished"
 
     return state
@@ -215,7 +213,7 @@ def submit(host, jobname, jobs):                                # IMPORTANT
 
     """Method for submitting job."""
 
-    # Set the path to remoteworkdir/jobnameXXXXX
+    # Set the path to remoteworkdir/jobnamexxxxx
     path = jobs[jobname]["destdir"]
 
     # Change into the working directory and submit the job.
@@ -224,13 +222,13 @@ def submit(host, jobname, jobs):                                # IMPORTANT
 
     # Process the submit
     try:
-        shellout = shellwrappers.sendtossh(host, cmd)[0]
+        shellout = SHELLWRAPPERS.sendtossh(host, cmd)[0]
 
-    except ex.SSHError:
-        raise ex.JobsubmitError("  Something went wrong when submitting.")
+    except EX.SSHError:
+        raise EX.JobsubmitError("  Something went wrong when submitting.")
 
     output = shellout.rstrip("\r\n")
 
-    LOGGER.info("Job: %s submitted with id: %s", jobname, output)
+    LOGGER.info("Job '{}' submitted with id '{}'" .format(jobname, output))
 
     jobs[jobname]["jobid"] = output                             # IMPORTANT

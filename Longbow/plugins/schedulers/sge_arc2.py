@@ -26,16 +26,14 @@ import math
 import os
 
 try:
-    import Longbow.corelibs.exceptions as ex
+
+    EX = __import__("corelibs.exceptions", fromlist=[''])
+    SHELLWRAPPERS = __import__("corelibs.shellwrappers", fromlist=[''])
 
 except ImportError:
-    import corelibs.exceptions as ex
 
-try:
-    import Longbow.corelibs.shellwrappers as shellwrappers
-
-except ImportError:
-    import corelibs.shellwrappers as shellwrappers
+    EX = __import__("Longbow.corelibs.exceptions", fromlist=[''])
+    SHELLWRAPPERS = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
 
 LOGGER = logging.getLogger("Longbow")
 
@@ -46,12 +44,12 @@ def delete(host, jobid):
 
     """Method for deleting job."""
 
-    LOGGER.info("Deleting the job with id: %s", jobid)
+    LOGGER.info("Deleting the job with id '{}'" .format(jobid))
     try:
-        shellout = shellwrappers.sendtossh(host, ["qdel " + jobid])
+        shellout = SHELLWRAPPERS.sendtossh(host, ["qdel " + jobid])
 
-    except ex.SSHError:
-        raise ex.JobdeleteError("  Unable to delete job.")
+    except EX.SSHError:
+        raise EX.JobdeleteError("Unable to delete job.")
 
     LOGGER.info("Deleted successfully")
 
@@ -62,7 +60,7 @@ def prepare(hosts, jobname, jobs):
 
     """Create the SGE jobfile ready for submitting jobs"""
 
-    LOGGER.info("Creating submit file for job: %s", jobname)
+    LOGGER.info("Creating submit file for job '{}'" .format(jobname))
 
     # Open file for SGE script.
     sgefile = os.path.join(jobs[jobname]["localworkdir"], "submit.sge")
@@ -128,7 +126,7 @@ def prepare(hosts, jobname, jobs):
     if jobs[jobname]["modules"] is not "":
         for module in jobs[jobname]["modules"].split(","):
             module.replace(" ", "")
-            jobfile.write("module load %s\n\n" % module)
+            jobfile.write("module load {}\n\n" .format(module))
 
     mpirun = hosts[jobs[jobname]["resource"]]["handler"]
 
@@ -157,7 +155,7 @@ def status(host, jobid):
     state = ""
 
     try:
-        shellout = shellwrappers.sendtossh(host, ["qstat -u " + host["user"] +
+        shellout = SHELLWRAPPERS.sendtossh(host, ["qstat -u " + host["user"] +
                                                   "| grep " + jobid])
 
         stat = shellout[0].split()
@@ -171,7 +169,7 @@ def status(host, jobid):
         elif stat[4] == "r":
             state = "Running"
 
-    except ex.SSHError:
+    except EX.SSHError:
         state = "Finished"
 
     return state
@@ -181,7 +179,7 @@ def submit(host, jobname, jobs):
 
     """Method for submitting a job."""
 
-    # Set the path to remoteworkdir/jobnameXXXXX
+    # Set the path to remoteworkdir/jobnamexxxxx
     path = jobs[jobname]["destdir"]
 
     # Change into the working directory and submit the job.
@@ -190,11 +188,11 @@ def submit(host, jobname, jobs):
 
     # Process the submit
     try:
-        shellout = shellwrappers.sendtossh(host, cmd)[0]
+        shellout = SHELLWRAPPERS.sendtossh(host, cmd)[0]
 
-    except ex.SSHError:
-        raise ex.JobsubmitError("  Something went wrong when submitting.")
+    except EX.SSHError:
+        raise EX.JobsubmitError("  Something went wrong when submitting.")
 
-    LOGGER.info("Job: %s submitted with id: %s", jobname, shellout)
+    LOGGER.info("Job '{}' submitted with id '{}'" .format(jobname, shellout))
 
     jobs[jobname]["jobid"] = shellout

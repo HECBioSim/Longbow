@@ -26,8 +26,6 @@ import os
 import pkgutil
 import logging
 
-LOGGER = logging.getLogger("Longbow")
-
 QUERY = {}
 
 PATH = os.path.dirname(__file__)

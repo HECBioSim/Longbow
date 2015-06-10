@@ -32,14 +32,14 @@ Where jobs is a dictionary of job configurations."""
 import logging
 
 try:
-    import Longbow.corelibs.exceptions as ex
-except ImportError:
-    import corelibs.exceptions as ex
 
-try:
-    import Longbow.corelibs.shellwrappers as shellwrappers
+    EX = __import__("corelibs.exceptions", fromlist=[''])
+    SHELLWRAPPERS = __import__("corelibs.shellwrappers", fromlist=[''])
+
 except ImportError:
-    import corelibs.shellwrappers as shellwrappers
+
+    EX = __import__("Longbow.corelibs.exceptions", fromlist=[''])
+    SHELLWRAPPERS = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
 
 LOGGER = logging.getLogger("Longbow")
 
@@ -60,32 +60,33 @@ def stage_upstream(hosts, jobs):
 
         # Check if job directory exists on the remote hosts and delete it.
         try:
-            shellwrappers.remotelist(host, dst)
+            SHELLWRAPPERS.remotelist(host, dst)
 
-            LOGGER.debug("directory '%s' already exists, emptying its "
-                         "contents in preparation for staging.", dst)
+            LOGGER.debug("directory '{}' already exists, emptying its "
+                         "contents in preparation for staging." .format(dst))
 
-            shellwrappers.remotedelete(host, dst)
+            SHELLWRAPPERS.remotedelete(host, dst)
 
         # If we have absolute path errors then we have a problem.
-        except ex.AbsolutepathError:
+        except EX.AbsolutepathError:
             raise
 
         # If it doesn't exist then move on.
-        except ex.RemotelistError:
+        except EX.RemotelistError:
             pass
 
-        LOGGER.info("Transfering files for job: '%s' to host '%s'",
-                    job, jobs[job]["resource"])
+        LOGGER.info("Transfering files for job '{}' to host '{}'"
+                    .format(job, jobs[job]["resource"]))
 
         # Transfer files upstream.
         try:
-            shellwrappers.upload(
+            SHELLWRAPPERS.upload(
                 host, src + "/", dst, jobs[job]["upload-include"],
                 jobs[job]["upload-exclude"])
 
-        except ex.RsyncError:
-            raise ex.StagingError("Could not stage file '%s' upstream" % src)
+        except EX.RsyncError:
+            raise EX.StagingError("Could not stage file '{}' upstream"
+                                  .format(src))
 
     LOGGER.info("Staging files upstream - complete.")
 
@@ -108,19 +109,19 @@ def stage_downstream(hosts, jobs, jobname):
             dst = jobs[job]["localworkdir"]
 
             try:
-                shellwrappers.download(
+                SHELLWRAPPERS.download(
                     host, src, dst, jobs[job]["rsync-include"],
                     jobs[job]["rsync-exclude"])
 
-            except (ex.SCPError, ex.RsyncError):
-                raise ex.StagingError("Could not download file '%s' " % src +
-                                      "to location '%s'" % dst)
+            except (EX.SCPError, EX.RsyncError):
+                raise EX.StagingError("Could not download file '{}' "
+                                      "to location '{}'" .format(src, dst))
 
         LOGGER.info("Staging files downstream - complete.")
 
     # Else we have a single job.
     else:
-        LOGGER.info("For job %s staging files downstream.", jobname)
+        LOGGER.info("For job '{}' staging files downstream." .format(jobname))
 
         host = hosts[jobs[jobname]["resource"]]
         src = jobs[jobname]["destdir"] + "/"
@@ -128,14 +129,14 @@ def stage_downstream(hosts, jobs, jobname):
 
         # Download the whole directory with rsync.
         try:
-            shellwrappers.download(
+            SHELLWRAPPERS.download(
                 host, src, dst,
                 jobs[jobname]["download-include"],
                 jobs[jobname]["download-exclude"])
 
-        except (ex.SCPError, ex.RsyncError):
-            raise ex.StagingError("Could not download file '%s' " % src +
-                                  "to location '%s'" % dst)
+        except (EX.SCPError, EX.RsyncError):
+            raise EX.StagingError("Could not download file '{}' "
+                                  "to location '{}'" .format(src, dst))
 
         LOGGER.info("staging complete.")
 
@@ -152,18 +153,27 @@ def cleanup(hosts, jobs):
             host = hosts[jobs[job]["resource"]]
             path = jobs[job]["destdir"]
 
-            shellwrappers.remotelist(host, path)
+            SHELLWRAPPERS.remotelist(host, path)
 
-            LOGGER.info("Deleting directory for job '%s' - '%s'", job, path)
+            LOGGER.info("Deleting directory for job '{}' - '{}'"
+                        .format(job, path))
 
-            shellwrappers.remotedelete(hosts[jobs[job]["resource"]], path)
+            SHELLWRAPPERS.remotedelete(hosts[jobs[job]["resource"]], path)
 
-        except ex.RemotelistError:
-            # directory doesn't exist.
-            LOGGER.debug("Directory on path '%s' does not exist - skipping.",
-                         path)
+        except EX.RemotelistError:
 
-        except ex.RemotedeleteError:
-            raise
+            # Directory doesn't exist.
+            LOGGER.debug("Directory on path '{}' does not exist - skipping."
+                         .format(path))
+
+        except KeyError:
+
+            LOGGER.debug("For job '{}', cleanup not required - skipping."
+                         .format(job))
+
+        except EX.RemotedeleteError:
+
+            LOGGER.debug("For job '{}', cannot delete directory '{}' - "
+                         "skipping." .format(job, path))
 
     LOGGER.info("Cleaning up complete.")
