@@ -44,12 +44,12 @@ def delete(host, jobid):
 
     """Method for deleting job."""
 
-    LOGGER.info("Deleting the job with id: %s" + jobid)
+    LOGGER.info("Deleting the job with id '{}'" .format(jobid))
     try:
         shellout = SHELLWRAPPERS.sendtossh(host, ["qdel " + jobid])
 
     except EX.SSHError:
-        raise EX.JobdeleteError("  Unable to delete job.")
+        raise EX.JobdeleteError("Unable to delete job.")
 
     LOGGER.info("Deletion successful.")
 
@@ -60,7 +60,7 @@ def prepare(hosts, jobname, jobs):
 
     """Create the PBS jobfile ready for submitting jobs"""
 
-    LOGGER.info("Creating submit file for job: %s", jobname)
+    LOGGER.info("Creating submit file for job '{}'" .format(jobname))
 
     # Open file for PBS script.
     pbsfile = os.path.join(jobs[jobname]["localworkdir"], "submit.pbs")
@@ -145,7 +145,7 @@ def prepare(hosts, jobname, jobs):
     if jobs[jobname]["modules"] is not "":
         for module in jobs[jobname]["modules"].split(","):
             module.replace(" ", "")
-            jobfile.write("module load %s\n\n" % module)
+            jobfile.write("module load {}\n\n" .format(module))
 
     # Handler that is used for job submission.
     mpirun = hosts[jobs[jobname]["resource"]]["handler"]
@@ -281,6 +281,6 @@ def submit(host, jobname, jobs):
 
     output = shellout.rstrip("\r\n")
 
-    LOGGER.info("Job: %s submitted with id: %s", jobname, output)
+    LOGGER.info("Job '{}' submitted with id '{}'" .format(jobname, output))
 
     jobs[jobname]["jobid"] = output

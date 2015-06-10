@@ -163,8 +163,8 @@ def loadjobs(jobconfile, hostsconfile, param):
     try:
         configs.read(hostsconfile)
     except IOError:
-        EX.RequiredinputError("Can't read the configurations from: %s"
-                              % hostsconfile)
+        EX.RequiredinputError("Can't read the configurations from '{}'"
+                              .format(hostsconfile))
     sectionlist = configs.sections()
 
     for job in jobs:
@@ -177,8 +177,8 @@ def loadjobs(jobconfile, hostsconfile, param):
                 jobs[job]["resource"] = resource
             else:
                 raise EX.CommandlineargsError(
-                    "The %s resource specified on the command line is not"
-                    " one of: %s" % (resource, sectionlist))
+                    "The '{}' resource specified on the command line is not"
+                    " one of: '{}'" .format(resource, sectionlist))
 
         # elif a resource has not been specified in a job config, use the top
         # machine in the hosts config
@@ -186,8 +186,8 @@ def loadjobs(jobconfile, hostsconfile, param):
             try:
                 hostsfile = open(hostsconfile, "r")
             except IOError:
-                EX.RequiredinputError("Can't read the configurations from:"
-                                      " %s" % hostsconfile)
+                EX.RequiredinputError("Can't read the configurations from '{}'"
+                                      .format(hostsconfile))
 
             topremoteres = []
             for line in hostsfile:
@@ -203,9 +203,9 @@ def loadjobs(jobconfile, hostsconfile, param):
 
         elif jobs[job]["resource"] not in sectionlist:
             raise EX.RequiredinputError(
-                "The %s resource specified in the job configuration"
-                " file is not one of: %s" %
-                (jobs[job]["resource"], sectionlist))
+                "The '{}' resource specified in the job configuration"
+                " file is not one of '{}'"
+                .format(jobs[job]["resource"], sectionlist))
 
     return jobs
 
@@ -414,15 +414,16 @@ def amendjobsconfigs(hosts, jobs):
         jobs[job]["destdir"] = os.path.join(
             hosts[jobs[job]["resource"]]["remoteworkdir"], destdir)
 
-        LOGGER.debug("Job '%s' will be run in the '%s' directory on the remote"
-                     " resource." % (job, jobs[job]["destdir"]))
+        LOGGER.debug("Job '{}' will be run in the '{}' directory on the remote"
+                     " resource." .format(job, jobs[job]["destdir"]))
 
 
 def loadconfigs(confile, template, required):
 
     """Method to load configurations from file."""
 
-    LOGGER.info("Loading configuration information from file '%s'", confile)
+    LOGGER.info("Loading configuration information from file '{}'"
+                .format(confile))
 
     # Instantiate the configparser and read the configuration file.
     configs = configparser.ConfigParser()
@@ -432,7 +433,7 @@ def loadconfigs(confile, template, required):
 
     except IOError:
         raise EX.ConfigurationError(
-            "Can't read the configurations from '%s'" % confile)
+            "Can't read the configurations from '{}'" .format(confile))
 
     # Grab a list of the section headers present in file.
     sectionlist = configs.sections()
@@ -441,8 +442,8 @@ def loadconfigs(confile, template, required):
     # If we don't have any sections then raise an exception.
     if sectioncount is 0:
         raise EX.ConfigurationError(
-            "In file '%s' " % confile + "no sections can be detected or the "
-            "file is not in ini format.")
+            "In file '{}' no sections can be detected or the file is not in "
+            "ini format." .format(confile))
 
     # Temporary dictionary for storing the configurations in.
     params = {}
@@ -455,8 +456,8 @@ def loadconfigs(confile, template, required):
         # If we have no options then raise an exception.
         if optioncount is 0:
             raise EX.ConfigurationError(
-                "There are no parameters listed under the section '%s'" %
-                section)
+                "There are no parameters listed under the section '{}'"
+                .format(section))
 
         # Store option values in our dictionary structure.
         for option in template:
@@ -466,7 +467,7 @@ def loadconfigs(confile, template, required):
             except configparser.NoOptionError:
                 if option in required:
                     raise EX.ConfigurationError(
-                        "The parameter %s is required" % option)
+                        "The parameter '{}' is required" .format(option))
 
                 else:
                     pass
@@ -478,7 +479,8 @@ def saveconfigs(confile, params):
 
     """Method to save parameters to file."""
 
-    LOGGER.info("Saving configuration information to file '%s'", confile)
+    LOGGER.info("Saving configuration information to file '{}'"
+                .format(confile))
 
     # Bind the hosts file to the config parser and read it in.
     configs = configparser.ConfigParser()

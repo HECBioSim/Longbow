@@ -55,12 +55,12 @@ def delete(host, jobid):                                        # IMPORTANT
 
     """Method for deleting job."""
 
-    LOGGER.info("Deleting the job with id: %s", jobid)
+    LOGGER.info("Deleting the job with id '{}'" .format(jobid))
     try:
         shellout = SHELLWRAPPERS.sendtossh(host, ["scancel " + jobid])
 
     except EX.SSHError:
-        raise EX.JobdeleteError("  Unable to delete job.")
+        raise EX.JobdeleteError("Unable to delete job.")
 
     LOGGER.info("Deleted successfully")
 
@@ -74,7 +74,7 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
 
     """Create the SLURM jobfile ready for submitting jobs"""
 
-    LOGGER.info("Creating submit file for job: %s", jobname)
+    LOGGER.info("Creating submit file for job '{}'" .format(jobname))
 
     # Open file for SLURM script.
     slurmfile = os.path.join(jobs[jobname]["localworkdir"], "submit.slurm")
@@ -126,7 +126,7 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
     if jobs[jobname]["modules"] is not "":
         for module in jobs[jobname]["modules"].split(","):
             module.replace(" ", "")
-            jobfile.write("module load %s\n\n" % module)
+            jobfile.write("module load {}\n\n" .format(module))
 
     # Handler that is used for job submission.
     mpirun = hosts[resource]["handler"]
@@ -229,6 +229,6 @@ def submit(host, jobname, jobs):                                # IMPORTANT
 
     output = shellout.rstrip("\r\n")
 
-    LOGGER.info("Job: %s submitted with id: %s", jobname, output)
+    LOGGER.info("Job '{}' submitted with id '{}'" .format(jobname, output))
 
     jobs[jobname]["jobid"] = output                             # IMPORTANT

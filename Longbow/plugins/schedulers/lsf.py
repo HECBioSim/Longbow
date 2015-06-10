@@ -43,13 +43,13 @@ def delete(host, jobid):
 
     """Method for deleting job."""
 
-    LOGGER.info("Deleting the job with id: %s", jobid)
+    LOGGER.info("Deleting the job with id '{}'" .format(jobid))
 
     try:
         shellout = SHELLWRAPPERS.sendtossh(host, ["bkill " + jobid])
 
     except EX.SSHError:
-        raise EX.JobdeleteError("  Unable to delete job.")
+        raise EX.JobdeleteError("Unable to delete job.")
 
     LOGGER.info("Deletion successful")
 
@@ -60,7 +60,7 @@ def prepare(hosts, jobname, jobs):
 
     """Create the LSF jobfile ready for submitting jobs"""
 
-    LOGGER.info("Creating submit file for job: %s", jobname)
+    LOGGER.info("Creating submit file for job '{}'" .format(jobname))
 
     # Open file for LSF script.
     lsffile = os.path.join(jobs[jobname]["localworkdir"], "submit.lsf")
@@ -107,7 +107,7 @@ def prepare(hosts, jobname, jobs):
     if jobs[jobname]["modules"] is not "":
         for module in jobs[jobname]["modules"].split(","):
             module.replace(" ", "")
-            jobfile.write("\n" + "module load %s\n\n" % module)
+            jobfile.write("\n" + "module load {}\n\n" .format(module))
 
     mpirun = hosts[jobs[jobname]["resource"]]["handler"]
 
@@ -176,6 +176,6 @@ def submit(host, jobname, jobs):
 
     output = shellout.splitlines()[0]
 
-    LOGGER.info("Job: %s submitted with id: %s", jobname, output)
+    LOGGER.info("Job '{}' submitted with id '{}'" .format(jobname, output))
 
     jobs[jobname]["jobid"] = output

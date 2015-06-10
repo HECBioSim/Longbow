@@ -43,12 +43,12 @@ def delete(host, jobid):
 
     """Method for deleting job."""
 
-    LOGGER.info("Deleting the job with id: %s", jobid)
+    LOGGER.info("Deleting the job with id '{}'" .format(jobid))
     try:
         shellout = SHELLWRAPPERS.sendtossh(host, ["qdel " + jobid])
 
     except EX.SSHError:
-        raise EX.JobdeleteError("  Unable to delete job.")
+        raise EX.JobdeleteError("Unable to delete job.")
 
     LOGGER.info("Deleted successfully")
 
@@ -59,7 +59,7 @@ def prepare(hosts, jobname, jobs):
 
     """Create the SGE jobfile ready for submitting jobs"""
 
-    LOGGER.info("Creating submit file for job: %s", jobname)
+    LOGGER.info("Creating submit file for job '{}'" .format(jobname))
 
     # Open file for LSF script.
     sgefile = os.path.join(jobs[jobname]["localworkdir"], "submit.sge")
@@ -100,7 +100,7 @@ def prepare(hosts, jobname, jobs):
     if jobs[jobname]["modules"] is not "":
         for module in jobs[jobname]["modules"].split(","):
             module.replace(" ", "")
-            jobfile.write("module load %s\n\n" % module)
+            jobfile.write("module load {}\n\n" .format(module))
 
     mpirun = hosts[jobs[jobname]["resource"]]["handler"]
 
@@ -165,6 +165,6 @@ def submit(host, jobname, jobs):
     except EX.SSHError:
         raise EX.JobsubmitError("  Something went wrong when submitting.")
 
-    LOGGER.info("Job: %s submitted with id: %s", jobname, shellout)
+    LOGGER.info("Job '{}' submitted with id '{}'" .format(jobname, shellout))
 
     jobs[jobname]["jobid"] = shellout

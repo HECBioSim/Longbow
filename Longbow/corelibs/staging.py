@@ -62,8 +62,8 @@ def stage_upstream(hosts, jobs):
         try:
             SHELLWRAPPERS.remotelist(host, dst)
 
-            LOGGER.debug("directory '%s' already exists, emptying its "
-                         "contents in preparation for staging.", dst)
+            LOGGER.debug("directory '{}' already exists, emptying its "
+                         "contents in preparation for staging." .format(dst))
 
             SHELLWRAPPERS.remotedelete(host, dst)
 
@@ -75,8 +75,8 @@ def stage_upstream(hosts, jobs):
         except EX.RemotelistError:
             pass
 
-        LOGGER.info("Transfering files for job: '%s' to host '%s'",
-                    job, jobs[job]["resource"])
+        LOGGER.info("Transfering files for job '{}' to host '{}'"
+                    .format(job, jobs[job]["resource"]))
 
         # Transfer files upstream.
         try:
@@ -85,7 +85,8 @@ def stage_upstream(hosts, jobs):
                 jobs[job]["upload-exclude"])
 
         except EX.RsyncError:
-            raise EX.StagingError("Could not stage file '%s' upstream" % src)
+            raise EX.StagingError("Could not stage file '{}' upstream"
+                                  .format(src))
 
     LOGGER.info("Staging files upstream - complete.")
 
@@ -113,14 +114,14 @@ def stage_downstream(hosts, jobs, jobname):
                     jobs[job]["rsync-exclude"])
 
             except (EX.SCPError, EX.RsyncError):
-                raise EX.StagingError("Could not download file '%s' " % src +
-                                      "to location '%s'" % dst)
+                raise EX.StagingError("Could not download file '{}' "
+                                      "to location '{}'" .format(src, dst))
 
         LOGGER.info("Staging files downstream - complete.")
 
     # Else we have a single job.
     else:
-        LOGGER.info("For job %s staging files downstream.", jobname)
+        LOGGER.info("For job '{}' staging files downstream." .format(jobname))
 
         host = hosts[jobs[jobname]["resource"]]
         src = jobs[jobname]["destdir"] + "/"
@@ -134,8 +135,8 @@ def stage_downstream(hosts, jobs, jobname):
                 jobs[jobname]["download-exclude"])
 
         except (EX.SCPError, EX.RsyncError):
-            raise EX.StagingError("Could not download file '%s' " % src +
-                                  "to location '%s'" % dst)
+            raise EX.StagingError("Could not download file '{}' "
+                                  "to location '{}'" .format(src, dst))
 
         LOGGER.info("staging complete.")
 
@@ -154,23 +155,25 @@ def cleanup(hosts, jobs):
 
             SHELLWRAPPERS.remotelist(host, path)
 
-            LOGGER.info("Deleting directory for job '%s' - '%s'", job, path)
+            LOGGER.info("Deleting directory for job '{}' - '{}'"
+                        .format(job, path))
 
             SHELLWRAPPERS.remotedelete(hosts[jobs[job]["resource"]], path)
 
         except EX.RemotelistError:
 
             # Directory doesn't exist.
-            LOGGER.debug("Directory on path '%s' does not exist - skipping.",
-                         path)
+            LOGGER.debug("Directory on path '{}' does not exist - skipping."
+                         .format(path))
 
         except KeyError:
 
-            # If the destdir parameter has not been set then no cleanup is
-            # required.
-            LOGGER.debug("Cleanup not required")
+            LOGGER.debug("For job '{}', cleanup not required - skipping."
+                         .format(job))
 
         except EX.RemotedeleteError:
-            raise
+
+            LOGGER.debug("For job '{}', cannot delete directory '{}' - "
+                         "skipping." .format(job, path))
 
     LOGGER.info("Cleaning up complete.")

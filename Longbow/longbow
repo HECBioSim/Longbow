@@ -210,9 +210,9 @@ def main(executable, execargs, files, mode, parameters):
         else:
             logger.error(err)
 
-        logger.error("stdout: %s", str(err.stdout))
-        logger.error("stderr: %s", str(err.stderr))
-        logger.error("errorcode: %s", str(err.errorcode))
+        logger.error("stdout:\n\n{}" .format(err.stdout))
+        logger.error("stderr:\n\n{}" .format(err.stderr))
+        logger.error("errorcode: {}" .format(err.errorcode))
 
     except (SystemExit, KeyboardInterrupt):
 
