@@ -437,9 +437,12 @@ def processjobs(jobs):
 
                             filepath = os.path.join(cwd, item)
 
-                            # Add file to the list for inclusion in the
-                            # rysnc mask.
-                            filelist.append(item)
+                            # Do we have a file to add to our list?
+                            if os.path.isfile(filepath):
+
+                                # Add file to the list for inclusion in the
+                                # rysnc mask.
+                                filelist.append(item)
 
                         # Otherwise we have a replicate job so we should amend
                         # the paths.
