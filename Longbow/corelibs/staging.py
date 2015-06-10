@@ -58,23 +58,6 @@ def stage_upstream(hosts, jobs):
         src = jobs[job]["localworkdir"]
         dst = jobs[job]["destdir"]
 
-        # Check if job directory exists on the remote hosts and delete it.
-        try:
-            SHELLWRAPPERS.remotelist(host, dst)
-
-            LOGGER.debug("directory '{}' already exists, emptying its "
-                         "contents in preparation for staging." .format(dst))
-
-            SHELLWRAPPERS.remotedelete(host, dst)
-
-        # If we have absolute path errors then we have a problem.
-        except EX.AbsolutepathError:
-            raise
-
-        # If it doesn't exist then move on.
-        except EX.RemotelistError:
-            pass
-
         LOGGER.info("Transfering files for job '{}' to host '{}'"
                     .format(job, jobs[job]["resource"]))
 
