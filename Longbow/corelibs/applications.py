@@ -79,7 +79,7 @@ def testapp(hosts, jobs):
                 LOGGER.debug("Checking with modules.")
 
                 for module in jobs[job]["modules"].split(","):
-                    module.replace(" ", "")
+                    module = module.replace(" ", "")
                     cmd.extend(["module load " + module + "\n"])
 
             cmd.extend(["which " + executable])
@@ -525,7 +525,7 @@ def processjobs(jobs):
 
         # Setup the rysnc upload masks.
         jobs[job]["upload-include"] = ", ".join(filelist)
-        jobs[job]["upload-exlude"] = "*"
+        jobs[job]["upload-exclude"] = "*"
 
         # Replace the input command line with the execution command line.
         jobs[job]["commandline"] = executable + " " + " ".join(args)

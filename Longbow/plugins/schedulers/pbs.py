@@ -144,7 +144,7 @@ def prepare(hosts, jobname, jobs):
     # Load up modules if required.
     if jobs[jobname]["modules"] is not "":
         for module in jobs[jobname]["modules"].split(","):
-            module.replace(" ", "")
+            module = module.replace(" ", "")
             jobfile.write("module load {}\n\n" .format(module))
 
     # Handler that is used for job submission.
@@ -169,6 +169,8 @@ def prepare(hosts, jobname, jobs):
     jobfile.close()
 
     # Append pbs file to list of files ready for staging.
+    jobs[jobname]["upload-include"] = (
+        jobs[jobname]["upload-include"] + ", submit.pbs")
     jobs[jobname]["subfile"] = "submit.pbs"
 
 

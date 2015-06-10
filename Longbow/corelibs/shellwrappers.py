@@ -155,25 +155,25 @@ def sendtorsync(src, dst, port, includemask, excludemask):
 
         # Exclude masks are a comma separated list.
         for mask in excludemask.split(","):
-            mask.replace(" ", "")
+            mask = mask.replace(" ", "")
             exclude.append("--exclude")
             exclude.append(mask)
 
         cmd = ["rsync", "-azP"]
-        cmd.extend(include)
+        cmd.extend(exclude)
         cmd.extend(["-e", "ssh -p " + port, src, dst])
 
     elif excludemask is not "" and includemask is not "":
 
         # Exclude masks are a comma separated list.
         for mask in excludemask.split(","):
-            mask.replace(" ", "")
+            mask = mask.replace(" ", "")
             exclude.append("--exclude")
             exclude.append(mask)
 
         # Exclude masks are a comma separated list.
         for mask in includemask.split(","):
-            mask.replace(" ", "")
+            mask = mask.replace(" ", "")
             include.append("--include")
             include.append(mask)
 

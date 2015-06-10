@@ -125,7 +125,7 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
     # Load up modules if required.
     if jobs[jobname]["modules"] is not "":
         for module in jobs[jobname]["modules"].split(","):
-            module.replace(" ", "")
+            module = module.replace(" ", "")
             jobfile.write("module load {}\n\n" .format(module))
 
     # Handler that is used for job submission.
@@ -149,6 +149,8 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
     jobfile.close()
 
     # Append submitfile to list of files ready for staging.
+    jobs[jobname]["upload-include"] = (
+        jobs[jobname]["upload-include"] + ", submit.slurm")
     jobs[jobname]["subfile"] = "submit.slurm"                     # IMPORTANT
 
 

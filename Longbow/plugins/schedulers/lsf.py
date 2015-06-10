@@ -106,7 +106,7 @@ def prepare(hosts, jobname, jobs):
 
     if jobs[jobname]["modules"] is not "":
         for module in jobs[jobname]["modules"].split(","):
-            module.replace(" ", "")
+            module = module.replace(" ", "")
             jobfile.write("\n" + "module load {}\n\n" .format(module))
 
     mpirun = hosts[jobs[jobname]["resource"]]["handler"]
@@ -126,6 +126,8 @@ def prepare(hosts, jobname, jobs):
     jobfile.close()
 
     # Append lsf file to list of files ready for staging.
+    jobs[jobname]["upload-include"] = (
+        jobs[jobname]["upload-include"] + ", submit.lsf")
     jobs[jobname]["subfile"] = "submit.lsf"
 
 
