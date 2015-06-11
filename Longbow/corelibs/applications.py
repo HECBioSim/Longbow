@@ -456,7 +456,7 @@ def processjobs(jobs):
 
         # Setup the rysnc upload masks.
         jobs[job]["upload-include"] = ", ".join(filelist)
-        jobs[job]["upload-exlude"] = "*"
+        jobs[job]["upload-exclude"] = "*"
 
         # Replace the input command line with the execution command line.
         # initargs is a copy of the original args before text enforcing
