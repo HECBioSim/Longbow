@@ -52,10 +52,13 @@ def file_parser(filename, path, files, substitutions=None):
     # if the filename has an absolute path but doesn't exist locally, assume
     # it is on the HPC
     if os.path.isabs(filename) is True:
+
         if os.path.isfile(filename) is False:
+
             addfile = ""
 
         else:
+
             raise EX.RequiredinputError(
                 "It appears that the user is trying to refer to a file %s "
                 "using an explicit path. Please just provide the names of "
@@ -63,10 +66,12 @@ def file_parser(filename, path, files, substitutions=None):
 
     # elif the file is in the given path
     elif os.path.isfile(os.path.join(path, filename)) is True:
+
         addfile = filename
 
     # else issue a warning
     else:
+
         raise EX.RequiredinputError(
                 "It appears the file %s is not present in the expected"
                 " directory." % filename)
@@ -85,11 +90,15 @@ def file_parser(filename, path, files, substitutions=None):
         variables = {}
 
         fil = None
+
         # Open the file
         try:
+
             fil = open(addfile, "r")
+
         except IOError:
-            ex.RequiredinputError("Can't read the %s file:" % addfile)
+
+            EX.RequiredinputError("Can't read the %s file:" % addfile)
 
         if fil:
 
@@ -108,36 +117,48 @@ def file_parser(filename, path, files, substitutions=None):
 
                     # allow substitutions from inside the input file as well
                     if words[0].lower() == 'set':
+
                         if words[2] == "=":
+
                             variables[words[1]] = words[3]
+
                         else:
+
                             variables[words[1]] = words[2]
 
                     # if this line is reading in an input file
                     if words[0].lower() in keywords:
+
                         newfile = words[-1]
 
                         # Do variable substitution
                         if '$' in newfile and len(variables.keys()) > 0:
-                            before, sep, after = newfile.rpartition("$")
+
+                            before, _, after = newfile.rpartition("$")
+
                             for instance in variables:
+
                                 if instance in after:
+
                                     newfile = before + after.replace(
                                         instance, variables[instance])
 
                         # deduce the location of newfile
                         newpath = path
+
                         if newfile.count("../") == 1:
 
                             # if we are in a repX subdirectory, the file must
                             # be in cwd
                             if re.search('rep\d', addfile):
-                                before, sep, after = newfile.rpartition("/")
+
+                                before, _, after = newfile.rpartition("/")
                                 newfile = after
 
                             # else we must be in cwd so issue a warning about
                             # referring to a file that is above cwd
                             else:
+
                                 raise EX.RequiredinputError(
                                     "It appears that the"
                                     " user is trying to refer to a file '{}'"
@@ -152,22 +173,22 @@ def file_parser(filename, path, files, substitutions=None):
 
                         # elif ../../ is used in an input script issue an error
                         elif newfile.count("../") > 1:
-                                raise EX.RequiredinputError(
-                                    "It appears that the "
-                                    "user is trying to refer to a file '{}'"
-                                    " in file '{}' that is multiple"
-                                    " directories up from a valid"
-                                    " directory. This is not permitted."
-                                    " If the file you are trying to refer to"
-                                    " is on the HPC, give the explicit path to"
-                                    " the file.".format(newfile, addfile))
+
+                            raise EX.RequiredinputError(
+                                "It appears that the user is trying to refer "
+                                "to a file '{}' in file '{}' that is multiple "
+                                "directories up from a valid directory. This "
+                                "is not permitted. If the file you are trying "
+                                "to refer to is on the HPC, give the explicit "
+                                "path to the file.".format(newfile, addfile))
 
                         # elif we are in a repX subdirectory and the file
                         # isn't in ../ or ./repX, the file is presumably in the
                         # same directory
-                        elif re.search('rep\d', addfile) and not \
-                        re.search('rep\d', newfile):
-                            splitpath, splitfile = os.path.split(addfile)
+                        elif (re.search('rep\d', addfile) and not
+                              re.search('rep\d', newfile)):
+
+                            splitpath, _ = os.path.split(addfile)
                             newfile = os.path.join(splitpath, newfile)
 
                         # elif newfile is indicated to be in a repX
@@ -177,6 +198,7 @@ def file_parser(filename, path, files, substitutions=None):
                             # if we are already in a repX subdirectory issue a
                             # warning
                             if re.search('rep\d', addfile):
+
                                 raise EX.RequiredinputError(
                                     "It appears that the"
                                     "user is trying to refer to a file '{}'"
@@ -186,6 +208,7 @@ def file_parser(filename, path, files, substitutions=None):
 
                             # else we must be in cwd...
                             else:
+
                                 newfile = "rep" + newfile.split("rep")[1]
 
                         # recursive function

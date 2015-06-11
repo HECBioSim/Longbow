@@ -30,10 +30,15 @@ def setuplogger(logfile, loggername, mode):
     """Setup the correct logger based on """
 
     if mode["debug"]:
+
         debuglogger(logfile, loggername)
+
     elif mode["verbose"]:
+
         verboselogger(logfile, loggername)
+
     else:
+
         standardlogger(logfile, loggername)
 
 
