@@ -150,7 +150,7 @@ def file_parser(filename, path, files, substitutions=None):
 
                             # if we are in a repX subdirectory, the file must
                             # be in cwd
-                            if re.search('rep\d', addfile):
+                            if re.search(r'rep\d', addfile):
 
                                 before, _, after = newfile.rpartition("/")
                                 newfile = after
@@ -185,19 +185,19 @@ def file_parser(filename, path, files, substitutions=None):
                         # elif we are in a repX subdirectory and the file
                         # isn't in ../ or ./repX, the file is presumably in the
                         # same directory
-                        elif (re.search('rep\d', addfile) and not
-                              re.search('rep\d', newfile)):
+                        elif (re.search(r'rep\d', addfile) and not
+                              re.search(r'rep\d', newfile)):
 
                             splitpath, _ = os.path.split(addfile)
                             newfile = os.path.join(splitpath, newfile)
 
                         # elif newfile is indicated to be in a repX
                         # subdirectory...
-                        elif re.search('rep\d', newfile):
+                        elif re.search(r'rep\d', newfile):
 
                             # if we are already in a repX subdirectory issue a
                             # warning
-                            if re.search('rep\d', addfile):
+                            if re.search(r'rep\d', addfile):
 
                                 raise EX.RequiredinputError(
                                     "It appears that the"
