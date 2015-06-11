@@ -59,6 +59,7 @@ def testapp(hosts, jobs):
 
         # If we haven't checked this resource then it is likely not in the dict
         if resource not in checked:
+
             checked[resource] = []
 
         # Now check if we have tested this exec already.
@@ -68,27 +69,32 @@ def testapp(hosts, jobs):
             checked[resource].extend([executable])
 
             LOGGER.info(
-                        "Checking executable '{}' on '{}'"
-                        .format(executable, resource))
+                "Checking executable '{}' on '{}'"
+                .format(executable, resource))
 
             cmd = []
+
             if jobs[job]["modules"] is "":
+
                 LOGGER.debug("Checking without modules.")
 
             else:
                 LOGGER.debug("Checking with modules.")
 
                 for module in jobs[job]["modules"].split(","):
+
                     module = module.replace(" ", "")
                     cmd.extend(["module load " + module + "\n"])
 
             cmd.extend(["which " + executable])
 
             try:
+
                 SHELLWRAPPERS.sendtossh(hosts[resource], cmd)
                 LOGGER.info("Executable check - passed.")
 
             except EX.SSHError:
+
                 LOGGER.error("Executable check - failed.")
                 raise
 
@@ -151,9 +157,11 @@ def processjobs(jobs):
         substte = {}
 
         try:
+
             substte = getattr(APPS, app.lower()).sub_dict(args)
 
         except AttributeError:
+
             pass
 
         # Process the command line arguments, detecting any missing flags,
@@ -218,8 +226,9 @@ def processjobs(jobs):
                                 # Also update the command line to reflect a
                                 # global file.
                                 if args[1] in initargs:
+
                                     initargs[initargs.index(args[1])] = \
-                                    os.path.join("../", args[1])
+                                        os.path.join("../", args[1])
 
                         # If the next argument along is a valid file.
                         if os.path.isfile(os.path.join(cwd, fileitem)):
@@ -230,10 +239,12 @@ def processjobs(jobs):
                             # Search input file for any file dependencies that
                             # don't exist.
                             try:
+
                                 getattr(APPS, app.lower()).file_parser(
                                         fileitem, cwd, filelist, substte)
 
                             except AttributeError:
+
                                 if fileitem not in filelist:
                                     filelist.append(fileitem)
 
@@ -297,8 +308,9 @@ def processjobs(jobs):
                                 # Also update the command line to reflect a
                                 # global file.
                                 if args[0] in initargs:
+
                                     initargs[initargs.index(args[0])] = \
-                                    os.path.join("../", args[0])
+                                        os.path.join("../", args[0])
 
                         # If we have something to load then check that it is a
                         # valid file
@@ -310,11 +322,14 @@ def processjobs(jobs):
                             # Search input file for any file dependencies that
                             # don't exist.
                             try:
+
                                 getattr(APPS, app.lower()).file_parser(
                                         fileitem, cwd, filelist, substte)
 
                             except AttributeError:
+
                                 if fileitem not in filelist:
+
                                     filelist.append(fileitem)
 
                 # Looks like the command line is too short to contain the
@@ -333,7 +348,7 @@ def processjobs(jobs):
         else:
 
             # Run through each one.
-            for index, item in enumerate(args):
+            for item in args:
 
                 # If we have a flag (starting with '-') and it is in the list
                 # of required flags.
@@ -409,8 +424,9 @@ def processjobs(jobs):
                                 # Also update the command line to reflect a
                                 # global file.
                                 if item in initargs:
+
                                     initargs[initargs.index(item)] = \
-                                    os.path.join("../", item)
+                                        os.path.join("../", item)
 
                         # If the next argument along is a valid file.
                         if os.path.isfile(os.path.join(cwd, fileitem)):
@@ -418,10 +434,12 @@ def processjobs(jobs):
                             # Search input file for any file dependencies that
                             # don't exist.
                             try:
+
                                 getattr(APPS, app.lower()).file_parser(
                                         fileitem, cwd, filelist, substte)
 
                             except AttributeError:
+
                                 if fileitem not in filelist:
                                     filelist.append(fileitem)
 
@@ -433,19 +451,19 @@ def processjobs(jobs):
 
                 raise EX.RequiredinputError(
                     "In job '{}' there are missing flags on the command line "
-                    "'{}'. See user documentation for plug-in '{}'".format(job,
-                        flags, getattr(apps, "DEFMODULES")[executable]))
+                    "'{}'. See user documentation for plug-in '{}'".format(
+                        job, flags, getattr(APPS, "DEFMODULES")[executable]))
 
         # Setup the rysnc upload masks.
         jobs[job]["upload-include"] = ", ".join(filelist)
-        jobs[job]["upload-exlude"] = "*"
+        jobs[job]["upload-exclude"] = "*"
 
         # Replace the input command line with the execution command line.
         # initargs is a copy of the original args before text enforcing
         # substitutions was removed
         jobs[job]["commandline"] = executable + " " + " ".join(initargs)
 
-        LOGGER.info("For job '{}' - execution string: {}".format(job,
-            jobs[job]["commandline"]))
+        LOGGER.info("For job '{}' - execution string: {}".format(
+            job, jobs[job]["commandline"]))
 
     LOGGER.info("Processing jobs - complete.")

@@ -73,14 +73,17 @@ def main(executable, execargs, files, mode, parameters):
     # Setup some basic file paths.
 
     try:
+
         # log
         # if a filename hasn't been provided default to log
         if files["log"] is "":
+
             files["log"] = "log"
 
         # if the path hasn't been provided default to the current working
         # directory
         if os.path.isabs(files["log"]) is False:
+
             files["log"] = os.path.join(cwd, files["log"])
 
         # ---------------------------------------------------------------------
@@ -95,22 +98,29 @@ def main(executable, execargs, files, mode, parameters):
         # hosts
         # if a filename hasn't been provided default to hosts.conf
         if files["hosts"] is "":
+
             files["hosts"] = "hosts.conf"
+
         # if the path hasn't been provided look in the current working
         # directory and then the execution directory if needs be
         if os.path.isabs(files["hosts"]) is False:
+
             if os.path.isfile(os.path.join(cwd, files["hosts"])):
+
                 files["hosts"] = os.path.join(cwd, files["hosts"])
 
             elif os.path.isfile(os.path.join(execdir, files["hosts"])):
+
                 files["hosts"] = os.path.join(execdir, files["hosts"])
 
-            elif os.path.isfile(os.path.join(os.path.expanduser("~/.Longbow"),
-                                             files["hosts"])):
-                files["hosts"] = os.path.join(os.path.expanduser("~/.Longbow"),
-                                              files["hosts"])
+            elif os.path.isfile(os.path.join(
+                    os.path.expanduser("~/.Longbow"), files["hosts"])):
+
+                files["hosts"] = os.path.join(
+                    os.path.expanduser("~/.Longbow"), files["hosts"])
 
             else:
+
                 raise EX.RequiredinputError(
                     "No host configuration file found in the current working "
                     "directory %s, the execution directory %s or in the "
@@ -121,13 +131,17 @@ def main(executable, execargs, files, mode, parameters):
         # look in the current working directory and then the execution
         # directory if needs be
         if files["job"] is not "" and os.path.isabs(files["job"]) is False:
+
             if os.path.isfile(os.path.join(cwd, files["job"])):
+
                 files["job"] = os.path.join(cwd, files["job"])
 
             elif os.path.isfile(os.path.join(execdir, files["job"])):
+
                 files["job"] = os.path.join(execdir, files["job"])
 
             else:
+
                 raise EX.RequiredinputError(
                     "The job configuration file %s couldn't be found in the "
                     "current working directory %s, the execution directory %s."
@@ -206,8 +220,11 @@ def main(executable, execargs, files, mode, parameters):
 
         # Output the information about the problem.
         if mode["debug"]:
+
             logger.exception(err)
+
         else:
+
             logger.error(err)
 
         logger.error("stdout:\n\n{}" .format(err.stdout))
@@ -221,10 +238,12 @@ def main(executable, execargs, files, mode, parameters):
         # User has decided to kill Longbow, check if there are any jobs still
         # running.
         for job in jobs:
+
             if "jobid" in jobs[job]:
+
                 # If job is not finished delete and stage.
-                if jobs[job]["laststatus"] != "Finished" and \
-                   jobs[job]["laststatus"] != "Submit Error":
+                if (jobs[job]["laststatus"] != "Finished" and
+                        jobs[job]["laststatus"] != "Submit Error"):
 
                     # Kill it.
                     SCHEDULING.delete(hosts, jobs, job)
@@ -234,27 +253,36 @@ def main(executable, execargs, files, mode, parameters):
 
                 # Job is finished then just stage.
                 elif jobs[job]["laststatus"] != "Submit Error":
+
                     # Transfer the directories as they are.
                     STAGING.stage_downstream(hosts, jobs, job)
 
     except EX.RequiredinputError as err:
+
         logger.error(err)
 
     except Exception as err:
+
         if mode["debug"]:
+
             logger.exception(err)
+
         else:
+
             logger.error(err)
 
     finally:
+
         # Cleanup.
 
         # There is a case where when longbow is launched without any args that
         # a glitch here will suppress all the error messages from being seen.
         try:
+
             STAGING.cleanup(hosts, jobs)
 
         except NameError:
+
             pass
 
         logger.info("Good bye from Longbow!")
@@ -356,7 +384,9 @@ if __name__ == "__main__":
 
     # Search for recognised executables on the commandline
     for exe in execlist:
+
         if exe in COMMANDLINEARGS:
+
             if COMMANDLINEARGS.count(exe) == 1:
 
                 EXECUTABLE = exe
@@ -366,6 +396,7 @@ if __name__ == "__main__":
                 break
 
             else:
+
                 raise EX.CommandlineargsError(
                     "More than one recognised executable has been specified on"
                     " the Longbow command-line. Please provide just one.")
@@ -374,6 +405,7 @@ if __name__ == "__main__":
     # file. Executable arguments might still be provided on the command line so
     # try to detect them.
     if EXECUTABLE == "":
+
         for item in COMMANDLINEARGS:
 
             POSITION = COMMANDLINEARGS.index(item)
@@ -393,12 +425,15 @@ if __name__ == "__main__":
         # line must be longbow arguments since we know the executable hasn't
         # been provided on the command line either.
         if EXECARGS == "":
+
             LONGBOWARGS = COMMANDLINEARGS
 
     # Make sure the user hasn't provided longbow arguments amongst the
     # executable arguments
     for item in EXECARGS:
+
         if item in ALLLONGBOWARGS:
+
             raise EX.CommandlineargsError(
                 "Longbow arguments and executable arguments seem to have"
                 " become mixed. Longbow must be ran using the format:\n\n"
@@ -408,8 +443,11 @@ if __name__ == "__main__":
     # Make sure the user hasn't provided bogus longbow arguments or those
     # that aren't recognised on the command line
     for item in LONGBOWARGS:
+
         if item.startswith("-") and item not in ALLLONGBOWARGS:
+
             allowedargs = " ".join(ALLLONGBOWARGS)
+
             raise EX.CommandlineargsError(
                 "Argument %s is not a recognised Longbow argument. "
                 "Recognised arguments are: %s" % (item, allowedargs))
@@ -421,6 +459,7 @@ if __name__ == "__main__":
     # Take test for the about command line flag, print message and exit if
     # found
     if LONGBOWARGS.count("-about") == 1:
+
         print (
             "Welcome to Longbow!\n"
             "Longbow is a remote job submission utility designed for "
@@ -437,12 +476,15 @@ if __name__ == "__main__":
     # Take test for the version command line flag, print message and exit
     # if found
     elif LONGBOWARGS.count("-version") == 1:
+
         print ("Longbow 1.0")
+
         exit(0)
 
     # Take test for the help command line flag, print message and exit if
     # found
     elif LONGBOWARGS.count("-help") == 1:
+
         print (
             "Usage:\n\n"
             "Before running Longbow, first setup a passwordless\n"
@@ -483,9 +525,12 @@ if __name__ == "__main__":
     # Take test for the examples command line flag, download files and exit
     # if found
     elif LONGBOWARGS.count("-examples") == 1:
-        if not os.path.isfile(os.path.join(os.getcwd(),
-                                           "LongbowExamples.zip")):
+
+        if not os.path.isfile(
+                os.path.join(os.getcwd(), "LongbowExamples.zip")):
+
             try:
+
                 subprocess.check_output([
                     "wget",
                     "http://www.hecbiosim.ac.uk/longbow/send/5-longbow/" +
@@ -494,6 +539,7 @@ if __name__ == "__main__":
                     os.path.join(os.getcwd(), "LongbowExamples.zip")])
 
             except subprocess.CalledProcessError:
+
                 subprocess.call([
                     "curl",
                     "-L",
@@ -504,6 +550,7 @@ if __name__ == "__main__":
 
             subprocess.call(["unzip", "-d", os.getcwd(),
                             os.path.join(os.getcwd(), "LongbowExamples.zip")])
+
         exit(0)
 
     # ------------------------------------------------------------------------

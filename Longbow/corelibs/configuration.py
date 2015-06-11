@@ -148,11 +148,13 @@ def loadjobs(jobconfile, hostsconfile, param):
 
     # if a job configuration file has been provided, load it
     if jobconfile is not "":
+
         jobs = loadconfigs(jobconfile, jobtemplate, required)
 
     # else load an empty dictionary, use jobname provided on command line if
     # specified
     else:
+
         jobs[jobname if jobname else "Longbowjob"] = jobtemplate.copy()
 
     # For each job, determine which remote resource to use
@@ -160,22 +162,31 @@ def loadjobs(jobconfile, hostsconfile, param):
     # Read the section headers present in the hosts configuration file.
     # This will be needed later.
     configs = configparser.ConfigParser()
+
     try:
+
         configs.read(hostsconfile)
+
     except IOError:
+
         EX.RequiredinputError("Can't read the configurations from '{}'"
                               .format(hostsconfile))
+
     sectionlist = configs.sections()
 
     for job in jobs:
 
         # if a resource has been specified on the command line overrule
         if resource is not "":
+
             # Check the machine specified on the command line is in the hosts
             # config file. If it is, use it.
             if resource in sectionlist:
+
                 jobs[job]["resource"] = resource
+
             else:
+
                 raise EX.CommandlineargsError(
                     "The '{}' resource specified on the command line is not"
                     " one of: '{}'" .format(resource, sectionlist))
@@ -183,25 +194,37 @@ def loadjobs(jobconfile, hostsconfile, param):
         # elif a resource has not been specified in a job config, use the top
         # machine in the hosts config
         elif jobs[job]["resource"] is "":
+
             try:
+
                 hostsfile = open(hostsconfile, "r")
+
             except IOError:
+
                 EX.RequiredinputError("Can't read the configurations from '{}'"
                                       .format(hostsconfile))
 
             topremoteres = []
+
             for line in hostsfile:
+
                 if line[0] == "[":
+
                     i = 1
+
                     while line[i] is not "]":
+
                         topremoteres.append(line[i])
                         i += 1
+
                     break
+
             topremoteres = "".join(topremoteres)
             jobs[job]["resource"] = topremoteres
             hostsfile.close()
 
         elif jobs[job]["resource"] not in sectionlist:
+
             raise EX.RequiredinputError(
                 "The '{}' resource specified in the job configuration"
                 " file is not one of '{}'"
@@ -272,32 +295,39 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args,
 
     # create jobs internal structure
     for job in jobsconfig:
+
         jobs[job] = jobtemplate.copy()
 
     # prioritise parameters
     for job in jobs:
+
         for option in jobdefaults:
 
             # manually copy certain values from the jobs config from loadjobs()
             if option in manual:
+
                 jobs[job][option] = jobsconfig[job][option]
 
             # certain values provided on the command line should take priority
             elif option in command and jobdefaults[option] is not "":
+
                 jobs[job][option] = jobdefaults[option]
 
             # elif a parameter has been defined in jobsconfig, use it
             elif jobsconfig[job][option] is not "":
+
                 jobs[job][option] = jobsconfig[job][option]
 
             # if a parameter hasn't been defined in jobsconfig but has been in
             # hostsconfig, use it
             elif hostsconfig[jobsconfig[job]["resource"]][option] is not "":
+
                 jobs[job][option] = \
                     hostsconfig[jobsconfig[job]["resource"]][option]
 
             # else use default.
             else:
+
                 jobs[job][option] = jobdefaults[option]
 
     return jobs
@@ -342,28 +372,34 @@ def sorthostsconfigs(hostsconfig, jobsconfig):
 
     # create default hosts internal structure
     for job in jobsconfig:
+
         hosts[jobsconfig[job]["resource"]] = hosttemplate.copy()
 
         for item in manual:
+
             hosts[jobsconfig[job]["resource"]][item] = \
                 hostsconfig[jobsconfig[job]["resource"]][item]
 
     # prioritise parameters
     for job in jobsconfig:
+
         for option in hostdefaults:
 
             # Job configuration parameters always take priority
             if jobsconfig[job][option] is not "":
+
                 hosts[jobsconfig[job]["resource"]][option] = \
                     jobsconfig[job][option]
 
             # else use the hosts parameter if provided
             elif hostsconfig[jobsconfig[job]["resource"]][option] is not "":
+
                 hosts[jobsconfig[job]["resource"]][option] = \
                     hostsconfig[jobsconfig[job]["resource"]][option]
 
             # if parameter has not been defined in hosts or jobs use default
             else:
+
                 hosts[jobsconfig[job]["resource"]][option] = \
                     hostdefaults[option]
 
@@ -382,12 +418,14 @@ def amendjobsconfigs(hosts, jobs):
 
         # Check we have an executable provided
         if jobs[job]["executable"] is "":
+
             raise EX.CommandlineargsError(
                 "An executable has not been specified on the command-line "
                 "or in a configuration file")
 
         # Check we have command line arguments provided
         if jobs[job]["commandline"] is "":
+
             raise EX.CommandlineargsError(
                 "Command-line arguments could not be detected properly on the "
                 "command-line or in a configuration file. If your application "
@@ -398,18 +436,21 @@ def amendjobsconfigs(hosts, jobs):
         # if the commandline parameter is a string, we need to split it up into
         # a list of strings
         elif isinstance(jobs[job]["commandline"], basestring):
+
             jobs[job]["commandline"] = jobs[job]["commandline"].split()
 
         # If modules hasn't been defined in a config file, use default
         if jobs[job]["modules"] is "":
+
             jobs[job]["modules"] = modules[jobs[job]["executable"]]
 
         # If replicates hasn't been defined anywhere, set to "1"
         if jobs[job]["replicates"] is "":
+
             jobs[job]["replicates"] = "1"
 
         # Define the remote directory in which the job will run
-        destdir = job + ''.join(["%s" % randint(0, 9) for num in range(0, 5)])
+        destdir = job + ''.join(["%s" % randint(0, 9) for _ in range(0, 5)])
 
         jobs[job]["destdir"] = os.path.join(
             hosts[jobs[job]["resource"]]["remoteworkdir"], destdir)
@@ -429,9 +470,11 @@ def loadconfigs(confile, template, required):
     configs = configparser.ConfigParser()
 
     try:
+
         configs.read(confile)
 
     except IOError:
+
         raise EX.ConfigurationError(
             "Can't read the configurations from '{}'" .format(confile))
 
@@ -441,6 +484,7 @@ def loadconfigs(confile, template, required):
 
     # If we don't have any sections then raise an exception.
     if sectioncount is 0:
+
         raise EX.ConfigurationError(
             "In file '{}' no sections can be detected or the file is not in "
             "ini format." .format(confile))
@@ -448,6 +492,7 @@ def loadconfigs(confile, template, required):
     # Temporary dictionary for storing the configurations in.
     params = {}
     for section in sectionlist:
+
         params[section] = template.copy()
 
         # Grab the option count from the section.
@@ -455,21 +500,27 @@ def loadconfigs(confile, template, required):
 
         # If we have no options then raise an exception.
         if optioncount is 0:
+
             raise EX.ConfigurationError(
                 "There are no parameters listed under the section '{}'"
                 .format(section))
 
         # Store option values in our dictionary structure.
         for option in template:
+
             try:
+
                 params[section][option] = configs.get(section, option)
 
             except configparser.NoOptionError:
+
                 if option in required:
+
                     raise EX.ConfigurationError(
                         "The parameter '{}' is required" .format(option))
 
                 else:
+
                     pass
 
     return params
@@ -487,11 +538,15 @@ def saveconfigs(confile, params):
     configs.read(confile)
 
     for section in params:
+
         for option in params[section]:
+
             if params[section][option] is not "":
+
                 # Append the new option and value to the configuration.
                 configs.set(section, option, params[section][option])
 
     # Save it.
     with open(confile, 'w') as conf:
+
         configs.write(conf)
