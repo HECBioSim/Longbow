@@ -50,7 +50,7 @@ def delete(host, job):
 
     try:
 
-        if job["replicates"] > 1:
+        if int(job["replicates"]) > 1:
 
             shellout = SHELLWRAPPERS.sendtossh(host, ["qdel " + jobid + "[]"])
 
