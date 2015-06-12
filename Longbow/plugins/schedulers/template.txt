@@ -14,7 +14,9 @@ QUERY_STRING = "unique identifier here."                        # IMPORTANT
 #------------------------------------------------------------------------------
 # Delete method (not currently used).
 
-def delete(host, jobid):                                        # IMPORTANT
+def delete(host, job):                                          # IMPORTANT
+
+	jobid = job["jobid"]
 
     """Method for deleting job."""
 

@@ -51,15 +51,19 @@ QUERY_STRING = "which sbatch"                        # IMPORTANT
 # Delete method (not currently used).
 
 
-def delete(host, jobid):                                        # IMPORTANT
+def delete(host, job):                                              # IMPORTANT
 
     """Method for deleting job."""
 
+    jobid = job["jobid"]
+
     LOGGER.info("Deleting the job with id '{}'" .format(jobid))
     try:
+
         shellout = SHELLWRAPPERS.sendtossh(host, ["scancel " + jobid])
 
     except EX.SSHError:
+
         raise EX.JobdeleteError("Unable to delete job.")
 
     LOGGER.info("Deleted successfully")
@@ -85,21 +89,26 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
 
     # Job name (if supplied)
     if jobname is not "":
+
         jobfile.write("#SBATCH -J " + jobname + "\n")
 
     # Queue to submit to (if supplied)
     if jobs[jobname]["queue"] is not "":
+
         jobfile.write("#SBATCH -p " + jobs[jobname]["queue"] + "\n")
 
     resource = jobs[jobname]["resource"]
 
     # Account to charge (if supplied)
     if hosts[resource]["account"] is not "":
+
         # if no accountflag is provided use the default
         if hosts[resource]["accountflag"] is "":
+
             jobfile.write("#SBATCH -A " + hosts[resource]["account"] + "\n")
 
         else:
+
             jobfile.write("#SBATCH " +
                           hosts[resource]["accountflag"] +
                           " " + hosts[resource]["account"] + "\n")
@@ -113,6 +122,7 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
     # If user has specified corespernode for under utilisation then
     # set the total nodes (-N) parameter.
     if cpn is not "":
+
         nodes = float(cores) / float(cpn)
 
         # Make sure nodes is rounded up to the next highest integer
@@ -124,7 +134,9 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
 
     # Load up modules if required.
     if jobs[jobname]["modules"] is not "":
+
         for module in jobs[jobname]["modules"].split(","):
+
             module = module.replace(" ", "")
             jobfile.write("module load {}\n\n" .format(module))
 
@@ -133,10 +145,12 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
 
     # Single jobs only need one run command.
     if int(jobs[jobname]["replicates"]) == 1:
+
         jobfile.write(mpirun + " " + jobs[jobname]["commandline"] + "\n")
 
     # Ensemble jobs need a loop.
     elif int(jobs[jobname]["replicates"]) > 1:
+
         jobfile.write("basedir = `pwd`"
                       "for i in {1.." + jobs[jobname]["replicates"] + "};\n"
                       "do\n"
@@ -164,45 +178,58 @@ def status(host, jobid):                                        # IMPORTANT
     state = ""
 
     try:
+
         shellout = SHELLWRAPPERS.sendtossh(host, ["squeue -u " + host["user"] +
                                                   "| grep " + jobid])
 
         stat = shellout[0].split()
 
         if stat[4] == "CA":
+
             state = "Cancelled"
 
         elif stat[4] == "CD":
+
             state = "Completed"
 
         elif stat[4] == "CF":
+
             state = "Configuring"
 
         elif stat[4] == "CG":
+
             state = "Completing"
 
         elif stat[4] == "F":
+
             state = "Failed"
 
         elif stat[4] == "NF":
+
             state = "Node failure"
 
         elif stat[4] == "PD":
+
             state = "Pending"
 
         elif stat[4] == "PR":
+
             state = "Preempted"
 
         elif stat[4] == "R":
+
             state = "Running"
 
         elif stat[4] == "S":
+
             state = "Suspended"
 
         elif stat[4] == "TO":
+
             state = "Timed out"
 
     except EX.SSHError:
+
         state = "Finished"
 
     return state
@@ -224,9 +251,11 @@ def submit(host, jobname, jobs):                                # IMPORTANT
 
     # Process the submit
     try:
+
         shellout = SHELLWRAPPERS.sendtossh(host, cmd)[0]
 
     except EX.SSHError:
+
         raise EX.JobsubmitError("  Something went wrong when submitting.")
 
     output = shellout.rstrip("\r\n")

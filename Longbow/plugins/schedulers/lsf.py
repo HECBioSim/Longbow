@@ -39,16 +39,20 @@ LOGGER = logging.getLogger("Longbow")
 QUERY_STRING = "env | grep -i 'lsf'"
 
 
-def delete(host, jobid):
+def delete(host, job):
 
     """Method for deleting job."""
+
+    jobid = job["jobid"]
 
     LOGGER.info("Deleting the job with id '{}'" .format(jobid))
 
     try:
+
         shellout = SHELLWRAPPERS.sendtossh(host, ["bkill " + jobid])
 
     except EX.SSHError:
+
         raise EX.JobdeleteError("Unable to delete job.")
 
     LOGGER.info("Deletion successful")
@@ -73,27 +77,34 @@ def prepare(hosts, jobname, jobs):
 
         # Single job
         if int(jobs[jobname]["replicates"]) == 1:
+
             jobfile.write("#BSUB -J " + jobname + "\n")
 
         # Job array
         elif int(jobs[jobname]["replicates"]) > 1:
+
             jobfile.write("#BSUB -J " + jobname + "[1-" +
                           jobs[jobname]["replicates"] + "]\n")
 
     if jobs[jobname]["queue"] is not "":
+
         jobfile.write("#BSUB -q " + jobs[jobname]["queue"] + "\n")
 
     if jobs[jobname]["cluster"] is not "":
+
         jobfile.write("#BSUB -m " + jobs[jobname]["cluster"] + "\n")
 
     # Account to charge (if supplied).
     if hosts[jobs[jobname]["resource"]]["account"] is not "":
+
         # if no accountflag is provided use the default
         if hosts[jobs[jobname]["resource"]]["accountflag"] is "":
+
             jobfile.write("#BSUB -P " +
                           hosts[jobs[jobname]["resource"]]["account"] +
                           "\n")
         else:
+
             jobfile.write("#BSUB " +
                           hosts[jobs[jobname]["resource"]]["accountflag"] +
                           " " + hosts[jobs[jobname]["resource"]]["account"] +
@@ -105,7 +116,9 @@ def prepare(hosts, jobname, jobs):
                   "\n")
 
     if jobs[jobname]["modules"] is not "":
+
         for module in jobs[jobname]["modules"].split(","):
+
             module = module.replace(" ", "")
             jobfile.write("\n" + "module load {}\n\n" .format(module))
 
@@ -138,21 +151,26 @@ def status(host, jobid):
     state = ""
 
     try:
+
         shellout = SHELLWRAPPERS.sendtossh(host, ["bjobs -u " + host["user"] +
                                                   " | grep " + jobid])
 
         stat = shellout[0].split()
 
         if stat[2] == "PSUSP" or stat[2] == "USUSP" or stat[2] == "SSUSP":
+
             state = "Held"
 
         elif stat[2] == "PEND":
+
             state = "Queued"
 
         elif stat[2] == "RUN":
+
             state = "Running"
 
     except EX.SSHError:
+
         state = "Finished"
 
     return state
@@ -171,9 +189,11 @@ def submit(host, jobname, jobs):
 
     # Process the submit
     try:
+
         shellout = SHELLWRAPPERS.sendtossh(host, cmd)[0]
 
     except EX.SSHError:
+
         raise EX.JobsubmitError("  Something went wrong when submitting.")
 
     output = shellout.splitlines()[0]
