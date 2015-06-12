@@ -25,6 +25,7 @@ command line arguments of the job in a code specific manner."""
 
 import logging
 import os
+from random import randint
 
 # Depending on how longbow is installed/utilised the import will be slightly
 # different, this should handle both cases.
@@ -117,6 +118,14 @@ def processjobs(jobs):
         app = tmp[executable]
         args = jobs[job]["commandline"]
         filelist = []
+
+        # Append a hash to the job directory to avoid directory clashes.
+        destdir = job + ''.join(["%s" % randint(0, 9) for _ in range(0, 5)])
+
+        jobs[job]["destdir"] = os.path.join(jobs[job]["destdir"], destdir)
+
+        LOGGER.debug("Job '{}' will be run in the '{}' directory on the remote"
+                     " resource.".format(job, jobs[job]["destdir"]))
 
         LOGGER.debug("Command-line arguments for job '{}'are '{}'"
                      .format(job, args))

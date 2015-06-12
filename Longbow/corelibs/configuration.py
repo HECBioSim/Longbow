@@ -40,8 +40,6 @@ saveconfigs()
 
 import ConfigParser as configparser
 import logging
-import os
-from random import randint
 
 # Depending on how longbow is installed/utilised the import will be slightly
 # different, this should handle both cases.
@@ -449,14 +447,9 @@ def amendjobsconfigs(hosts, jobs):
 
             jobs[job]["replicates"] = "1"
 
-        # Define the remote directory in which the job will run
-        destdir = job + ''.join(["%s" % randint(0, 9) for _ in range(0, 5)])
-
-        jobs[job]["destdir"] = os.path.join(
-            hosts[jobs[job]["resource"]]["remoteworkdir"], destdir)
-
-        LOGGER.debug("Job '{}' will be run in the '{}' directory on the remote"
-                     " resource." .format(job, jobs[job]["destdir"]))
+        # Give each job a remote basepath, a random hash will be added to this
+        # later.
+        jobs[job]["destdir"] = hosts[jobs[job]["resource"]]["remoteworkdir"]
 
 
 def loadconfigs(confile, template, required):
