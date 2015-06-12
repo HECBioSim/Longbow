@@ -73,8 +73,8 @@ def file_parser(filename, path, files, substitutions=None):
     else:
 
         raise EX.RequiredinputError(
-                "It appears the file '{}' is not present in the expected"
-                " directory.".format(filename))
+            "It appears the file '{}' is not present in the expected"
+            " directory.".format(filename))
 
     # Now look for references to other files in the input file if not done so
     # already
@@ -91,6 +91,7 @@ def file_parser(filename, path, files, substitutions=None):
         try:
 
             fil = open(os.path.join(path, addfile), "r")
+
         except IOError:
 
             EX.RequiredinputError("Can't read the %s file:" % addfile)
