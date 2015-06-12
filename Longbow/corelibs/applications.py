@@ -208,6 +208,12 @@ def processjobs(jobs):
                                     .format(job, os.path.join(
                                         cwd, "rep" + str(i))))
 
+                            # Otherwise the dir needs to appear on the upload
+                            # list because rsync will not auto create dirs.
+                            else:
+
+                                filelist.append("rep" + str(i))
+
                             # If we have a replicate job then we should check
                             # if the file resides within ./rep{i} or if it is
                             # a global (common to each replicate) file.
@@ -240,7 +246,8 @@ def processjobs(jobs):
                             # don't exist.
                             try:
 
-                                getattr(APPS, app.lower()).file_parser(
+                                getattr(
+                                    APPS, app.lower()).file_parser(
                                         fileitem, cwd, filelist, substte)
 
                             except AttributeError:
@@ -290,6 +297,12 @@ def processjobs(jobs):
                                     "cannot be found".format(job, os.path.join(
                                         cwd, "rep" + str(i))))
 
+                            # Otherwise the dir needs to appear on the upload
+                            # list because rsync will not auto create dirs.
+                            else:
+
+                                filelist.append("rep" + str(i))
+
                             # If we have a replicate job then we should check
                             # if the file resides within ./rep{i} or if it is
                             # a global (common to each replicate) file.
@@ -323,7 +336,8 @@ def processjobs(jobs):
                             # don't exist.
                             try:
 
-                                getattr(APPS, app.lower()).file_parser(
+                                getattr(
+                                    APPS, app.lower()).file_parser(
                                         fileitem, cwd, filelist, substte)
 
                             except AttributeError:
@@ -406,6 +420,12 @@ def processjobs(jobs):
                                     "cannot be found".format(job, os.path.join(
                                         cwd, "rep" + str(i))))
 
+                            # Otherwise the dir needs to appear on the upload
+                            # list because rsync will not auto create dirs.
+                            else:
+
+                                filelist.append("rep" + str(i))
+
                             # If we have a replicate job then we should check
                             # if the file resides within ./rep{i} or if it is
                             # a global (common to each replicate) file.
@@ -435,7 +455,8 @@ def processjobs(jobs):
                             # don't exist.
                             try:
 
-                                getattr(APPS, app.lower()).file_parser(
+                                getattr(
+                                    APPS, app.lower()).file_parser(
                                         fileitem, cwd, filelist, substte)
 
                             except AttributeError:
