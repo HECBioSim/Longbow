@@ -40,15 +40,26 @@ LOGGER = logging.getLogger("Longbow")
 QUERY_STRING = "env | grep -i 'pbs'"
 
 
-def delete(host, jobid):
+def delete(host, job):
 
     """Method for deleting job."""
 
+    jobid = job["jobid"]
+
     LOGGER.info("Deleting the job with id '{}'" .format(jobid))
+
     try:
-        shellout = SHELLWRAPPERS.sendtossh(host, ["qdel " + jobid])
+
+        if job["replicates"] > 1:
+
+            shellout = SHELLWRAPPERS.sendtossh(host, ["qdel " + jobid + "[]"])
+
+        else:
+
+            shellout = SHELLWRAPPERS.sendtossh(host, ["qdel " + jobid])
 
     except EX.SSHError:
+
         raise EX.JobdeleteError("Unable to delete job.")
 
     LOGGER.info("Deletion successful.")
@@ -71,21 +82,27 @@ def prepare(hosts, jobname, jobs):
 
     # Job name (if supplied)
     if jobname is not "":
+
         jobfile.write("#PBS -N " + jobname + "\n")
 
     # Queue to submit to (if supplied)
     if jobs[jobname]["queue"] is not "":
+
         jobfile.write("#PBS -q " + jobs[jobname]["queue"] + "\n")
 
     # Account to charge (if supplied).
     if hosts[jobs[jobname]["resource"]]["account"] is not "":
+
         # if no accountflag is provided use the default
         if hosts[jobs[jobname]["resource"]]["accountflag"] is "":
+
             jobfile.write("#PBS -A " +
                           hosts[jobs[jobname]["resource"]]["account"] +
                           "\n")
+
         # else use the accountflag provided
         else:
+
             jobfile.write("#PBS " +
                           hosts[jobs[jobname]["resource"]]["accountflag"] +
                           " " + hosts[jobs[jobname]["resource"]]["account"] +
@@ -98,6 +115,7 @@ def prepare(hosts, jobname, jobs):
     # Load levelling override. In cases where # of cores is less than
     # corespernode, user is likely to be undersubscribing.
     if int(cores) < int(cpn):
+
         cpn = cores
 
     # Calculate the number of nodes.
@@ -121,6 +139,7 @@ def prepare(hosts, jobname, jobs):
     # If user has specified memory append the flag (not all machines support
     # this).
     if memory is not "":
+
         tmp = tmp + ":mem=" + memory + "gb"
 
     # Write the resource requests
@@ -131,6 +150,7 @@ def prepare(hosts, jobname, jobs):
 
     # Set up replicates jobs
     if int(jobs[jobname]["replicates"]) > 1:
+
         jobfile.write("#PBS -J 1-" + jobs[jobname]["replicates"] + "\n")
         jobfile.write("#PBS -r y\n")
 
@@ -143,7 +163,9 @@ def prepare(hosts, jobname, jobs):
 
     # Load up modules if required.
     if jobs[jobname]["modules"] is not "":
+
         for module in jobs[jobname]["modules"].split(","):
+
             module = module.replace(" ", "")
             jobfile.write("module load {}\n\n" .format(module))
 
@@ -152,6 +174,7 @@ def prepare(hosts, jobname, jobs):
 
     # CRAY's use aprun which has slightly different requirements to mpirun.
     if mpirun == "aprun":
+
         mpirun = mpirun + " -n " + cores + " -N " + mpiprocs
 
     # Single jobs only need one run command.
@@ -161,6 +184,7 @@ def prepare(hosts, jobname, jobs):
 
     # Job array
     elif int(jobs[jobname]["replicates"]) > 1:
+
         jobfile.write("basedir=$PBS_O_WORKDIR \n"
                       "cd $basedir/rep${PBS_ARRAY_INDEX}/\n\n" +
                       mpirun + " " + jobs[jobname]["commandline"] + "\n")
@@ -181,46 +205,59 @@ def status(host, jobid):
     state = ""
 
     try:
+
         shellout = SHELLWRAPPERS.sendtossh(host, ["qstat -u " + host["user"] +
                                                   " | grep " + jobid])
 
         stat = shellout[0].split()
 
         if stat[9] == "H":
+
             state = "Held"
 
         elif stat[9] == "Q":
+
             state = "Queued"
 
         elif stat[9] == "R":
+
             state = "Running"
 
         elif stat[9] == "B":
+
             state = "Subjob(s) running"
 
         elif stat[9] == "E":
+
             state = "Exiting"
 
         elif stat[9] == "M":
+
             state = "Job moved to server"
 
         elif stat[9] == "S":
+
             state = "Suspended"
 
         elif stat[9] == "T":
+
             state = "Job moved to new location"
 
         elif stat[9] == "U":
+
             state = ("Cycle-harvesting job is suspended due to keyboard " +
                      "activity")
 
         elif stat[9] == "W":
+
             state = "Waiting for start time"
 
         elif stat[9] == "X":
+
             state = "Subjob completed execution/has been deleted"
 
     except EX.SSHError:
+
         state = "Finished"
 
     return state
@@ -239,12 +276,15 @@ def submit(host, jobname, jobs):
 
     # Process the submit
     try:
+
         shellout = SHELLWRAPPERS.sendtossh(host, cmd)[0]
 
     except EX.SSHError as inst:
+
         if "set_booleans" in inst.stderr:
+
             raise EX.JobsubmitError(
-                "  Something went wrong when submitting. The likely cause is "
+                "Something went wrong when submitting. The likely cause is "
                 "your particular PBS install is not receiving the "
                 "information/options/parameters it " "requires "
                 "e.g. '#PBS -l mem=20gb'. Check the PBS documentation and edit"
@@ -252,8 +292,9 @@ def submit(host, jobname, jobs):
                 "e.g. 'memory = 20' in the job configuration file")
 
         elif "Job rejected by all possible destinations" in inst.stderr:
+
             raise EX.JobsubmitError(
-                "  Something went wrong when submitting. This may be because "
+                "Something went wrong when submitting. This may be because "
                 "you need to provide PBS with your account code and the "
                 "account flag your PBS install expects (Longbow defaults to "
                 "A). Check the PBS documentation and edit the configuration "
@@ -261,25 +302,29 @@ def submit(host, jobname, jobs):
                 "'accountflag = P' and 'account = ABCD-01234-EFG'")
 
         elif "Job must specify budget (-A option)" in inst.stderr:
+
             raise EX.JobsubmitError(
-                "  Something went wrong when submitting. This may be because "
+                "Something went wrong when submitting. This may be because "
                 "you provided PBS with an account flag other than 'A' which "
                 "your PBS install expects")
 
         elif "Job exceeds queue and/or server resource limits" in inst.stderr:
+
             raise EX.JobsubmitError(
-                "  Something went wrong when submitting. PBS has reported "
+                "Something went wrong when submitting. PBS has reported "
                 "that 'Job exceeds queue and/or server resource limits'. "
                 "This may be because you set a walltime or some other "
                 "quantity that exceeds the maximum allowed on your system.")
 
         elif "budget" in inst.stderr:
+
             raise EX.JobsubmitError(
-                "  Something went wrong when submitting. This may be that you "
+                "Something went wrong when submitting. This may be that you "
                 "have entered an incorrect account code.")
 
         else:
-            raise EX.JobsubmitError("  Something went wrong when submitting.")
+
+            raise EX.JobsubmitError("Something went wrong when submitting.")
 
     output = shellout.rstrip("\r\n")
 

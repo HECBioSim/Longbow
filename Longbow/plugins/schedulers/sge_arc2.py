@@ -40,15 +40,20 @@ LOGGER = logging.getLogger("Longbow")
 QUERY_STRING = "env | grep -i 'sge'"
 
 
-def delete(host, jobid):
+def delete(host, job):
 
     """Method for deleting job."""
 
+    jobid = job["jobid"]
+
     LOGGER.info("Deleting the job with id '{}'" .format(jobid))
+
     try:
+
         shellout = SHELLWRAPPERS.sendtossh(host, ["qdel " + jobid])
 
     except EX.SSHError:
+
         raise EX.JobdeleteError("Unable to delete job.")
 
     LOGGER.info("Deleted successfully")
@@ -71,19 +76,24 @@ def prepare(hosts, jobname, jobs):
                   "#$ -cwd -V\n")
 
     if jobname is not "":
+
         jobfile.write("#$ -N " + jobname + "\n")
 
     if jobs[jobname]["queue"] is not "":
+
         jobfile.write("#$ -q " + jobs[jobname]["queue"] + "\n")
 
     # Account to charge (if supplied).
     if hosts[jobs[jobname]["resource"]]["account"] is not "":
+
         # if no accountflag is provided use the default
         if hosts[jobs[jobname]["resource"]]["accountflag"] is "":
+
             jobfile.write("#$ -A " +
                           hosts[jobs[jobname]["resource"]]["account"] + "\n")
         # else use the accountflag provided
         else:
+
             jobfile.write("#$ " +
                           hosts[jobs[jobname]["resource"]]["accountflag"] +
                           " " + hosts[jobs[jobname]["resource"]]["account"] +
@@ -93,6 +103,7 @@ def prepare(hosts, jobname, jobs):
 
     # Job array
     if int(jobs[jobname]["replicates"]) > 1:
+
         jobfile.write("#$ -t 1-" + jobs[jobname]["replicates"] + "\n")
 
     cores = jobs[jobname]["cores"]
@@ -101,6 +112,7 @@ def prepare(hosts, jobname, jobs):
     # Load levelling override. In cases where # of cores is less than
     # corespernode, user is likely to be undersubscribing.
     if int(cores) < int(cpn):
+
         cpn = cores
 
     # Calculate the number of nodes.
@@ -124,7 +136,9 @@ def prepare(hosts, jobname, jobs):
     jobfile.write("#$ -pe ib " + cores + "\n\n")
 
     if jobs[jobname]["modules"] is not "":
+
         for module in jobs[jobname]["modules"].split(","):
+
             module = module.replace(" ", "")
             jobfile.write("module load {}\n\n" .format(module))
 
@@ -157,21 +171,26 @@ def status(host, jobid):
     state = ""
 
     try:
+
         shellout = SHELLWRAPPERS.sendtossh(host, ["qstat -u " + host["user"] +
                                                   "| grep " + jobid])
 
         stat = shellout[0].split()
 
         if stat[4] == "h":
+
             state = "Held"
 
         elif stat[4] == "qw":
+
             state = "Queued"
 
         elif stat[4] == "r":
+
             state = "Running"
 
     except EX.SSHError:
+
         state = "Finished"
 
     return state
@@ -190,9 +209,11 @@ def submit(host, jobname, jobs):
 
     # Process the submit
     try:
+
         shellout = SHELLWRAPPERS.sendtossh(host, cmd)[0]
 
     except EX.SSHError:
+
         raise EX.JobsubmitError("  Something went wrong when submitting.")
 
     LOGGER.info("Job '{}' submitted with id '{}'" .format(jobname, shellout))

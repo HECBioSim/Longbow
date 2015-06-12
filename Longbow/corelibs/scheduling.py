@@ -187,11 +187,11 @@ def delete(hosts, jobs, jobname):
 
     scheduler = hosts[jobs[jobname]["resource"]]["scheduler"]
     host = hosts[jobs[jobname]["resource"]]
-    jobid = jobs[jobname]["jobid"]
+    job = jobs[jobname]
 
     try:
 
-        getattr(SCHEDULERS, scheduler.lower()).delete(host, jobid)
+        getattr(SCHEDULERS, scheduler.lower()).delete(host, job)
 
     except AttributeError:
 
