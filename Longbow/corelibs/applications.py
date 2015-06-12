@@ -212,7 +212,9 @@ def processjobs(jobs):
                             # list because rsync will not auto create dirs.
                             else:
 
-                                filelist.append("rep" + str(i))
+                                if ("rep" + str(i)) not in filelist:
+
+                                    filelist.append("rep" + str(i))
 
                             # If we have a replicate job then we should check
                             # if the file resides within ./rep{i} or if it is
@@ -301,7 +303,9 @@ def processjobs(jobs):
                             # list because rsync will not auto create dirs.
                             else:
 
-                                filelist.append("rep" + str(i))
+                                if ("rep" + str(i)) not in filelist:
+
+                                    filelist.append("rep" + str(i))
 
                             # If we have a replicate job then we should check
                             # if the file resides within ./rep{i} or if it is
@@ -424,7 +428,9 @@ def processjobs(jobs):
                             # list because rsync will not auto create dirs.
                             else:
 
-                                filelist.append("rep" + str(i))
+                                if ("rep" + str(i)) not in filelist:
+
+                                    filelist.append("rep" + str(i))
 
                             # If we have a replicate job then we should check
                             # if the file resides within ./rep{i} or if it is
