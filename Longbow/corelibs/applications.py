@@ -416,7 +416,15 @@ def processjobs(jobs):
                         # be
                         if int(jobs[job]["replicates"]) == 1:
 
-                            fileitem = item
+                            if os.path.isfile(os.path.join(cwd, item)):
+
+                                fileitem = item
+
+                            # fix for gromacs -deffnm (hack)
+                            elif os.path.isfile(os.path.join(
+                                                cwd, item + ".tpr")):
+
+                                fileitem = item + ".tpr"
 
                         # Otherwise we have a replicate job so we should amend
                         # the paths.
@@ -450,11 +458,32 @@ def processjobs(jobs):
                                 # Set the file path
                                 fileitem = os.path.join("rep" + str(i), item)
 
+                            # fix for gromacs -deffnm (hack)
+                            elif os.path.isfile(os.path.join(
+                                    cwd, "rep" + str(i), item + ".tpr")):
+
+                                fileitem = os.path.join(
+                                    "rep" + str(i), item + ".tpr")
+
                             # Otherwise do we have a file here.
                             elif os.path.isfile(os.path.join(cwd, item)):
 
                                 # If we do then set file path.
                                 fileitem = item
+
+                                # Also update the command line to reflect a
+                                # global file.
+                                if item in initargs:
+
+                                    initargs[initargs.index(item)] = \
+                                        os.path.join("../", item)
+
+                            # fix for gromacs -deffnm (hack)
+                            elif os.path.isfile(os.path.join(
+                                    cwd, item + ".tpr")):
+
+                                # If we do then set file path.
+                                fileitem = item + ".tpr"
 
                                 # Also update the command line to reflect a
                                 # global file.
