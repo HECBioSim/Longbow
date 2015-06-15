@@ -420,11 +420,14 @@ def processjobs(jobs):
 
                                 fileitem = item
 
-                            # fix for gromacs -deffnm (hack)
-                            elif os.path.isfile(os.path.join(
-                                                cwd, item + ".tpr")):
+                            # Hook for checking plugin specific file naming
+                            # scenarios (eg. gromacs -deffnm test actually
+                            # referring to test.tpr).
+                            else:
 
-                                fileitem = item + ".tpr"
+                                fileitem = getattr(
+                                    APPS, app.lower()).defaultfilename(
+                                        cwd, item)
 
                         # Otherwise we have a replicate job so we should amend
                         # the paths.
@@ -458,13 +461,6 @@ def processjobs(jobs):
                                 # Set the file path
                                 fileitem = os.path.join("rep" + str(i), item)
 
-                            # fix for gromacs -deffnm (hack)
-                            elif os.path.isfile(os.path.join(
-                                    cwd, "rep" + str(i), item + ".tpr")):
-
-                                fileitem = os.path.join(
-                                    "rep" + str(i), item + ".tpr")
-
                             # Otherwise do we have a file here.
                             elif os.path.isfile(os.path.join(cwd, item)):
 
@@ -478,19 +474,35 @@ def processjobs(jobs):
                                     initargs[initargs.index(item)] = \
                                         os.path.join("../", item)
 
-                            # fix for gromacs -deffnm (hack)
-                            elif os.path.isfile(os.path.join(
-                                    cwd, item + ".tpr")):
+                            # Hook for checking plugin specific file naming
+                            # scenarios (eg. gromacs -deffnm test actually
+                            # referring to test.tpr).
+                            else:
 
-                                # If we do then set file path.
-                                fileitem = item + ".tpr"
+                                tmp = getattr(
+                                    APPS, app.lower()).defaultfilename(
+                                        cwd, os.path.join(
+                                            "rep" + str(i) + item))
 
-                                # Also update the command line to reflect a
-                                # global file.
-                                if item in initargs:
+                                # If we have a positive check then file found
+                                # in rep$i directories.
+                                if tmp is not "":
 
-                                    initargs[initargs.index(item)] = \
-                                        os.path.join("../", item)
+                                    fileitem = tmp
+
+                                # Otherwise check for global one.
+                                else:
+
+                                    fileitem = getattr(
+                                        APPS, app.lower()).defaultfilename(
+                                            cwd, item)
+
+                                    # Also update the command line to reflect a
+                                    # global file.
+                                    if item in initargs:
+
+                                        initargs[initargs.index(item)] = \
+                                            os.path.join("../", item)
 
                         # If the next argument along is a valid file.
                         if os.path.isfile(os.path.join(cwd, fileitem)):
