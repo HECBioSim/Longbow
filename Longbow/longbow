@@ -307,10 +307,9 @@ if __name__ == "__main__":
     -hosts filename
     -job filename
     -log filename
-    -resource HPCname
+    -resource remote resource name
     -replicates number
     -jobname jobname
-    -stage filename(s)
     -debug
     -verbose
     -about
@@ -488,9 +487,9 @@ if __name__ == "__main__":
         print (
             "Usage:\n\n"
             "Before running Longbow, first setup a passwordless\n"
-            "connection with a target HPC and setup configuration files\n"
-            "according to the documentation. Submit jobs using the \n"
-            "following format:\n\n"
+            "connection with a target remote resource and setup\n"
+            "configuration files according to the documentation. Submit jobs\n"
+            "using the following format:\n\n"
             "longbow [longbow args] executable [executable args]\n\n"
             "e.g.:\n"
             "%longbow -verbose pmemd.MPI -i example.in -c example.min -p "
@@ -502,12 +501,12 @@ if __name__ == "__main__":
             " filename\n"
             "-log filename      : specifies the file Longbow output should"
             " be directed to\n"
-            "-resource HPCname  : specifies the target HPC\n"
+            "-resource remote resource : specifies the remote resource\n"
             "-replicates number : number of replicate jobs to be "
             "submitted\n"
             "-jobname jobname   : the name of the job to be submitted\n"
             "-stage filename(s) : \",\" or \" \" separated list of files"
-            " to be copied to the target HPC if not automatically done so"
+            " to be copied to the remote resource if not automatically done so"
             " by Longbow\n"
             "-debug             : additional output to assist debugging\n"
             "-verbose           : additional run-time info to be output\n"
@@ -624,7 +623,7 @@ if __name__ == "__main__":
                 LONGBOWARGS[POSITION + 1].startswith("-")):
 
             raise EX.CommandlineargsError(
-                "Please specify a valid remote machine for the -resource"
+                "Please specify a valid remote resource for the -resource"
                 " command line parameter e.g. longbow -resource HPC ...")
 
         else:

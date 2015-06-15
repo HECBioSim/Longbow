@@ -50,7 +50,7 @@ def file_parser(filename, path, files, substitutions=None):
     addfile = ""
 
     # if the filename has an absolute path but doesn't exist locally, assume
-    # it is on the HPC
+    # it is on the remote resource
     if os.path.isabs(filename) is True:
 
         if os.path.isfile(filename) is False:
@@ -173,8 +173,9 @@ def file_parser(filename, path, files, substitutions=None):
                                     " directory up from the '{}'"
                                     " directory. Only files in '{}'"
                                     " or a repX subdirectory can be"
-                                    " copied to the HPC. If the file you are"
-                                    " trying to refer to is on the HPC, give"
+                                    " copied to the remote resource. If the "
+                                    "file you are trying to refer to is on the"
+                                    " remote resource, give"
                                     " the explicit path to the file.".format(
                                         newfile, addfile, path, path))
 
@@ -186,7 +187,8 @@ def file_parser(filename, path, files, substitutions=None):
                                 "to a file '{}' in file '{}' that is multiple "
                                 "directories up from a valid directory. This "
                                 "is not permitted. If the file you are trying "
-                                "to refer to is on the HPC, give the explicit "
+                                "to refer to is on the remote resource, give "
+                                "the explicit "
                                 "path to the file.".format(newfile, addfile))
 
                         # elif we are in a repX subdirectory and the file
