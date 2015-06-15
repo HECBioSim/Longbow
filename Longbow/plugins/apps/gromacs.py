@@ -41,7 +41,7 @@ def defaultfilename(path, item):
 
     filename = ""
 
-    if os.path.isfile(os.path.join(path, item, ".tpr")):
+    if os.path.isfile(os.path.join(path, item + ".tpr")):
 
         filename = item + ".tpr"
 
