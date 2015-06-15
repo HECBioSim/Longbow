@@ -132,7 +132,8 @@ def testenv(hostconf, hosts, jobs):
                     "attempting to find it" .format(resource))
 
                 # Go through the handlers and find out which is there.
-                # Load modules first as this is necessary for some HPCs
+                # Load modules first as this is necessary for some remote
+                # resources
                 cmdmod = []
 
                 for module in jobs[job]["modules"].split(","):
