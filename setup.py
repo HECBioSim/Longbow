@@ -6,7 +6,7 @@
 # the HECBioSim project (http://www.hecbiosim.ac.uk/).
 #
 # HECBioSim facilitates and supports high-end computing within the
-# UK biomolecular simulation community on resources such as Archer.
+# UK biomolecular simulation community on resources such as ARCHER.
 #
 # Longbow is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
