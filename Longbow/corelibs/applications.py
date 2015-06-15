@@ -412,6 +412,8 @@ def processjobs(jobs):
                     # else we will proceed to check files in all replicates.
                     for i in range(1, int(jobs[job]["replicates"]) + 1):
 
+                        tmpitem = ""
+
                         # If we do only have a single job then file path should
                         # be
                         if int(jobs[job]["replicates"]) == 1:
@@ -420,11 +422,20 @@ def processjobs(jobs):
 
                                 fileitem = item
 
-                            # fix for gromacs -deffnm (hack)
-                            elif os.path.isfile(os.path.join(
-                                                cwd, item + ".tpr")):
+                            # Hook for checking plugin specific file naming
+                            # scenarios (eg. gromacs -deffnm test actually
+                            # referring to test.tpr).
+                            else:
 
-                                fileitem = item + ".tpr"
+                                try:
+
+                                    fileitem = getattr(
+                                        APPS, app.lower()).defaultfilename(
+                                            cwd, item)
+
+                                except AttributeError:
+
+                                    pass
 
                         # Otherwise we have a replicate job so we should amend
                         # the paths.
@@ -458,13 +469,6 @@ def processjobs(jobs):
                                 # Set the file path
                                 fileitem = os.path.join("rep" + str(i), item)
 
-                            # fix for gromacs -deffnm (hack)
-                            elif os.path.isfile(os.path.join(
-                                    cwd, "rep" + str(i), item + ".tpr")):
-
-                                fileitem = os.path.join(
-                                    "rep" + str(i), item + ".tpr")
-
                             # Otherwise do we have a file here.
                             elif os.path.isfile(os.path.join(cwd, item)):
 
@@ -478,19 +482,47 @@ def processjobs(jobs):
                                     initargs[initargs.index(item)] = \
                                         os.path.join("../", item)
 
-                            # fix for gromacs -deffnm (hack)
-                            elif os.path.isfile(os.path.join(
-                                    cwd, item + ".tpr")):
+                            # Hook for checking plugin specific file naming
+                            # scenarios (eg. gromacs -deffnm test actually
+                            # referring to test.tpr).
+                            else:
 
-                                # If we do then set file path.
-                                fileitem = item + ".tpr"
+                                try:
 
-                                # Also update the command line to reflect a
-                                # global file.
-                                if item in initargs:
+                                    tmpitem = getattr(
+                                        APPS, app.lower()).defaultfilename(
+                                            cwd, os.path.join(
+                                                "rep" + str(i) + item))
 
-                                    initargs[initargs.index(item)] = \
-                                        os.path.join("../", item)
+                                except AttributeError:
+
+                                    pass
+
+                                # If we have a positive check then file found
+                                # in rep$i directories.
+                                if tmpitem is not "":
+
+                                    fileitem = tmpitem
+
+                                # Otherwise check for global one.
+                                else:
+
+                                    try:
+
+                                        fileitem = getattr(
+                                            APPS, app.lower()).defaultfilename(
+                                                cwd, item)
+
+                                        # Also update the command line to
+                                        # reflect a global file.
+                                        if item in initargs:
+
+                                            initargs[initargs.index(item)] = \
+                                                os.path.join("../", item)
+
+                                    except AttributeError:
+
+                                        pass
 
                         # If the next argument along is a valid file.
                         if os.path.isfile(os.path.join(cwd, fileitem)):

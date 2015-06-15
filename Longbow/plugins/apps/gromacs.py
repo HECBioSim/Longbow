@@ -21,9 +21,28 @@
 
 """."""
 
+import os
+
 EXECDATA = {
     "mdrun": ["-s || -deffnm"],
     "mdrun_d": ["-s || -deffnm"],
     "mdrun_mpi": ["-s || -deffnm"],
     "mdrun_mpi_d": ["-s || -deffnm"]
     }
+
+
+def defaultfilename(path, item):
+
+    """Method for dealing with input files that are provided by the -deffnm
+    flag. The reason this needs a special message is due to the fact that
+    users will supply the name as -deffnm test but the file name might be
+    test.tpr which would make our code miss the file from the upload list
+    """
+
+    filename = ""
+
+    if os.path.isfile(os.path.join(path, item + ".tpr")):
+
+        filename = item + ".tpr"
+
+    return filename
