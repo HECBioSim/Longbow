@@ -412,6 +412,8 @@ def processjobs(jobs):
                     # else we will proceed to check files in all replicates.
                     for i in range(1, int(jobs[job]["replicates"]) + 1):
 
+                        tmpitem = ""
+
                         # If we do only have a single job then file path should
                         # be
                         if int(jobs[job]["replicates"]) == 1:
@@ -425,9 +427,15 @@ def processjobs(jobs):
                             # referring to test.tpr).
                             else:
 
-                                fileitem = getattr(
-                                    APPS, app.lower()).defaultfilename(
-                                        cwd, item)
+                                try:
+
+                                    fileitem = getattr(
+                                        APPS, app.lower()).defaultfilename(
+                                            cwd, item)
+
+                                except AttributeError:
+
+                                    pass
 
                         # Otherwise we have a replicate job so we should amend
                         # the paths.
@@ -479,30 +487,42 @@ def processjobs(jobs):
                             # referring to test.tpr).
                             else:
 
-                                tmp = getattr(
-                                    APPS, app.lower()).defaultfilename(
-                                        cwd, os.path.join(
-                                            "rep" + str(i) + item))
+                                try:
+
+                                    tmpitem = getattr(
+                                        APPS, app.lower()).defaultfilename(
+                                            cwd, os.path.join(
+                                                "rep" + str(i) + item))
+
+                                except AttributeError:
+
+                                    pass
 
                                 # If we have a positive check then file found
                                 # in rep$i directories.
-                                if tmp is not "":
+                                if tmpitem is not "":
 
-                                    fileitem = tmp
+                                    fileitem = tmpitem
 
                                 # Otherwise check for global one.
                                 else:
 
-                                    fileitem = getattr(
-                                        APPS, app.lower()).defaultfilename(
-                                            cwd, item)
+                                    try:
 
-                                    # Also update the command line to reflect a
-                                    # global file.
-                                    if item in initargs:
+                                        fileitem = getattr(
+                                            APPS, app.lower()).defaultfilename(
+                                                cwd, item)
 
-                                        initargs[initargs.index(item)] = \
-                                            os.path.join("../", item)
+                                        # Also update the command line to
+                                        # reflect a global file.
+                                        if item in initargs:
+
+                                            initargs[initargs.index(item)] = \
+                                                os.path.join("../", item)
+
+                                    except AttributeError:
+
+                                        pass
 
                         # If the next argument along is a valid file.
                         if os.path.isfile(os.path.join(cwd, fileitem)):
