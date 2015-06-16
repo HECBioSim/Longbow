@@ -398,7 +398,7 @@ if __name__ == "__main__":
 
                 raise EX.CommandlineargsError(
                     "More than one recognised executable has been specified on"
-                    " the Longbow command-line. Please provide just one.")
+                    " the Longbow command line. Please provide just one.")
 
     # if an executable wasn't found perhaps it is specified in a configuration
     # file. Executable arguments might still be provided on the command line so

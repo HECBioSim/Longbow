@@ -180,14 +180,14 @@ def prepare(hosts, jobname, jobs):
     # Single jobs only need one run command.
     if int(jobs[jobname]["replicates"]) == 1:
 
-        jobfile.write(mpirun + " " + jobs[jobname]["commandline"] + "\n")
+        jobfile.write(mpirun + " " + jobs[jobname]["executableargs"] + "\n")
 
     # Job array
     elif int(jobs[jobname]["replicates"]) > 1:
 
         jobfile.write("basedir=$PBS_O_WORKDIR \n"
                       "cd $basedir/rep${PBS_ARRAY_INDEX}/\n\n" +
-                      mpirun + " " + jobs[jobname]["commandline"] + "\n")
+                      mpirun + " " + jobs[jobname]["executableargs"] + "\n")
 
     # Close the file (housekeeping)
     jobfile.close()

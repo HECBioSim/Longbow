@@ -146,7 +146,7 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
     # Single jobs only need one run command.
     if int(jobs[jobname]["replicates"]) == 1:
 
-        jobfile.write(mpirun + " " + jobs[jobname]["commandline"] + "\n")
+        jobfile.write(mpirun + " " + jobs[jobname]["executableargs"] + "\n")
 
     # Ensemble jobs need a loop.
     elif int(jobs[jobname]["replicates"]) > 1:
@@ -155,7 +155,7 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
                       "for i in {1.." + jobs[jobname]["replicates"] + "};\n"
                       "do\n"
                       "  cd $basedir/rep$i/\n"
-                      "  " + mpirun + " " + jobs[jobname]["commandline"] + "\n"
+                      "  " + mpirun + " " + jobs[jobname]["executableargs"] + "\n"
                       "done\n"
                       "wait\n")
 
