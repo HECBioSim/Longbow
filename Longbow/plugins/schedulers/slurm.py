@@ -155,7 +155,8 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
                       "for i in {1.." + jobs[jobname]["replicates"] + "};\n"
                       "do\n"
                       "  cd $basedir/rep$i/\n"
-                      "  " + mpirun + " " + jobs[jobname]["executableargs"] + "\n"
+                      "  " + mpirun + " " + jobs[jobname]["executableargs"] +
+                      "\n"
                       "done\n"
                       "wait\n")
 

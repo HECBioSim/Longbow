@@ -430,8 +430,8 @@ def amendjobsconfigs(hosts, jobs):
                 "requires input of the form 'executable < input_file' then "
                 "make sure that you put the \"<\" in quotation marks.")
 
-        # if the executableargs parameter is a string, we need to split it up into
-        # a list of strings
+        # if the executableargs parameter is a string, we need to split it up
+        # into a list of strings
         elif isinstance(jobs[job]["executableargs"], basestring):
 
             jobs[job]["executableargs"] = jobs[job]["executableargs"].split()
