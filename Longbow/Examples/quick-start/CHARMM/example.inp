@@ -1,0 +1,40 @@
+* bench.inp
+
+bomlev -2
+
+
+read rtf card name "top_all27_prot_lipid.rtf"
+read param card name "par_all27_prot_lipid.prm"
+
+read psf card name "example.psf"
+read coor card name "example.crd"
+
+open unit 10 write form name output.rst
+open unit 11 write unform name output.dcd
+open unit 12 write form name output.en
+
+crystal define orthorhombic 61.0 56.0 61.0 90.0 90.0 90.0
+crystal build cutoff 14.0 noper 0
+
+image byseg select segid A end
+image byres select resname TIP3 end
+
+faster on
+shake fast bonh tol 1.0e-6 para
+
+prnlev 5 node 0
+
+energy vdw vshift bycbim -
+  ewald pmew kappa 0.34 spline order 4 fftx 64 ffty 60 fftz 64 qcor 0.0
+lookup noenergy interpolation tabincrement 10 select resname TIP3 end
+
+dynamics cpt leap strt nstep 50000 timestep 0.002 -
+  tconst treference 300.0 tcouple 2.0 -
+  pconst Berendsen preference 1.0 compress 4.63e-5 pcouple 5.0 -
+  iunwri 10 iuncrd 11 kunit 12 iunrea -1 -
+  nsavc 5000 nprint 5000 iprfreq 50000 isvfrq 5000 ntrfrq 2500 inbfrq -1 -
+  imgfrq -1 echeck -1.0
+
+write coord card name output.crd
+
+stop

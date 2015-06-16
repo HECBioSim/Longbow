@@ -1,6 +1,0 @@
-[batch]
-resource = Minerva
-executable = pmemd.MPI
-modules = amber-uon/intel/11
-batch = 5
-commandline = -O -c test.min -i test.in -p test.top -o output

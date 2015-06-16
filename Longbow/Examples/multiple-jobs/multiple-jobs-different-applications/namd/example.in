@@ -1,0 +1,84 @@
+set p         1.0
+set T         300.0
+set num_steps 50000
+
+set new      output
+set previous relres
+
+# CHARMM force field
+structure         solvated.psf
+paratypecharmm    on
+parameters        par_all27_prot_lipid.prm
+coordinates       solvated.pdb
+exclude           scaled1-4
+1-4scaling        1.0
+
+binvelocities       $previous.vel
+bincoordinates      $previous.coor
+ExtendedSystem      $previous.xsc
+firsttimestep       0
+
+# temperature coupling
+langevin             on
+langevinHydrogen     on
+langevinTemp         $T
+langevinDamping      1
+
+# pressure coupling
+useGroupPressure     yes
+
+LangevinPiston       on
+LangevinPistonTarget $p 
+LangevinPistonPeriod 200
+LangevinPistonDecay  100
+LangevinPistonTemp   $T
+
+# output
+outputname         $new
+outputEnergies     5000
+outputPressure     5000
+outputTiming       50000
+binaryoutput       yes
+
+# write restart
+restartname        $new
+restartfreq        5000
+binaryrestart      yes
+
+# trajectory file
+DCDfile            $new.dcd
+DCDUnitCell        yes
+DCDfreq            5000
+
+# eXtended System Trajectory
+XSTfile            $new.xst
+XSTfreq            5000
+
+# wrap coordinates
+wrapAll            on
+wrapNearest        on
+
+# multipe time step settings
+nonbondedFreq      1
+fullElectFrequency 1
+
+# rigid bonds
+useSettle          on
+rigidBonds         all
+rigidIterations    100
+
+# cutoffs and non-bonded pair lists
+switchdist         10
+cutoff             12
+switching          on
+pairlistdist       14
+pairlistsPerCycle  1
+stepspercycle      20
+
+# particle mesh ewald
+PME                on
+PMEGridSpacing     1.0
+
+timestep 2.0
+
+run $num_steps
