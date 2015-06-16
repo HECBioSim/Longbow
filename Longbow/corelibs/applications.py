@@ -116,7 +116,7 @@ def processjobs(jobs):
         # Initialise some basic parameters.
         executable = jobs[job]["executable"]
         app = tmp[executable]
-        args = jobs[job]["commandline"]
+        args = jobs[job]["executableargs"]
         filelist = []
 
         # Append a hash to the job directory to avoid directory clashes.
@@ -558,9 +558,9 @@ def processjobs(jobs):
         # Replace the input command line with the execution command line.
         # initargs is a copy of the original args before text enforcing
         # substitutions was removed
-        jobs[job]["commandline"] = executable + " " + " ".join(initargs)
+        jobs[job]["executableargs"] = executable + " " + " ".join(initargs)
 
         LOGGER.info("For job '{}' - execution string: {}".format(
-            job, jobs[job]["commandline"]))
+            job, jobs[job]["executableargs"]))
 
     LOGGER.info("Processing jobs - complete.")

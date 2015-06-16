@@ -74,7 +74,7 @@ def loadhosts(confile):
         "accountflag": "",
         "account": "",
         "cluster": "",
-        "commandline": "",
+        "executableargs": "",
         "frequency": "",
         "localworkdir": "",
         "modules": "",
@@ -117,7 +117,7 @@ def loadjobs(jobconfile, hostsconfile, param):
         "accountflag": "",
         "account": "",
         "cluster": "",
-        "commandline": "",
+        "executableargs": "",
         "frequency": "",
         "localworkdir": "",
         "modules": "",
@@ -240,7 +240,7 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args,
     jobtemplate = {
         "cores": "",
         "cluster": "",
-        "commandline": "",
+        "executableargs": "",
         "frequency": "",
         "localworkdir": "",
         "modules": "",
@@ -264,7 +264,7 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args,
     # Parameters to be that can be provided on the command line that can
     # overrule parameters in config files
     command = [
-        "commandline",
+        "executableargs",
         "executable",
         "replicates"
     ]
@@ -273,7 +273,7 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args,
     jobdefaults = {
         "cores": "24",
         "cluster": "",
-        "commandline": args if len(args) > 0 else "",
+        "executableargs": args if len(args) > 0 else "",
         "frequency": "60",
         "localworkdir": cwd,
         "modules": "",
@@ -422,20 +422,19 @@ def amendjobsconfigs(hosts, jobs):
                 "or in a configuration file")
 
         # Check we have command line arguments provided
-        if jobs[job]["commandline"] is "":
+        if jobs[job]["executableargs"] is "":
 
             raise EX.CommandlineargsError(
                 "Command-line arguments could not be detected properly on the "
                 "command-line or in a configuration file. If your application "
                 "requires input of the form 'executable < input_file' then "
-                "make sure that you put the \"<\" in quotation marks on the "
-                "commandline to Longbow.")
+                "make sure that you put the \"<\" in quotation marks.")
 
-        # if the commandline parameter is a string, we need to split it up into
+        # if the executableargs parameter is a string, we need to split it up into
         # a list of strings
-        elif isinstance(jobs[job]["commandline"], basestring):
+        elif isinstance(jobs[job]["executableargs"], basestring):
 
-            jobs[job]["commandline"] = jobs[job]["commandline"].split()
+            jobs[job]["executableargs"] = jobs[job]["executableargs"].split()
 
         # If modules hasn't been defined in a config file, use default
         if jobs[job]["modules"] is "":

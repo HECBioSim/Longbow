@@ -127,13 +127,13 @@ def prepare(hosts, jobname, jobs):
     # Single job
     if int(jobs[jobname]["replicates"]) == 1:
 
-        jobfile.write(mpirun + " -lsf " + jobs[jobname]["commandline"] + "\n")
+        jobfile.write(mpirun + " -lsf " + jobs[jobname]["executableargs"] + "\n")
 
     # Job array
     elif int(jobs[jobname]["replicates"]) > 1:
 
         jobfile.write("cd rep${LSB_JOBINDEX}/\n" +
-                      mpirun + " -lsf " + jobs[jobname]["commandline"] + "\n")
+                      mpirun + " -lsf " + jobs[jobname]["executableargs"] + "\n")
 
     # Close the file (housekeeping)
     jobfile.close()
