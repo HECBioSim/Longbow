@@ -1,0 +1,19 @@
+[single]
+resource = Archer
+queue = short
+executable = pmemd.MPI
+maxtime = 00:10
+executableargs = -i example.in -c example.rst -p example.top -o example.out
+
+[replicate]
+resource = Archer
+queue = short
+executable = pmemd.MPI
+maxtime = 00:10
+executableargs = -i example.in -c example.rst -p example.top -o example.out
+replicates = 5
+
+
+
+
+

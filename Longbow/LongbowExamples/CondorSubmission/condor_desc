@@ -1,0 +1,6 @@
+getenv = True
+executable = longbow
+arguments = -verbose pmemd.MPI -O -i example.in -p example.top -c example.min -o example.out
+error = error.errfile
+log = log.log
+queue
