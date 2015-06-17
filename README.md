@@ -21,10 +21,10 @@ Longbow reproduces the native look and feel of using popular molecular dynamics 
 through Longbow simulations can be run on High Performance Computing (HPC) resources such as 
 ARCHER. Longbow handles jobs setup in terms of creating job submission scripts, automatically 
 stages input files, launches and monitors jobs and stages back simulation results. The option is
-also there to persistently monitor and stage (realtime local syncing with remote simulation files)
+also there to persistently monitor and stage (realtime local syncing with remote simulation files) 
 simulation files at a specified time interval.
 
-This is designed to have the jobs running on the HPC remote resource appear to the user as if the simulation
+This is designed to have the jobs running on the HPC resource appear to the user as if the simulation
 has run on their local computer/cluster. Users do not have to concern themselves with writing submission 
 files, nor do they have to worry about staging. Longbow provides a convenient interface for generating
 large ensembles of simulation jobs which in effect extends the packages it supports.
@@ -33,11 +33,11 @@ large ensembles of simulation jobs which in effect extends the packages it suppo
 
 Releases can be found here: http://www.hecbiosim.ac.uk/repo/category/2-software
 
-User documentation can be found here: http://www.hecbiosim.ac.uk/wikis/index.php/Longbow
+User documentation can be found here: http://www.hecbiosim.ac.uk/wikis/index.php/Longbow_-_User_Guide
 
-Developer documentation can be found here: http://www.hecbiosim.ac.uk/wikis/index.php/Longbow_-_Developers_Guide_v1.00.000
+Developer documentation can be found here: http://www.hecbiosim.ac.uk/wikis/index.php/Longbow_-_Developers_Guide
 
-Support can be found here: http://www.hecbiosim.ac.uk/forums/index.php?board=7.0
+Support can be found here: http://www.hecbiosim.ac.uk/forums/
 
 ### Contact ###
 
