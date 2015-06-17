@@ -33,11 +33,11 @@ large ensembles of simulation jobs which in effect extends the packages it suppo
 
 Releases can be found here: http://www.hecbiosim.ac.uk/repo/category/2-software
 
-User documentation can be found here: http://www.hecbiosim.ac.uk/wikis/index.php/Longbow_-_User_Guide
+User documentation can be found here: http://www.hecbiosim.ac.uk/wikis/index.php/Longbow
 
-Developer documentation can be found here: http://www.hecbiosim.ac.uk/wikis/index.php/Longbow_-_Developers_Guide
+Developer documentation can be found here: http://www.hecbiosim.ac.uk/wikis/index.php/Longbow_-_Developers_Guide_v1.00.000
 
-Support can be found here: http://www.hecbiosim.ac.uk/forums/
+Support can be found here: http://www.hecbiosim.ac.uk/forums/index.php?board=7.0
 
 ### Contact ###
 
