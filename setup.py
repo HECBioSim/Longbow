@@ -56,7 +56,7 @@ if not os.path.isdir(os.path.expanduser("~/.Longbow")):
 # setup args
 setup_args = {
     'name': "Longbow",
-    'version': "1.00.000",
+    'version': "1.00.001",
     'description': "Biomolecular simulation remote job submission "
                    "utility.",
     'long_description': "Longbow sends jobs submitted to your desktop to a "
@@ -69,7 +69,7 @@ setup_args = {
     'url': "www.hecbiosim.ac.uk",
     'license': "GNU General Public License.",
     'classifiers': [
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',

@@ -167,10 +167,10 @@ def file_parser(filename, path, files, substitutions=None):
 
                                 raise EX.RequiredinputError(
                                     "It appears that the"
-                                    " user is trying to refer to a file '{}'"
-                                    " in file '{}' that is a"
-                                    " directory up from the '{}'"
-                                    " directory. Only files in '{}'"
+                                    " user is trying to refer to a file '{0}'"
+                                    " in file '{1}' that is a"
+                                    " directory up from the '{2}'"
+                                    " directory. Only files in '{3}'"
                                     " or a repX subdirectory can be"
                                     " copied to the remote resource. If the "
                                     "file you are trying to refer to is on the"
@@ -183,8 +183,8 @@ def file_parser(filename, path, files, substitutions=None):
 
                             raise EX.RequiredinputError(
                                 "It appears that the user is trying to refer "
-                                "to a file '{}' in file '{}' that is multiple "
-                                "directories up from a valid directory. This "
+                                "to a file '{0}' in file '{1}' that's multiple"
+                                " directories up from a valid directory. This "
                                 "is not permitted. If the file you are trying "
                                 "to refer to is on the remote resource, give "
                                 "the explicit "
@@ -209,7 +209,7 @@ def file_parser(filename, path, files, substitutions=None):
 
                                 raise EX.RequiredinputError(
                                     "It appears that the"
-                                    "user is trying to refer to a file '{}'"
+                                    "user is trying to refer to a file '{0}'"
                                     " that is in a repX/repX "
                                     "subdirectory. This is not "
                                     "permitted.".format(newfile))
