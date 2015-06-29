@@ -45,7 +45,7 @@ def delete(host, job):
 
     jobid = job["jobid"]
 
-    LOGGER.info("Deleting the job with id '{}'" .format(jobid))
+    LOGGER.info("Deleting the job with id '{0}'" .format(jobid))
 
     try:
 
@@ -64,7 +64,7 @@ def prepare(hosts, jobname, jobs):
 
     """Create the SGE jobfile ready for submitting jobs"""
 
-    LOGGER.info("Creating submit file for job '{}'" .format(jobname))
+    LOGGER.info("Creating submit file for job '{0}'" .format(jobname))
 
     # Open file for LSF script.
     sgefile = os.path.join(jobs[jobname]["localworkdir"], "submit.sge")
@@ -114,7 +114,7 @@ def prepare(hosts, jobname, jobs):
         for module in jobs[jobname]["modules"].split(","):
 
             module = module.replace(" ", "")
-            jobfile.write("module load {}\n\n" .format(module))
+            jobfile.write("module load {0}\n\n" .format(module))
 
     mpirun = hosts[jobs[jobname]["resource"]]["handler"]
 
@@ -190,6 +190,6 @@ def submit(host, jobname, jobs):
 
         raise EX.JobsubmitError("  Something went wrong when submitting.")
 
-    LOGGER.info("Job '{}' submitted with id '{}'" .format(jobname, shellout))
+    LOGGER.info("Job '{0}' submitted with id '{1}'" .format(jobname, shellout))
 
     jobs[jobname]["jobid"] = shellout
