@@ -58,7 +58,7 @@ def stage_upstream(hosts, jobs):
         src = jobs[job]["localworkdir"]
         dst = jobs[job]["destdir"]
 
-        LOGGER.info("Transfering files for job '{}' to host '{}'"
+        LOGGER.info("Transfering files for job '{0}' to host '{1}'"
                     .format(job, jobs[job]["resource"]))
 
         # Transfer files upstream.
@@ -71,7 +71,7 @@ def stage_upstream(hosts, jobs):
 
         except EX.RsyncError:
 
-            raise EX.StagingError("Could not stage file '{}' upstream"
+            raise EX.StagingError("Could not stage file '{0}' upstream"
                                   .format(src))
 
     LOGGER.info("Staging files upstream - complete.")
@@ -81,7 +81,7 @@ def stage_downstream(hosts, jobs, jobname):
 
     """Method for returning files from the remote machines."""
 
-    LOGGER.info("For job '{}' staging files downstream." .format(jobname))
+    LOGGER.info("For job '{0}' staging files downstream.".format(jobname))
 
     host = hosts[jobs[jobname]["resource"]]
     src = jobs[jobname]["destdir"] + "/"
@@ -97,8 +97,8 @@ def stage_downstream(hosts, jobs, jobname):
 
     except (EX.SCPError, EX.RsyncError):
 
-        raise EX.StagingError("Could not download file '{}' "
-                              "to location '{}'" .format(src, dst))
+        raise EX.StagingError("Could not download file '{0}' "
+                              "to location '{1}'".format(src, dst))
 
     LOGGER.info("staging complete.")
 
@@ -118,7 +118,7 @@ def cleanup(hosts, jobs):
 
             SHELLWRAPPERS.remotelist(host, path)
 
-            LOGGER.info("Deleting directory for job '{}' - '{}'"
+            LOGGER.info("Deleting directory for job '{0}' - '{1}'"
                         .format(job, path))
 
             SHELLWRAPPERS.remotedelete(hosts[jobs[job]["resource"]], path)
@@ -126,17 +126,17 @@ def cleanup(hosts, jobs):
         except EX.RemotelistError:
 
             # Directory doesn't exist.
-            LOGGER.debug("Directory on path '{}' does not exist - skipping."
+            LOGGER.debug("Directory on path '{0}' does not exist - skipping."
                          .format(path))
 
         except KeyError:
 
-            LOGGER.debug("For job '{}', cleanup not required - skipping."
+            LOGGER.debug("For job '{0}', cleanup not required - skipping."
                          .format(job))
 
         except EX.RemotedeleteError:
 
-            LOGGER.debug("For job '{}', cannot delete directory '{}' - "
-                         "skipping." .format(job, path))
+            LOGGER.debug("For job '{0}', cannot delete directory '{1}' - "
+                         "skipping.".format(job, path))
 
     LOGGER.info("Cleaning up complete.")

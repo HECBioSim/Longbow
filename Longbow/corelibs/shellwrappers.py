@@ -66,7 +66,7 @@ def testconnections(hosts, jobs):
             # Make sure we don't check this again.
             checked.extend([resource])
 
-            LOGGER.debug("Testing connection to '{}'" .format(resource))
+            LOGGER.debug("Testing connection to '{0}'".format(resource))
 
             try:
 
@@ -76,7 +76,7 @@ def testconnections(hosts, jobs):
 
                 raise
 
-            LOGGER.info("Test connection to '{}' - passed" .format(resource))
+            LOGGER.info("Test connection to '{0}' - passed".format(resource))
 
 
 def sendtoshell(cmd):
@@ -84,7 +84,7 @@ def sendtoshell(cmd):
     """The method for sending shell commands to subprocess for execution
     within a system shell."""
 
-    LOGGER.debug("Sending the following to subprocess '{}'" .format(cmd))
+    LOGGER.debug("Sending the following to subprocess '{0}'".format(cmd))
 
     handle = subprocess.Popen(
         cmd,
@@ -240,7 +240,7 @@ def localcopy(src, dst):
     situations where files/directories need overwriting (beware this
     happens without asking the user). All paths should be absolute."""
 
-    LOGGER.debug("Copying '{}' to '{}'" .format(src, dst))
+    LOGGER.debug("Copying '{0}' to '{1}'".format(src, dst))
 
     # Expand tildas (if present) otherwise these will not change anything.
     src = os.path.expanduser(src)
@@ -294,7 +294,7 @@ def localcopy(src, dst):
 
         except (shutil.Error, IOError):
 
-            raise EX.LocalcopyError("Could not copy the directory '{}'"
+            raise EX.LocalcopyError("Could not copy the directory '{0}'"
                                     .format(src))
 
 
@@ -303,7 +303,7 @@ def localdelete(src):
     """A method for deleting local files, is able to deal with files and
     directory trees, this method takes absolute paths only."""
 
-    LOGGER.debug("Deleting '{}'" .format(src))
+    LOGGER.debug("Deleting '{0}'".format(src))
 
     # Expand tildas (if present) otherwise these will not change anything.
     src = os.path.expanduser(src)
@@ -341,7 +341,7 @@ def locallist(src):
     """A method for listing a local directory contents, this method takes
     absolute paths only."""
 
-    LOGGER.debug("Listing the contents of '{}'" .format(src))
+    LOGGER.debug("Listing the contents of '{0}'".format(src))
 
     # Expand tildas (if present) otherwise these will not change anything.
     src = os.path.expanduser(src)
@@ -367,7 +367,7 @@ def remotecopy(host, src, dst):
 
     """A method for copying files/directories on the remote machine."""
 
-    LOGGER.debug("Copying '{}' to '{}'" .format(src, dst))
+    LOGGER.debug("Copying '{0}' to '{1}'".format(src, dst))
 
     # Are paths absolute. Do we start with tildas, if so since we are going
     # through the shell allow it to expand the tilda on the remote host for us.
@@ -396,7 +396,7 @@ def remotedelete(host, src):
 
     """A method for deleting files/directories on the remote machine."""
 
-    LOGGER.debug("Deleting '{}'" .format(src))
+    LOGGER.debug("Deleting '{0}'".format(src))
 
     # Are paths absolute.
     if os.path.isabs(src) is False and src[0] != "~":
@@ -421,7 +421,7 @@ def remotelist(host, src):
 
     """A method to list a directory on the remote resource."""
 
-    LOGGER.debug("Listing the contents of '{}'" .format(src))
+    LOGGER.debug("Listing the contents of '{0}'".format(src))
 
     # Are paths absolute.
     if os.path.isabs(src) is False and src[0] != "~":
@@ -461,7 +461,7 @@ def upload(host, src, dst, includemask, excludemask):
 
     dst = (host["user"] + "@" + host["host"] + ":" + dst)
 
-    LOGGER.debug("Copying '{}' to '{}'" .format(src, dst))
+    LOGGER.debug("Copying '{0}' to '{1}'".format(src, dst))
 
     # Send command to subprocess.
     try:
@@ -488,7 +488,7 @@ def download(host, src, dst, includemask, excludemask):
 
     src = (host["user"] + "@" + host["host"] + ":" + src)
 
-    LOGGER.debug("Copying '{}' to '{}'" .format(src, dst))
+    LOGGER.debug("Copying '{0}' to '{1}'".format(src, dst))
 
     # Send command to subprocess.
     try:
