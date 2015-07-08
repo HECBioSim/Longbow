@@ -18,6 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Longbow.  If not, see <http://www.gnu.org/licenses/>.
+from matplotlib.font_manager import path
 
 """ The staging module provides methods for processing the transfer of files
 between the local host and the remote host job directories. The following
@@ -118,10 +119,24 @@ def cleanup(hosts, jobs):
 
             SHELLWRAPPERS.remotelist(host, path)
 
-            LOGGER.info("Deleting directory for job '{0}' - '{1}'"
-                        .format(job, path))
+            if path != hosts[jobs[job]["resource"]]["remoteworkdir"]:
+                LOGGER.info("Deleting directory for job '{0}' - '{1}'"
+                            .format(job, path))
 
-            SHELLWRAPPERS.remotedelete(hosts[jobs[job]["resource"]], path)
+                SHELLWRAPPERS.remotedelete(hosts[jobs[job]["resource"]], path)
+
+            else:
+                raise EX.RemoteworkdirError("Subdirectory of remoteworkdir" +
+                                            " not yet created")
+
+        except EX.RemoteworkdirError:
+
+            LOGGER.debug("For job '{0}', cleanup not required because"
+                         " the '{1}XXXXX' subdirectory of {2} in which the job"
+                         " would have run has not not yet been created on the"
+                         " remote resource.".format(job,
+                                                    job,
+                                                    host["remoteworkdir"]))
 
         except EX.RemotelistError:
 
