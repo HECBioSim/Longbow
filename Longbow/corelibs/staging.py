@@ -1,4 +1,4 @@
-# Longbow is Copyright (C) of James T Gebbie-Rayet and Gareth Shannon 2015.
+# Longbow is Copyright (C) of James T Gebbie-Rayet and Gareth B Shannon 2015.
 #
 # This file is part of the Longbow software which was developed as part of
 # the HECBioSim project (http://www.hecbiosim.ac.uk/).
@@ -18,7 +18,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Longbow.  If not, see <http://www.gnu.org/licenses/>.
-from matplotlib.font_manager import path
 
 """ The staging module provides methods for processing the transfer of files
 between the local host and the remote host job directories. The following
