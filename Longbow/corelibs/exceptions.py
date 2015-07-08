@@ -275,3 +275,10 @@ class StagingError(Exception):
     """Generic staging error exception"""
 
     pass
+
+
+class RemoteworkdirError(Exception):
+
+    """Exception issued when destdir is the same path as remoteworkdir"""
+
+    pass

@@ -118,10 +118,24 @@ def cleanup(hosts, jobs):
 
             SHELLWRAPPERS.remotelist(host, path)
 
-            LOGGER.info("Deleting directory for job '{0}' - '{1}'"
-                        .format(job, path))
+            if path != hosts[jobs[job]["resource"]]["remoteworkdir"]:
+                LOGGER.info("Deleting directory for job '{0}' - '{1}'"
+                            .format(job, path))
 
-            SHELLWRAPPERS.remotedelete(hosts[jobs[job]["resource"]], path)
+                SHELLWRAPPERS.remotedelete(hosts[jobs[job]["resource"]], path)
+
+            else:
+                raise EX.RemoteworkdirError("Subdirectory of remoteworkdir" +
+                                            " not yet created")
+
+        except EX.RemoteworkdirError:
+
+            LOGGER.debug("For job '{0}', cleanup not required because"
+                         " the '{1}XXXXX' subdirectory of {2} in which the job"
+                         " would have run has not not yet been created on the"
+                         " remote resource.".format(job,
+                                                    job,
+                                                    host["remoteworkdir"]))
 
         except EX.RemotelistError:
 
