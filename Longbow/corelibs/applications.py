@@ -552,7 +552,8 @@ def processjobs(jobs):
                         job, flags, getattr(APPS, "DEFMODULES")[executable]))
 
         # Setup the rysnc upload masks.
-        jobs[job]["upload-include"] = ", ".join(filelist)
+        jobs[job]["upload-include"] = (
+            jobs[job]["upload-include"] + ", " + ", ".join(filelist))
         jobs[job]["upload-exclude"] = "*"
 
         # Replace the input command line with the execution command line.
