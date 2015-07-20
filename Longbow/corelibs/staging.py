@@ -131,7 +131,7 @@ def cleanup(hosts, jobs):
         except EX.RemoteworkdirError:
 
             LOGGER.debug("For job '{0}', cleanup not required because"
-                         " the '{1}XXXXX' subdirectory of {2} in which the job"
+                         " the '{1}xxxxx' subdirectory of {2} in which the job"
                          " would have run has not not yet been created on the"
                          " remote resource.".format(job,
                                                     job,
