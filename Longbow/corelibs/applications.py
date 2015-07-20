@@ -524,22 +524,6 @@ def processjobs(jobs):
 
                                         pass
 
-                        # If the next argument along is a valid file.
-                        if os.path.isfile(os.path.join(cwd, fileitem)):
-
-                            # Search input file for any file dependencies that
-                            # don't exist.
-                            try:
-
-                                getattr(
-                                    APPS, app.lower()).file_parser(
-                                        fileitem, cwd, filelist, substte)
-
-                            except AttributeError:
-
-                                if fileitem not in filelist:
-                                    filelist.append(fileitem)
-
             # Final check for if any required flags are missing.
             flags = list(set(req_flags) - set(found_flags))
 
