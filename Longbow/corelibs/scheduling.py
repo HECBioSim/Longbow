@@ -358,7 +358,7 @@ def submit(hosts, jobs):
 
         except EX.JobsubmitError as err:
 
-            LOGGER.info(
+            LOGGER.error(
                 "Submitting job '{0}' failed with message - '{1}'"
                 .format(job, err))
 
