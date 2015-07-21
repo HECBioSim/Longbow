@@ -54,7 +54,7 @@ except ImportError:
     STAGING = __import__("Longbow.corelibs.staging", fromlist=[''])
 
 
-def main(executable, execargs, files, mode, parameters):
+def main(cmdline, executable, execargs, files, mode, parameters):
 
     """This is the main for a console based app, this is designed to run in a
     python/unix shell and is thus the main choice for headless machines like a
@@ -158,6 +158,7 @@ def main(executable, execargs, files, mode, parameters):
                     "on resources such as ARCHER")
         logger.info("Longbow is Copyright (C) of James T Gebbie-Rayet and "
                     "Gareth B Shannon 2015.")
+        logger.info("Longbow Commandline: {0}".format(cmdline))
         logger.info("Initialisation complete.")
 
         logger.info("hosts file is: %s", files["hosts"])
@@ -325,10 +326,10 @@ if __name__ == "__main__":
     # Some defaults.
 
     # Fetch command line arguments
-    COMMANDLINEARGS = sys.argv
+    COMMANDLINE = sys.argv
 
     # Remove the first argument (the application path)
-    COMMANDLINEARGS.pop(0)
+    COMMANDLINEARGS = COMMANDLINE.pop(0)
 
     # Initialise file path params, so we can pass blank to signify use default
     # paths if not supplied.
@@ -651,4 +652,4 @@ if __name__ == "__main__":
     # Call Longbow.
 
     # Enter the mains application.
-    main(EXECUTABLE, EXECARGS, FILES, MODE, PARAMETERS)
+    main(COMMANDLINE, EXECUTABLE, EXECARGS, FILES, MODE, PARAMETERS)
