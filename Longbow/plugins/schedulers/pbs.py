@@ -322,6 +322,13 @@ def submit(host, jobname, jobs):
                 "Something went wrong when submitting. This may be that you "
                 "have entered an incorrect account code.")
 
+        elif "illegal -N value" in inst.stderr:
+
+            raise EX.JobsubmitError(
+                "Something went wrong when submitting. This is due to the job "
+                "name being too long, consult your system administrators/"
+                "documentation to query this policy (try < 15 chars).")
+
         else:
 
             raise EX.JobsubmitError("Something went wrong when submitting.")
