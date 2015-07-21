@@ -325,11 +325,12 @@ if __name__ == "__main__":
     # ------------------------------------------------------------------------
     # Some defaults.
 
-    # Fetch command line arguments
-    COMMANDLINE = sys.argv
+    # Actual command line.
+    COMMANDLINE = (" ").join(sys.argv)
 
-    # Remove the first argument (the application path)
-    COMMANDLINEARGS = COMMANDLINE.pop(0)
+    # Fetch command line arguments as list and remove longbow exec
+    COMMANDLINEARGS = sys.argv
+    COMMANDLINEARGS.pop(0)
 
     # Initialise file path params, so we can pass blank to signify use default
     # paths if not supplied.
