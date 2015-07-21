@@ -221,7 +221,9 @@ def monitor(hosts, jobs):
     # that.
     for job in jobs:
 
-        jobs[job]["laststatus"] = ""
+        # Don't initialise if already set (submission errors are passed here)
+        if "laststatus" not in jobs[job]:
+            jobs[job]["laststatus"] = ""
 
         if interval < int(jobs[job]["frequency"]):
 
