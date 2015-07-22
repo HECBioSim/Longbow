@@ -377,6 +377,8 @@ def processjobs(jobs):
             # Run through each one.
             for item in args:
 
+                fileitem = ""
+
                 # If we have a flag (starting with '-') and it is in the list
                 # of required flags.
                 if item[0] is "-" and item in req_flags:
@@ -524,6 +526,25 @@ def processjobs(jobs):
 
                                         pass
 
+                        # Check if there are any dependencies inside the file
+                        # otherwise if this is not supported then just append
+                        # for upload.
+                        if os.path.isfile(os.path.join(cwd, fileitem)):
+
+                            # Search input file for any file dependencies
+                            # that don't exist.
+                            try:
+
+                                getattr(
+                                    APPS, app.lower()).file_parser(
+                                        fileitem, cwd, filelist, substte)
+
+                            except AttributeError:
+
+                                if fileitem not in filelist:
+
+                                    filelist.append(fileitem)
+
             # Final check for if any required flags are missing.
             flags = list(set(req_flags) - set(found_flags))
 
@@ -536,8 +557,15 @@ def processjobs(jobs):
                         job, flags, getattr(APPS, "DEFMODULES")[executable]))
 
         # Setup the rysnc upload masks.
-        jobs[job]["upload-include"] = (
-            jobs[job]["upload-include"] + ", " + ", ".join(filelist))
+        if jobs[job]["upload-include"] is "":
+
+            jobs[job]["upload-include"] = (", ".join(filelist))
+
+        else:
+
+            jobs[job]["upload-include"] = (
+                jobs[job]["upload-include"] + ", " + ", ".join(filelist))
+
         jobs[job]["upload-exclude"] = "*"
 
         # Replace the input command line with the execution command line.
