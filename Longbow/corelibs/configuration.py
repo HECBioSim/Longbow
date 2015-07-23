@@ -38,7 +38,6 @@ loadconfigs()
 saveconfigs()
     Method containing the code for saving configuration files."""
 
-import ConfigParser as configparser
 import logging
 
 # Depending on how longbow is installed/utilised the import will be slightly
@@ -61,174 +60,14 @@ def loadhosts(confile):
 
     """Method for processing host configuration files."""
 
-    # Dictionary for the host configuration parameters.
-    # Contains "user" and "host" but no "resource" unlike the jobs equivalent
-    hosttemplate = {
-        "user": "",
-        "host": "",
-        "corespernode": "",
-        "cores": "",
-        "port": "",
-        "scheduler": "",
-        "handler": "",
-        "accountflag": "",
-        "account": "",
-        "cluster": "",
-        "executableargs": "",
-        "frequency": "",
-        "localworkdir": "",
-        "modules": "",
-        "maxtime": "",
-        "memory": "",
-        "executable": "",
-        "queue": "",
-        "replicates": "",
-        "remoteworkdir": "",
-        "download-include": "",
-        "download-exclude": "",
-        "upload-include": "",
-        "upload-exclude": ""
-    }
-
-    # List of parameters that MUST be provided in the hosts configuration file
-    required = [
-        "host",
-        "user",
-        "remoteworkdir"
-    ]
-
-    hosts = loadconfigs(confile, hosttemplate, required)
-
-    return hosts
+    pass
 
 
 def loadjobs(jobconfile, hostsconfile, param):
 
     """Method for processing job configuration files."""
 
-    # Dictionary for the job configurations parameters.
-    # Contains "resource" but no "user" or "host" unlike the hosts equivalent
-    jobtemplate = {
-        "corespernode": "",
-        "cores": "",
-        "port": "",
-        "scheduler": "",
-        "handler": "",
-        "accountflag": "",
-        "account": "",
-        "cluster": "",
-        "executableargs": "",
-        "frequency": "",
-        "localworkdir": "",
-        "modules": "",
-        "maxtime": "",
-        "memory": "",
-        "executable": "",
-        "queue": "",
-        "replicates": "",
-        "remoteworkdir": "",
-        "resource": "",
-        "download-include": "",
-        "download-exclude": "",
-        "upload-include": "",
-        "upload-exclude": ""
-    }
-
-    # List of parameters that MUST be provided in the job configuration file
-    required = [
-        ""
-    ]
-
-    resource = param["resource"]
-    jobname = param["jobname"]
-
-    jobs = {}
-
-    # if a job configuration file has been provided, load it
-    if jobconfile is not "":
-
-        jobs = loadconfigs(jobconfile, jobtemplate, required)
-
-    # else load an empty dictionary, use jobname provided on command line if
-    # specified
-    else:
-
-        jobs[jobname if jobname else "Longbowjob"] = jobtemplate.copy()
-
-    # For each job, determine which remote resource to use
-
-    # Read the section headers present in the hosts configuration file.
-    # This will be needed later.
-    configs = configparser.ConfigParser()
-
-    try:
-
-        configs.read(hostsconfile)
-
-    except IOError:
-
-        EX.RequiredinputError("Can't read the configurations from '{0}'"
-                              .format(hostsconfile))
-
-    sectionlist = configs.sections()
-
-    for job in jobs:
-
-        # if a resource has been specified on the command line overrule
-        if resource is not "":
-
-            # Check the machine specified on the command line is in the hosts
-            # config file. If it is, use it.
-            if resource in sectionlist:
-
-                jobs[job]["resource"] = resource
-
-            else:
-
-                raise EX.CommandlineargsError(
-                    "The '{0}' resource specified on the command line is not"
-                    " one of: '{1}'".format(resource, sectionlist))
-
-        # elif a resource has not been specified in a job config, use the top
-        # machine in the hosts config
-        elif jobs[job]["resource"] is "":
-
-            try:
-
-                hostsfile = open(hostsconfile, "r")
-
-            except IOError:
-
-                EX.RequiredinputError("Can't read the configurations from "
-                                      "'{0}'".format(hostsconfile))
-
-            topremoteres = []
-
-            for line in hostsfile:
-
-                if line[0] == "[":
-
-                    i = 1
-
-                    while line[i] is not "]":
-
-                        topremoteres.append(line[i])
-                        i += 1
-
-                    break
-
-            topremoteres = "".join(topremoteres)
-            jobs[job]["resource"] = topremoteres
-            hostsfile.close()
-
-        elif jobs[job]["resource"] not in sectionlist:
-
-            raise EX.RequiredinputError(
-                "The '{0}' resource specified in the job configuration"
-                " file is not one of '{1}'"
-                .format(jobs[job]["resource"], sectionlist))
-
-    return jobs
+    pass
 
 
 def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args,
@@ -236,309 +75,166 @@ def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args,
 
     """Method to sort and prioritise job configuration parameters."""
 
-    # Blank parameters for the jobs structure
-    jobtemplate = {
-        "cores": "",
-        "cluster": "",
-        "executableargs": "",
-        "frequency": "",
-        "localworkdir": "",
-        "modules": "",
-        "maxtime": "",
-        "memory": "",
-        "executable": "",
-        "queue": "",
-        "replicates": "",
-        "resource": "",
-        "download-include": "",
-        "download-exclude": "",
-        "upload-include": "",
-        "upload-exclude": ""
-    }
-
-    # Parameters to be copied manually from jobsconfig to jobs
-    manual = [
-        "resource"
-    ]
-
-    # Parameters to be that can be provided on the command line that can
-    # overrule parameters in config files
-    command = [
-        "executableargs",
-        "executable",
-        "replicates"
-    ]
-
-    # Default parameters to be stored in the jobs structure
-    jobdefaults = {
-        "cores": "24",
-        "cluster": "",
-        "executableargs": args if len(args) > 0 else "",
-        "frequency": "60",
-        "localworkdir": cwd,
-        "modules": "",
-        "maxtime": "24:00",
-        "memory": "",
-        "executable": executable,
-        "queue": "",
-        "replicates": replicates,
-        "resource": "",
-        "download-include": "",
-        "download-exclude": "",
-        "upload-include": "",
-        "upload-exclude": ""
-    }
-
-    jobs = {}
-
-    # create jobs internal structure
-    for job in jobsconfig:
-
-        jobs[job] = jobtemplate.copy()
-
-    # prioritise parameters
-    for job in jobs:
-
-        for option in jobdefaults:
-
-            # manually copy certain values from the jobs config from loadjobs()
-            if option in manual:
-
-                jobs[job][option] = jobsconfig[job][option]
-
-            # certain values provided on the command line should take priority
-            elif option in command and jobdefaults[option] is not "":
-
-                jobs[job][option] = jobdefaults[option]
-
-            # elif a parameter has been defined in jobsconfig, use it
-            elif jobsconfig[job][option] is not "":
-
-                jobs[job][option] = jobsconfig[job][option]
-
-            # if a parameter hasn't been defined in jobsconfig but has been in
-            # hostsconfig, use it
-            elif hostsconfig[jobsconfig[job]["resource"]][option] is not "":
-
-                jobs[job][option] = \
-                    hostsconfig[jobsconfig[job]["resource"]][option]
-
-            # else use default.
-            else:
-
-                jobs[job][option] = jobdefaults[option]
-
-    return jobs
+    pass
 
 
 def sorthostsconfigs(hostsconfig, jobsconfig):
 
-    """Method to sort and prioritise hosts configuration parameters."""
-
-    # Parameters to be stored in the hosts structure
-    hosttemplate = {
-        "corespernode": "",
-        "port": "",
-        "scheduler": "",
-        "handler": "",
-        "accountflag": "",
-        "account": "",
-        "remoteworkdir": "",
-        "user": "",
-        "host": ""
-    }
-
-    # Parameters to be copied manually from hostsconfig to hosts
-    manual = [
-        "host",
-        "user"
-    ]
-
-    # Default parameters to be stored in the hosts structure excluding user and
-    # host
-    hostdefaults = {
-        "corespernode": "24",
-        "port": "22",
-        "scheduler": "",
-        "handler": "",
-        "accountflag": "",
-        "account": "",
-        "remoteworkdir": ""
-    }
-
-    hosts = {}
-
-    # create default hosts internal structure
-    for job in jobsconfig:
-
-        hosts[jobsconfig[job]["resource"]] = hosttemplate.copy()
-
-        for item in manual:
-
-            hosts[jobsconfig[job]["resource"]][item] = \
-                hostsconfig[jobsconfig[job]["resource"]][item]
-
-    # prioritise parameters
-    for job in jobsconfig:
-
-        for option in hostdefaults:
-
-            # Job configuration parameters always take priority
-            if jobsconfig[job][option] is not "":
-
-                hosts[jobsconfig[job]["resource"]][option] = \
-                    jobsconfig[job][option]
-
-            # else use the hosts parameter if provided
-            elif hostsconfig[jobsconfig[job]["resource"]][option] is not "":
-
-                hosts[jobsconfig[job]["resource"]][option] = \
-                    hostsconfig[jobsconfig[job]["resource"]][option]
-
-            # if parameter has not been defined in hosts or jobs use default
-            else:
-
-                hosts[jobsconfig[job]["resource"]][option] = \
-                    hostdefaults[option]
-
-    return hosts
+    pass
 
 
 def amendjobsconfigs(hosts, jobs):
 
     """Method to make final amendments to the job configuration parameters"""
 
-    # Dictionary to map executable to a default module
-    modules = getattr(APPS, "DEFMODULES")
-    modules[""] = ""
-
-    for job in jobs:
-
-        # Check we have an executable provided
-        if jobs[job]["executable"] is "":
-
-            raise EX.CommandlineargsError(
-                "An executable has not been specified on the command-line "
-                "or in a configuration file")
-
-        # Check we have command line arguments provided
-        if jobs[job]["executableargs"] is "":
-
-            raise EX.CommandlineargsError(
-                "Command-line arguments could not be detected properly on the "
-                "command-line or in a configuration file. If your application "
-                "requires input of the form 'executable < input_file' then "
-                "make sure that you put the \"<\" in quotation marks.")
-
-        # if the executableargs parameter is a string, we need to split it up
-        # into a list of strings
-        elif isinstance(jobs[job]["executableargs"], basestring):
-
-            jobs[job]["executableargs"] = jobs[job]["executableargs"].split()
-
-        # If modules hasn't been defined in a config file, use default
-        if jobs[job]["modules"] is "":
-
-            jobs[job]["modules"] = modules[jobs[job]["executable"]]
-
-        # If replicates hasn't been defined anywhere, set to "1"
-        if jobs[job]["replicates"] is "":
-
-            jobs[job]["replicates"] = "1"
-
-        # Give each job a remote basepath, a random hash will be added to this
-        # later.
-        jobs[job]["destdir"] = hosts[jobs[job]["resource"]]["remoteworkdir"]
+    pass
 
 
-def loadconfigs(confile, template, required):
+def loadconfigs(configfile):
 
-    """Method to load configurations from file."""
+    """Method to load an ini file. Files of this format contain the following
+    mark-up structure.
 
-    LOGGER.info("Loading configuration information from file '{0}'"
-                .format(confile))
+    Sections of a file are marked using square brackets
+    Section then contain option statements of the form "param = value"
+    Comments are marked using hashes.
 
-    # Instantiate the configparser and read the configuration file.
-    configs = configparser.ConfigParser()
+    An example of such a file would be:
 
+    [section1]
+    # this is the first option
+    option1 = value1
+    # this is the second option
+    option2 = value2
+
+    [section2]
+    # this is the first option
+    option1 = value1
+    # this is the second option
+    option2 = value2
+
+    [section3]
+    # this is the first option
+    option1 = value1
+    # this is the second option
+    option2 = value2
+
+    This method performs basic error handling to do with the structure of the
+    ini file only. All error handling specific to Longbow should be performed
+    elsewhere.
+    """
+
+    sections = []
+    data = {}
+
+    # Open configuration file.
     try:
 
-        configs.read(confile)
+        tmp = open(configfile, "r")
+
+        # Grab all of the information from the file.
+        contents = tmp.readlines()
 
     except IOError:
 
         raise EX.ConfigurationError(
-            "Can't read the configurations from '{0}'".format(confile))
+            "Can't read the configurations from '{0}'".format(configfile))
 
-    # Grab a list of the section headers present in file.
-    sectionlist = configs.sections()
-    sectioncount = len(sectionlist)
+    # Strip out the newline chars.
+    contents = [line.strip("\n") for line in contents]
 
-    # If we don't have any sections then raise an exception.
-    if sectioncount is 0:
+    # Close configuration file (don't need it anymore).
+    tmp.close()
 
-        raise EX.ConfigurationError(
-            "In file '{0}' no sections can be detected or the file is not in "
-            "ini format.".format(confile))
+    # Pull out sections into list.
+    for item in contents:
 
-    # Temporary dictionary for storing the configurations in.
-    params = {}
-    for section in sectionlist:
-
-        params[section] = template.copy()
-
-        # Grab the option count from the section.
-        optioncount = len(configs.options(section))
-
-        # If we have no options then raise an exception.
-        if optioncount is 0:
-
-            raise EX.ConfigurationError(
-                "There are no parameters listed under the section '{0}'"
-                .format(section))
-
-        # Store option values in our dictionary structure.
-        for option in template:
+        # Don't care about blank lines.
+        if len(item) > 0:
 
             try:
+                # Find section markers
+                if item[0] == "[" and item[len(item)-1] == "]":
 
-                params[section][option] = configs.get(section, option)
+                    # Remove the square bracket section markers.
+                    section = "".join(a for a in item if a not in "[]")
 
-            except configparser.NoOptionError:
+                    # Add to list of sections.
+                    sections.append(section)
 
-                if option in required:
+                    # Create a new section in the data structure.
+                    data[section] = {}
 
-                    raise EX.ConfigurationError(
-                        "The parameter '{0}' is required".format(option))
+                # Find comment markers.
+                elif item[0] is "#":
 
-                else:
-
+                    # Ignore comments.
                     pass
 
-    return params
+                # Anything else must be option data.
+                else:
+
+                    # Option is in the format key = param. So extract these.
+                    key, value = item.split(" = ")
+
+                    # Store the keys and values in the data structure.
+                    data[section][key] = value
+
+            except NameError:
+
+                # Issue warning.
+                pass
+
+    # Check if there are zero sections.
+    if len(sections) is 0:
+
+        raise EX.ConfigurationError(
+            "Error no sections are defined in configuration file '{0}'"
+            .format(configfile))
+
+    # Check for sections with zero options.
+    for section in sections:
+
+        if len(data[section]) is 0:
+
+            raise EX.ConfigurationError(
+                "Error section '{0}' contains no parameter definitions using "
+                "configuration file '{1}'".format(section, configfile))
+
+    return data, sections
 
 
 def saveconfigs(confile, params):
 
-    """Method to save parameters to file."""
+    """Method to saving to an ini file. Files of this format contain the
+    following mark-up structure.
 
-    LOGGER.info("Saving configuration information to file '{0}'"
-                .format(confile))
+    Sections of a file are marked using square brackets
+    Section then contain option statements of the form "param = value"
+    Comments are marked using hashes.
 
-    # Bind the hosts file to the config parser and read it in.
-    configs = configparser.ConfigParser()
-    configs.read(confile)
+    An example of such a file would be:
 
-    for section in params:
+    [section1]
+    # this is the first option
+    option1 = value1
+    # this is the second option
+    option2 = value2
 
-        for option in params[section]:
+    [section2]
+    # this is the first option
+    option1 = value1
+    # this is the second option
+    option2 = value2
 
-            if params[section][option] is not "":
+    [section3]
+    # this is the first option
+    option1 = value1
+    # this is the second option
+    option2 = value2
 
-                # Append the new option and value to the configuration.
-                configs.set(section, option, params[section][option])
+    This method is comment safe, this was a major downfall of the standard
+    python parser as it would wipe out comments that a user would include.
+    """
 
-    # Save it.
-    with open(confile, 'w') as conf:
-
-        configs.write(conf)
+    pass
