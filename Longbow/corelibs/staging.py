@@ -100,7 +100,7 @@ def stage_downstream(hosts, jobs, jobname):
         raise EX.StagingError("Could not download file '{0}' "
                               "to location '{1}'".format(src, dst))
 
-    LOGGER.info("staging complete.")
+    LOGGER.info("Staging complete.")
 
 
 def cleanup(hosts, jobs):
