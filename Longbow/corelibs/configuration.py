@@ -19,24 +19,25 @@
 # You should have received a copy of the GNU General Public License
 # along with Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""This module contains methods for loading and saving configuration
-files as well as methods for processing host and job configuration files.
+"""This module contains methods for loading and saving to Longbow (ini)
+configuration files in addition to methods for extracting the resultant
+information into Longbow data structures. The templates for these data
+structures and their forms are also declared within this module.
+
+The following data structures can be found:
+
+
+
 The following methods can be found:
 
-loadhosts()
-    Method containing the structure template for host configuration files.
-loadjobs()
-    Method containing the structure template for job configuration files.
-def sortjobsconfigs()
-    Method to sort and prioritise jobs configuration parameters.
-def sorthostsconfigs():
-    Method to sort and prioritise hosts configuration parameters.
-def amendjobsconfigs(hosts, jobs)
-    Method to make final amendments to the job configuration parameters.
 loadconfigs()
-    Method containing the code for parsing configuration files.
+    Method for loading and extracting data from the Longbow configuration
+    files.
+
 saveconfigs()
-    Method containing the code for saving configuration files."""
+    Method for saving data to Longbow configuration files, this method will
+    honour comments and simply ammed the file structure with new or changed
+    data."""
 
 import logging
 
@@ -125,7 +126,7 @@ def loadconfigs(configfile):
     """
 
     sections = []
-    data = {}
+    params = {}
 
     # Open configuration file.
     try:
@@ -163,7 +164,7 @@ def loadconfigs(configfile):
                     sections.append(section)
 
                     # Create a new section in the data structure.
-                    data[section] = {}
+                    params[section] = {}
 
                 # Find comment markers.
                 elif item[0] is "#":
@@ -178,7 +179,7 @@ def loadconfigs(configfile):
                     key, value = item.split(" = ")
 
                     # Store the keys and values in the data structure.
-                    data[section][key] = value
+                    params[section][key] = value
 
             except NameError:
 
@@ -195,16 +196,16 @@ def loadconfigs(configfile):
     # Check for sections with zero options.
     for section in sections:
 
-        if len(data[section]) is 0:
+        if len(params[section]) is 0:
 
             raise EX.ConfigurationError(
                 "Error section '{0}' contains no parameter definitions using "
                 "configuration file '{1}'".format(section, configfile))
 
-    return data, sections
+    return contents, sections, params
 
 
-def saveconfigs(confile, params):
+def saveconfigs(configfile, params):
 
     """Method to saving to an ini file. Files of this format contain the
     following mark-up structure.
@@ -237,4 +238,128 @@ def saveconfigs(confile, params):
     python parser as it would wipe out comments that a user would include.
     """
 
-    pass
+    keydiff = {}
+    valuediff = {}
+
+    # Load up the original file including comment structure (list).
+    contents, _, oldparams = loadconfigs(configfile)
+
+    # Run through each section in the data.
+    for section in params:
+
+        # Run through each parameter in this section.
+        for option in params[section]:
+
+            try:
+
+                # Check for continuity between data in file and that in
+                # Longbow.
+                if params[section][option] != oldparams[section][option]:
+
+                    try:
+
+                        # If parameter is changed try adding it to the diff
+                        valuediff[section][option] = params[section][option]
+
+                    except KeyError:
+
+                        # If this is the first time then section won't exist.
+                        valuediff[section] = {option: params[section][option]}
+
+            # If we get a key error then the paramater is a new one.
+            except KeyError:
+
+                try:
+
+                    # Try adding to diff
+                    keydiff[section][option] = params[section][option]
+
+                except KeyError:
+
+                    # If this is the first time we will need to create the
+                    # section.
+                    keydiff[section] = {option: params[section][option]}
+
+    # Update the file metastructure with these changes.
+    # Firstly handle the updates.
+    for section in valuediff:
+
+        # Find the section start (so we know where to look)
+        sectionstartindex = contents.index("[" + section + "]")
+
+        # Find the section end.
+        try:
+
+            sectionendindex = contents.index(
+                [a for a in contents if "[" and "]" in a and
+                 contents.index(a) > sectionstartindex][0]) - 1
+
+        except IndexError:
+
+            sectionendindex = len(contents)
+
+        # Limit our search to this range for the parameter.
+        for option in valuediff[section]:
+
+            # Get the line index to edit.
+            editposition = (
+                sectionstartindex +
+                contents[sectionstartindex:sectionendindex].index(
+                    option + " = " + oldparams[section][option]))
+
+            # Edit the entry.
+            contents[editposition] = (
+                option + " = " + valuediff[section][option])
+
+    # Now handle new entries. Run through each section.
+    for section in keydiff:
+
+        try:
+            # Find the section start.
+            sectionstartindex = contents.index("[" + section + "]")
+
+            # Find the section end.
+            try:
+                sectionendindex = contents.index(
+                    [a for a in contents if "[" and "]" in a and
+                     contents.index(a) > sectionstartindex][0]) - 1
+
+            except IndexError:
+
+                sectionendindex = len(contents)
+
+            # Now for each option.
+            for option in keydiff[section]:
+
+                # Insert into the list in the appropriate place.
+                contents.insert(
+                    sectionendindex, option + " = " + keydiff[section][option])
+
+        # Doesn't exist so it is a new section.
+        except ValueError:
+
+            # Append the section.
+            contents.extend(["", "[" + section + "]"])
+
+            # Now run through each option.
+            for option in keydiff[section]:
+
+                # And append it to the end of the list.
+                contents.append(option + " = " + keydiff[section][option])
+
+    try:
+
+        # Open file for writing.
+        tmp = open(configfile, "w")
+
+        # Write it all out.
+        for item in contents:
+            tmp.write(item + "\n")
+
+        # Close file.
+        tmp.close()
+
+    except IOError:
+
+        raise EX.ConfigurationError(
+            "Error saving to '{0}'".format(configfile))
