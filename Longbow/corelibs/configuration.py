@@ -26,9 +26,28 @@ structures and their forms are also declared within this module.
 
 The following data structures can be found:
 
+HOSTTEMPLATE
+    The template of the hosts data structure. The Longbow API will assume
+    that variables listed here are to be found in this structure.
 
+HOSTREQUIRED
+    A list to mark parameters that are required to be initialised during
+    configuration
+
+JOBTEMPLATE
+    The template of the job data structure. The Longbow API will assume
+    that variables listed here are to be found in this structure.
+
+JOBREQUIRED
+    A list to mark parameters that are required to be initialised during
+    configuration
 
 The following methods can be found:
+
+processjobs()
+    Method for processing the raw configuration structures loaded from the
+    configuration files into Longbow friendly configuration structures.
+    This is where the parameter hierarchy is applied.
 
 loadconfigs()
     Method for loading and extracting data from the Longbow configuration
@@ -41,7 +60,7 @@ saveconfigs()
 
 import logging
 
-# Depending on how longbow is installed/utilised the import will be slightly
+# Depending on how Longbow is installed/utilised the import will be slightly
 # different, this should handle both cases.
 try:
 
@@ -56,39 +75,136 @@ except ImportError:
 
 LOGGER = logging.getLogger("Longbow")
 
+HOSTTEMPLATE = {
+    "accountflag": "",
+    "corespernode": "24",
+    "handler": "",
+    "host": "",
+    "port": "22",
+    "remoteworkdir": "",
+    "scheduler": "",
+    "user": ""
+}
 
-def loadhosts(confile):
+HOSTREQUIRED = [
+    "host",
+    "user",
+    "remoteworkdir"
+]
 
-    """Method for processing host configuration files."""
+JOBTEMPLATE = {
+    "account": "",
+    "cores": "24",
+    "cluster": "",
+    "download-exclude": "",
+    "download-include": "",
+    "executable": "",
+    "executableargs": "",
+    "frequency": "300",
+    "localworkdir": "",
+    "modules": "",
+    "maxtime": "24:00",
+    "memory": "",
+    "queue": "",
+    "resource": "",
+    "replicates": "1",
+    "upload-exclude": "",
+    "upload-include": ""
+}
 
-    pass
+JOBREQUIRED = [
+    "executableargs",
+    "executable",
+    "replicates"
+]
 
 
-def loadjobs(jobconfile, hostsconfile, param):
+def processconfigs(hostfile, jobfile, cwd, params):
 
-    """Method for processing job configuration files."""
+    """
+    A Method for processing configuration files into the Longbow data
+    format.
 
-    pass
+    Arguments are:
 
+    hostfile (string): This should be an absolute path to a configuration
+                       file, this parameter is required
 
-def sortjobsconfigs(hostsconfig, jobsconfig, executable, cwd, args,
-                    replicates):
+    jobfile (string): This should be an absolute path to a configuration
+                      file, this parameter is optional (empty string if not
+                      needed)
 
-    """Method to sort and prioritise job configuration parameters."""
+    args (string): This should be an absolute path to a configuration
+                       file, this parameter is required
 
-    pass
+    cwd (string): This should be an absolute path to a configuration
+                       file, this parameter is required
 
+    executable (string): This should be an absolute path to a configuration
+                       file, this parameter is required
 
-def sorthostsconfigs(hostsconfig, jobsconfig):
+    params (dictionary): This should be an absolute path to a configuration
+                       file, this parameter is required
 
-    pass
+    Return parameters are:
 
+    hosts (dictionary): A fully processed Longbow hosts data structure.
 
-def amendjobsconfigs(hosts, jobs):
+    jobs (dictionary) A fully processed Longbow jobs data structure.
+    """
 
-    """Method to make final amendments to the job configuration parameters"""
+    # TODO the param 'account' has been changed over from hosts to jobs.
+    # This needs changing in the plugin specific parts.
 
-    pass
+    # Define our main data structures.
+    hosts = {}
+    jobs = {}
+
+    # Try and load the host file.
+    try:
+
+        _, hostsections, hostdata = loadconfigs(hostfile)
+
+    except EX.ConfigurationError:
+
+        raise
+
+    # If we have been given a job file then try and load it.
+    if jobfile is not "":
+
+        try:
+
+            _, _, jobdata = loadconfigs(jobfile)
+
+        except EX.ConfigurationError:
+
+            raise
+
+    # Otherwise we can assume that there is going to be a single job on the
+    # command line.
+    else:
+
+        # No data to load.
+        jobdata = {}
+
+    # Process the host configuration
+    for host in hostdata:
+
+        # Create a host with defaults set up.
+        hosts[host] = HOSTTEMPLATE.copy()
+
+    # Process the job configuration.
+    for job in jobdata:
+
+        jobs[job] = JOBTEMPLATE.copy()
+
+    # Validation on required params.
+    print hosts
+    print jobs
+    import sys
+    sys.exit("test over")
+
+    return hosts, jobs
 
 
 def loadconfigs(configfile):
@@ -123,7 +239,30 @@ def loadconfigs(configfile):
     This method performs basic error handling to do with the structure of the
     ini file only. All error handling specific to Longbow should be performed
     elsewhere.
+
+    Required arguments are:
+
+    configfile (string): This should be an absolute path to a configuration
+                         file
+
+    Return parameters are:
+
+    contents (list): This is the raw file structure where each line is an item
+                     in the list
+
+    sections (list): This is a list of section headers in the data (preserves
+                     order)
+
+    data (dict of dicts): This is a structure containing the data loaded from
+                          the file, a dictionary is created for each heading in
+                          the ini file. Then the parameters and values under
+                          each heading will form a dictionary within the
+                          corresponding heading section (dictionary of
+                          dictionaries)
     """
+
+    LOGGER.info("Loading configuration information from file '{0}'"
+                .format(configfile))
 
     sections = []
     params = {}
@@ -207,7 +346,8 @@ def loadconfigs(configfile):
 
 def saveconfigs(configfile, params):
 
-    """Method to saving to an ini file. Files of this format contain the
+    """
+    Method to saving to an ini file. Files of this format contain the
     following mark-up structure.
 
     Sections of a file are marked using square brackets
@@ -236,7 +376,18 @@ def saveconfigs(configfile, params):
 
     This method is comment safe, this was a major downfall of the standard
     python parser as it would wipe out comments that a user would include.
+
+    Required arguments are:
+
+    configfile (string): This should be an absolute path to a configuration
+                         file
+
+    params (dictionary): This should contain the data structure that should
+                         be saved (typically hosts of job configs structure)
     """
+
+    LOGGER.info("Saving configuration information to file '{0}'"
+                .format(configfile))
 
     keydiff = {}
     valuediff = {}

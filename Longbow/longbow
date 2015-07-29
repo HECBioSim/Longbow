@@ -54,7 +54,7 @@ except ImportError:
     STAGING = __import__("Longbow.corelibs.staging", fromlist=[''])
 
 
-def main(cmdline, executable, execargs, files, mode, parameters):
+def main(cmdline, files, mode, parameters):
 
     """This is the main for a console based app, this is designed to run in a
     python/unix shell and is thus the main choice for headless machines like a
@@ -163,23 +163,9 @@ def main(cmdline, executable, execargs, files, mode, parameters):
 
         logger.info("hosts file is: %s", files["hosts"])
 
-        # Load the configuration of the hosts.
-        hostsconfig = CONFIGURATION.loadhosts(files["hosts"])
-
-        # Load the configuration of the jobs
-        jobsconfig = CONFIGURATION.loadjobs(
-            files["job"], files["hosts"], parameters)
-
-        # Sort and prioritise jobs configuration parameters
-        jobs = CONFIGURATION.sortjobsconfigs(
-            hostsconfig, jobsconfig, executable, cwd, execargs,
-            parameters["replicates"])
-
-        # Sort and prioritise hosts configuration parameters
-        hosts = CONFIGURATION.sorthostsconfigs(hostsconfig, jobsconfig)
-
-        # Make some final amendments to jobs configuration parameters
-        CONFIGURATION.amendjobsconfigs(hosts, jobs)
+        # Load configurations and initialise Longbow data structures.
+        hosts, jobs = CONFIGURATION.processconfigs(
+            files["hosts"], files["job"], cwd, parameters)
 
         # Test the connection/s specified in the job configurations
         SHELLWRAPPERS.testconnections(hosts, jobs)
@@ -649,8 +635,11 @@ if __name__ == "__main__":
 
             PARAMETERS["jobname"] = LONGBOWARGS[POSITION + 1]
 
+    PARAMETERS["executable"] = EXECUTABLE
+    PARAMETERS["executableargs"] = EXECARGS
+
     # ------------------------------------------------------------------------
     # Call Longbow.
 
     # Enter the mains application.
-    main(COMMANDLINE, EXECUTABLE, EXECARGS, FILES, MODE, PARAMETERS)
+    main(COMMANDLINE, FILES, MODE, PARAMETERS)
