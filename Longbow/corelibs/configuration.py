@@ -19,7 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""This module contains methods for loading and saving to Longbow (ini)
+"""
+This module contains methods for loading and saving to Longbow (ini)
 configuration files in addition to methods for extracting the resultant
 information into Longbow data structures. The templates for these data
 structures and their forms are also declared within this module.
@@ -31,16 +32,16 @@ HOSTTEMPLATE
     that variables listed here are to be found in this structure.
 
 HOSTREQUIRED
-    A list to mark parameters that are required to be initialised during
-    configuration
+    A dictionary to mark parameters that are required to be initialised during
+    configuration and their error messages for cases when missing.
 
 JOBTEMPLATE
     The template of the job data structure. The Longbow API will assume
     that variables listed here are to be found in this structure.
 
 JOBREQUIRED
-    A list to mark parameters that are required to be initialised during
-    configuration
+    A dictionary to mark parameters that are required to be initialised during
+    configuration and their error messages for cases when missing.
 
 The following methods can be found:
 
@@ -55,8 +56,9 @@ loadconfigs()
 
 saveconfigs()
     Method for saving data to Longbow configuration files, this method will
-    honour comments and simply ammed the file structure with new or changed
-    data."""
+    honour comments and simply amend the file structure with new or changed
+    data.
+"""
 
 import logging
 
@@ -76,6 +78,7 @@ except ImportError:
 LOGGER = logging.getLogger("Longbow")
 
 HOSTTEMPLATE = {
+    "account": "",
     "accountflag": "",
     "corespernode": "24",
     "handler": "",
@@ -86,14 +89,23 @@ HOSTTEMPLATE = {
     "user": ""
 }
 
-HOSTREQUIRED = [
-    "host",
-    "user",
-    "remoteworkdir"
-]
+HOSTREQUIRED = {
+    "host": "The parameter 'hosts' has not been set in your configuration "
+            "file, the most natural place is to set this in your hosts.conf, "
+            "the path is normally what you would supply to SSH (the part "
+            "after the '@').",
+    "user": "The paramter 'users' has not been set in your configuration "
+            "file, the most natural place is to set this in your hosts.conf, "
+            "the user is the same as what you would normally supply to SSH "
+            "(the part before the '@').",
+    "remoteworkdir": "The parameter 'remoteworkdir' has not been set in your "
+                     "configuration file, the most natural place to set this "
+                     "is in the host.conf if your working directory never "
+                     "changes, or in the job.conf if you are changing this on "
+                     "a per job basis."
+}
 
 JOBTEMPLATE = {
-    "account": "",
     "cores": "24",
     "cluster": "",
     "download-exclude": "",
@@ -112,39 +124,48 @@ JOBTEMPLATE = {
     "upload-include": ""
 }
 
-JOBREQUIRED = [
-    "executableargs",
-    "executable",
-    "replicates"
-]
+JOBREQUIRED = {
+    "executableargs": "Command-line arguments could not be detected properly "
+                      "on the command-line or in a configuration file. If "
+                      "your application requires input of the form "
+                      "'executable < input_file' then make sure that you put "
+                      "the '<' in quotation marks.",
+    "executable": "An executable has not been specified on the command-line "
+                  "or in a configuration file.",
+    "replicates": "The parameter 'replicates' is required to be set, this "
+                  "parameter has an internal default for when not specified "
+                  "so something may have gone wrong when specifying a value "
+                  "for it in the configuration file."
+}
 
 
 def processconfigs(hostfile, jobfile, cwd, params):
 
     """
-    A Method for processing configuration files into the Longbow data
-    format.
+    Method for processing the raw configuration structures loaded from the
+    configuration files into Longbow friendly configuration structures.
+    This is where the parameter hierarchy is applied.
 
-    Arguments are:
+    Required arguments are:
 
     hostfile (string): This should be an absolute path to a configuration
-                       file, this parameter is required
+                       file, this parameter is required.
 
     jobfile (string): This should be an absolute path to a configuration
                       file, this parameter is optional (empty string if not
-                      needed)
+                      needed).
 
     args (string): This should be an absolute path to a configuration
-                       file, this parameter is required
+                       file, this parameter is required.
 
     cwd (string): This should be an absolute path to a configuration
-                       file, this parameter is required
+                       file, this parameter is required.
 
     executable (string): This should be an absolute path to a configuration
-                       file, this parameter is required
+                       file, this parameter is required.
 
     params (dictionary): This should be an absolute path to a configuration
-                       file, this parameter is required
+                       file, this parameter is required.
 
     Return parameters are:
 
@@ -153,12 +174,14 @@ def processconfigs(hostfile, jobfile, cwd, params):
     jobs (dictionary) A fully processed Longbow jobs data structure.
     """
 
-    # TODO the param 'account' has been changed over from hosts to jobs.
-    # This needs changing in the plugin specific parts.
-
     # Define our main data structures.
     hosts = {}
     jobs = {}
+
+    # Define a dictionary of module defaults based on the plug-in names and
+    # executables.
+    modules = getattr(APPS, "DEFMODULES")
+    modules[""] = ""
 
     # Try and load the host file.
     try:
@@ -180,36 +203,242 @@ def processconfigs(hostfile, jobfile, cwd, params):
 
             raise
 
-    # Otherwise we can assume that there is going to be a single job on the
-    # command line.
+    # If there is no file then the job structure will be built up from things
+    # we know from the hosts, the command line and defaults. In this case we
+    # would only ever have 1 job.
     else:
 
-        # No data to load.
         jobdata = {}
 
-    # Process the host configuration
+        # Did the user supply a jobname on the command line, if not default it.
+        if params["jobname"] is not "":
+
+            jobname = params["jobname"]
+
+        else:
+            jobname = "LongbowJob"
+
+        jobdata[jobname] = JOBTEMPLATE.copy()
+
+        # It is important that this one is empty so not to accidentally
+        # interfere with prioritisation in the next step (saves on duplicating
+        # data structures just to have one empty and one with default values).
+        for item in jobdata[jobname]:
+
+            jobdata[jobname][item] = ""
+
+    # Process the basic host configuration
     for host in hostdata:
 
-        # Create a host with defaults set up.
+        # Create a base host structure along with known defaults.
         hosts[host] = HOSTTEMPLATE.copy()
 
-    # Process the job configuration.
+        # At this stage just grab all parameters that belong in the hosts.
+        for item in hosts[host]:
+
+            # We don't want to overwrite internal defaults.
+            try:
+
+                if hostdata[host][item] is not "":
+
+                    hosts[host][item] = hostdata[host][item]
+
+            except KeyError:
+
+                pass
+
+    # Process the basic job configuration.
     for job in jobdata:
 
+        # Create a base job structure along with known defaults.
         jobs[job] = JOBTEMPLATE.copy()
 
-    # Validation on required params.
-    print hosts
-    print jobs
-    import sys
-    sys.exit("test over")
+        for item in jobs[job]:
+
+            # At this stage just grab all parameters that belong in the jobs,
+            # which are not empty to avoid overwriting defaults.
+            try:
+
+                if jobdata[job][item] is not "":
+
+                    jobs[job][item] = jobdata[job][item]
+
+            except KeyError:
+
+                pass
+
+    # Now process some overrides, the basic order of precedence is;
+    # Command line > job config file > host config file > internal defaults.
+
+    # Before we go further lets check that the job/s have been assigned a host.
+    # This is important for checking for values provided for jobs in the host
+    # conf.
+    for job in jobs:
+
+        # If not then can we find one to use?
+        if jobs[job]["resource"] is "":
+
+            # First check the params from the command line.
+            if params["resource"] is not "":
+
+                # If this host has been set up then use it.
+                if params["resource"] in hostsections:
+
+                    jobs[job]["resource"] = params["resource"]
+
+                # Otherwise we have a problem, so tell the user.
+                else:
+
+                    raise EX.CommandlineargsError(
+                        "The resource '{0}' that was given on the command line"
+                        " has not been configured in the host.conf. The hosts "
+                        "available are '{0}'".format(
+                            params["resource"], hostsections))
+
+            # Otherwise lets try and use the top host in the list from
+            # host.conf. This should never be an empty list since the
+            # parser would provide an error on load.
+            else:
+
+                jobs[job]["resource"] = hostsections[0]
+
+        # Otherwise run some validation.
+        else:
+
+            # Does the host exist?
+            if jobs[job]["resource"] not in hostsections:
+
+                # If not tell the user.
+                raise EX.CommandlineargsError(
+                    "The resource '{0}' that was given in the job config file"
+                    " has not been configured in the host.conf. The hosts "
+                    "available are '{0}'".format(
+                        params["resource"], hostsections))
+
+    # Now we can go ahead and process the overrides. For this it is probably
+    # best to use the jobs data as the main source, this way we will only deal
+    # with hosts that are being used.
+    for job in jobs:
+
+        resource = jobs[job]["resource"]
+
+        # Host overrides first.
+
+        # For the host that is provided for this job, is there anything that is
+        # overriding in the job configuration file?
+        for item in jobdata[job]:
+
+            # We can check this like this.
+            if item in hosts[resource] and jobdata[job][item] is not "":
+
+                # Then override.
+                hosts[resource][item] = jobdata[job][item]
+
+        # For the host that is provided in this job, is there anything that is
+        # overriding on the command line?
+        for item in params:
+
+            # We can check this like this.
+            if item in hosts[resource] and params[item] is not "":
+
+                # Then override.
+                hosts[resource][item] = params[item]
+
+        # Job overrides next.
+
+        # For the currently selected job, are there any overrides that have
+        # been given on the command line?
+        for item in params:
+
+            # We have already handled this.
+            if item is not "resource":
+
+                # We can check this like this.
+                if item in jobs[job] and params[item] is not "":
+
+                    # Then override.
+                    jobs[job][item] = params[item]
+
+        # Now the overrides from the hosts.conf are of lower priority than
+        # those on the command line or any data that was supplied in the
+        # job.conf but higher than any internal defaults.
+        for item in hostdata[resource]:
+
+            # We have already handled this.
+            if item is not "resource":
+
+                # Does the item match anything in the job?
+                if item in jobs[job]:
+
+                    # Then we have an override, but check priority first.
+                    # If the entry is blank.
+                    if jobs[job][item] is "":
+
+                        # Go right ahead and override.
+                        jobs[job][item] = hostdata[resource][item]
+
+                    # Otherwise did the entry come from the higher priority
+                    # job.conf?
+                    elif item not in jobdata[job]:
+
+                        # We can assume it didn't come from here so must be an
+                        # internal default, so override.
+                        jobs[job][item] = hostdata[resource][item]
+
+    # Check parameters that are required for running jobs are provided.
+    # Here we will only do validation on hosts that are referenced in jobs,
+    # this should cut down on annoyances to the user.
+    for job in jobs:
+
+        resource = jobs[job]["resource"]
+
+        # Validate for host referenced within job.
+        for validationitem in HOSTREQUIRED:
+
+            # If no value has been set.
+            if hosts[resource][validationitem] is "":
+
+                # Throw an exception.
+                raise EX.ConfigurationError(HOSTREQUIRED[validationitem])
+
+        # Validate required parameters have been set.
+        for validationitem in JOBREQUIRED:
+
+            # If no value has been set.
+            if jobs[job][validationitem] is "":
+
+                # Throw an exception.
+                raise EX.ConfigurationError(JOBREQUIRED[validationitem])
+
+    # Some final initialisation.
+    for job in jobs:
+
+        # If the local working directory has not been set, then default to cwd
+        if jobs[job]["localworkdir"] is "":
+
+            jobs[job]["localworkdir"] = cwd
+
+        # If the exec arguments are in string form, split to list.
+        if isinstance(jobs[job]["executableargs"], basestring):
+
+            jobs[job]["executableargs"] = jobs[job]["executableargs"].split()
+
+        # If modules hasn't been set then try and use a default.
+        if jobs[job]["modules"] is "":
+
+            jobs[job]["modules"] = modules[jobs[job]["executable"]]
+
+        # Give each job a remote base path, a random hash will be added to this
+        # during job processing
+        jobs[job]["destdir"] = hosts[jobs[job]["resource"]]["remoteworkdir"]
 
     return hosts, jobs
 
 
 def loadconfigs(configfile):
 
-    """Method to load an ini file. Files of this format contain the following
+    """
+    Method to load an ini file. Files of this format contain the following
     mark-up structure.
 
     Sections of a file are marked using square brackets
@@ -243,22 +472,22 @@ def loadconfigs(configfile):
     Required arguments are:
 
     configfile (string): This should be an absolute path to a configuration
-                         file
+                         file.
 
     Return parameters are:
 
     contents (list): This is the raw file structure where each line is an item
-                     in the list
+                     in the list.
 
     sections (list): This is a list of section headers in the data (preserves
-                     order)
+                     order).
 
     data (dict of dicts): This is a structure containing the data loaded from
                           the file, a dictionary is created for each heading in
                           the ini file. Then the parameters and values under
                           each heading will form a dictionary within the
                           corresponding heading section (dictionary of
-                          dictionaries)
+                          dictionaries).
     """
 
     LOGGER.info("Loading configuration information from file '{0}'"
@@ -380,10 +609,10 @@ def saveconfigs(configfile, params):
     Required arguments are:
 
     configfile (string): This should be an absolute path to a configuration
-                         file
+                         file.
 
     params (dictionary): This should contain the data structure that should
-                         be saved (typically hosts of job configs structure)
+                         be saved (typically hosts of job configs structure).
     """
 
     LOGGER.info("Saving configuration information to file '{0}'"

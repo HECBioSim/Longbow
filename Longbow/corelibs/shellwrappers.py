@@ -19,9 +19,64 @@
 # You should have received a copy of the GNU General Public License
 # along with Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""A module containing methods for interacting with the shell, it includes
+"""
+This module contains methods for interacting with the Unix shell, it includes
 methods for file manipulation and directory functions. Where possible paths
-are checked to make sure they are absolute paths."""
+are checked to make sure they are absolute paths.
+
+The following methods can be found:
+
+testconnections()
+    This method will test that connections to hosts specified in jobs can be
+    established. Problems encountered at this stage could be due to either
+    badly configured hosts, networking problems, or even system maintenance/
+    downtime on the HPC host.
+
+sendtoshell()
+    This method is responsible for handing off commands to the Unix shell, it
+    makes use of the subprocess library from the Python standard library.
+
+sendtossh()
+    This method constructs a string containing commands to be executed via SSH.
+    This string is then handed off to the sendtoshell() method for execution.
+
+sendtorsync()
+    This method constructs a string that forms an rsync command, this string is
+    then handed off to the sendtoshell() method for execution.
+
+localcopy()
+    This method is for copying a file/directory between two local paths, this
+    method relies on the Python standard library to perform operations.
+
+localdelete()
+    This method is for deleting a file/directory from the local machine, this
+    method relies on the Python standard library to perform operations.
+
+locallist()
+    This method is for constructing a list of items present within a given
+    directory. This method relies on the Python standard library to perform
+    operations.
+
+remotecopy()
+    This method is for copying a file/directory between two paths on a remote
+    host, this is done via passing a copy command to the sendtossh() method.
+
+remotedelete()
+    This method is for deleting a file/directory from a path on a remote host,
+    this is done via passing a delete command to the sendtossh() method.
+
+remotelist()
+    This method is for listing the contents of a directory on a remote host,
+    this is done via passing a list command to the sendtoshell() method.
+
+upload()
+    This method is for uploading files to a remote host, this method is
+    responsible for specifying the direction that the transfer takes place.
+
+download()
+    This method is for downloading files from a remote host, this method is
+    responsible for specifying the direction that the transfer takes place.
+"""
 
 import os
 import shutil
@@ -42,9 +97,22 @@ LOGGER = logging.getLogger("Longbow")
 
 def testconnections(hosts, jobs):
 
-    """A method for checking that the connection to a given machine is
-    accessible, problems raised here could be due to system maintenance/
-    downtime or a mistake in your host configuration."""
+    """
+    This method will test that connections to hosts specified in jobs can be
+    established. Problems encountered at this stage could be due to either
+    badly configured hosts, networking problems, or even system maintenance/
+    downtime on the HPC host.
+
+    Required arguments are:
+
+    hosts (dictionary) - The Longbow hosts data structure, see configuration.py
+                         for more information about the format of this
+                         structure.
+
+    jobs (dictionary) - The Longbow jobs data structure, see configuration.py
+                        for more information about the format of this
+                        structure.
+    """
 
     LOGGER.info(
         "Testing connections to all resources that are referenced in the job "
@@ -81,8 +149,25 @@ def testconnections(hosts, jobs):
 
 def sendtoshell(cmd):
 
-    """The method for sending shell commands to subprocess for execution
-    within a system shell."""
+    """
+    This method is responsible for handing off commands to the Unix shell, it
+    makes use of the subprocess library from the Python standard library.
+
+    REquired arguments are:
+
+    cmd (string) - A fully qualified Unix command.
+
+    Return parameters are:
+
+    stdout (string) - Contains the output from the standard output of the Unix
+                      shell.
+
+    stderr (string) - Contains the output from the standard error of the Unix
+                      shell.
+
+    errorstate (string) - Contains the exit code that the Unix shell exits
+                          with.
+    """
 
     LOGGER.debug("Sending the following to subprocess '{0}'".format(cmd))
 
@@ -101,7 +186,26 @@ def sendtoshell(cmd):
 
 def sendtossh(host, args):
 
-    """A method for constructing ssh commands."""
+    """
+    This method constructs a string containing commands to be executed via SSH.
+    This string is then handed off to the sendtoshell() method for execution.
+
+    Required arguments are:
+
+    host (dictionary) - A dictionary containing a single host, this is not to
+                        be confused with hosts. The best way to get a single
+                        dictionary for a host from hosts is to do:
+                        host = hosts[hostname]
+
+    args (list) - A list containing commands to be sent to SSH, multiple
+                  commands should each be an entry in the list.
+
+    Return parameters are:
+
+    shellout (tuple of strings) - Contains the three strings returned from the
+                                  sendtoshell() method. These are standard
+                                  output, standard error and the exit code.
+    """
 
     # basic ssh command.
     cmd = ["ssh", "-p " + host["port"], host["user"] + "@" + host["host"]]
@@ -154,7 +258,32 @@ def sendtossh(host, args):
 
 def sendtorsync(src, dst, port, includemask, excludemask):
 
-    """A method for constructing rsync commands."""
+    """
+    This method constructs a string that forms an rsync command, this string is
+    then handed off to the sendtoshell() method for execution.
+
+    Required arguments are:
+
+    src (string) - A string containing the source directory for transfer, if
+                   this is a download then this should include the host
+                   information. See the download and upload methods for how
+                   this should be done (or just make use of those two methods).
+
+    dst (string) - A string containing the destination directory for transfer,
+                   if this is an upload then this should include the host
+                   information. See the download and upload methods for how
+                   this should be done (or just make use of those two methods).
+
+    port (port) - A string containing the port number as to which should be
+                  used for transfer.
+
+    includemask (string) - This is a string that should contain a comma
+                           separated list of files for transfer.
+
+    excludemask (string) - This is a string that should specify which files
+                           should be excluded from rsync transfer, this is
+                           useful for not transfering large unwanted files.
+    """
 
     include = []
     exclude = []
@@ -236,9 +365,18 @@ def sendtorsync(src, dst, port, includemask, excludemask):
 
 def localcopy(src, dst):
 
-    """A method for copying files locally. This method is able to deal with
-    situations where files/directories need overwriting (beware this
-    happens without asking the user). All paths should be absolute."""
+    """
+    This method is for copying a file/directory between two local paths, this
+    method relies on the Python standard library to perform operations.
+
+    Required arguments are:
+
+    src (string) - A string containing the absolute path of the file/directory
+                   to be copied.
+
+    dst (string) - A string containing the destination absolute path to be
+                   copied to.
+    """
 
     LOGGER.debug("Copying '{0}' to '{1}'".format(src, dst))
 
@@ -300,8 +438,15 @@ def localcopy(src, dst):
 
 def localdelete(src):
 
-    """A method for deleting local files, is able to deal with files and
-    directory trees, this method takes absolute paths only."""
+    """
+    This method is for deleting a file/directory from the local machine, this
+    method relies on the Python standard library to perform operations.
+
+    Required arguments are:
+
+    src (string) - A string containing the absolute path of the file/directory
+                   to be deleted.
+    """
 
     LOGGER.debug("Deleting '{0}'".format(src))
 
@@ -338,8 +483,20 @@ def localdelete(src):
 
 def locallist(src):
 
-    """A method for listing a local directory contents, this method takes
-    absolute paths only."""
+    """
+    This method is for constructing a list of items present within a given
+    directory. This method relies on the Python standard library to perform
+    operations.
+
+    Required arguments are:
+
+    src (string) - A string containing the absolute path to a directory to
+                   be listed.
+
+    Return parameters are:
+
+    filelist (list) - A list of files within the specified directory.
+    """
 
     LOGGER.debug("Listing the contents of '{0}'".format(src))
 
@@ -365,7 +522,23 @@ def locallist(src):
 
 def remotecopy(host, src, dst):
 
-    """A method for copying files/directories on the remote machine."""
+    """
+    This method is for copying a file/directory between two paths on a remote
+    host, this is done via passing a copy command to the sendtossh() method.
+
+    Required arguments are:
+
+    host (dictionary) - A dictionary containing a single host, this is not to
+                        be confused with hosts. The best way to get a single
+                        dictionary for a host from hosts is to do:
+                        host = hosts[hostname]
+
+    src (string) - A string containing the absolute path of the file/directory
+                   to be copied (on the host).
+
+    dst (string) - A string containing the destination absolute path to be
+                   copied to (on the host).
+    """
 
     LOGGER.debug("Copying '{0}' to '{1}'".format(src, dst))
 
@@ -394,7 +567,20 @@ def remotecopy(host, src, dst):
 
 def remotedelete(host, src):
 
-    """A method for deleting files/directories on the remote machine."""
+    """
+    This method is for deleting a file/directory from a path on a remote host,
+    this is done via passing a delete command to the sendtossh() method.
+
+    Required arguments are:
+
+    host (dictionary) - A dictionary containing a single host, this is not to
+                        be confused with hosts. The best way to get a single
+                        dictionary for a host from hosts is to do:
+                        host = hosts[hostname]
+
+    src (string) - A string containing the absolute path of the file/directory
+                   to be deleted (on the host).
+    """
 
     LOGGER.debug("Deleting '{0}'".format(src))
 
@@ -419,7 +605,24 @@ def remotedelete(host, src):
 
 def remotelist(host, src):
 
-    """A method to list a directory on the remote resource."""
+    """
+    This method is for listing the contents of a directory on a remote host,
+    this is done via passing a list command to the sendtoshell() method.
+
+    Required arguments are:
+
+    host (dictionary) - A dictionary containing a single host, this is not to
+                        be confused with hosts. The best way to get a single
+                        dictionary for a host from hosts is to do:
+                        host = hosts[hostname]
+
+    src (string) - A string containing the absolute path of the file/directory
+                   to be listed (on the host).
+
+    Returned parameters are:
+
+    filelist (list) - A list of files within the specified directory.
+    """
 
     LOGGER.debug("Listing the contents of '{0}'".format(src))
 
@@ -448,7 +651,28 @@ def remotelist(host, src):
 
 def upload(host, src, dst, includemask, excludemask):
 
-    """A method for uploading files to remote hosts."""
+    """
+    This method is for uploading files to a remote host, this method is
+    responsible for specifying the direction that the transfer takes place.
+
+    Required arguments are:
+
+    host (dictionary) - A dictionary containing a single host, this is not to
+                        be confused with hosts. The best way to get a single
+                        dictionary for a host from hosts is to do:
+                        host = hosts[hostname]
+
+    src (string) - A string containing the source directory for transfer.
+
+    dst (string) - A string containing the destination directory for transfer.
+
+    includemask (string) - This is a string that should contain a comma
+                           separated list of files for transfer.
+
+    excludemask (string) - This is a string that should specify which files
+                           should be excluded from rsync transfer, this is
+                           useful for not transfering large unwanted files.
+    """
 
     # Are paths absolute.
     if os.path.isabs(src) is False and src[0] != "~":
@@ -475,7 +699,28 @@ def upload(host, src, dst, includemask, excludemask):
 
 def download(host, src, dst, includemask, excludemask):
 
-    """A method for downloading files from remote hosts."""
+    """
+    This method is for downloading files from a remote host, this method is
+    responsible for specifying the direction that the transfer takes place.
+
+    Required arguments are:
+
+    host (dictionary) - A dictionary containing a single host, this is not to
+                        be confused with hosts. The best way to get a single
+                        dictionary for a host from hosts is to do:
+                        host = hosts[hostname]
+
+    src (string) - A string containing the source directory for transfer.
+
+    dst (string) - A string containing the destination directory for transfer.
+
+    includemask (string) - This is a string that should contain a comma
+                           separated list of files for transfer.
+
+    excludemask (string) - This is a string that should specify which files
+                           should be excluded from rsync transfer, this is
+                           useful for not transfering large unwanted files.
+    """
 
     # Are paths absolute.
     if os.path.isabs(src) is False and src[0] != "~":

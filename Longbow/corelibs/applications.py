@@ -19,9 +19,23 @@
 # You should have received a copy of the GNU General Public License
 # along with Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""The application module provides methods for testing whether the requested
-application executable is present on the remote machine and for processing the
-command line arguments of the job in a code specific manner."""
+"""
+The applications module contains methods for processing the aspect of jobs
+which relate to external applications (such as an MD package). The following
+methods can be found within this module:
+
+testapp()
+    This method will make an attempt to check that the application executables
+    required to run a job/s is present on the specified host/s. This method is
+    capable of using the module system.
+
+processjobs()
+    This method will process information that is given as an intended target to
+    be passed on to the executable at run time. It will check that required
+    parameters (provided the respective plug-in is configured correctly) have
+    been supplied, and that all files and their dependencies (again provided
+    that the respective plug-in is configured for this) exist on disk.
+"""
 
 import logging
 import os
@@ -46,8 +60,21 @@ LOGGER = logging.getLogger("Longbow")
 
 def testapp(hosts, jobs):
 
-    """Test whether the application executable is reachable. This method
-    does support testing for modules."""
+    """
+    This method will make an attempt to check that the application executables
+    required to run a job/s is present on the specified host/s. This method is
+    capable of using the module system.
+
+    Required arguments are:
+
+    hosts (dictionary) - The Longbow hosts data structure, see configuration.py
+                         for more information about the format of this
+                         structure.
+
+    jobs (dictionary) - The Longbow jobs data structure, see configuration.py
+                        for more information about the format of this
+                        structure.
+    """
 
     checked = {}
 
@@ -102,8 +129,19 @@ def testapp(hosts, jobs):
 
 def processjobs(jobs):
 
-    """Process the jobs command line, this method will extract information
-    from the command line and construct a list of files to be staged."""
+    """
+    This method will process information that is given as an intended target to
+    be passed on to the executable at run time. It will check that required
+    parameters (provided the respective plug-in is configured correctly) have
+    been supplied, and that all files and their dependencies (again provided
+    that the respective plug-in is configured for this) exist on disk.
+
+    Required arguments are:
+
+    jobs (dictionary) - The Longbow jobs data structure, see configuration.py
+                        for more information about the format of this
+                        structure.
+    """
 
     LOGGER.info("Processing job/s and detecting files that require upload.")
 

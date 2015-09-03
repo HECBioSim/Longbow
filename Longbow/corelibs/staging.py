@@ -19,15 +19,31 @@
 # You should have received a copy of the GNU General Public License
 # along with Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-""" The staging module provides methods for processing the transfer of files
-between the local host and the remote host job directories. The following
-methods are contained within this module:
+"""
+The staging module provides methods for processing the transfer of files
+between the local host and the remote host job directories.
 
-stage_upstream(jobs)
-stage_downstream(jobs)
-cleanup(jobs)
+The following methods are contained within this module:
 
-Where jobs is a dictionary of job configurations."""
+stage_upstream()
+    A method for staging files for each job to the target HPC host. The
+    underlying utility behind this transfer is rsync, thus it is possible
+    to supply rsync file masks to blacklist unwanted large files. By default
+    rsync is configured to transfer blockwise and only transfer the
+    newest/changed blocks, this saves a lot of time during persistant staging.
+
+stage_downstream()
+    A method for staging files for each job to from target HPC host. The
+    underlying utility behind this transfer is rsync, thus it is possible
+    to supply rsync file masks to blacklist unwanted large files. By default
+    rsync is configured to transfer blockwise and only transfer the
+    newest/changed blocks, this saves a lot of time during persistant staging.
+
+cleanup()
+    A method for cleaning up the working directory on the HPC host, this method
+    will only delete job directories that are valid for the given Longbow
+    instance, thus avoid data loss.
+"""
 
 import logging
 
@@ -46,8 +62,22 @@ LOGGER = logging.getLogger("Longbow")
 
 def stage_upstream(hosts, jobs):
 
-    """Method for staging files to the remote machines, this method takes
-    a dictionary of jobs and processes the information from the filelist.
+    """
+    A method for staging files for each job to the target HPC host. The
+    underlying utility behind this transfer is rsync, thus it is possible
+    to supply rsync file masks to blacklist unwanted large files. By default
+    rsync is configured to transfer blockwise and only transfer the
+    newest/changed blocks, this saves a lot of time during persistant staging.
+
+    Required arguments are:
+
+    hosts (dictionary) - The Longbow hosts data structure, see configuration.py
+                         for more information about the format of this
+                         structure.
+
+    jobs (dictionary) - The Longbow jobs data structure, see configuration.py
+                        for more information about the format of this
+                        structure.
     """
 
     LOGGER.info("Staging files for job/s.")
@@ -79,7 +109,26 @@ def stage_upstream(hosts, jobs):
 
 def stage_downstream(hosts, jobs, jobname):
 
-    """Method for returning files from the remote machines."""
+    """
+    A method for staging files for each job to from target HPC host. The
+    underlying utility behind this transfer is rsync, thus it is possible
+    to supply rsync file masks to blacklist unwanted large files. By default
+    rsync is configured to transfer blockwise and only transfer the
+    newest/changed blocks, this saves a lot of time during persistant staging.
+
+    Required arguments are:
+
+    hosts (dictionary) - The Longbow hosts data structure, see configuration.py
+                         for more information about the format of this
+                         structure.
+
+    jobs (dictionary) - The Longbow jobs data structure, see configuration.py
+                        for more information about the format of this
+                        structure.
+
+    jobname (string) - A string that matches the name of a job to be staged.
+                       (primary key in jobs dict)
+    """
 
     LOGGER.info("For job '{0}' staging files downstream.".format(jobname))
 
@@ -105,7 +154,21 @@ def stage_downstream(hosts, jobs, jobname):
 
 def cleanup(hosts, jobs):
 
-    """Method for cleaning up the remote work directory."""
+    """
+    A method for cleaning up the working directory on the HPC host, this method
+    will only delete job directories that are valid for the given Longbow
+    instance, thus avoid data loss.
+
+    Required arguments are:
+
+    hosts (dictionary) - The Longbow hosts data structure, see configuration.py
+                         for more information about the format of this
+                         structure.
+
+    jobs (dictionary) - The Longbow jobs data structure, see configuration.py
+                        for more information about the format of this
+                        structure.
+    """
 
     LOGGER.info("Cleaning up the work directories.")
 

@@ -19,17 +19,34 @@
 # You should have received a copy of the GNU General Public License
 # along with Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""This module contains the methods for preparing, submitting, deleting and
-monitoring jobs. The following methods abstract the schedulers:
+"""
+This module contains generic methods for preparing, submitting, deleting and
+monitoring jobs. The methods contained within this module are all based on
+generic job concepts. The specific functionality that comes from each scheduler
+is accessed through the plug-in framework. To make use of these methods, the
+plug-in framework must be present alongside the core library.
+
+testenv()
+    This method makes an attempt to test the environment and determine from
+    a pre-configured list what scheduler and job submission handler is present
+    on the machine.
 
 delete()
-monitor()
-prepare()
-submit()
+    A method containing the generic and boiler plate Longbow code for deleting
+    a job.
 
-The remaining methods of the form env_method() are abstractions specific to
-each scheduler, it is not recommended to use these directly unless it is
-necessary.
+monitor()
+    A method containing the generic and boiler plate Longbow code for
+    monitoring a job, this method contains the entire structure of the loop
+    that deals with monitoring jobs.
+
+prepare()
+    A method containing the generic and boiler plate Longbow code for
+    constructing the submit file.
+
+submit()
+    A method containing the generic and boiler plate Longbow code for
+    submitting a job.
 """
 
 import time
@@ -58,9 +75,25 @@ LOGGER = logging.getLogger("Longbow")
 
 def testenv(hostconf, hosts, jobs):
 
-    """This method makes an attempt to test the environment and determine from
+    """
+    This method makes an attempt to test the environment and determine from
     a pre-configured list what scheduler and job submission handler is present
-    on the machine."""
+    on the machine.
+
+    Required arguments are:
+
+    hostconf (string) - The path to the host configuration file, this should be
+                        provided so that if any changes are made that they can
+                        be saved.
+
+    hosts (dictionary) - The Longbow hosts data structure, see configuration.py
+                         for more information about the format of this
+                         structure.
+
+    jobs (dictionary) - The Longbow jobs data structure, see configuration.py
+                        for more information about the format of this
+                        structure.
+    """
 
     schedulerqueries = getattr(SCHEDULERS, "QUERY")
 
@@ -184,7 +217,22 @@ def testenv(hostconf, hosts, jobs):
 
 def delete(hosts, jobs, jobname):
 
-    """The generic method for deleting jobs."""
+    """
+    A method containing the generic and boiler plate Longbow code for deleting
+    a job.
+
+    Required arguments are:
+
+    hosts (dictionary) - The Longbow hosts data structure, see configuration.py
+                         for more information about the format of this
+                         structure.
+
+    jobs (dictionary) - The Longbow jobs data structure, see configuration.py
+                        for more information about the format of this
+                        structure.
+
+    jobname (string) - The jobname of the job for deletion.
+    """
 
     scheduler = hosts[jobs[jobname]["resource"]]["scheduler"]
     host = hosts[jobs[jobname]["resource"]]
@@ -207,9 +255,21 @@ def delete(hosts, jobs, jobname):
 
 def monitor(hosts, jobs):
 
-    """The generic method for monitoring jobs, this methods contains the
-    monitoring loop and logic for keeping track of jobs and initiating
-    staging of jobs."""
+    """
+    A method containing the generic and boiler plate Longbow code for
+    monitoring a job, this method contains the entire structure of the loop
+    that deals with monitoring jobs.
+
+    Required arguments are:
+
+    hosts (dictionary) - The Longbow hosts data structure, see configuration.py
+                         for more information about the format of this
+                         structure.
+
+    jobs (dictionary) - The Longbow jobs data structure, see configuration.py
+                        for more information about the format of this
+                        structure.
+    """
 
     LOGGER.info("Monitoring job/s")
 
@@ -313,8 +373,20 @@ def monitor(hosts, jobs):
 
 def prepare(hosts, jobs):
 
-    """The generic methods for preparing jobs, this points to the correct
-    scheduler specific method for job preparation."""
+    """
+    A method containing the generic and boiler plate Longbow code for
+    constructing the submit file.
+
+    Required arguments are:
+
+    hosts (dictionary) - The Longbow hosts data structure, see configuration.py
+                         for more information about the format of this
+                         structure.
+
+    jobs (dictionary) - The Longbow jobs data structure, see configuration.py
+                        for more information about the format of this
+                        structure.
+    """
 
     LOGGER.info("Creating submit files for job/s.")
 
@@ -337,8 +409,20 @@ def prepare(hosts, jobs):
 
 def submit(hosts, jobs):
 
-    """Generic method for submitting jobs, this points to the scheduler
-    specific method for job submission."""
+    """
+    A method containing the generic and boiler plate Longbow code for
+    submitting a job.
+
+    Required arguments are:
+
+    hosts (dictionary) - The Longbow hosts data structure, see configuration.py
+                         for more information about the format of this
+                         structure.
+
+    jobs (dictionary) - The Longbow jobs data structure, see configuration.py
+                        for more information about the format of this
+                        structure.
+    """
 
     LOGGER.info("Submitting job/s.")
 
