@@ -91,6 +91,20 @@ def stage_upstream(hosts, jobs):
         LOGGER.info("Transfering files for job '{0}' to host '{1}'"
                     .format(job, jobs[job]["resource"]))
 
+        cmd = []
+        cmd.extend(["mkdir -p " + dst + "\n"])
+
+        try:
+
+            SHELLWRAPPERS.sendtossh(host, cmd)
+
+            LOGGER.info("mkdir -p '{0}' passed.".format(dst))
+
+        except EX.SSHError:
+
+            LOGGER.error("mkdir -p '{0}' failed.".format(dst))
+            raise
+
         # Transfer files upstream.
         try:
 
