@@ -19,8 +19,11 @@
 # You should have received a copy of the GNU General Public License
 # along with Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-""" This module contains the 'custom' exception classes for the Longbow
-corelibrary.
+"""
+This module contains the 'custom' exception classes for the Longbow core
+library. These exceptions are best used in methods that replace/override those
+of the core library, such that a developer can make use of the error handling
+framework more organically.
 """
 
 # -----------------------------------------------------------------------------
@@ -29,10 +32,10 @@ corelibrary.
 
 class AbsolutepathError(Exception):
 
-    """ Exception class for absolute path errors, usage
+    """
+    Exception class for absolute path errors, usage
 
     AbsolutepathError(message, path)
-
     """
 
     def __init__(self, message, path):
@@ -46,8 +49,10 @@ class AbsolutepathError(Exception):
 
 class DirectorynotfoundError(Exception):
 
-    """Directory not found exception, to provide informative exceptions
-    of why a method has failed when directory cannot be found."""
+    """
+    Directory not found exception, to provide informative exceptions
+    of why a method has failed when directory cannot be found.
+    """
 
     pass
 
@@ -57,7 +62,9 @@ class DirectorynotfoundError(Exception):
 
 class CommandlineargsError(Exception):
 
-    """Command-line arguments error."""
+    """
+    Command-line arguments error.
+    """
 
     def __init__(self, message):
 
@@ -67,7 +74,9 @@ class CommandlineargsError(Exception):
 
 class RequiredinputError(Exception):
 
-    """Required input error exception."""
+    """
+    Required input error exception.
+    """
 
     def __init__(self, message):
 
@@ -80,7 +89,9 @@ class RequiredinputError(Exception):
 
 class ConfigurationError(Exception):
 
-    """Configuration error."""
+    """
+    Configuration error.
+    """
 
     pass
 
@@ -90,7 +101,9 @@ class ConfigurationError(Exception):
 
 class PluginattributeError(Exception):
 
-    """Missing plugin method exception."""
+    """
+    Missing plugin method exception.
+    """
 
     pass
 
@@ -101,28 +114,36 @@ class PluginattributeError(Exception):
 
 class SchedulercheckError(Exception):
 
-    """Scheduler checking exception."""
+    """
+    Scheduler checking exception.
+    """
 
     pass
 
 
 class HandlercheckError(Exception):
 
-    """Job handler checking exception."""
+    """
+    Job handler checking exception.
+    """
 
     pass
 
 
 class JobdeleteError(Exception):
 
-    """Job delete exception."""
+    """
+    Job delete exception.
+    """
 
     pass
 
 
 class JobsubmitError(Exception):
 
-    """Job submit exception."""
+    """
+    Job submit exception.
+    """
 
     pass
 
@@ -132,7 +153,9 @@ class JobsubmitError(Exception):
 
 class LocalcopyError(Exception):
 
-    """Copy on local machine exception."""
+    """
+    Copy on local machine exception.
+    """
 
     def __init__(self, message, path):
 
@@ -145,7 +168,9 @@ class LocalcopyError(Exception):
 
 class LocaldeleteError(Exception):
 
-    """Delete on local machine exception."""
+    """
+    Delete on local machine exception.
+    """
 
     def __init__(self, message, path):
 
@@ -158,7 +183,9 @@ class LocaldeleteError(Exception):
 
 class LocallistError(Exception):
 
-    """List on local machine exception."""
+    """
+    List on local machine exception.
+    """
 
     def __init__(self, message, path):
 
@@ -171,7 +198,9 @@ class LocallistError(Exception):
 
 class ProtocolError(Exception):
 
-    """Unknown protocol exception."""
+    """
+    Unknown protocol exception.
+    """
 
     def __init__(self, message, protocol):
 
@@ -184,7 +213,9 @@ class ProtocolError(Exception):
 
 class RemotecopyError(Exception):
 
-    """Copy on remote machine exception."""
+    """
+    Copy on remote machine exception.
+    """
 
     def __init__(self, message, src, dst):
 
@@ -198,7 +229,9 @@ class RemotecopyError(Exception):
 
 class RemotedeleteError(Exception):
 
-    """Delete on remote machine exception."""
+    """
+    Delete on remote machine exception.
+    """
 
     def __init__(self, message, path):
 
@@ -211,7 +244,9 @@ class RemotedeleteError(Exception):
 
 class RemotelistError(Exception):
 
-    """List on remote machine exception."""
+    """
+    List on remote machine exception.
+    """
 
     def __init__(self, message, path):
 
@@ -224,7 +259,9 @@ class RemotelistError(Exception):
 
 class RsyncError(Exception):
 
-    """Rsync exception."""
+    """
+    Rsync exception.
+    """
 
     def __init__(self, message, shellout):
 
@@ -239,7 +276,9 @@ class RsyncError(Exception):
 
 class SCPError(Exception):
 
-    """SCP exception"""
+    """
+    SCP exception
+    """
 
     def __init__(self, message, shellout):
 
@@ -254,7 +293,9 @@ class SCPError(Exception):
 
 class SSHError(Exception):
 
-    """SSH exception"""
+    """
+    SSH exception
+    """
 
     def __init__(self, message, shellout):
 
@@ -272,13 +313,17 @@ class SSHError(Exception):
 
 class StagingError(Exception):
 
-    """Generic staging error exception"""
+    """
+    Generic staging error exception
+    """
 
     pass
 
 
 class RemoteworkdirError(Exception):
 
-    """Exception issued when destdir is the same path as remoteworkdir"""
+    """
+    Exception issued when destdir is the same path as remoteworkdir
+    """
 
     pass

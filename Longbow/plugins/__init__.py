@@ -19,7 +19,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""."""
+"""
+This module provides the basic import framwork for Longbow plug-ins. On import,
+this module will import an plug-in packages that are contained within the
+plug-ins directory. This gives direct access to any new plug-ins that are added
+to the directory for use within the core library.
+"""
 
 import pkgutil
 import os

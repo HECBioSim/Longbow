@@ -19,15 +19,64 @@
 # You should have received a copy of the GNU General Public License
 # along with Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Module containing the logging methods. Methods for creating
-loggers of either a standard, verbose or debug nature are found here."""
+"""
+This module contains methods for setting up and configuring the standard
+logging module provided by the python standard library. There are different
+types of logger configuration within this module, and these types lend
+themselves to fulfil the requirements of Longbow.
+
+The following methods can be found in this module:
+
+setuplogger()
+    This method is used by Longbow to determine which level of logging is
+    required based on user input. This method is specific to the function
+    of Longbow and may or may not be suitable for developers to use in their
+    own software.
+
+standardlogger()
+    This method configures the python logger to log to the specified file,
+    the standard logging profile only writes out messages marked at info,
+    warning and error level. Statements in the code that are marked as debug
+    will be hidden by this logger.
+
+verboselogger()
+    This method configures the python logger to log to the specified file along
+    with placing the same information into the standard output (usually a
+    terminal or console), the verbose logging profile only writes out messages
+    marked at info, warning and error level. Statements in the code that are
+    marked as debug will be hidden by this logger.
+
+debuglogger()
+    This method configures the python logger to log to the specified file along
+    with placing the same information into the standard output (usually a
+    terminal or console). The debug logging profile will write out messages
+    marked under all levels, this is to enable maximum information for
+    debugging purposes.
+"""
 
 import logging
 
 
 def setuplogger(logfile, loggername, mode):
 
-    """Setup the correct logger based on """
+    """
+    This method is used by Longbow to determine which level of logging is
+    required based on user input. This method is specific to the function
+    of Longbow and may or may not be suitable for developers to use in their
+    own software.
+
+    Required arguments are:
+
+    logfile (string) - path to file that will be written to.
+
+    loggername (string) - Longbow modules all look for a module called
+                          "longbow", so this should be the same if you are
+                          using this to configure a longbow logger.
+
+    mode (dictionary) -  A dictionary that contains true/false pairs for the
+                         parameters debug and verbose, if all are false then
+                         a standard logger will be set up.
+    """
 
     if mode["debug"]:
 
@@ -44,8 +93,20 @@ def setuplogger(logfile, loggername, mode):
 
 def standardlogger(logfile, loggername):
 
-    """The standard logger will be configured to simply write log events
-    from the package into the specified file."""
+    """
+    This method configures the python logger to log to the specified file,
+    the standard logging profile only writes out messages marked at info,
+    warning and error level. Statements in the code that are marked as debug
+    will be hidden by this logger.
+
+    Required arguments are:
+
+    logfile (string) - path to file that will be written to.
+
+    loggername (string) - Longbow modules all look for a module called
+                          "longbow", so this should be the same if you are
+                          using this to configure a longbow logger.
+    """
 
     # Create a logger.
     logger = logging.getLogger(loggername)
@@ -63,8 +124,21 @@ def standardlogger(logfile, loggername):
 
 def verboselogger(logfile, loggername):
 
-    """The debug logger will be configured to write a more advanced output
-    from log events to both the specified file and standard out."""
+    """
+    This method configures the python logger to log to the specified file along
+    with placing the same information into the standard output (usually a
+    terminal or console), the verbose logging profile only writes out messages
+    marked at info, warning and error level. Statements in the code that are
+    marked as debug will be hidden by this logger.
+
+    Required arguments are:
+
+    logfile (string) - path to file that will be written to.
+
+    loggername (string) - Longbow modules all look for a module called
+                          "longbow", so this should be the same if you are
+                          using this to configure a longbow logger.
+    """
 
     # Create a logger.
     logger = logging.getLogger(loggername)
@@ -87,8 +161,21 @@ def verboselogger(logfile, loggername):
 
 def debuglogger(logfile, loggername):
 
-    """The debug logger will be configured to write a more advanced output
-    from log events to both the specified file and standard out."""
+    """
+    This method configures the python logger to log to the specified file along
+    with placing the same information into the standard output (usually a
+    terminal or console). The debug logging profile will write out messages
+    marked under all levels, this is to enable maximum information for
+    debugging purposes.
+
+    Required arguments are:
+
+    logfile (string) - path to file that will be written to.
+
+    loggername (string) - Longbow modules all look for a module called
+                          "longbow", so this should be the same if you are
+                          using this to configure a longbow logger.
+    """
 
     # Create a logger.
     logger = logging.getLogger(loggername)

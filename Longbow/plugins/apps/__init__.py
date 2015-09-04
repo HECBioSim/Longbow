@@ -19,10 +19,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""This module contains the import logic for the applications plugin. It makes
-available all the methods. All logic for new plugin should be placed inside the
-plugin module itself and not here, follow the template for constructing new
-templates."""
+"""
+This module contains the import logic for the applications plug-in. It makes
+available all the methods. All code for a new plug-in should be placed inside
+the plug-in module itself and not here, follow the template for constructing
+new app plug-ins.
+"""
 
 import logging
 import os
