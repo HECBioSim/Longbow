@@ -397,7 +397,6 @@ if __name__ == "__main__":
     # if an executable wasn't found perhaps it is specified in a configuration
     # file. Executable arguments might still be provided on the command line so
     # try to detect them.
-
     if EXECUTABLE == "":
 
         for item in COMMANDLINEARGS:
@@ -458,7 +457,7 @@ if __name__ == "__main__":
     # Take test for the version command line flag, print message and exit
     # if found
     elif (LONGBOWARGS.count("-version") == 1 or
-          LONGBOWARGS.count("--version") or LONGBOWARGS.count("-V")):
+          LONGBOWARGS.count("--version") == 1 or LONGBOWARGS.count("-V") == 1):
 
         print ("Longbow 1.01.001")
 
@@ -466,8 +465,8 @@ if __name__ == "__main__":
 
     # Take test for the help command line flag, print message and exit if
     # found
-    elif (LONGBOWARGS.count("-help") == 1 or LONGBOWARGS.count("--help") or
-          LONGBOWARGS.count("-h")):
+    elif (LONGBOWARGS.count("-help") == 1 or LONGBOWARGS.count("--help") == 1 or
+          LONGBOWARGS.count("-h") == 1):
 
         print (
             "Usage:\n\n"
