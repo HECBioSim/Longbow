@@ -465,7 +465,8 @@ if __name__ == "__main__":
 
     # Take test for the help command line flag, print message and exit if
     # found
-    elif (LONGBOWARGS.count("-help") == 1 or LONGBOWARGS.count("--help") == 1 or
+    elif (LONGBOWARGS.count("-help") == 1 or
+          LONGBOWARGS.count("--help") == 1 or
           LONGBOWARGS.count("-h") == 1):
 
         print (
