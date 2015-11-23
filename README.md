@@ -1,6 +1,4 @@
                                                                                
-                                                                               
-                                                                               
        888                                888
        888                                888
        888                                888
@@ -31,11 +29,9 @@ large ensembles of simulation jobs which in effect extends the packages it suppo
 
 ### Instructions ###
 
-Releases can be found here: http://www.hecbiosim.ac.uk/repo/category/2-software
+Releases can be found here: http://www.hecbiosim.ac.uk/longbow (or downloaded via pip, see docs)
 
-User documentation can be found here: http://www.hecbiosim.ac.uk/wikis/index.php/Longbow_-_User_Guide_v1.00.000
-
-Developer documentation can be found here: http://www.hecbiosim.ac.uk/wikis/index.php/Longbow_-_Developers_Guide
+Documentation can be found here: http://www.hecbiosim.ac.uk/wikis/index.php/Longbow
 
 Support can be found here: http://www.hecbiosim.ac.uk/forums/index.php?board=7.0
 
@@ -48,4 +44,3 @@ or
 Gareth Shannon: gareth.shannon@nottingham.ac.uk
 
 Please do not seek support in the first instance via email, support should be sought through the forums.
-
