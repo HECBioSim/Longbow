@@ -244,24 +244,17 @@ def processjobs(jobs):
                         else:
 
                             # We should check that the replicate directory
-                            # structure exists.
+                            # structure exists. If it doesn't then create it.
                             if os.path.isdir(os.path.join(
                                     cwd, "rep" + str(i))) is False:
 
-                                raise EX.RequiredinputError(
-                                    "In job '{0}' a replicate style job has "
-                                    "been detected, but the directory '{1}' "
-                                    "cannot be found"
-                                    .format(job, os.path.join(
-                                        cwd, "rep" + str(i))))
+                                os.mkdir(os.path.join(cwd, "rep" + str(i)))
 
-                            # Otherwise the dir needs to appear on the upload
-                            # list because rsync will not auto create dirs.
-                            else:
+                            # Add the repX dir to the file list as rsync will
+                            # not create them.
+                            if ("rep" + str(i)) not in filelist:
 
-                                if ("rep" + str(i)) not in filelist:
-
-                                    filelist.append("rep" + str(i))
+                                filelist.append("rep" + str(i))
 
                             # If we have a replicate job then we should check
                             # if the file resides within ./rep{i} or if it is
@@ -340,19 +333,13 @@ def processjobs(jobs):
                             if os.path.isdir(os.path.join(
                                     cwd, "rep" + str(i))) is False:
 
-                                raise EX.RequiredinputError(
-                                    "In job '{0}' a replicate style job has "
-                                    "been detected, but the directory '{1}' "
-                                    "cannot be found".format(job, os.path.join(
-                                        cwd, "rep" + str(i))))
+                                os.mkdir(os.path.join(cwd, "rep" + str(i)))
 
-                            # Otherwise the dir needs to appear on the upload
-                            # list because rsync will not auto create dirs.
-                            else:
+                            # Add the repX dir to the file list as rsync will
+                            # not create them.
+                            if ("rep" + str(i)) not in filelist:
 
-                                if ("rep" + str(i)) not in filelist:
-
-                                    filelist.append("rep" + str(i))
+                                filelist.append("rep" + str(i))
 
                             # If we have a replicate job then we should check
                             # if the file resides within ./rep{i} or if it is
@@ -486,19 +473,13 @@ def processjobs(jobs):
                             if os.path.isdir(os.path.join(
                                     cwd, "rep" + str(i))) is False:
 
-                                raise EX.RequiredinputError(
-                                    "In job '{0}' a replicate style job has "
-                                    "been detected, but the directory '{1}' "
-                                    "cannot be found".format(job, os.path.join(
-                                        cwd, "rep" + str(i))))
+                                os.mkdir(os.path.join(cwd, "rep" + str(i)))
 
-                            # Otherwise the dir needs to appear on the upload
-                            # list because rsync will not auto create dirs.
-                            else:
+                            # Add the repX dir to the file list as rsync will
+                            # not create them.
+                            if ("rep" + str(i)) not in filelist:
 
-                                if ("rep" + str(i)) not in filelist:
-
-                                    filelist.append("rep" + str(i))
+                                filelist.append("rep" + str(i))
 
                             # If we have a replicate job then we should check
                             # if the file resides within ./rep{i} or if it is
