@@ -178,6 +178,9 @@ def sendtoshell(cmd):
 
     stdout, stderr = handle.communicate()
 
+    # Format the string to utf-8 for python 3, python 2 should be untouched.
+    stdout = stdout.decode("utf-8")
+
     # Grab the return code.
     errorstate = handle.returncode
 

@@ -418,10 +418,22 @@ def processconfigs(hostfile, jobfile, cwd, params):
 
             jobs[job]["localworkdir"] = cwd
 
-        # If the exec arguments are in string form, split to list.
-        if isinstance(jobs[job]["executableargs"], basestring):
+        # Fix for python 3 where basestring is now str.
+        try:
 
-            jobs[job]["executableargs"] = jobs[job]["executableargs"].split()
+            # If the exec arguments are in string form, split to list.
+            if isinstance(jobs[job]["executableargs"], basestring):
+
+                jobs[job]["executableargs"] = (
+                    jobs[job]["executableargs"].split())
+
+        except NameError:
+
+            # If the exec arguments are in string form, split to list.
+            if isinstance(jobs[job]["executableargs"], str):
+
+                jobs[job]["executableargs"] = (
+                    jobs[job]["executableargs"].split())
 
         # If modules hasn't been set then try and use a default.
         if jobs[job]["modules"] is "":
