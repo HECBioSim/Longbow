@@ -358,11 +358,10 @@ def processconfigs(hostfile, jobfile, cwd, params):
                 if item in jobs[job]:
 
                     # Then we have an override, but check priority first.
-                    # Did the entry come from the higher priority job.conf?
-                    if item not in jobdata[job]:
+                    # Make sure item didn't come from higher priority job.conf?
+                    if item not in jobdata[job] or jobdata[job][item] is "":
 
-                        # We can assume it didn't come from there so must be an
-                        # internal default, so override.
+                        # Override.
                         jobs[job][item] = hostdata[resource][item]
 
         # For the currently selected job, are there any overrides that have
