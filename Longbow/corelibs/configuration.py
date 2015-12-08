@@ -642,35 +642,40 @@ def saveconfigs(configfile, params):
         # Run through each parameter in this section.
         for option in params[section]:
 
-            try:
-
-                # Check for continuity between data in file and that in
-                # Longbow.
-                if params[section][option] != oldparams[section][option]:
-
-                    try:
-
-                        # If parameter is changed try adding it to the diff
-                        valuediff[section][option] = params[section][option]
-
-                    except KeyError:
-
-                        # If this is the first time then section won't exist.
-                        valuediff[section] = {option: params[section][option]}
-
-            # If we get a key error then the paramater is a new one.
-            except KeyError:
+            if params[section][option] != "":
 
                 try:
 
-                    # Try adding to diff
-                    keydiff[section][option] = params[section][option]
+                    # Check for continuity between data in file and that in
+                    # Longbow.
+                    if params[section][option] != oldparams[section][option]:
 
+                        try:
+
+                            # If parameter is changed try adding it to the diff
+                            valuediff[section][option] = \
+                                params[section][option]
+
+                        except KeyError:
+
+                            # If this is the first time then section won't
+                            # exist.
+                            valuediff[section] = \
+                                {option: params[section][option]}
+
+                # If we get a key error then the paramater is a new one.
                 except KeyError:
 
-                    # If this is the first time we will need to create the
-                    # section.
-                    keydiff[section] = {option: params[section][option]}
+                    try:
+
+                        # Try adding to diff
+                        keydiff[section][option] = params[section][option]
+
+                    except KeyError:
+
+                        # If this is the first time we will need to create the
+                        # section.
+                        keydiff[section] = {option: params[section][option]}
 
     # Update the file metastructure with these changes.
     # Firstly handle the updates.
