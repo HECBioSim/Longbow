@@ -346,19 +346,6 @@ def processconfigs(hostfile, jobfile, cwd, params):
 
         # Job overrides next.
 
-        # For the currently selected job, are there any overrides that have
-        # been given on the command line?
-        for item in params:
-
-            # We have already handled this.
-            if item is not "resource":
-
-                # We can check this like this.
-                if item in jobs[job] and params[item] is not "":
-
-                    # Then override.
-                    jobs[job][item] = params[item]
-
         # Now the overrides from the hosts.conf are of lower priority than
         # those on the command line or any data that was supplied in the
         # job.conf but higher than any internal defaults.
@@ -371,19 +358,25 @@ def processconfigs(hostfile, jobfile, cwd, params):
                 if item in jobs[job]:
 
                     # Then we have an override, but check priority first.
-                    # If the entry is blank.
-                    if jobs[job][item] is "":
+                    # Did the entry come from the higher priority job.conf?
+                    if item not in jobdata[job]:
 
-                        # Go right ahead and override.
-                        jobs[job][item] = hostdata[resource][item]
-
-                    # Otherwise did the entry come from the higher priority
-                    # job.conf?
-                    elif item not in jobdata[job]:
-
-                        # We can assume it didn't come from here so must be an
+                        # We can assume it didn't come from there so must be an
                         # internal default, so override.
                         jobs[job][item] = hostdata[resource][item]
+
+        # For the currently selected job, are there any overrides that have
+        # been given on the command line?
+        for item in params:
+
+            # We have already handled this.
+            if item is not "resource":
+
+                # We can check this like this.
+                if item in jobs[job] and params[item] is not "":
+
+                    # Then override.
+                    jobs[job][item] = params[item]
 
     # Check parameters that are required for running jobs are provided.
     # Here we will only do validation on hosts that are referenced in jobs,
