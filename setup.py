@@ -56,7 +56,7 @@ if not os.path.isdir(os.path.expanduser("~/.Longbow")):
 # setup args
 setup_args = {
     'name': "Longbow",
-    'version': "1.01.003",
+    'version': "1.01.004",
     'description': "Biomolecular simulation remote job submission "
                    "utility.",
     'long_description': "Longbow sends jobs submitted to your desktop to a "
