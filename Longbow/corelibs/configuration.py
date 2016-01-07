@@ -61,6 +61,7 @@ saveconfigs()
 """
 
 import logging
+import re
 
 # Depending on how Longbow is installed/utilised the import will be slightly
 # different, this should handle both cases.
@@ -547,8 +548,10 @@ def loadconfigs(configfile):
                 # Anything else must be option data.
                 else:
 
-                    # Option is in the format key = param. So extract these.
-                    key, value = item.split(" = ")
+                    # Option is in the format key = param. Added regular
+                    # expression so that if user writes with/without spaces
+                    # then we can still extract the configuration info.
+                    key, value = re.split(" = |= | =|=", item)
 
                     # Store the keys and values in the data structure.
                     params[section][key] = value
