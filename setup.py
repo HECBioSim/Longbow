@@ -30,15 +30,15 @@ import sys
 import subprocess
 
 # check python version
-print "Checking python version!"
+print("Checking python version!")
 
 if not (sys.version_info[0] >= 2 and sys.version_info[1] >= 7):
-    print ("The Python version on your system has been detected to be prior "
-           "to version 2.7. Whilst Longbow should work for version 2.6, "
-           "it is recommended you upgrade to at least version 2.7.")
+    print("The Python version on your system has been detected to be prior "
+          "to version 2.7. Whilst Longbow should work for version 2.6, "
+          "it is recommended you upgrade to at least version 2.7.")
 
 # download hosts.conf
-print "Downloading hosts.conf"
+print("Downloading hosts.conf")
 
 if not os.path.isdir(os.path.expanduser("~/.Longbow")):
     try:
