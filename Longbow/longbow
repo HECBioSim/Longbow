@@ -458,7 +458,7 @@ if __name__ == "__main__":
     elif (LONGBOWARGS.count("-version") == 1 or
           LONGBOWARGS.count("--version") == 1 or LONGBOWARGS.count("-V") == 1):
 
-        print("Longbow 1.01.004")
+        print("Longbow 1.1.5")
 
         exit(0)
 

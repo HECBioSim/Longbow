@@ -21,68 +21,75 @@
 # You should have received a copy of the GNU General Public License
 # along with Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-""" Setup script. Used by easy_install and pip. """
-
-import os
+"""Setup script. Used by easy_install and pip."""
 
 from distutils.core import setup
+import os
 import sys
-import subprocess
 
-# check python version
-print("Checking python version!")
+# Check for unsupported Python versions.
+major = sys.version_info[0]
+minor = sys.version_info[1]
 
-if not (sys.version_info[0] >= 2 and sys.version_info[1] >= 7):
-    print("The Python version on your system has been detected to be prior "
-          "to version 2.7. Whilst Longbow should work for version 2.6, "
-          "it is recommended you upgrade to at least version 2.7.")
+if not (major >= 2 and minor[1] >= 6):
 
-# download hosts.conf
-print("Downloading hosts.conf")
+    print('The Python version installed is {0}, Longbow does not support this '
+          'version. We recommend that you install at least version 2.7'.format(
+            '.'.join(major, minor)))
 
-if not os.path.isdir(os.path.expanduser("~/.Longbow")):
-    try:
-        subprocess.check_output(["wget",
-            "http://www.hecbiosim.ac.uk/longbow/send/5-longbow/5-longbow-hosts",
-            "-O", os.path.expanduser("~/LongbowHosts.zip")])
-    except subprocess.CalledProcessError:
-        subprocess.call(["curl", "-L",
-            "http://www.hecbiosim.ac.uk/longbow/send/5-longbow/5-longbow-hosts",
-            "-o", os.path.join(os.path.expanduser("~"), "LongbowHosts.zip")])
+else:
 
-    subprocess.call(["unzip", "-d", os.path.expanduser("~"),
-                     os.path.expanduser("~/LongbowHosts.zip")])
+    print('The Python version installed ({0}) is supported by Longbow.'.format(
+            '.'.join(major, minor)))
 
-# setup args
-setup_args = {
-    'name': "Longbow",
-    'version': "1.01.004",
-    'description': "Biomolecular simulation remote job submission "
-                   "utility.",
-    'long_description': "Longbow sends jobs submitted to your desktop to a "
-                        "high-end resource. The results are automatically"
-                        " brought back bringing the power of an HPC to "
-                        "your desktop",
-    'author': "James T Gebbie-Rayet, Gareth B Shannon",
-    'author_email': "james.gebbie@stfc.ac.uk, "
-                    "gareth.shannon@nottingham.ac.uk",
-    'url': "www.hecbiosim.ac.uk",
-    'license': "GNU General Public License.",
-    'classifiers': [
-        'Development Status :: 5 - Production/Stable',
-        'Environment :: Console',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
-        'Topic :: Utilities',
-        'Operating System :: MacOS :: MacOS X',
-        'Operating System :: POSIX',
-        'Operating System :: Unix'
-    ],
-    'packages': ["Longbow", "Longbow.plugins",
-                 "Longbow.plugins.schedulers", "Longbow.plugins.apps",
-                 "Longbow.corelibs"],
-    'scripts': ['Longbow/longbow'],
+try:
+    # Setting up the .Longbow directory.
+    if not os.path.isdir(os.path.expanduser('~/.Longbow')):
 
-}
+        os.mkdir(os.path.expanduser('~/.Longbow'))
+    
+        hostfile = open(os.path.expanduser('~/.Longbow/hosts.conf', 'w+'))
+    
+        hostfile.write('[QuickStart]')
+        hostfile.write('host = login.hpc.ac.uk')
+        hostfile.write('user = myusername')
+        hostfile.write('corespernode = 24')
+        hostfile.write('cores = 24')
+        hostfile.write('remoteworkdir = /work/myusername/')
+        hostfile.write('account = myaccount')
+        hostfile.write('modules = mymodules')
 
-setup(**setup_args)
+        hostfile.close()
+
+except:
+    
+    print('Longbow failed to create the host configuration file in '
+          '"~/.Longbow/hosts.conf", you will have to do this manually. The '
+          'user documentation details the information that should be in this '
+          'file.')       
+
+# Setup
+setup(name = 'Longbow',
+      version = '1.1.5',
+      description = 'Biomolecular simulation remote job submission tool.',
+      long_description = open('README.rst').read(),
+      author = 'James T Gebbie-Rayet, Gareth B Shannon',
+      author_email = ('james.gebbie@stfc.ac.uk, '
+                      'gareth.shannon@nottingham.ac.uk'),
+      url = 'www.hecbiosim.ac.uk',
+      license = 'OSI Approved :: GNU General Public License v2 (GPLv2)',
+      classifiers = ['Development Status :: 5 - Production/Stable',
+                     'Environment :: Console',
+                     'Programming Language :: Python',
+                     'Programming Language :: Python :: 2.6',
+                     'Programming Language :: Python :: 2.7',
+                     'Programming Language :: Python :: 3',
+                     'Topic :: Utilities',
+                     'Operating System :: MacOS :: MacOS X',
+                     'Operating System :: POSIX',
+                     'Operating System :: Unix'
+                     ],
+      packages = ['Longbow', 'Longbow.plugins', 'Longbow.plugins.schedulers',
+                  'Longbow.plugins.apps', 'Longbow.corelibs'],
+      scripts = ['Longbow/longbow'],
+      )
