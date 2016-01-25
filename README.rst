@@ -66,6 +66,7 @@ Contact
 Should you need to contact the authors of this software, please contact:
 
 James Gebbie-Rayet - james.gebbie@stfc.ac.uk
+
 Gareth Shannon - gareth.shannon@nottingham.ac.uk
 
 Please note, support will not be given via email, support should always come

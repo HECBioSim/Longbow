@@ -31,20 +31,26 @@ import sys
 major = sys.version_info[0]
 minor = sys.version_info[1]
 
-if not (major >= 2 and minor[1] >= 6):
+if not (major >= 2 and minor >= 6):
 
-    print('The Python version installed is {0}, Longbow does not support this '
-          'version. We recommend that you install at least version 2.7'.format(
-            '.'.join(major, minor)))
+    print('The Python version installed is "{0}.{1}", Longbow does not support '
+          'this version. We recommend that you install at least version 2.7'
+          .format(major, minor))
 
 else:
 
-    print('The Python version installed ({0}) is supported by Longbow.'.format(
-            '.'.join(major, minor)))
+    print('The Python version installed "{0}.{1}" is supported by Longbow.'
+          .format(major, minor))
 
 try:
     # Setting up the .Longbow directory.
     if not os.path.isdir(os.path.expanduser('~/.Longbow')):
+
+        print('Longbow will create a hidden directory in your $HOME directory '
+              'in which it will create the hosts configuration file. You will '
+              'need to edit this file with your account information on the '
+              'HPC machines you wish to use. See documentation for more '
+              'information - www.hecbiosim.ac.uk/longbow-docs')
 
         os.mkdir(os.path.expanduser('~/.Longbow'))
     
@@ -84,6 +90,7 @@ setup(name = 'Longbow',
                      'Programming Language :: Python :: 2.6',
                      'Programming Language :: Python :: 2.7',
                      'Programming Language :: Python :: 3',
+                     'Topic :: Scientific/Engineering',
                      'Topic :: Utilities',
                      'Operating System :: MacOS :: MacOS X',
                      'Operating System :: POSIX',
