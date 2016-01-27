@@ -25,6 +25,17 @@ Longbow is released under the GNU GPLv2 license. A copy of this license will
 be provided with the Longbow application when it is downloaded and installed.
 
 
+Citing
+======
+
+If you make use of Longbow in your own code or in production simulations that
+result in publishable output, then please reference our paper:
+
+Gebbie-Rayet, J, Shannon, G, Loeffler, H H and Laughton, C A 2016 Longbow: 
+A Lightweight Remote Job Submission Tool. Journal of Open Research Software, 
+4: e1, DOI: http://dx.doi.org/10.5334/jors.95
+
+
 Installation
 ============
 

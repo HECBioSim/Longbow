@@ -53,6 +53,9 @@ except ImportError:
     SHELLWRAPPERS = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
     STAGING = __import__("Longbow.corelibs.staging", fromlist=[''])
 
+PYTHONVERSION = "{0}.{1}".format(sys.version_info[0], sys.version_info[1])
+LONGBOWVERSION = "1.1.5"
+
 
 def main(cmdline, files, mode, parameters):
 
@@ -152,12 +155,19 @@ def main(cmdline, files, mode, parameters):
 
         # Log that we are starting up.
         logger.info("Welcome to Longbow!")
-        logger.info("This software was developed as part of the EPSRC-funded"
-                    " HECBioSim project (http://www.hecbiosim.ac.uk/)")
+        logger.info("This software was developed as part of the EPSRC-funded "
+                    "HECBioSim project (http://www.hecbiosim.ac.uk/)")
         logger.info("HECBioSim facilitates high-end biomolecular simulation "
                     "on resources such as ARCHER")
         logger.info("Longbow is Copyright (C) of James T Gebbie-Rayet and "
                     "Gareth B Shannon 2015.")
+        logger.info("Please cite our paper: Gebbie-Rayet, J, Shannon, G, "
+                    "Loeffler, H H and Laughton, C A 2016 Longbow: A "
+                    "Lightweight Remote Job Submission Tool. Journal of "
+                    "Open Research Software, 4: e1, "
+                    "DOI: http://dx.doi.org/10.5334/jors.95")
+        logger.info("Python version: {0}".format(PYTHONVERSION))
+        logger.info("Longbow version: {0}".format(LONGBOWVERSION))
         logger.info("Longbow Commandline: {0}".format(cmdline))
         logger.info("Initialisation complete.")
 
@@ -441,14 +451,14 @@ if __name__ == "__main__":
     # found
     if LONGBOWARGS.count("-about") == 1:
 
-        print("Welcome to Longbow!\n"
-              "Longbow is a remote job submission utility designed for "
-              "biomolecular simulation."
-              "This software was developed as part of the EPSRC-funded "
-              "HECBioSim project \n" "(http://www.hecbiosim.ac.uk/).\n"
-              "HECBioSim facilitates high-end biomolecular simulation "
-              "on resources such as \n" "ARCHER. \n"
-              "Longbow is Copyright (C) of James T Gebbie-Rayet and "
+        print("Welcome to Longbow!\n\n"
+              "Longbow is a remote job submission utility designed for \n"
+              "biomolecular simulation. This software was developed as part \n"
+              "of the EPSRC-funded HECBioSim project \n"
+              "http://www.hecbiosim.ac.uk/\n\n"
+              "HECBioSim facilitates high-end biomolecular simulation on \n"
+              "resources such as ARCHER.\n"
+              "Longbow is Copyright (C) of James T Gebbie-Rayet and \n"
               "Gareth B Shannon 2015.")
 
         exit(0)
@@ -458,7 +468,7 @@ if __name__ == "__main__":
     elif (LONGBOWARGS.count("-version") == 1 or
           LONGBOWARGS.count("--version") == 1 or LONGBOWARGS.count("-V") == 1):
 
-        print("Longbow 1.1.5")
+        print("Longbow {0}".format(LONGBOWVERSION))
 
         exit(0)
 
