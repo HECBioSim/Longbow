@@ -525,8 +525,8 @@ if __name__ == "__main__":
 
                 subprocess.check_output([
                     "wget",
-                    "http://www.hecbiosim.ac.uk/longbow/send/5-longbow/" +
-                    "4-longbow-examples",
+                    "http://www.hecbiosim.ac.uk/downloads/send/" +
+                    "2-software/4-longbow-examples",
                     "-O",
                     os.path.join(os.getcwd(), "LongbowExamples.zip")])
 
@@ -535,8 +535,8 @@ if __name__ == "__main__":
                 subprocess.call([
                     "curl",
                     "-L",
-                    "http://www.hecbiosim.ac.uk/longbow/send/5-longbow/" +
-                    "4-longbow-examples",
+                    "http://www.hecbiosim.ac.uk/downloads/send/" +
+                    "2-software/4-longbow-examples",
                     "-o",
                     os.path.join(os.getcwd(), "LongbowExamples.zip")])
 

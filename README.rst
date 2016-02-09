@@ -62,6 +62,15 @@ Documentation for Longbow can be found here:
 http://www.hecbiosim.ac.uk/longbow-docs
 
 
+Examples
+========
+
+Example files can be installed either through the Longbow command-line or by
+downloading from the HECBioSim website manually here:
+
+http://www.hecbiosim.ac.uk/longbow-examples
+
+
 Support
 =======
 
@@ -69,6 +78,19 @@ Support for any issues arising from using Longbow, whether these are questions,
 to report bug or to suggest new ideas. You should use the Longbow forums here:
 
 http://www.hecbiosim.ac.uk/longbow-support
+
+
+Developers
+==========
+
+Developers of software that wish to contribute to Longbow/integrate Longbow 
+into other software tools are welcome, we do ask that if you wish to contribute
+to the Longbow base code that you contact us first. The following resources are
+available to developers:
+
+source code: https://bitbucket.org/jimboid/longbow
+
+documentation: http://www.hecbiosim.ac.uk/longbow-devdocs
 
 
 Contact
