@@ -156,17 +156,11 @@ def processconfigs(hostfile, jobfile, cwd, params):
                       file, this parameter is optional (empty string if not
                       needed).
 
-    args (string): This should be an absolute path to a configuration
-                       file, this parameter is required.
+    cwd (string): This should be an absolute path to a configuration file,
+                  this parameter is required.
 
-    cwd (string): This should be an absolute path to a configuration
-                       file, this parameter is required.
-
-    executable (string): This should be an absolute path to a configuration
-                       file, this parameter is required.
-
-    params (dictionary): This should be an absolute path to a configuration
-                       file, this parameter is required.
+    params (dictionary): This parameter is required. It is used to provide
+                         overrides from the application command-line.
 
     Return parameters are:
 
