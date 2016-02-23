@@ -34,7 +34,7 @@ except ImportError:
     EX = __import__("Longbow.corelibs.exceptions", fromlist=[''])
     SHELLWRAPPERS = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
 
-LOGGER = logging.getLogger("Longbow")
+LOG = logging.getLogger("Longbow.plugins.schedulers.lsf")
 
 QUERY_STRING = "env | grep -i 'lsf'"
 
@@ -45,7 +45,7 @@ def delete(host, job):
 
     jobid = job["jobid"]
 
-    LOGGER.info("Deleting the job with id '{0}'" .format(jobid))
+    LOG.info("Deleting the job with id '{0}'" .format(jobid))
 
     try:
 
@@ -55,7 +55,7 @@ def delete(host, job):
 
         raise EX.JobdeleteError("Unable to delete job.")
 
-    LOGGER.info("Deletion successful")
+    LOG.info("Deletion successful")
 
     return shellout[0]
 
@@ -64,7 +64,7 @@ def prepare(hosts, jobname, jobs):
 
     """Create the LSF jobfile ready for submitting jobs"""
 
-    LOGGER.info("Creating submit file for job '{0}'" .format(jobname))
+    LOG.info("Creating submit file for job '{0}'" .format(jobname))
 
     # Open file for LSF script.
     lsffile = os.path.join(jobs[jobname]["localworkdir"], "submit.lsf")
@@ -200,6 +200,6 @@ def submit(host, jobname, jobs):
 
     output = shellout.splitlines()[0]
 
-    LOGGER.info("Job '{0}' submitted with id '{1}'" .format(jobname, output))
+    LOG.info("Job '{0}' submitted with id '{1}'" .format(jobname, output))
 
     jobs[jobname]["jobid"] = output

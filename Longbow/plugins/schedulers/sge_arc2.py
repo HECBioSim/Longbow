@@ -35,7 +35,7 @@ except ImportError:
     EX = __import__("Longbow.corelibs.exceptions", fromlist=[''])
     SHELLWRAPPERS = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
 
-LOGGER = logging.getLogger("Longbow")
+LOG = logging.getLogger("Longbow.plugins.schedulers.sge_arc2")
 
 QUERY_STRING = "env | grep -i 'sge'"
 
@@ -46,7 +46,7 @@ def delete(host, job):
 
     jobid = job["jobid"]
 
-    LOGGER.info("Deleting the job with id '{0}'" .format(jobid))
+    LOG.info("Deleting the job with id '{0}'" .format(jobid))
 
     try:
 
@@ -56,7 +56,7 @@ def delete(host, job):
 
         raise EX.JobdeleteError("Unable to delete job.")
 
-    LOGGER.info("Deleted successfully")
+    LOG.info("Deleted successfully")
 
     return shellout[0]
 
@@ -65,7 +65,7 @@ def prepare(hosts, jobname, jobs):
 
     """Create the SGE jobfile ready for submitting jobs"""
 
-    LOGGER.info("Creating submit file for job '{0}'" .format(jobname))
+    LOG.info("Creating submit file for job '{0}'" .format(jobname))
 
     # Open file for SGE script.
     sgefile = os.path.join(jobs[jobname]["localworkdir"], "submit.sge")
@@ -216,6 +216,6 @@ def submit(host, jobname, jobs):
 
         raise EX.JobsubmitError("  Something went wrong when submitting.")
 
-    LOGGER.info("Job '{0}' submitted with id '{1}'" .format(jobname, shellout))
+    LOG.info("Job '{0}' submitted with id '{1}'" .format(jobname, shellout))
 
     jobs[jobname]["jobid"] = shellout

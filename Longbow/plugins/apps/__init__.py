@@ -26,7 +26,6 @@ the plug-in module itself and not here, follow the template for constructing
 new app plug-ins.
 """
 
-import logging
 import os
 import pkgutil
 import sys

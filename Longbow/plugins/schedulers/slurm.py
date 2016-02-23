@@ -35,29 +35,19 @@ except ImportError:
     EX = __import__("Longbow.corelibs.exceptions", fromlist=[''])
     SHELLWRAPPERS = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
 
+LOG = logging.getLogger("Longbow.plugins.schedulers.slurm")
 
-# -----------------------------------------------------------------------------
-# Boiler plate for logging.
-
-LOGGER = logging.getLogger("Longbow")                           # IMPORTANT
-
-# -----------------------------------------------------------------------------
-# For schedulers a unique string to identify the scheduler should go here.
-# Sometimes "env | grep -i 'something specific'" will suffice.
-
-QUERY_STRING = "which sbatch"                        # IMPORTANT
-
-# -----------------------------------------------------------------------------
-# Delete method (not currently used).
+QUERY_STRING = "which sbatch"
 
 
-def delete(host, job):                                              # IMPORTANT
+def delete(host, job):
 
     """Method for deleting job."""
 
     jobid = job["jobid"]
 
-    LOGGER.info("Deleting the job with id '{0}'" .format(jobid))
+    LOG.info("Deleting the job with id '{0}'" .format(jobid))
+
     try:
 
         shellout = SHELLWRAPPERS.sendtossh(host, ["scancel " + jobid])
@@ -66,19 +56,16 @@ def delete(host, job):                                              # IMPORTANT
 
         raise EX.JobdeleteError("Unable to delete job.")
 
-    LOGGER.info("Deleted successfully")
+    LOG.info("Deleted successfully")
 
     return shellout[0]
 
 
-# -----------------------------------------------------------------------------
-# Prepare method
-
-def prepare(hosts, jobname, jobs):                             # IMPORTANT
+def prepare(hosts, jobname, jobs):
 
     """Create the SLURM jobfile ready for submitting jobs"""
 
-    LOGGER.info("Creating submit file for job '{0}'" .format(jobname))
+    LOG.info("Creating submit file for job '{0}'" .format(jobname))
 
     # Open file for SLURM script.
     slurmfile = os.path.join(jobs[jobname]["localworkdir"], "submit.slurm")
@@ -166,13 +153,10 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
     # Append submitfile to list of files ready for staging.
     jobs[jobname]["upload-include"] = (
         jobs[jobname]["upload-include"] + ", submit.slurm")
-    jobs[jobname]["subfile"] = "submit.slurm"                     # IMPORTANT
+    jobs[jobname]["subfile"] = "submit.slurm"
 
 
-# -----------------------------------------------------------------------------
-# Status method
-
-def status(host, jobid):                                        # IMPORTANT
+def status(host, jobid):
 
     """Method for querying job."""
 
@@ -235,11 +219,8 @@ def status(host, jobid):                                        # IMPORTANT
 
     return state
 
-# -----------------------------------------------------------------------------
-# Submit method
 
-
-def submit(host, jobname, jobs):                                # IMPORTANT
+def submit(host, jobname, jobs):
 
     """Method for submitting job."""
 
@@ -261,6 +242,6 @@ def submit(host, jobname, jobs):                                # IMPORTANT
 
     output = shellout.rstrip("\r\n")
 
-    LOGGER.info("Job '{0}' submitted with id '{1}'" .format(jobname, output))
+    LOG.info("Job '{0}' submitted with id '{1}'" .format(jobname, output))
 
     jobs[jobname]["jobid"] = output                             # IMPORTANT

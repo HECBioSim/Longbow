@@ -3,7 +3,7 @@ import logging                                                  # IMPORTANT
 #------------------------------------------------------------------------------
 # Boiler plate for logging.
 
-LOGGER = logging.getLogger("Longbow")                           # IMPORTANT
+LOG = logging.getLogger("Longbow.plugins.schedulers.template")  # IMPORTANT
 
 #------------------------------------------------------------------------------
 # For schedulers a unique string to identify the scheduler should go here.
@@ -12,7 +12,7 @@ LOGGER = logging.getLogger("Longbow")                           # IMPORTANT
 QUERY_STRING = "unique identifier here."                        # IMPORTANT
 
 #------------------------------------------------------------------------------
-# Delete method (not currently used).
+# Delete method.
 
 def delete(host, job):                                          # IMPORTANT
 
@@ -20,7 +20,7 @@ def delete(host, job):                                          # IMPORTANT
 
     """Method for deleting job."""
 
-    LOGGER.info("Deleting the job with id: %s", jobid)
+    LOG.info("Deleting the job with id: %s", jobid)
 
     ########################################################
     #                                                      #
@@ -30,7 +30,7 @@ def delete(host, job):                                          # IMPORTANT
     #                                                      #
     ########################################################
 
-    LOGGER.info("  Deleted successfully")
+    LOG.info("  Deleted successfully")
 
 
 #------------------------------------------------------------------------------
@@ -40,7 +40,7 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
 
     """Create the LSF jobfile ready for submitting jobs"""
 
-    LOGGER.info("  Creating submit file for job: %s", jobname)
+    LOG.info("  Creating submit file for job: %s", jobname)
     
     # Open file for script.
     lsffile = os.path.join(jobs[jobname]["localworkdir"], "submit.extension")
@@ -95,7 +95,7 @@ def submit(host, jobname, jobs):                                # IMPORTANT
     #                                                      #
     ########################################################    
     
-    LOGGER.info("  Job: %s submitted with id: %s", jobname, output)
+    LOG.info("  Job: %s submitted with id: %s", jobname, output)
 
     jobs[jobname]["jobid"] = output                             # IMPORTANT
     

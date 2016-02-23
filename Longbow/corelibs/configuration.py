@@ -76,7 +76,7 @@ except ImportError:
     APPS = __import__("Longbow.plugins.apps", fromlist=[''])
 
 
-LOGGER = logging.getLogger("Longbow")
+LOG = logging.getLogger("Longbow.corelibs.configuration")
 
 HOSTTEMPLATE = {
     "account": "",
@@ -489,8 +489,8 @@ def loadconfigs(configfile):
                           dictionaries).
     """
 
-    LOGGER.info("Loading configuration information from file '{0}'"
-                .format(configfile))
+    LOG.info("Loading configuration information from file '{0}'"
+             .format(configfile))
 
     sections = []
     params = {}
@@ -616,8 +616,8 @@ def saveconfigs(configfile, params):
                          be saved (typically hosts of job configs structure).
     """
 
-    LOGGER.info("Saving configuration information to file '{0}'"
-                .format(configfile))
+    LOG.info("Saving configuration information to file '{0}'"
+             .format(configfile))
 
     keydiff = {}
     valuediff = {}

@@ -70,7 +70,7 @@ except ImportError:
     SHELLWRAPPERS = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
     STAGING = __import__("Longbow.corelibs.staging", fromlist=[''])
 
-LOGGER = logging.getLogger("Longbow")
+LOG = logging.getLogger("Longbow.corelibs.scheduling")
 
 
 def testenv(hostconf, hosts, jobs):
@@ -120,9 +120,8 @@ def testenv(hostconf, hosts, jobs):
             # If we have no scheduler defined by the user then find it.
             if hosts[resource]["scheduler"] is "":
 
-                LOGGER.info(
-                    "No environment for this host '{0}' is specified - "
-                    "attempting to determine it!".format(resource))
+                LOG.info("No environment for this host '{0}' is specified - "
+                         "attempting to determine it!".format(resource))
 
                 # Go through the schedulers we are supporting.
                 for param in schedulerqueries:
@@ -134,14 +133,13 @@ def testenv(hostconf, hosts, jobs):
 
                         hosts[resource]["scheduler"] = param
 
-                        LOGGER.info(
-                            "The environment on this host is '{0}'"
-                            .format(param))
+                        LOG.info("The environment on this host is '{0}'"
+                                 .format(param))
                         break
 
                     except EX.SSHError:
 
-                        LOGGER.debug("Environment is not '{0}'".format(param))
+                        LOG.debug("Environment is not '{0}'".format(param))
 
                 if hosts[resource]["scheduler"] is "":
 
@@ -153,16 +151,14 @@ def testenv(hostconf, hosts, jobs):
 
             else:
 
-                LOGGER.info(
-                    "The environment on host '{0}' is '{1}'"
-                    .format(resource, hosts[resource]["scheduler"]))
+                LOG.info("The environment on host '{0}' is '{1}'"
+                         .format(resource, hosts[resource]["scheduler"]))
 
             # If we have no job handler defined by the user then find it.
             if hosts[resource]["handler"] is "":
 
-                LOGGER.info(
-                    "No queue handler was specified for host '{0}' - "
-                    "attempting to find it".format(resource))
+                LOG.info("No queue handler was specified for host '{0}' - "
+                         "attempting to find it".format(resource))
 
                 # Go through the handlers and find out which is there.
                 # Load modules first as this is necessary for some remote
@@ -184,16 +180,15 @@ def testenv(hostconf, hosts, jobs):
 
                         hosts[resource]["handler"] = param
 
-                        LOGGER.info("The batch queue handler is '{0}'"
-                                    .format(param))
+                        LOG.info("The batch queue handler is '{0}'"
+                                 .format(param))
 
                         break
 
                     except EX.SSHError:
 
-                        LOGGER.debug(
-                            "The batch queue handler is not '{0}'"
-                            .format(param))
+                        LOG.debug("The batch queue handler is not '{0}'"
+                                  .format(param))
 
                 if hosts[resource]["handler"] is "":
 
@@ -205,9 +200,8 @@ def testenv(hostconf, hosts, jobs):
 
             else:
 
-                LOGGER.info(
-                    "The handler on host '{0}' is '{1}'"
-                    .format(resource, hosts[resource]["handler"]))
+                LOG.info("The handler on host '{0}' is '{1}'"
+                         .format(resource, hosts[resource]["handler"]))
 
     # Do we have anything to change in the host file.
     if save is True:
@@ -250,7 +244,7 @@ def delete(hosts, jobs, jobname):
 
     except EX.JobdeleteError:
 
-        LOGGER.info("Unable to delete job '{0}'".format(jobname))
+        LOG.info("Unable to delete job '{0}'".format(jobname))
 
 
 def monitor(hosts, jobs):
@@ -271,7 +265,7 @@ def monitor(hosts, jobs):
                         structure.
     """
 
-    LOGGER.info("Monitoring job/s")
+    LOG.info("Monitoring job/s")
 
     # Some initial values
     allfinished = False
@@ -319,9 +313,8 @@ def monitor(hosts, jobs):
                 if jobs[job]["laststatus"] != status:
 
                     jobs[job]["laststatus"] = status
-                    LOGGER.info(
-                        "Status of job '{0}' with id '{1}' is '{2}'"
-                        .format(job, jobs[job]["jobid"], status))
+                    LOG.info("Status of job '{0}' with id '{1}' is '{2}'"
+                             .format(job, jobs[job]["jobid"], status))
 
                 # If the job is not finished and we set the polling frequency
                 # higher than 0 (off) then stage files.
@@ -336,9 +329,8 @@ def monitor(hosts, jobs):
                 # bit of staged files.)
                 if jobs[job]["laststatus"] == "Finished":
 
-                    LOGGER.info(
-                        "Job '{0}' is finishing, staging will begin in 60 "
-                        "seconds".format(job))
+                    LOG.info("Job '{0}' is finishing, staging will begin in "
+                             "60 seconds".format(job))
 
                     time.sleep(60.0)
 
@@ -368,7 +360,7 @@ def monitor(hosts, jobs):
 
             time.sleep(float(interval))
 
-    LOGGER.info("All jobs are complete.")
+    LOG.info("All jobs are complete.")
 
 
 def prepare(hosts, jobs):
@@ -388,7 +380,7 @@ def prepare(hosts, jobs):
                         structure.
     """
 
-    LOGGER.info("Creating submit files for job/s.")
+    LOG.info("Creating submit files for job/s.")
 
     for job in jobs:
 
@@ -404,7 +396,7 @@ def prepare(hosts, jobs):
                 "prepare method cannot be found in plugin '{0}'"
                 .format(scheduler))
 
-    LOGGER.info("Submit file/s created.")
+    LOG.info("Submit file/s created.")
 
 
 def submit(hosts, jobs):
@@ -424,7 +416,7 @@ def submit(hosts, jobs):
                         structure.
     """
 
-    LOGGER.info("Submitting job/s.")
+    LOG.info("Submitting job/s.")
 
     for job in jobs:
 
@@ -444,10 +436,9 @@ def submit(hosts, jobs):
 
         except EX.JobsubmitError as err:
 
-            LOGGER.error(
-                "Submitting job '{0}' failed with message - '{1}'"
-                .format(job, err))
+            LOG.error("Submitting job '{0}' failed with message - '{1}'"
+                      .format(job, err))
 
             jobs[job]["laststatus"] = "Submit Error"
 
-    LOGGER.info("Submission complete.")
+    LOG.info("Submission complete.")

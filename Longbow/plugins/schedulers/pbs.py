@@ -35,7 +35,7 @@ except ImportError:
     EX = __import__("Longbow.corelibs.exceptions", fromlist=[''])
     SHELLWRAPPERS = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
 
-LOGGER = logging.getLogger("Longbow")
+LOG = logging.getLogger("Longbow.plugins.schedulers.pbs")
 
 QUERY_STRING = "env | grep -i 'pbs'"
 
@@ -46,7 +46,7 @@ def delete(host, job):
 
     jobid = job["jobid"]
 
-    LOGGER.info("Deleting the job with id '{0}'" .format(jobid))
+    LOG.info("Deleting the job with id '{0}'" .format(jobid))
 
     try:
 
@@ -62,7 +62,7 @@ def delete(host, job):
 
         raise EX.JobdeleteError("Unable to delete job.")
 
-    LOGGER.info("Deletion successful.")
+    LOG.info("Deletion successful.")
 
     return shellout[0]
 
@@ -71,7 +71,7 @@ def prepare(hosts, jobname, jobs):
 
     """Create the PBS jobfile ready for submitting jobs"""
 
-    LOGGER.info("Creating submit file for job '{0}'" .format(jobname))
+    LOG.info("Creating submit file for job '{0}'" .format(jobname))
 
     # Open file for PBS script.
     pbsfile = os.path.join(jobs[jobname]["localworkdir"], "submit.pbs")
@@ -335,6 +335,6 @@ def submit(host, jobname, jobs):
 
     output = shellout.rstrip("\r\n")
 
-    LOGGER.info("Job '{0}' submitted with id '{1}'" .format(jobname, output))
+    LOG.info("Job '{0}' submitted with id '{1}'" .format(jobname, output))
 
     jobs[jobname]["jobid"] = output

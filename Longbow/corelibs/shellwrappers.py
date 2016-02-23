@@ -92,7 +92,7 @@ except ImportError:
 
     EX = __import__("Longbow.corelibs.exceptions", fromlist=[''])
 
-LOGGER = logging.getLogger("Longbow")
+LOG = logging.getLogger("Longbow.corelibs.shellwrappers")
 
 
 def testconnections(hosts, jobs):
@@ -114,9 +114,8 @@ def testconnections(hosts, jobs):
                         structure.
     """
 
-    LOGGER.info(
-        "Testing connections to all resources that are referenced in the job "
-        "configurations.")
+    LOG.info("Testing connections to all resources that are referenced in the "
+             "job configurations.")
 
     checked = []
 
@@ -134,7 +133,7 @@ def testconnections(hosts, jobs):
             # Make sure we don't check this again.
             checked.extend([resource])
 
-            LOGGER.debug("Testing connection to '{0}'".format(resource))
+            LOG.debug("Testing connection to '{0}'".format(resource))
 
             try:
 
@@ -144,7 +143,7 @@ def testconnections(hosts, jobs):
 
                 raise
 
-            LOGGER.info("Test connection to '{0}' - passed".format(resource))
+            LOG.info("Test connection to '{0}' - passed".format(resource))
 
 
 def sendtoshell(cmd):
@@ -169,7 +168,7 @@ def sendtoshell(cmd):
                           with.
     """
 
-    LOGGER.debug("Sending the following to subprocess '{0}'".format(cmd))
+    LOG.debug("Sending the following to subprocess '{0}'".format(cmd))
 
     handle = subprocess.Popen(
         cmd,
@@ -251,7 +250,7 @@ def sendtossh(host, args):
                 "SSH failed, make sure a normal terminal can connect to SSH "
                 "to be sure there are no connection issues.", shellout)
 
-        LOGGER.debug("Retry SSH after 10 second wait.")
+        LOG.debug("Retry SSH after 10 second wait.")
 
         # Wait 10 seconds to see if problem goes away before trying again.
         time.sleep(10)
@@ -360,7 +359,7 @@ def sendtorsync(src, dst, port, includemask, excludemask):
                 "rsync failed, make sure a normal terminal can connect to "
                 "rsync to be sure there are no connection issues.", shellout)
 
-        LOGGER.debug("Retry rsync after 10 second wait.")
+        LOG.debug("Retry rsync after 10 second wait.")
 
         # Wait 10 seconds to see if problem goes away before trying again.
         time.sleep(10)
@@ -381,7 +380,7 @@ def localcopy(src, dst):
                    copied to.
     """
 
-    LOGGER.debug("Copying '{0}' to '{1}'".format(src, dst))
+    LOG.debug("Copying '{0}' to '{1}'".format(src, dst))
 
     # Expand tildas (if present) otherwise these will not change anything.
     src = os.path.expanduser(src)
@@ -451,7 +450,7 @@ def localdelete(src):
                    to be deleted.
     """
 
-    LOGGER.debug("Deleting '{0}'".format(src))
+    LOG.debug("Deleting '{0}'".format(src))
 
     # Expand tildas (if present) otherwise these will not change anything.
     src = os.path.expanduser(src)
@@ -501,7 +500,7 @@ def locallist(src):
     filelist (list) - A list of files within the specified directory.
     """
 
-    LOGGER.debug("Listing the contents of '{0}'".format(src))
+    LOG.debug("Listing the contents of '{0}'".format(src))
 
     # Expand tildas (if present) otherwise these will not change anything.
     src = os.path.expanduser(src)
@@ -543,7 +542,7 @@ def remotecopy(host, src, dst):
                    copied to (on the host).
     """
 
-    LOGGER.debug("Copying '{0}' to '{1}'".format(src, dst))
+    LOG.debug("Copying '{0}' to '{1}'".format(src, dst))
 
     # Are paths absolute. Do we start with tildas, if so since we are going
     # through the shell allow it to expand the tilda on the remote host for us.
@@ -585,7 +584,7 @@ def remotedelete(host, src):
                    to be deleted (on the host).
     """
 
-    LOGGER.debug("Deleting '{0}'".format(src))
+    LOG.debug("Deleting '{0}'".format(src))
 
     # Are paths absolute.
     if os.path.isabs(src) is False and src[0] != "~":
@@ -627,7 +626,7 @@ def remotelist(host, src):
     filelist (list) - A list of files within the specified directory.
     """
 
-    LOGGER.debug("Listing the contents of '{0}'".format(src))
+    LOG.debug("Listing the contents of '{0}'".format(src))
 
     # Are paths absolute.
     if os.path.isabs(src) is False and src[0] != "~":
@@ -688,7 +687,7 @@ def upload(host, src, dst, includemask, excludemask):
 
     dst = (host["user"] + "@" + host["host"] + ":" + dst)
 
-    LOGGER.debug("Copying '{0}' to '{1}'".format(src, dst))
+    LOG.debug("Copying '{0}' to '{1}'".format(src, dst))
 
     # Send command to subprocess.
     try:
@@ -736,7 +735,7 @@ def download(host, src, dst, includemask, excludemask):
 
     src = (host["user"] + "@" + host["host"] + ":" + src)
 
-    LOGGER.debug("Copying '{0}' to '{1}'".format(src, dst))
+    LOG.debug("Copying '{0}' to '{1}'".format(src, dst))
 
     # Send command to subprocess.
     try:

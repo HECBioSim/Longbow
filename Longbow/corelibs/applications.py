@@ -55,7 +55,7 @@ except ImportError:
     SHELLWRAPPERS = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
     APPS = __import__("Longbow.plugins.apps", fromlist=[''])
 
-LOGGER = logging.getLogger("Longbow")
+LOG = logging.getLogger("Longbow.corelibs.applications")
 
 
 def testapp(hosts, jobs):
@@ -78,7 +78,7 @@ def testapp(hosts, jobs):
 
     checked = {}
 
-    LOGGER.info("Testing the executables defined for each job.")
+    LOG.info("Testing the executables defined for each job.")
 
     for job in jobs:
 
@@ -96,18 +96,17 @@ def testapp(hosts, jobs):
             # If not then add it to the list now.
             checked[resource].extend([executable])
 
-            LOGGER.info(
-                "Checking executable '{0}' on '{1}'"
-                .format(executable, resource))
+            LOG.info("Checking executable '{0}' on '{1}'"
+                     .format(executable, resource))
 
             cmd = []
 
             if jobs[job]["modules"] is "":
 
-                LOGGER.debug("Checking without modules.")
+                LOG.debug("Checking without modules.")
 
             else:
-                LOGGER.debug("Checking with modules.")
+                LOG.debug("Checking with modules.")
 
                 for module in jobs[job]["modules"].split(","):
 
@@ -119,11 +118,11 @@ def testapp(hosts, jobs):
             try:
 
                 SHELLWRAPPERS.sendtossh(hosts[resource], cmd)
-                LOGGER.info("Executable check - passed.")
+                LOG.info("Executable check - passed.")
 
             except EX.SSHError:
 
-                LOGGER.error("Executable check - failed.")
+                LOG.error("Executable check - failed.")
                 raise
 
 
@@ -143,7 +142,7 @@ def processjobs(jobs):
                         structure.
     """
 
-    LOGGER.info("Processing job/s and detecting files that require upload.")
+    LOG.info("Processing job/s and detecting files that require upload.")
 
     # Get dictionary of executables and their required flags from plug-ins.
     tmp = getattr(APPS, "DEFMODULES")
@@ -162,11 +161,11 @@ def processjobs(jobs):
 
         jobs[job]["destdir"] = os.path.join(jobs[job]["destdir"], destdir)
 
-        LOGGER.debug("Job '{0}' will be run in the '{1}' directory on the "
-                     "remote resource.".format(job, jobs[job]["destdir"]))
+        LOG.debug("Job '{0}' will be run in the '{1}' directory on the remote "
+                  "resource.".format(job, jobs[job]["destdir"]))
 
-        LOGGER.debug("Command-line arguments for job '{0}'are '{1}'"
-                     .format(job, args))
+        LOG.debug("Command-line arguments for job '{0}'are '{1}'"
+                  .format(job, args))
 
         # Check for any files that are located outside the work directory or
         # absolute paths.
@@ -592,7 +591,7 @@ def processjobs(jobs):
         # substitutions was removed
         jobs[job]["executableargs"] = executable + " " + " ".join(initargs)
 
-        LOGGER.info("For job '{0}' - execution string: {1}".format(
-            job, jobs[job]["executableargs"]))
+        LOG.info("For job '{0}' - execution string: {1}".format(job,
+                 jobs[job]["executableargs"]))
 
-    LOGGER.info("Processing jobs - complete.")
+    LOG.info("Processing jobs - complete.")
