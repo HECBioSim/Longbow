@@ -45,16 +45,16 @@ JOBREQUIRED
 
 The following methods can be found:
 
-processjobs()
+processjobs(hostfile, jobfile, params)
     Method for processing the raw configuration structures loaded from the
     configuration files into Longbow friendly configuration structures.
     This is where the parameter hierarchy is applied.
 
-loadconfigs()
+loadconfigs(configfile)
     Method for loading and extracting data from the Longbow configuration
     files.
 
-saveconfigs()
+saveconfigs(configfile, params)
     Method for saving data to Longbow configuration files, this method will
     honour comments and simply amend the file structure with new or changed
     data.
@@ -140,7 +140,7 @@ JOBREQUIRED = {
 }
 
 
-def processconfigs(hostfile, jobfile, cwd, params):
+def processconfigs(hostfile, jobfile, params):
 
     """
     Method for processing the raw configuration structures loaded from the
@@ -403,7 +403,7 @@ def processconfigs(hostfile, jobfile, cwd, params):
         # If the local working directory has not been set, then default to cwd
         if jobs[job]["localworkdir"] is "":
 
-            jobs[job]["localworkdir"] = cwd
+            jobs[job]["localworkdir"] = params["cwd"]
 
         # Fix for python 3 where basestring is now str.
         try:
