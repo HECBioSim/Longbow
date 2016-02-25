@@ -25,21 +25,21 @@ between the local host and the remote host job directories.
 
 The following methods are contained within this module:
 
-stage_upstream()
+stage_upstream(hosts, jobs)
     A method for staging files for each job to the target HPC host. The
     underlying utility behind this transfer is rsync, thus it is possible
     to supply rsync file masks to blacklist unwanted large files. By default
     rsync is configured to transfer blockwise and only transfer the
     newest/changed blocks, this saves a lot of time during persistant staging.
 
-stage_downstream()
+stage_downstream(hosts, jobs, jobname)
     A method for staging files for each job to from target HPC host. The
     underlying utility behind this transfer is rsync, thus it is possible
     to supply rsync file masks to blacklist unwanted large files. By default
     rsync is configured to transfer blockwise and only transfer the
     newest/changed blocks, this saves a lot of time during persistant staging.
 
-cleanup()
+cleanup(hosts, jobs)
     A method for cleaning up the working directory on the HPC host, this method
     will only delete job directories that are valid for the given Longbow
     instance, thus avoid data loss.
@@ -91,12 +91,9 @@ def stage_upstream(hosts, jobs):
         LOG.info("Transfering files for job '{0}' to host '{1}'"
                  .format(job, jobs[job]["resource"]))
 
-        cmd = []
-        cmd.extend(["mkdir -p " + dst + "\n"])
-
         try:
 
-            SHELLWRAPPERS.sendtossh(host, cmd)
+            SHELLWRAPPERS.sendtossh(host, ["mkdir -p " + dst + "\n"])
 
             LOG.info("mkdir -p '{0}' passed.".format(dst))
 

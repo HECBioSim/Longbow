@@ -26,25 +26,25 @@ generic job concepts. The specific functionality that comes from each scheduler
 is accessed through the plug-in framework. To make use of these methods, the
 plug-in framework must be present alongside the core library.
 
-testenv()
+testenv(hostconf, hosts, jobs)
     This method makes an attempt to test the environment and determine from
     a pre-configured list what scheduler and job submission handler is present
     on the machine.
 
-delete()
+delete(hosts, jobs, jobname)
     A method containing the generic and boiler plate Longbow code for deleting
     a job.
 
-monitor()
+monitor(hosts, jobs)
     A method containing the generic and boiler plate Longbow code for
     monitoring a job, this method contains the entire structure of the loop
     that deals with monitoring jobs.
 
-prepare()
+prepare(hosts, jobs)
     A method containing the generic and boiler plate Longbow code for
     constructing the submit file.
 
-submit()
+submit(hosts, jobs)
     A method containing the generic and boiler plate Longbow code for
     submitting a job.
 """

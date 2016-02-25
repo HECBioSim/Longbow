@@ -26,54 +26,54 @@ are checked to make sure they are absolute paths.
 
 The following methods can be found:
 
-testconnections()
+testconnections(hosts, jobs)
     This method will test that connections to hosts specified in jobs can be
     established. Problems encountered at this stage could be due to either
     badly configured hosts, networking problems, or even system maintenance/
     downtime on the HPC host.
 
-sendtoshell()
+sendtoshell(cmd)
     This method is responsible for handing off commands to the Unix shell, it
     makes use of the subprocess library from the Python standard library.
 
-sendtossh()
+sendtossh(host, args)
     This method constructs a string containing commands to be executed via SSH.
     This string is then handed off to the sendtoshell() method for execution.
 
-sendtorsync()
+sendtorsync(src, dst, port, includemask, excludemask)
     This method constructs a string that forms an rsync command, this string is
     then handed off to the sendtoshell() method for execution.
 
-localcopy()
+localcopy(src, dst)
     This method is for copying a file/directory between two local paths, this
     method relies on the Python standard library to perform operations.
 
-localdelete()
+localdelete(src)
     This method is for deleting a file/directory from the local machine, this
     method relies on the Python standard library to perform operations.
 
-locallist()
+locallist(src)
     This method is for constructing a list of items present within a given
     directory. This method relies on the Python standard library to perform
     operations.
 
-remotecopy()
+remotecopy(host, src, dst)
     This method is for copying a file/directory between two paths on a remote
     host, this is done via passing a copy command to the sendtossh() method.
 
-remotedelete()
+remotedelete(host, src)
     This method is for deleting a file/directory from a path on a remote host,
     this is done via passing a delete command to the sendtossh() method.
 
-remotelist()
+remotelist(host, src)
     This method is for listing the contents of a directory on a remote host,
     this is done via passing a list command to the sendtoshell() method.
 
-upload()
+upload(host, src, dst, includemask, excludemask)
     This method is for uploading files to a remote host, this method is
     responsible for specifying the direction that the transfer takes place.
 
-download()
+download(host, src, dst, includemask, excludemask)
     This method is for downloading files from a remote host, this method is
     responsible for specifying the direction that the transfer takes place.
 """
@@ -554,13 +554,10 @@ def remotecopy(host, src, dst):
 
         raise EX.AbsolutepathError("The destination path is not absolute", dst)
 
-    # Just use cp for this with recursive set in case of directory.
-    cmd = ["cp -r", src, dst]
-
     # Send to subprocess.
     try:
 
-        sendtossh(host, cmd)
+        sendtossh(host, ["cp -r", src, dst])
 
     except EX.SSHError:
 
@@ -591,13 +588,10 @@ def remotedelete(host, src):
 
         raise EX.AbsolutepathError("The source path is not absolute", src)
 
-    # Just use rm for this with recursive set in case of directory.
-    cmd = ["rm -r", src]
-
     # Send to subprocess.
     try:
 
-        sendtossh(host, cmd)
+        sendtossh(host, ["rm -r", src])
 
     except EX.SSHError:
 
@@ -633,13 +627,10 @@ def remotelist(host, src):
 
         raise EX.AbsolutepathError("The source path is not absolute", src)
 
-    # Shell command ls for listing in a shell.
-    cmd = ["ls" + " " + src]
-
     # Send command to subprocess.
     try:
 
-        shellout = sendtossh(host, cmd)
+        shellout = sendtossh(host, ["ls" + " " + src])
 
     except EX.SSHError:
 
