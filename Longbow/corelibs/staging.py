@@ -199,8 +199,8 @@ def cleanup(hosts, jobs):
                 SHELLWRAPPERS.remotedelete(hosts[jobs[job]["resource"]], path)
 
             else:
-                raise EX.RemoteworkdirError("Subdirectory of remoteworkdir" +
-                                            " not yet created")
+                raise EX.RemoteworkdirError(
+                    "Subdirectory of remoteworkdir not yet created")
 
         except EX.RemoteworkdirError:
 

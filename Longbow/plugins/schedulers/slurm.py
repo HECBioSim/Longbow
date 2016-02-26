@@ -160,64 +160,47 @@ def status(host, jobid):
 
     """Method for querying job."""
 
-    state = ""
+    states = {
+        "CA": "Cancelled",
+        "CD": "Completed",
+        "CF": "Configuring",
+        "CG": "Completing",
+        "F": "Failed",
+        "NF": "Node Failure",
+        "PD": "Pending",
+        "PR": "Preempted",
+        "R": "Running",
+        "S": "Suspended",
+        "TO": "Timed out"
+        }
+
+    jobstate = ""
 
     try:
 
-        shellout = SHELLWRAPPERS.sendtossh(host, ["squeue -u " + host["user"] +
-                                                  "| grep " + jobid])
-
-        stat = shellout[0].split()
-
-        if stat[4] == "CA":
-
-            state = "Cancelled"
-
-        elif stat[4] == "CD":
-
-            state = "Completed"
-
-        elif stat[4] == "CF":
-
-            state = "Configuring"
-
-        elif stat[4] == "CG":
-
-            state = "Completing"
-
-        elif stat[4] == "F":
-
-            state = "Failed"
-
-        elif stat[4] == "NF":
-
-            state = "Node failure"
-
-        elif stat[4] == "PD":
-
-            state = "Pending"
-
-        elif stat[4] == "PR":
-
-            state = "Preempted"
-
-        elif stat[4] == "R":
-
-            state = "Running"
-
-        elif stat[4] == "S":
-
-            state = "Suspended"
-
-        elif stat[4] == "TO":
-
-            state = "Timed out"
+        shellout = SHELLWRAPPERS.sendtossh(host, ["squeue -u " + host["user"]])
 
     except EX.SSHError:
 
-        state = "Finished"
+        raise
 
-    return state
+    # PBS will return a table, so split lines into a list.
+    stdout = shellout[0].split("\n")
+
+    # Now match the jobid against the list of jobs, extract the line and split
+    # it into a list
+    job = [line for line in stdout if jobid in line][0].split()
+
+    # Look up the job state and convert it to Longbow terminology.
+    try:
+
+        jobstate = states[job[4]]
+
+    except KeyError:
+
+        jobstate = "Finished"
+
+    return jobstate
 
 
 def submit(host, jobname, jobs):

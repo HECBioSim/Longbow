@@ -60,9 +60,9 @@ def file_parser(filename, path, files, substitutions=None):
         else:
 
             raise EX.RequiredinputError(
-                "It appears that the user is trying to refer to a file %s "
+                "It appears that the user is trying to refer to a file '{0}' "
                 "using an explicit path. Please just provide the names of "
-                "input files" % filename)
+                "input files".format(filename))
 
     # elif the file is in the given path
     elif os.path.isfile(os.path.join(path, filename)) is True:
@@ -73,8 +73,8 @@ def file_parser(filename, path, files, substitutions=None):
     else:
 
         raise EX.RequiredinputError(
-            "It appears the file %s is not present in the expected"
-            " directory." % filename)
+            "It appears the file '{0}' is not present in the expected "
+            "directory.".format(filename))
 
     # Now look for references to other files in the input file if not done so
     # already
@@ -95,7 +95,7 @@ def file_parser(filename, path, files, substitutions=None):
 
         except IOError:
 
-            EX.RequiredinputError("Can't read the %s file:" % addfile)
+            EX.RequiredinputError("Can't read the file '{0}'".format(addfile))
 
         if fil:
 

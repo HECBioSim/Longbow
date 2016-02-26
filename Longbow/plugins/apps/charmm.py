@@ -94,7 +94,7 @@ def file_parser(filename, path, files, substitutions=None):
 
         except IOError:
 
-            EX.RequiredinputError("Can't read the %s file:" % addfile)
+            EX.RequiredinputError("Can't read the file '{0}'".format(addfile))
 
         if fil:
 

@@ -19,7 +19,23 @@
 # You should have received a copy of the GNU General Public License
 # along with Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""."""
+"""
+This module contains the code to interact with the various flavours of
+PBS/Torque.
+
+delete(host, job)
+    A method for deleting a single job.
+
+prepare(hosts, jobname, jobs)
+    The method for creating the job submission file for a single job.
+
+status(host, jobid)
+    The method for checking the status of a job.
+
+submit(hosts, jobname, jobs)
+    The method for submitting a single job.
+
+"""
 
 import logging
 import os
@@ -96,17 +112,16 @@ def prepare(hosts, jobname, jobs):
         # if no accountflag is provided use the default
         if hosts[jobs[jobname]["resource"]]["accountflag"] is "":
 
-            jobfile.write("#PBS -A " +
-                          hosts[jobs[jobname]["resource"]]["account"] +
-                          "\n")
+            jobfile.write(
+                "#PBS -A " + hosts[jobs[jobname]["resource"]]["account"] +
+                "\n")
 
         # else use the accountflag provided
         else:
 
-            jobfile.write("#PBS " +
-                          hosts[jobs[jobname]["resource"]]["accountflag"] +
-                          " " + hosts[jobs[jobname]["resource"]]["account"] +
-                          "\n")
+            jobfile.write(
+                "#PBS " + hosts[jobs[jobname]["resource"]]["accountflag"] +
+                " " + hosts[jobs[jobname]["resource"]]["account"] + "\n")
 
     cpn = hosts[jobs[jobname]["resource"]]["corespernode"]
 
@@ -155,11 +170,10 @@ def prepare(hosts, jobname, jobs):
         jobfile.write("#PBS -r y\n")
 
     # Set some environment variables for PBS.
-    jobfile.write("\n"
-                  "export PBS_O_WORKDIR=$(readlink -f $PBS_O_WORKDIR)\n"
-                  "cd $PBS_O_WORKDIR\n"
-                  "export OMP_NUM_THREADS=1\n"
-                  "\n")
+    jobfile.write(
+        "\n" + "export PBS_O_WORKDIR=$(readlink -f $PBS_O_WORKDIR)\n"
+        "cd $PBS_O_WORKDIR\n"
+        "export OMP_NUM_THREADS=1\n\n")
 
     # Load up modules if required.
     if jobs[jobname]["modules"] is not "":
@@ -185,9 +199,10 @@ def prepare(hosts, jobname, jobs):
     # Job array
     elif int(jobs[jobname]["replicates"]) > 1:
 
-        jobfile.write("basedir=$PBS_O_WORKDIR \n"
-                      "cd $basedir/rep${PBS_ARRAY_INDEX}/\n\n" +
-                      mpirun + " " + jobs[jobname]["executableargs"] + "\n")
+        jobfile.write(
+            "basedir=$PBS_O_WORKDIR \n"
+            "cd $basedir/rep${PBS_ARRAY_INDEX}/\n\n" +
+            mpirun + " " + jobs[jobname]["executableargs"] + "\n")
 
     # Close the file (housekeeping)
     jobfile.close()
@@ -202,79 +217,57 @@ def status(host, jobid):
 
     """Method for querying job."""
 
-    state = ""
+    states = {
+        "B": "Subjob(s) Running",
+        "E": "Exiting",
+        "H": "Held",
+        "M": "Job Moved to Server",
+        "Q": "Queued",
+        "R": "Running",
+        "S": "Suspended",
+        "T": "Job Moved to New Location",
+        "U": "Cycle-Harvesting Job is Suspended Due to Keyboard Activity",
+        "W": "Waiting for Start Time",
+        "X": "Subjob Completed Execution/Has Been Deleted"
+        }
+
+    jobstate = ""
 
     try:
 
-        shellout = SHELLWRAPPERS.sendtossh(host, ["qstat -u " + host["user"] +
-                                                  " | grep " + jobid])
-
-        stat = shellout[0].split()
-
-        if stat[9] == "H":
-
-            state = "Held"
-
-        elif stat[9] == "Q":
-
-            state = "Queued"
-
-        elif stat[9] == "R":
-
-            state = "Running"
-
-        elif stat[9] == "B":
-
-            state = "Subjob(s) running"
-
-        elif stat[9] == "E":
-
-            state = "Exiting"
-
-        elif stat[9] == "M":
-
-            state = "Job moved to server"
-
-        elif stat[9] == "S":
-
-            state = "Suspended"
-
-        elif stat[9] == "T":
-
-            state = "Job moved to new location"
-
-        elif stat[9] == "U":
-
-            state = ("Cycle-harvesting job is suspended due to keyboard " +
-                     "activity")
-
-        elif stat[9] == "W":
-
-            state = "Waiting for start time"
-
-        elif stat[9] == "X":
-
-            state = "Subjob completed execution/has been deleted"
+        shellout = SHELLWRAPPERS.sendtossh(host, ["qstat -u " + host["user"]])
 
     except EX.SSHError:
 
-        state = "Finished"
+        raise
 
-    return state
+    # PBS will return a table, so split lines into a list.
+    stdout = shellout[0].split("\n")
+
+    # Now match the jobid against the list of jobs, extract the line and split
+    # it into a list
+    job = [line for line in stdout if jobid in line][0].split()
+
+    # Look up the job state and convert it to Longbow terminology.
+    try:
+
+        jobstate = states[job[9]]
+
+    except KeyError:
+
+        jobstate = "Finished"
+
+    return jobstate
 
 
 def submit(host, jobname, jobs):
 
     """Method for submitting a job."""
 
-    # Set the path to remoteworkdir/jobnamexxxxx
-    path = jobs[jobname]["destdir"]
-
     # Change into the working directory and submit the job.
-    cmd = ["cd " + path + "\n", "qsub " + jobs[jobname]["subfile"] +
-           " | grep -P -o '[0-9]*(?=.)'"]
+    cmd = ["cd " + jobs[jobname]["destdir"] + "\n",
+           "qsub " + jobs[jobname]["subfile"]]
 
-    # Process the submit
     try:
 
         shellout = SHELLWRAPPERS.sendtossh(host, cmd)[0]
@@ -331,7 +324,10 @@ def submit(host, jobname, jobs):
 
         else:
 
-            raise EX.JobsubmitError("Something went wrong when submitting.")
+            raise EX.JobsubmitError(
+                "Something went wrong when submitting. The following output "
+                "came back from the SSH call:\nstdout: {0}\nstderr {1}"
+                .format(shellout[0], shellout[1]))
 
     output = shellout.rstrip("\r\n")
 

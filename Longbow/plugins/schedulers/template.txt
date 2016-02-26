@@ -20,7 +20,7 @@ def delete(host, job):                                          # IMPORTANT
 
     """Method for deleting job."""
 
-    LOG.info("Deleting the job with id: %s", jobid)
+    LOG.info("Deleting the job with id '{0}'".format(jobid))
 
     ########################################################
     #                                                      #
@@ -40,7 +40,7 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
 
     """Create the LSF jobfile ready for submitting jobs"""
 
-    LOG.info("  Creating submit file for job: %s", jobname)
+    LOG.info("Creating submit file for job '{0}'".format(jobname))
     
     # Open file for script.
     lsffile = os.path.join(jobs[jobname]["localworkdir"], "submit.extension")
@@ -95,7 +95,7 @@ def submit(host, jobname, jobs):                                # IMPORTANT
     #                                                      #
     ########################################################    
     
-    LOG.info("  Job: %s submitted with id: %s", jobname, output)
+    LOG.info("Job '{0}' submitted with id '{1}'"format(jobname, output))
 
     jobs[jobname]["jobid"] = output                             # IMPORTANT
     

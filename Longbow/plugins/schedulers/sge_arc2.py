@@ -168,32 +168,39 @@ def status(host, jobid):
 
     """Method for querying job."""
 
-    state = ""
+    states = {
+        "h": "Held",
+        "qw": "Queued",
+        "r": "Running"
+        }
+
+    jobstate = ""
 
     try:
 
-        shellout = SHELLWRAPPERS.sendtossh(host, ["qstat -u " + host["user"] +
-                                                  "| grep " + jobid])
-
-        stat = shellout[0].split()
-
-        if stat[4] == "h":
-
-            state = "Held"
-
-        elif stat[4] == "qw":
-
-            state = "Queued"
-
-        elif stat[4] == "r":
-
-            state = "Running"
+        shellout = SHELLWRAPPERS.sendtossh(host, ["qstat -u " + host["user"]])
 
     except EX.SSHError:
 
-        state = "Finished"
+        raise
 
-    return state
+    # PBS will return a table, so split lines into a list.
+    stdout = shellout[0].split("\n")
+
+    # Now match the jobid against the list of jobs, extract the line and split
+    # it into a list
+    job = [line for line in stdout if jobid in line][0].split()
+
+    # Look up the job state and convert it to Longbow terminology.
+    try:
+
+        jobstate = states[job[4]]
+
+    except KeyError:
+
+        jobstate = "Finished"
+
+    return jobstate
 
 
 def submit(host, jobname, jobs):
