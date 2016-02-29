@@ -110,7 +110,7 @@ def main(files, parameters):
     # Handle the errors and Longbow exit.
     except Exception as err:
 
-        #TODO: more resilience could be built in here after restarts are
+        # TODO: more resilience could be built in here after restarts are
         # implemented
         pass
 

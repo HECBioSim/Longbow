@@ -38,6 +38,7 @@ submit(hosts, jobname, jobs)
 import logging                                                  # IMPORTANT
 import math
 import os
+import re
 
 try:
 
@@ -225,20 +226,24 @@ def submit(host, jobname, jobs):
     path = jobs[jobname]["destdir"]
 
     # Change into the working directory and submit the job.
-    cmd = ["cd " + path + "\n" + "sbatch " + jobs[jobname]["subfile"] +
-           "| tail -1 | awk '{print $4}'"]
+    cmd = ["cd " + path + "\n",
+           "sbatch " + jobs[jobname]["subfile"]]
 
     # Process the submit
     try:
 
-        shellout = SHELLWRAPPERS.sendtossh(host, cmd)[0]
+        shellout = SHELLWRAPPERS.sendtossh(host, cmd)
 
     except EX.SSHError:
 
-        raise EX.JobsubmitError("  Something went wrong when submitting.")
+        raise EX.JobsubmitError(
+            "Something went wrong when submitting. The following output "
+            "came back from the SSH call:\nstdout: {0}\nstderr {1}"
+            .format(shellout[0], shellout[1]))
 
-    output = shellout.rstrip("\r\n")
+    # Do the regex in Longbow rather than in the subprocess.
+    jobid = re.search(r'\d+', shellout[0]).group()
 
-    LOG.info("Job '{0}' submitted with id '{1}'" .format(jobname, output))
+    LOG.info("Job '{0}' submitted with id '{1}'" .format(jobname, jobid))
 
-    jobs[jobname]["jobid"] = output                             # IMPORTANT
+    jobs[jobname]["jobid"] = jobid

@@ -37,8 +37,10 @@ submit(hosts, jobname, jobs)
 """
 
 import logging
-import os
 import math
+import os
+import re
+
 
 try:
 
@@ -269,7 +271,7 @@ def submit(host, jobname, jobs):
 
     try:
 
-        shellout = SHELLWRAPPERS.sendtossh(host, cmd)[0]
+        shellout = SHELLWRAPPERS.sendtossh(host, cmd)
 
     except EX.SSHError as inst:
 
@@ -328,8 +330,9 @@ def submit(host, jobname, jobs):
                 "came back from the SSH call:\nstdout: {0}\nstderr {1}"
                 .format(shellout[0], shellout[1]))
 
-    output = shellout.rstrip("\r\n")
+    # Do the regex in Longbow rather than in the subprocess.
+    jobid = re.search(r'\d+', shellout[0]).group()
 
-    LOG.info("Job '{0}' submitted with id '{1}'" .format(jobname, output))
+    LOG.info("Job '{0}' submitted with id '{1}'" .format(jobname, jobid))
 
-    jobs[jobname]["jobid"] = output
+    jobs[jobname]["jobid"] = jobid
