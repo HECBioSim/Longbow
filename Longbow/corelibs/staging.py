@@ -94,11 +94,15 @@ def stage_upstream(hosts, jobs):
 
             SHELLWRAPPERS.sendtossh(host, ["mkdir -p " + dst + "\n"])
 
-            LOG.info("mkdir -p '{0}' passed.".format(dst))
+            LOG.info("Creation of directory '{0}' - successful.".format(dst))
 
         except EX.SSHError:
 
-            LOG.error("mkdir -p '{0}' failed.".format(dst))
+            LOG.error(
+                "Creation of directory '{0}' - failed. Make sure that you "
+                "have write permissions at the top level of the path given."
+                .format(dst))
+
             raise
 
         # Transfer files upstream.
@@ -111,8 +115,10 @@ def stage_upstream(hosts, jobs):
 
         except EX.RsyncError:
 
-            raise EX.StagingError("Could not stage file '{0}' upstream"
-                                  .format(src))
+            raise EX.StagingError(
+                "Could not stage file '{0}' upstream, make sure that you have "
+                "supplied the correct remote working directory and that you "
+                "have chosen a path that you can write to.".format(src))
 
     LOG.info("Staging files upstream - complete.")
 

@@ -35,7 +35,7 @@ submit(hosts, jobname, jobs)
 
 """
 
-import logging                                                  # IMPORTANT
+import logging
 import math
 import os
 import re
