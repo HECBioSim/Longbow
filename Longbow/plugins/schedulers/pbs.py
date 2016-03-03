@@ -245,16 +245,16 @@ def status(host, jobid):
     # PBS will return a table, so split lines into a list.
     stdout = shellout[0].split("\n")
 
-    # Now match the jobid against the list of jobs, extract the line and split
-    # it into a list
-    job = [line for line in stdout if jobid in line][0].split()
-
-    # Look up the job state and convert it to Longbow terminology.
     try:
 
+        # Now match the jobid against the list of jobs, extract the line and
+        # split it into a list
+        job = [line for line in stdout if jobid in line][0].split()
+
+        # Look up the job state and convert it to Longbow terminology.
         jobstate = states[job[9]]
 
-    except KeyError:
+    except (IndexError, KeyError):
 
         jobstate = "Finished"
 
@@ -330,9 +330,18 @@ def submit(host, jobname, jobs):
                 "came back from the SSH call:\nstdout: {0}\nstderr {1}"
                 .format(shellout[0], shellout[1]))
 
-    # Do the regex in Longbow rather than in the subprocess.
-    jobid = re.search(r'\d+', shellout[0]).group()
+    try:
 
-    LOG.info("Job '{0}' submitted with id '{1}'" .format(jobname, jobid))
+        # Do the regex in Longbow rather than in the subprocess.
+        jobid = re.search(r'\d+', shellout[0]).group()
+
+    except AttributeError:
+
+        raise EX.JobsubmitError(
+            "Could not detect the job id during submission, this means that "
+            "either the submission failed in an unexpected way, or that "
+            "Longbow could not understand the returned information.")
+
+    LOG.info("Job '{0}' submitted with id '{1}'".format(jobname, jobid))
 
     jobs[jobname]["jobid"] = jobid

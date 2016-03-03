@@ -435,8 +435,7 @@ def submit(hosts, jobs):
 
         except EX.JobsubmitError as err:
 
-            LOG.error("Submitting job '{0}' failed with message - '{1}'"
-                      .format(job, err))
+            LOG.error(err)
 
             jobs[job]["laststatus"] = "Submit Error"
 

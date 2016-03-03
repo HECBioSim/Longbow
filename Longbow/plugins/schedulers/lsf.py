@@ -230,8 +230,17 @@ def submit(host, jobname, jobs):
             "came back from the SSH call:\nstdout: {0}\nstderr {1}"
             .format(shellout[0], shellout[1]))
 
-    # Do the regex in Longbow rather than in the subprocess.
-    jobid = re.search(r'\d+', shellout[0]).group()
+    try:
+
+        # Do the regex in Longbow rather than in the subprocess.
+        jobid = re.search(r'\d+', shellout[0]).group()
+
+    except AttributeError:
+
+        raise EX.JobsubmitError(
+            "Could not detect the job id during submission, this means that "
+            "either the submission failed in an unexpected way, or that "
+            "Longbow could not understand the returned information.")
 
     LOG.info("Job '{0}' submitted with id '{1}'" .format(jobname, jobid))
 

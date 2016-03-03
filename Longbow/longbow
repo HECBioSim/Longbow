@@ -67,36 +67,41 @@ LOG = logging.getLogger("Longbow")
 
 def main(files, parameters):
 
-    """This is the main for a console based app, this is designed to run in a
+    """
+    This is the main for a console based app, this is designed to run in a
     python/unix shell and is thus the main choice for headless machines like a
-    local cluster or for users that don't require a GUI."""
+    local cluster or for users that don't require a GUI.
+    """
 
     # A failure at this level will result in jobs being killed off before
     # escalating the exception to trigger graceful exit.
+
+    # Load configurations and initialise Longbow data structures.
+    hosts, jobs = CONFIGURATION.processconfigs(files["hosts"], files["job"],
+                                               parameters)
+
+    # Test all connection/s specified in the job configurations
+    SHELLWRAPPERS.testconnections(hosts, jobs)
+
+    # Test the hosts listed in the jobs configuration file have their
+    # scheduler environments listed, if not then test and save them.
+    SCHEDULING.testenv(files["hosts"], hosts, jobs)
+
+    # Test that for the applications listed in the job configuration
+    # file are available and that the executable is present.
+    APPLICATIONS.testapp(hosts, jobs)
+
+    # Process the jobs command line arguments and find files for
+    # staging.
+    APPLICATIONS.processjobs(jobs)
+
+    # Create jobfile and add it to the list of files that needs
+    # uploading.
+    SCHEDULING.prepare(hosts, jobs)
+
+    # Exceptions that occur before here don't require cleanup operations before
+    # reporting up.
     try:
-
-        # Load configurations and initialise Longbow data structures.
-        hosts, jobs = CONFIGURATION.processconfigs(
-            files["hosts"], files["job"], parameters)
-
-        # Test all connection/s specified in the job configurations
-        SHELLWRAPPERS.testconnections(hosts, jobs)
-
-        # Test the hosts listed in the jobs configuration file have their
-        # scheduler environments listed, if not then test and save them.
-        SCHEDULING.testenv(files["hosts"], hosts, jobs)
-
-        # Test that for the applications listed in the job configuration
-        # file are available and that the executable is present.
-        APPLICATIONS.testapp(hosts, jobs)
-
-        # Process the jobs command line arguments and find files for
-        # staging.
-        APPLICATIONS.processjobs(jobs)
-
-        # Create jobfile and add it to the list of files that needs
-        # uploading.
-        SCHEDULING.prepare(hosts, jobs)
 
         # Stage all of the job files along with the scheduling script.
         STAGING.stage_upstream(hosts, jobs)
@@ -107,17 +112,60 @@ def main(files, parameters):
         # Monitor all jobs.
         SCHEDULING.monitor(hosts, jobs)
 
-    # Handle the errors and Longbow exit.
-    except Exception as err:
+        # Clean up the remote working directory.
+        try:
 
-        # TODO: more resilience could be built in here after restarts are
-        # implemented
-        pass
+            STAGING.cleanup(hosts, jobs)
+
+        except NameError:
+
+            pass
+
+    # If the user interrupts Longbow at this stage then it they are aborting
+    # the jobs, so kill off any running jobs and then remove the job
+    # directories. Otherwise just raise all other errors to the top level where
+    # in future we can attempt to recover.
+    except (SystemExit, KeyboardInterrupt):
+
+        LOG.info(
+            "User interrupt detected, kill any queued or running jobs and "
+            "removed any files staged.")
+
+        # If we are exiting at this stage then we need to kill off
+        for job in jobs:
+
+            if "jobid" in jobs[job]:
+
+                # If job is not finished delete and stage.
+                if (jobs[job]["laststatus"] != "Finished" and
+                        jobs[job]["laststatus"] != "Submit Error"):
+
+                    # Kill it.
+                    SCHEDULING.delete(hosts, jobs, job)
+
+                    # Transfer the directories as they are.
+                    STAGING.stage_downstream(hosts, jobs, job)
+
+                # Job is finished then just stage.
+                elif jobs[job]["laststatus"] != "Submit Error":
+
+                    # Transfer the directories as they are.
+                    STAGING.stage_downstream(hosts, jobs, job)
+
+        # Cleanup the remote working directory.
+        try:
+
+            STAGING.cleanup(hosts, jobs)
+
+        except NameError:
+
+            pass
 
 
 if __name__ == "__main__":
 
-    """Main entry point for the Longbow application.
+    """
+    Main entry point for the Longbow application.
 
     To run Longbow, simply write longbow before the command you wish to
     be executed using your chosen simulation package e.g.:
@@ -550,7 +598,7 @@ if __name__ == "__main__":
     # If the path isn't absolute then create the log in CWD.
     if os.path.isabs(FILES["log"]) is False:
 
-        FILES["log"] = os.path.join(os.getcwd, FILES["log"])
+        FILES["log"] = os.path.join(os.getcwd(), FILES["log"])
 
     # In debug mode we would like more information and also to switch on the
     # debug messages, otherwise stick to information level logging.
@@ -558,13 +606,14 @@ if __name__ == "__main__":
 
         LOGFORMAT = logging.Formatter('%(asctime)s - %(levelname)-8s - '
                                       '%(name)s - %(message)s',
-                                      "%Y-%m-%d %H:%M:%S")
+                                      '%Y-%m-%d %H:%M:%S')
 
         LOG.setLevel(logging.DEBUG)
 
     else:
 
-        LOGFORMAT = logging.Formatter('%(asctime)s - %(message)s')
+        LOGFORMAT = logging.Formatter('%(asctime)s - %(message)s',
+                                      '%Y-%m-%d %H:%M:%S')
 
         LOG.setLevel(logging.INFO)
 

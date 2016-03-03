@@ -273,23 +273,6 @@ class RsyncError(Exception):
         self.stderr = shellout[1]
 
 
-class SCPError(Exception):
-
-    """
-    SCP exception
-    """
-
-    def __init__(self, message, shellout):
-
-        # Call the base class constructor.
-        super(SCPError, self).__init__(message)
-
-        # Bind the standard outputs.
-        self.errorcode = shellout[2]
-        self.stdout = shellout[0]
-        self.stderr = shellout[1]
-
-
 class SSHError(Exception):
 
     """
