@@ -162,6 +162,15 @@ def main(files, parameters):
             pass
 
 
+def recover():
+
+    """
+    #
+    """
+
+    pass
+
+
 if __name__ == "__main__":
 
     """
@@ -187,6 +196,7 @@ if __name__ == "__main__":
     --version
     --help
     --examples
+    --recover
 
     Read the documentation at http://www.hecbiosim.ac.uk/ for more information
     on how to setup and run jobs using Longbow.
@@ -210,6 +220,7 @@ if __name__ == "__main__":
         "log": ""
     }
 
+    RECOVERY = False
     MODE = ""
 
     # Initialise parameters that could alternatively be provided in
@@ -225,32 +236,34 @@ if __name__ == "__main__":
 
     # Specify all recognised longbow arguments
     ALLLONGBOWARGS = [
+        "-about",
+        "--about",
+        "-debug",
+        "--debug",
+        "-examples",
+        "--examples",
+        "-h",
+        "-help",
+        "--help",
         "-hosts",
         "--hosts",
         "-job",
         "--job",
+        "-jobname",
+        "--jobname",
         "-log",
         "--log",
+        "-recover"
+        "--recover"
         "-resource",
         "--resource",
         "-replicates",
         "--replicates",
-        "-jobname",
-        "--jobname",
-        "-debug",
-        "--debug",
+        "-V",
         "-verbose",
         "--verbose",
-        "-about",
-        "--about",
         "-version",
-        "--version",
-        "-V",
-        "-help",
-        "--help",
-        "-h",
-        "-examples"
-        "--examples"
+        "--version"
     ]
 
     # Initialise
@@ -392,8 +405,9 @@ if __name__ == "__main__":
               "\n"
               "--debug                   : additional output to assist "
               "debugging\n"
-              "--verboe                  : additional run-time info to be "
+              "--verbose                 : additional run-time info to be "
               "output\n"
+              "--recover                 : Launches the recovery mode\n"
               "--about                   : prints Longbow description\n"
               "--version, -V             : prints Longbow version number\n"
               "--help, -h                : prints Longbow help\n"
@@ -499,16 +513,21 @@ if __name__ == "__main__":
 
             FILES["job"] = LONGBOWARGS[POSITION + 1]
 
-    # Store the DEBUG parameter
-    if LONGBOWARGS.count("-debug") == 1 or LONGBOWARGS.count("--debug") == 1:
+    if (LONGBOWARGS.count("-recover") == 1 or
+            LONGBOWARGS.count("--recover") == 1):
 
-        MODE = "debug"
+        RECOVERY = True
 
     # Store the VERBOSE parameter
     if (LONGBOWARGS.count("-verbose") == 1 or
             LONGBOWARGS.count("--verbose") == 1):
 
         MODE = "verbose"
+
+    # Store the DEBUG parameter
+    if LONGBOWARGS.count("-debug") == 1 or LONGBOWARGS.count("--debug") == 1:
+
+        MODE = "debug"
 
     # Store the resource name
     if (LONGBOWARGS.count("-resource") == 1 or
@@ -726,8 +745,14 @@ if __name__ == "__main__":
         # ---------------------------------------------------------------------
         # Call one of the main methods at the top level of the library.
 
-        # Longbow main library method.
-        main(FILES, PARAMETERS)
+        # Are we trying to recover or are we running as normal.
+        if RECOVERY is False:
+
+            main(FILES, PARAMETERS)
+
+        else:
+
+            recover(PARAMETERS)
 
     except Exception as ERR:
 
