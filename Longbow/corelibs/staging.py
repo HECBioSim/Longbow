@@ -204,6 +204,7 @@ def cleanup(hosts, jobs):
                 SHELLWRAPPERS.remotedelete(hosts[jobs[job]["resource"]], path)
 
             else:
+
                 raise EX.RemoteworkdirError(
                     "Subdirectory of remoteworkdir not yet created")
 
@@ -229,5 +230,9 @@ def cleanup(hosts, jobs):
 
             LOG.debug("For job '{0}', cannot delete directory '{1}' - "
                       "skipping.".format(job, path))
+
+        except NameError:
+
+            pass
 
     LOG.info("Cleaning up complete.")
