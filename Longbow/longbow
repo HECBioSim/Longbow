@@ -24,12 +24,20 @@
 This module contains the Longbow application entry point and the high level
 library methods. The following gives a summary of the methods available:
 
-main(files, cwd, parameters)
+main(files, parameters)
     This method is the upper level method of the Longbow library. Users
     interested in integrating Longbow into their applications without fine
     grain control may invoke this method, along with creating the data
     structures that the main entry point of the application would normally
     create.
+
+recover(files)
+    This method is for attempting to recover a Longbow session. This should be
+    used in cases where jobs have been submitted to the host and somehow
+    Longbow failed to stay connected. This will try to take the recovery file,
+    written shortly after submission to recover the whole session. Jobs that
+    are no longer in the queue will be marked as finished and will be staged as
+    normal.
 """
 
 import os
@@ -69,18 +77,16 @@ def main(files, parameters):
 
     """
     This method is the main entry point of the Longbow library. This method,
-    is a could place to link against Longbow if a developer does not want to
+    is a good place to link against Longbow if a developer does not want to
     link against the executable in subprocess, or if low level linking is
     unnecessary.
 
-    files (dictionary) - This dictionary contains the paths of files
-                         (specifically the hosts and job file).
+    Required arguments are:
 
-    parameters (dictionary) - This dictionary contains parameters that could
-                              optionally be entered on the command-line, this
-                              is a good place for developers to feed in
-                              parameters for single jobs without having to use
-                              a job file.
+    files (dictionary): A dictionary of containing the hosts, job and log file
+                        paths.
+
+    parameters (dictionary): A dictionary containing the parameter overrides.
     """
 
     # A failure at this level will result in jobs being killed off before
@@ -119,17 +125,15 @@ def main(files, parameters):
         # Submit all jobs.
         SCHEDULING.submit(hosts, jobs)
 
+        # Write a recovery file so if Longbow crashes or gets disconnected
+        # somehow a user can recover or download the data if all jobs finished.
+        CONFIGURATION.saveconfigs(
+            os.path.join(os.getcwd(), "recoveryfile"), jobs)
+
         # Monitor all jobs.
         SCHEDULING.monitor(hosts, jobs)
 
-        # Clean up the remote working directory.
-        try:
-
-            STAGING.cleanup(hosts, jobs)
-
-        except NameError:
-
-            pass
+        STAGING.cleanup(hosts, jobs)
 
     # If the user interrupts Longbow at this stage then it they are aborting
     # the jobs, so kill off any running jobs and then remove the job
@@ -162,14 +166,53 @@ def main(files, parameters):
                     # Transfer the directories as they are.
                     STAGING.stage_downstream(hosts, jobs, job)
 
-        # Cleanup the remote working directory.
-        try:
+        STAGING.cleanup(hosts, jobs)
 
-            STAGING.cleanup(hosts, jobs)
 
-        except NameError:
+def recover(files):
 
-            pass
+    """
+    This method is for attempting to recover a Longbow session. This should be
+    used in cases where jobs have been submitted to the host and somehow
+    Longbow failed to stay connected. This will try to take the recovery file,
+    written shortly after submission to recover the whole session. Jobs that
+    are no longer in the queue will be marked as finished and will be staged as
+    normal.
+
+    Required arguments are:
+
+    files (dictionary): A dictionary of containing the hosts, job and log file
+                        paths.
+    """
+
+    # Load the hosts file, shouldn't need processing here as all information
+    # in recovery files have been through it already
+    _, _, hosts = CONFIGURATION.loadconfigs(files["hosts"])
+
+    LOG.info("Attempting to find the recovery file")
+
+    if os.path.isfile(os.path.join(os.getcwd(), "recoveryfile")):
+
+        LOG.info("Recovery file found at '{0}'".format(
+            os.path.join(os.getcwd(), "recoveryfile")))
+
+        _, _, jobs = CONFIGURATION.loadconfigs(
+            os.path.join(os.getcwd(), "recoveryfile"))
+
+    else:
+
+        raise EX.RequiredinputError(
+            "Recovery file could not be found at '{0}' make sure you are "
+            "running the recovery from the job directory that was initially "
+            "used to launch the failed job"
+            .format(os.path.join(os.getcwd(), "recoveryfile")))
+
+    # Rejoin at the monitoring stage. This will assume that all jobs that are
+    # no longer in the queue have completed.
+    SCHEDULING.monitor(hosts, jobs)
+
+    # Cleanup the remote working directory.
+    STAGING.cleanup(hosts, jobs)
 
 
 if __name__ == "__main__":
@@ -197,6 +240,7 @@ if __name__ == "__main__":
     --version
     --help
     --examples
+    --recover
 
     Read the documentation at http://www.hecbiosim.ac.uk/ for more information
     on how to setup and run jobs using Longbow.
@@ -220,6 +264,7 @@ if __name__ == "__main__":
         "log": ""
     }
 
+    RECOVER = False
     MODE = ""
 
     # Initialise parameters that could alternatively be provided in
@@ -230,37 +275,38 @@ if __name__ == "__main__":
         "jobname": "",
         "executable": "",
         "executableargs": "",
-        "cwd": ""
     }
 
     # Specify all recognised longbow arguments
     ALLLONGBOWARGS = [
+        "-about",
+        "--about",
+        "-debug",
+        "--debug",
+        "-examples",
+        "--examples",
+        "-h",
+        "-help",
+        "--help",
         "-hosts",
         "--hosts",
         "-job",
         "--job",
+        "-jobname",
+        "--jobname",
         "-log",
         "--log",
+        "-recover"
+        "--recover"
         "-resource",
         "--resource",
         "-replicates",
         "--replicates",
-        "-jobname",
-        "--jobname",
-        "-debug",
-        "--debug",
+        "-V",
         "-verbose",
         "--verbose",
-        "-about",
-        "--about",
         "-version",
-        "--version",
-        "-V",
-        "-help",
-        "--help",
-        "-h",
-        "-examples"
-        "--examples"
+        "--version"
     ]
 
     # Initialise
@@ -402,8 +448,9 @@ if __name__ == "__main__":
               "\n"
               "--debug                   : additional output to assist "
               "debugging\n"
-              "--verboe                  : additional run-time info to be "
+              "--verbose                 : additional run-time info to be "
               "output\n"
+              "--recover                 : Launches the recovery mode\n"
               "--about                   : prints Longbow description\n"
               "--version, -V             : prints Longbow version number\n"
               "--help, -h                : prints Longbow help\n"
@@ -509,16 +556,21 @@ if __name__ == "__main__":
 
             FILES["job"] = LONGBOWARGS[POSITION + 1]
 
-    # Store the DEBUG parameter
-    if LONGBOWARGS.count("-debug") == 1 or LONGBOWARGS.count("--debug") == 1:
+    if (LONGBOWARGS.count("-recover") == 1 or
+            LONGBOWARGS.count("--recover") == 1):
 
-        MODE = "debug"
+        RECOVER = True
 
     # Store the VERBOSE parameter
     if (LONGBOWARGS.count("-verbose") == 1 or
             LONGBOWARGS.count("--verbose") == 1):
 
         MODE = "verbose"
+
+    # Store the DEBUG parameter
+    if LONGBOWARGS.count("-debug") == 1 or LONGBOWARGS.count("--debug") == 1:
+
+        MODE = "debug"
 
     # Store the resource name
     if (LONGBOWARGS.count("-resource") == 1 or
@@ -591,7 +643,6 @@ if __name__ == "__main__":
 
     PARAMETERS["executable"] = EXECUTABLE
     PARAMETERS["executableargs"] = EXECARGS
-    PARAMETERS["cwd"] = os.getcwd()
 
     # -------------------------------------------------------------------------
     # Set up logging.
@@ -731,13 +782,22 @@ if __name__ == "__main__":
                             os.path.dirname(os.path.realpath(__file__))))
 
         LOG.info("hosts file is: '{0}'".format(FILES["hosts"]))
-        LOG.info("Initialisation complete.")
 
         # ---------------------------------------------------------------------
         # Call one of the main methods at the top level of the library.
 
-        # Longbow main library method.
-        main(FILES, PARAMETERS)
+        # Are we trying to recover or are we running as normal.
+        if RECOVER is False:
+
+            LOG.info("Initialisation complete.")
+
+            main(FILES, PARAMETERS)
+
+        else:
+
+            LOG.info("Entering recovery mode.")
+
+            recover(FILES)
 
     except Exception as ERR:
 

@@ -61,6 +61,7 @@ saveconfigs(configfile, params)
 
 import logging
 import re
+import os
 
 # Depending on how Longbow is installed/utilised the import will be slightly
 # different, this should handle both cases.
@@ -399,7 +400,7 @@ def processconfigs(hostfile, jobfile, params):
         # If the local working directory has not been set, then default to cwd
         if jobs[job]["localworkdir"] is "":
 
-            jobs[job]["localworkdir"] = params["cwd"]
+            jobs[job]["localworkdir"] = os.getcwd()
 
         # Fix for python 3 where basestring is now str.
         try:
