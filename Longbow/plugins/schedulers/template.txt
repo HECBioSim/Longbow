@@ -1,9 +1,4 @@
-import logging                                                  # IMPORTANT
-
-#------------------------------------------------------------------------------
-# Boiler plate for logging.
-
-LOG = logging.getLogger("Longbow.plugins.schedulers.template")  # IMPORTANT
+# Imports should go here
 
 #------------------------------------------------------------------------------
 # For schedulers a unique string to identify the scheduler should go here.
@@ -20,8 +15,6 @@ def delete(host, job):                                          # IMPORTANT
 
     """Method for deleting job."""
 
-    LOG.info("Deleting the job with id '{0}'".format(jobid))
-
     ########################################################
     #                                                      #
     #                                                      #
@@ -29,8 +22,6 @@ def delete(host, job):                                          # IMPORTANT
     #                                                      #
     #                                                      #
     ########################################################
-
-    LOG.info("  Deleted successfully")
 
 
 #------------------------------------------------------------------------------
@@ -40,15 +31,13 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
 
     """Create the LSF jobfile ready for submitting jobs"""
 
-    LOG.info("Creating submit file for job '{0}'".format(jobname))
-    
     # Open file for script.
     lsffile = os.path.join(jobs[jobname]["localworkdir"], "submit.extension")
     jobfile = open(lsffile, "w+")
 
     # Write the script
     jobfile.write("#!/bin/bash --login\n")
-    
+
     ########################################################
     #                                                      #
     #                                                      #
@@ -56,7 +45,7 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
     #                                                      #
     #                                                      #
     ########################################################
-    
+
     # Append submitfile to list of files ready for staging.
     jobs[jobname]["subfile"] = "submit.extension"                     # IMPORTANT
 
@@ -77,12 +66,11 @@ def status(host, jobid):                                        # IMPORTANT
     ########################################################    
     
     return state (return the state of job)                      # IMPORTANT
-    
-    
-    
+
+
 #------------------------------------------------------------------------------
 # Submit method
-    
+
 def submit(host, jobname, jobs):                                # IMPORTANT
 
     """Method for submitting job."""
@@ -94,9 +82,5 @@ def submit(host, jobname, jobs):                                # IMPORTANT
     #                                                      #
     #                                                      #
     ########################################################    
-    
-    LOG.info("Job '{0}' submitted with id '{1}'"format(jobname, output))
 
     jobs[jobname]["jobid"] = output                             # IMPORTANT
-    
-    

@@ -146,6 +146,15 @@ class JobsubmitError(Exception):
 
     pass
 
+
+class QueuemaxError(Exception):
+
+    """
+    Job submit exception.
+    """
+
+    pass
+
 # -----------------------------------------------------------------------------
 # Exceptions for shellwrappers.py
 

@@ -233,6 +233,8 @@ def delete(hosts, jobs, jobname):
 
     try:
 
+        LOG.info("Deleting the job '{0}'" .format(job))
+
         getattr(SCHEDULERS, scheduler.lower()).delete(host, job)
 
     except AttributeError:
@@ -244,6 +246,8 @@ def delete(hosts, jobs, jobname):
     except EX.JobdeleteError:
 
         LOG.info("Unable to delete job '{0}'".format(jobname))
+
+    LOG.info("Deletion successful")
 
 
 def monitor(hosts, jobs):
@@ -287,19 +291,19 @@ def monitor(hosts, jobs):
 
         for job in jobs:
 
-            if jobs[job]["laststatus"] != "Finished" and \
-               jobs[job]["laststatus"] != "Submit Error":
+            host = hosts[jobs[job]["resource"]]
+            jobid = jobs[job]["jobid"]
+            laststatus = jobs[job]["laststatus"]
+            scheduler = hosts[jobs[job]["resource"]]["scheduler"]
 
-                machine = jobs[job]["resource"]
-                scheduler = hosts[machine]["scheduler"]
-                host = hosts[machine]
+            if (laststatus != "Finished" and laststatus != "Submit Error" and
+                    laststatus != "Waiting Submission"):
 
                 # Get the job status.
                 try:
 
-                    status = getattr(
-                        SCHEDULERS, scheduler.lower()).status(
-                            host, jobs[job]["jobid"])
+                    status = getattr(SCHEDULERS, scheduler.lower()).status(
+                        host, jobid)
 
                 except AttributeError:
 
@@ -309,11 +313,12 @@ def monitor(hosts, jobs):
 
                 # If the last status is different then change the flag (stops
                 # logfile getting flooded!)
-                if jobs[job]["laststatus"] != status:
+                if laststatus != status:
 
                     jobs[job]["laststatus"] = status
+
                     LOG.info("Status of job '{0}' with id '{1}' is '{2}'"
-                             .format(job, jobs[job]["jobid"], status))
+                             .format(job, jobid, status))
 
                 # If the job is not finished and we set the polling frequency
                 # higher than 0 (off) then stage files.
@@ -328,6 +333,8 @@ def monitor(hosts, jobs):
                 # bit of staged files.)
                 if jobs[job]["laststatus"] == "Finished":
 
+                    hosts[host]["queue-slots"] -= 1
+
                     LOG.info("Job '{0}' is finishing, staging will begin in "
                              "60 seconds".format(job))
 
@@ -335,16 +342,53 @@ def monitor(hosts, jobs):
 
                     STAGING.stage_downstream(hosts, jobs, job)
 
+            # Check if we can submit any further jobs.
+            if laststatus == "Waiting Submission":
+
+                # If we have less occupied slots than the queue-max then we
+                # can submit.
+                if hosts[host]["queue-slots"] < hosts[host]["queue-max"]:
+
+                    # Try and submit this job.
+                    try:
+
+                        getattr(SCHEDULERS, scheduler.lower()).submit(
+                            host, job, jobs)
+
+                        LOG.info("Job '{0}' submitted with id '{1}'"
+                                 .format(job, jobs[job]["jobid"]))
+
+                        # Increment the queue counter by one (used to count
+                        # the slots).
+                        hosts[host]["queue-slots"] += 1
+
+                    # Submit method can't be found.
+                    except AttributeError:
+
+                        raise EX.PluginattributeError(
+                            "submit method cannot be found in plugin '{0}'"
+                            .format(scheduler))
+
+                    # Some sort of error in submitting the job.
+                    except EX.JobsubmitError as err:
+
+                        LOG.error(err)
+
+                        jobs[job]["laststatus"] = "Submit Error"
+
         # If the polling interval is set at zero then staging will be disabled
         # however continue to poll jobs but do it on a low frequency. Staging
         # will however still occur once the job is finished.
         if interval is 0:
 
-            time.sleep(120.0)
+            # Default to 5 minute intervals
+            time.sleep(300.0)
 
         # Find out if all jobs are completed.
         for job in jobs:
 
+            # If a single job has a flag not associated with being done then
+            # carry on.
             if jobs[job]["laststatus"] != "Finished" and \
                jobs[job]["laststatus"] != "Submit Error":
 
@@ -387,7 +431,11 @@ def prepare(hosts, jobs):
 
         try:
 
+            LOG.info("Creating submit file for job '{0}'" .format(job))
+
             getattr(SCHEDULERS, scheduler.lower()).prepare(hosts, job, jobs)
+
+            LOG.info("Submit file created successfully")
 
         except AttributeError:
 
@@ -415,28 +463,73 @@ def submit(hosts, jobs):
                         structure.
     """
 
+    # Initialise some counters.
+    submitted = 0
+    queued = 0
+    error = 0
+
     LOG.info("Submitting job/s.")
 
     for job in jobs:
 
-        machine = jobs[job]["resource"]
-        scheduler = hosts[machine]["scheduler"]
-        host = hosts[machine]
+        scheduler = hosts[jobs[job]["resource"]]["scheduler"]
+        host = hosts[jobs[job]["resource"]]
 
+        # Initialise the queue slots parameter if it doesn't exist.
+        if "queue-slots" not in hosts[host]:
+
+            hosts[host]["queue-slots"] = 0
+
+        # Initialise the queue max slots parameter if it doesn't exist.
+        if "queue-max" not in hosts[host]:
+
+            hosts[host]["queue-max"] = 0
+
+        # Try and submit.
         try:
 
             getattr(SCHEDULERS, scheduler.lower()).submit(host, job, jobs)
 
+            LOG.info("Job '{0}' submitted with id '{1}'"
+                     .format(job, jobs[job]["jobid"]))
+
+            # Increment the queue counter by one (used to count the slots).
+            hosts[host]["queue-slots"] += 1
+
+            submitted += 1
+
+        # Submit method can't be found.
         except AttributeError:
 
-            raise EX.PluginattributeError(
-                "submit method cannot be found in plugin '{0}'"
-                .format(scheduler))
+            raise EX.PluginattributeError("submit method cannot be found in "
+                                          "plugin '{0}'".format(scheduler))
 
+        # Some sort of error in submitting the job.
         except EX.JobsubmitError as err:
 
             LOG.error(err)
 
             jobs[job]["laststatus"] = "Submit Error"
 
-    LOG.info("Submission complete.")
+            error += 1
+
+        # Hit maximum slots on resource, Longbow will sub-schedule these.
+        except EX.QueuemaxError:
+
+            LOG.info("The job '{0}' has been held back by Longbow due to "
+                     "reaching queue slot limit, it will be submitted when a "
+                     "slot opens up.".format(job))
+
+            # We will set a flag so that we can inform the user that it is
+            # handled.
+            jobs[job]["laststatus"] = "Waiting Submission"
+
+            queued += 1
+
+    # We want to find out what the maximum number of slots we have are.
+    if hosts[host]["queue-slots"] > hosts[host]["queue-max"]:
+
+        hosts[host]["queue-max"] = hosts[host]["queue-slots"]
+
+    LOG.info("{0} Submitted, {1} Held due to queue limits and {2} Failed."
+             .format(submitted, queued, error))

@@ -32,10 +32,8 @@ status(host, jobid)
 
 submit(hosts, jobname, jobs)
     The method for submitting a single job.
-
 """
 
-import logging
 import os
 import re
 
@@ -49,18 +47,16 @@ except ImportError:
     EX = __import__("Longbow.corelibs.exceptions", fromlist=[''])
     SHELLWRAPPERS = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
 
-LOG = logging.getLogger("Longbow.plugins.schedulers.sge")
-
 QUERY_STRING = "env | grep -i 'sge'"
 
 
 def delete(host, job):
 
-    """Method for deleting job."""
+    """
+    Method for deleting job.
+    """
 
     jobid = job["jobid"]
-
-    LOG.info("Deleting the job with id '{0}'" .format(jobid))
 
     try:
 
@@ -70,16 +66,14 @@ def delete(host, job):
 
         raise EX.JobdeleteError("Unable to delete job.")
 
-    LOG.info("Deleted successfully")
-
     return shellout[0]
 
 
 def prepare(hosts, jobname, jobs):
 
-    """Create the SGE jobfile ready for submitting jobs"""
-
-    LOG.info("Creating submit file for job '{0}'" .format(jobname))
+    """
+    Create the SGE jobfile ready for submitting jobs.
+    """
 
     # Open file for LSF script.
     sgefile = os.path.join(jobs[jobname]["localworkdir"], "submit.sge")
@@ -155,7 +149,9 @@ def prepare(hosts, jobname, jobs):
 
 def status(host, jobid):
 
-    """Method for querying job."""
+    """
+    Method for querying job.
+    """
 
     states = {
         "h": "Held",
@@ -194,7 +190,9 @@ def status(host, jobid):
 
 def submit(host, jobname, jobs):
 
-    """Method for submitting a job."""
+    """
+    Method for submitting a job.
+    """
 
     # Set the path to remoteworkdir/jobnamexxxxx
     path = jobs[jobname]["destdir"]
@@ -227,6 +225,5 @@ def submit(host, jobname, jobs):
             "either the submission failed in an unexpected way, or that "
             "Longbow could not understand the returned information.")
 
-    LOG.info("Job '{0}' submitted with id '{1}'" .format(jobname, jobid))
-
+    # Put jobid into the job dictionary.
     jobs[jobname]["jobid"] = jobid
