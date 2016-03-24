@@ -48,8 +48,9 @@ submit(hosts, jobs)
     submitting a job.
 """
 
-import time
 import logging
+import time
+import os
 
 # Depending on how longbow is installed/utilised the import will be slightly
 # different, this should handle both cases.
@@ -273,6 +274,9 @@ def monitor(hosts, jobs):
     # Some initial values
     allfinished = False
     interval = 0
+    longbowdir = os.path.expanduser('~/.Longbow')
+    jobfile = os.path.join(longbowdir, "jobs.recovery")
+    hostfile = os.path.join(longbowdir, "hosts.recovery")
 
     # Find out which job has been set the highest polling frequency and use
     # that.
@@ -288,6 +292,12 @@ def monitor(hosts, jobs):
 
     # Loop until all jobs are done.
     while allfinished is False:
+
+        # Save out the recovery files.
+        if os.path.isdir(longbowdir):
+
+            CONFIGURATION.saveconfigs(hostfile, jobs)
+            CONFIGURATION.saveconfigs(jobfile, jobs)
 
         for job in jobs:
 
@@ -373,6 +383,17 @@ def monitor(hosts, jobs):
                     except EX.JobsubmitError as err:
 
                         LOG.error(err)
+
+                        jobs[job]["laststatus"] = "Submit Error"
+
+                    # This time if a queue error is raised it might be due to
+                    # other constraints such as resource limits on the queue.
+                    except EX.QueuemaxError:
+
+                        LOG.error("Job is still failing to submit, which "
+                                  "could indicate problems with resource "
+                                  "limits for this particular queue - marking "
+                                  "this as in error state")
 
                         jobs[job]["laststatus"] = "Submit Error"
 

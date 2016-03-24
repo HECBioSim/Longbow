@@ -125,11 +125,6 @@ def main(files, parameters):
         # Submit all jobs.
         SCHEDULING.submit(hosts, jobs)
 
-        # Write a recovery file so if Longbow crashes or gets disconnected
-        # somehow a user can recover or download the data if all jobs finished.
-        CONFIGURATION.saveconfigs(
-            os.path.join(os.getcwd(), "recoveryfile"), jobs)
-
         # Monitor all jobs.
         SCHEDULING.monitor(hosts, jobs)
 
@@ -169,7 +164,7 @@ def main(files, parameters):
         STAGING.cleanup(hosts, jobs)
 
 
-def recover(files):
+def recover():
 
     """
     This method is for attempting to recover a Longbow session. This should be
@@ -178,34 +173,41 @@ def recover(files):
     written shortly after submission to recover the whole session. Jobs that
     are no longer in the queue will be marked as finished and will be staged as
     normal.
-
-    Required arguments are:
-
-    files (dictionary): A dictionary of containing the hosts, job and log file
-                        paths.
     """
 
-    # Load the hosts file, shouldn't need processing here as all information
-    # in recovery files have been through it already
-    _, _, hosts = CONFIGURATION.loadconfigs(files["hosts"])
+    LOG.info("Attempting to find the recovery files")
 
-    LOG.info("Attempting to find the recovery file")
+    longbowdir = os.path.expanduser('~/.Longbow')
+    hostfile = os.path.join(longbowdir, "hosts.recovery")
+    jobfile = os.path.join(longbowdir, "jobs.recovery")
 
-    if os.path.isfile(os.path.join(os.getcwd(), "recoveryfile")):
+    # Load the hosts recovery file.
+    if os.path.isfile(hostfile):
 
-        LOG.info("Recovery file found at '{0}'".format(
-            os.path.join(os.getcwd(), "recoveryfile")))
+        LOG.info("Recovery file found at '{0}'".format(hostfile))
 
-        _, _, jobs = CONFIGURATION.loadconfigs(
-            os.path.join(os.getcwd(), "recoveryfile"))
+        _, _, hosts = CONFIGURATION.loadconfigs(hostfile)
 
     else:
 
         raise EX.RequiredinputError(
             "Recovery file could not be found at '{0}' make sure you are "
             "running the recovery from the job directory that was initially "
-            "used to launch the failed job"
-            .format(os.path.join(os.getcwd(), "recoveryfile")))
+            "used to launch the failed job".format(hostfile))
+
+    # Load the jobs recovery file.
+    if os.path.isfile(jobfile):
+
+        LOG.info("Recovery file found at '{0}'".format(jobfile))
+
+        _, _, jobs = CONFIGURATION.loadconfigs(jobfile)
+
+    else:
+
+        raise EX.RequiredinputError(
+            "Recovery file could not be found at '{0}' make sure you are "
+            "running the recovery from the job directory that was initially "
+            "used to launch the failed job".format(jobfile))
 
     # Rejoin at the monitoring stage. This will assume that all jobs that are
     # no longer in the queue have completed.
@@ -797,7 +799,7 @@ if __name__ == "__main__":
 
             LOG.info("Entering recovery mode.")
 
-            recover(FILES)
+            recover()
 
     except Exception as ERR:
 
