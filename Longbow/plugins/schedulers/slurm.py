@@ -232,12 +232,18 @@ def submit(host, jobname, jobs):
 
         shellout = SHELLWRAPPERS.sendtossh(host, cmd)
 
-    except EX.SSHError:
+    except EX.SSHError as inst:
 
-        raise EX.JobsubmitError(
-            "Something went wrong when submitting. The following output "
-            "came back from the SSH call:\nstdout: {0}\nstderr {1}"
-            .format(shellout[0], shellout[1]))
+        if "violates" and "job submit limit" in inst.stderr:
+
+            raise EX.QueuemaxError
+
+        else:
+
+            raise EX.JobsubmitError(
+                "Something went wrong when submitting. The following output "
+                "came back from the SSH call:\nstdout: {0}\nstderr {1}"
+                .format(shellout[0], shellout[1]))
 
     try:
 
