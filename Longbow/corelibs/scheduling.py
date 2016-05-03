@@ -494,7 +494,7 @@ def submit(hosts, jobs):
     for job in jobs:
 
         scheduler = hosts[jobs[job]["resource"]]["scheduler"]
-        host = hosts[jobs[job]["resource"]]
+        host = jobs[job]["resource"]
 
         # Initialise the queue slots parameter if it doesn't exist.
         if "queue-slots" not in hosts[host]:
@@ -509,7 +509,8 @@ def submit(hosts, jobs):
         # Try and submit.
         try:
 
-            getattr(SCHEDULERS, scheduler.lower()).submit(host, job, jobs)
+            getattr(SCHEDULERS, scheduler.lower()).submit(hosts[host], job,
+                                                          jobs)
 
             LOG.info("Job '{0}' submitted with id '{1}'"
                      .format(job, jobs[job]["jobid"]))
