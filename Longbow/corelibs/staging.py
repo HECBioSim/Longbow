@@ -160,7 +160,7 @@ def stage_downstream(hosts, jobs, jobname):
             jobs[jobname]["download-include"],
             jobs[jobname]["download-exclude"])
 
-    except (EX.SCPError, EX.RsyncError):
+    except EX.RsyncError:
 
         raise EX.StagingError("Could not download file '{0}' "
                               "to location '{1}'".format(src, dst))

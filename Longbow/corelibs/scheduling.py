@@ -297,7 +297,6 @@ def monitor(hosts, jobs):
 
             resource = jobs[job]["resource"]
             host = hosts[resource]
-            jobid = jobs[job]["jobid"]
             laststatus = jobs[job]["laststatus"]
             scheduler = hosts[resource]["scheduler"]
 
@@ -308,7 +307,7 @@ def monitor(hosts, jobs):
                 try:
 
                     status = getattr(SCHEDULERS, scheduler.lower()).status(
-                        host, jobid)
+                        host, jobs[job]["jobid"])
 
                 except AttributeError:
 
@@ -323,7 +322,7 @@ def monitor(hosts, jobs):
                     jobs[job]["laststatus"] = status
 
                     LOG.info("Status of job '{0}' with id '{1}' is '{2}'"
-                             .format(job, jobid, status))
+                             .format(job, jobs[job]["jobid"], status))
 
                     # Save out the recovery files.
                     if os.path.isdir(longbowdir):
