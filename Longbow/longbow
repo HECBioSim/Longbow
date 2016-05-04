@@ -298,8 +298,8 @@ if __name__ == "__main__":
         "--jobname",
         "-log",
         "--log",
-        "-recover"
-        "--recover"
+        "-recover",
+        "--recover",
         "-resource",
         "--resource",
         "-replicates",
@@ -357,7 +357,9 @@ if __name__ == "__main__":
             # executable arguments
             if (item not in ALLLONGBOWARGS and
                     COMMANDLINEARGS[POSITION-1][1:] not in FILES and
-                    COMMANDLINEARGS[POSITION-1][1:] not in PARAMETERS):
+                    COMMANDLINEARGS[POSITION-1][2:] not in FILES and
+                    COMMANDLINEARGS[POSITION-1][1:] not in PARAMETERS and
+                    COMMANDLINEARGS[POSITION-1][2:] not in PARAMETERS):
 
                 LONGBOWARGS = COMMANDLINEARGS[:POSITION]
                 EXECARGS = COMMANDLINEARGS[POSITION:]

@@ -284,7 +284,7 @@ def processconfigs(hostfile, jobfile, params):
                     raise EX.CommandlineargsError(
                         "The resource '{0}' that was given on the command line"
                         " has not been configured in the host.conf. The hosts "
-                        "available are '{0}'".format(
+                        "available are '{1}'".format(
                             params["resource"], hostsections))
 
             # Otherwise lets try and use the top host in the list from
@@ -304,8 +304,8 @@ def processconfigs(hostfile, jobfile, params):
                 raise EX.CommandlineargsError(
                     "The resource '{0}' that was given in the job config file"
                     " has not been configured in the host.conf. The hosts "
-                    "available are '{0}'".format(
-                        params["resource"], hostsections))
+                    "available are '{1}'".format(
+                        jobs[job]["resource"], hostsections))
 
     # Now we can go ahead and process the overrides. For this it is probably
     # best to use the jobs data as the main source, this way we will only deal
@@ -574,7 +574,7 @@ def loadconfigs(configfile):
 def saveconfigs(configfile, params):
 
     """
-    Method to saving to an ini file. Files of this format contain the
+    Method for saving to an ini file. Files of this format contain the
     following mark-up structure.
 
     Sections of a file are marked using square brackets
@@ -610,7 +610,7 @@ def saveconfigs(configfile, params):
                          file.
 
     params (dictionary): This should contain the data structure that should
-                         be saved (typically hosts of job configs structure).
+                         be saved (typically hosts or job configs structure).
     """
 
     LOG.info("Saving configuration information to file '{0}'"
@@ -620,7 +620,14 @@ def saveconfigs(configfile, params):
     valuediff = {}
 
     # Load up the original file including comment structure (list).
-    contents, _, oldparams = loadconfigs(configfile)
+    try:
+
+        contents, _, oldparams = loadconfigs(configfile)
+
+    except EX.ConfigurationError:
+
+        contents = []
+        oldparams = {}
 
     # Run through each section in the data.
     for section in params:
@@ -688,11 +695,11 @@ def saveconfigs(configfile, params):
             editposition = (
                 sectionstartindex +
                 contents[sectionstartindex:sectionendindex].index(
-                    option + " = " + oldparams[section][option]))
+                    str(option) + " = " + str(oldparams[section][option])))
 
             # Edit the entry.
             contents[editposition] = (
-                option + " = " + valuediff[section][option])
+                str(option) + " = " + str(valuediff[section][option]))
 
     # Now handle new entries. Run through each section.
     for section in keydiff:
@@ -716,7 +723,8 @@ def saveconfigs(configfile, params):
 
                 # Insert into the list in the appropriate place.
                 contents.insert(
-                    sectionendindex, option + " = " + keydiff[section][option])
+                    sectionendindex,
+                    str(option) + " = " + str(keydiff[section][option]))
 
         # Doesn't exist so it is a new section.
         except ValueError:
@@ -728,7 +736,8 @@ def saveconfigs(configfile, params):
             for option in keydiff[section]:
 
                 # And append it to the end of the list.
-                contents.append(option + " = " + keydiff[section][option])
+                contents.append(
+                    str(option) + " = " + str(keydiff[section][option]))
 
     try:
 
@@ -746,3 +755,37 @@ def saveconfigs(configfile, params):
 
         raise EX.ConfigurationError(
             "Error saving to '{0}'".format(configfile))
+
+
+def saveini(inifile, params):
+
+    """
+    Method for saving to a Longbow recovery file. This method will write
+    to an inifile.
+
+    Required arguments are:
+
+    configfile (string): This should be an absolute path to a revovery file.
+
+    params (dictionary): This should contain the data structure that should
+                         be saved (typically hosts or jobs structure).
+    """
+
+    LOG.info("Saving recovery file '{0}'".format(inifile))
+
+    ini = open(inifile, "w")
+
+    for section in params:
+
+        ini.write("[" + str(section) + "]\n")
+
+        for option in params[section]:
+
+            if params[section][option] is not "":
+
+                ini.write(
+                    str(option) + " = " + str(params[section][option]) + "\n")
+
+        ini.write("\n")
+
+    ini.close()

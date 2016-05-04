@@ -234,7 +234,7 @@ def delete(hosts, jobs, jobname):
 
     try:
 
-        LOG.info("Deleting the job '{0}'" .format(job))
+        LOG.info("Deleting the job '{0}'" .format(jobname))
 
         getattr(SCHEDULERS, scheduler.lower()).delete(host, job)
 
@@ -293,18 +293,13 @@ def monitor(hosts, jobs):
     # Loop until all jobs are done.
     while allfinished is False:
 
-        # Save out the recovery files.
-        if os.path.isdir(longbowdir):
-
-            CONFIGURATION.saveconfigs(hostfile, jobs)
-            CONFIGURATION.saveconfigs(jobfile, jobs)
-
         for job in jobs:
 
-            host = hosts[jobs[job]["resource"]]
+            resource = jobs[job]["resource"]
+            host = hosts[resource]
             jobid = jobs[job]["jobid"]
             laststatus = jobs[job]["laststatus"]
-            scheduler = hosts[jobs[job]["resource"]]["scheduler"]
+            scheduler = hosts[resource]["scheduler"]
 
             if (laststatus != "Finished" and laststatus != "Submit Error" and
                     laststatus != "Waiting Submission"):
@@ -330,6 +325,20 @@ def monitor(hosts, jobs):
                     LOG.info("Status of job '{0}' with id '{1}' is '{2}'"
                              .format(job, jobid, status))
 
+                    # Save out the recovery files.
+                    if os.path.isdir(longbowdir):
+
+                        try:
+
+                            CONFIGURATION.saveini(hostfile, hosts)
+                            CONFIGURATION.saveini(jobfile, jobs)
+
+                        except (OSError, IOError):
+
+                            LOG.warning(
+                                "Could not write recovery file, possibly due "
+                                "to permissions on the ~/.Longbow directory.")
+
                 # If the job is not finished and we set the polling frequency
                 # higher than 0 (off) then stage files.
                 if (jobs[job]["laststatus"] == "Running" or
@@ -343,7 +352,8 @@ def monitor(hosts, jobs):
                 # bit of staged files.)
                 if jobs[job]["laststatus"] == "Finished":
 
-                    hosts[host]["queue-slots"] -= 1
+                    hosts[resource]["queue-slots"] = \
+                        str(int(hosts[resource]["queue-slots"]) - 1)
 
                     LOG.info("Job '{0}' is finishing, staging will begin in "
                              "60 seconds".format(job))
@@ -357,7 +367,8 @@ def monitor(hosts, jobs):
 
                 # If we have less occupied slots than the queue-max then we
                 # can submit.
-                if hosts[host]["queue-slots"] < hosts[host]["queue-max"]:
+                if int(hosts[resource]["queue-slots"]) < \
+                   int(hosts[resource]["queue-max"]):
 
                     # Try and submit this job.
                     try:
@@ -370,7 +381,8 @@ def monitor(hosts, jobs):
 
                         # Increment the queue counter by one (used to count
                         # the slots).
-                        hosts[host]["queue-slots"] += 1
+                        hosts[resource]["queue-slots"] = \
+                            str(int(hosts[resource]["queue-slots"]) + 1)
 
                     # Submit method can't be found.
                     except AttributeError:
@@ -499,12 +511,12 @@ def submit(hosts, jobs):
         # Initialise the queue slots parameter if it doesn't exist.
         if "queue-slots" not in hosts[host]:
 
-            hosts[host]["queue-slots"] = 0
+            hosts[host]["queue-slots"] = str(0)
 
         # Initialise the queue max slots parameter if it doesn't exist.
         if "queue-max" not in hosts[host]:
 
-            hosts[host]["queue-max"] = 0
+            hosts[host]["queue-max"] = str(0)
 
         # Try and submit.
         try:
@@ -516,7 +528,8 @@ def submit(hosts, jobs):
                      .format(job, jobs[job]["jobid"]))
 
             # Increment the queue counter by one (used to count the slots).
-            hosts[host]["queue-slots"] += 1
+            hosts[host]["queue-slots"] = \
+                str(int(hosts[host]["queue-slots"]) + 1)
 
             submitted += 1
 
@@ -549,7 +562,7 @@ def submit(hosts, jobs):
             queued += 1
 
     # We want to find out what the maximum number of slots we have are.
-    if hosts[host]["queue-slots"] > hosts[host]["queue-max"]:
+    if int(hosts[host]["queue-slots"]) > int(hosts[host]["queue-max"]):
 
         hosts[host]["queue-max"] = hosts[host]["queue-slots"]
 
