@@ -375,6 +375,8 @@ def monitor(hosts, jobs):
                         getattr(SCHEDULERS, scheduler.lower()).submit(
                             host, job, jobs)
 
+                        jobs[job]["laststatus"] = "Queued"
+
                         LOG.info("Job '{0}' submitted with id '{1}'"
                                  .format(job, jobs[job]["jobid"]))
 
@@ -525,6 +527,8 @@ def submit(hosts, jobs):
 
             LOG.info("Job '{0}' submitted with id '{1}'"
                      .format(job, jobs[job]["jobid"]))
+
+            jobs[job]["laststatus"] = "Queued"
 
             # Increment the queue counter by one (used to count the slots).
             hosts[host]["queue-slots"] = \
