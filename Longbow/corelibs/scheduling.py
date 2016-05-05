@@ -290,6 +290,20 @@ def monitor(hosts, jobs):
 
             interval = int(jobs[job]["frequency"])
 
+    # Save out the recovery files.
+    if os.path.isdir(longbowdir):
+
+        try:
+
+            CONFIGURATION.saveini(hostfile, hosts)
+            CONFIGURATION.saveini(jobfile, jobs)
+
+        except (OSError, IOError):
+
+            LOG.warning(
+                "Could not write recovery file, possibly due to permissions "
+                "on the ~/.Longbow directory.")
+
     # Loop until all jobs are done.
     while allfinished is False:
 

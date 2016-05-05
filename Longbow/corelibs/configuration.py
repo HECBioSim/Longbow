@@ -771,7 +771,7 @@ def saveini(inifile, params):
                          be saved (typically hosts or jobs structure).
     """
 
-    LOG.info("Saving recovery file '{0}'".format(inifile))
+    LOG.info("Saving current state to recovery file '{0}'".format(inifile))
 
     ini = open(inifile, "w")
 
