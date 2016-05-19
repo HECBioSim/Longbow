@@ -457,7 +457,7 @@ def monitor(jobs):
         # Find out if all jobs are completed.
         for item in jobs:
 
-            job = jobs[job]
+            job = jobs[item]
 
             # If a single job has a flag not associated with being done then
             # carry on.

@@ -250,7 +250,7 @@ def sendtossh(job, args):
     return shellout
 
 
-def sendtorsync(src, dst, job):
+def sendtorsync(job, src, dst, includemask, excludemask):
 
     """
     This method constructs a string that forms an rsync command, this string is
@@ -271,9 +271,6 @@ def sendtorsync(src, dst, job):
 
     include = []
     exclude = []
-
-    excludemask = job["excludemask"]
-    includemask = job["includemask"]
     port = job["port"]
 
     # Figure out if we are using masks to specify files.
@@ -658,29 +655,31 @@ def upload(job):
     """
 
     # Are paths absolute.
-    if os.path.isabs(job["src"]) is False and job["src"][0] != "~":
+    if os.path.isabs(job["localworkdir"]) is False and \
+            job["localworkdir"][0] != "~":
 
         raise EX.AbsolutepathError("The source path is not absolute",
-                                   job["src"])
+                                   job["localworkdir"])
 
     # We want to transfer whole directory.
-    if job["src"].endswith("/") is not True:
+    if job["localworkdir"].endswith("/") is not True:
 
-        job["src"] = job["src"] + "/"
+        job["localworkdir"] = job["localworkdir"] + "/"
 
-    if os.path.isabs(job["dst"]) is False and job["dst"][0] != "~":
+    if os.path.isabs(job["destdir"]) is False and job["destdir"][0] != "~":
 
         raise EX.AbsolutepathError("The destination path is not absolute",
-                                   job["dst"])
+                                   job["destdir"])
 
-    dst = (job["user"] + "@" + job["host"] + ":" + job["dst"])
+    dst = (job["user"] + "@" + job["host"] + ":" + job["destdir"])
 
-    LOG.debug("Copying '{0}' to '{1}'".format(job["src"], dst))
+    LOG.debug("Copying '{0}' to '{1}'".format(job["localworkdir"], dst))
 
     # Send command to subprocess.
     try:
 
-        sendtorsync(job, job["src"], dst)
+        sendtorsync(job, job["localworkdir"], dst, job["upload-include"],
+                    job["upload-exclude"])
 
     except EX.RsyncError:
 
@@ -713,29 +712,31 @@ def download(job):
     """
 
     # Are paths absolute.
-    if os.path.isabs(job["src"]) is False and job["src"][0] != "~":
+    if os.path.isabs(job["destdir"]) is False and job["destdir"][0] != "~":
 
         raise EX.AbsolutepathError("The source path is not absolute",
-                                   job["src"])
+                                   job["destdir"])
 
     # We want to transfer whole directory.
-    if job["src"].endswith("/") is not True:
+    if job["destdir"].endswith("/") is not True:
 
-        job["src"] = job["src"] + "/"
+        job["destdir"] = job["destdir"] + "/"
 
-    if os.path.isabs(job["dst"]) is False and job["dst"][0] != "~":
+    if os.path.isabs(job["localworkdir"]) is False and \
+            job["localworkdir"][0] != "~":
 
         raise EX.AbsolutepathError("The destination path is not absolute",
-                                   job["dst"])
+                                   job["localworkdir"])
 
-    src = (job["user"] + "@" + job["host"] + ":" + job["src"])
+    src = (job["user"] + "@" + job["host"] + ":" + job["destdir"])
 
-    LOG.debug("Copying '{0}' to '{1}'".format(src, job["dst"]))
+    LOG.debug("Copying '{0}' to '{1}'".format(src, job["localworkdir"]))
 
     # Send command to subprocess.
     try:
 
-        sendtorsync(src, job["dst"], job)
+        sendtorsync(job, src, job["localworkdir"], job["download-include"],
+                    job["download-exclude"])
 
     except EX.RsyncError:
 

@@ -70,6 +70,9 @@ setup(name = 'Longbow',
 
 # Try and create the .Longbow directory and a basic hosts.conf
 try:
+
+    print('Checking if Longbow needs to create the ~/.Longbow directory...')
+
     # Setting up the .Longbow directory.
     if not os.path.isdir(os.path.expanduser('~/.Longbow')):
 
@@ -93,6 +96,11 @@ try:
         hostfile.write('modules = mymodules')
 
         hostfile.close()
+
+    else:
+        
+        print('Directory already exists - skipping.')
+
 
 except:
     

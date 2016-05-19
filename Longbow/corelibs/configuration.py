@@ -143,8 +143,7 @@ def processconfigs(parameters):
     jobs (dictionary) A fully processed Longbow jobs data structure.
     """
 
-    # Define our main data structures.
-    hosts = {}
+    # Define our main data structure.
     jobs = {}
 
     # Define a dictionary of module defaults based on the plug-in names and
@@ -249,31 +248,23 @@ def processconfigs(parameters):
             if item is not "resource":
 
                 # Command-line overrides are highest priority.
-                if item in parameters:
+                if item in parameters and parameters[item] is not "":
 
-                    # Key exists, but is it simply blank?
-                    if parameters[item] is not "":
-
-                        # Store it.
-                        jobs[job][item] = parameters[item]
+                    # Store it.
+                    jobs[job][item] = parameters[item]
 
                 # Job file is next highest in priority.
-                elif item in jobdata[job]:
+                elif item in jobdata[job] and jobdata[job] is not "":
 
-                    # Key exists, but is it simply blank?
-                    if jobdata[job] is not "":
-
-                        # Store it.
-                        jobs[job][item] = jobdata[job][item]
+                    # Store it.
+                    jobs[job][item] = jobdata[job][item]
 
                 # Hosts file is next highest in priority.
-                elif item in hostdata[jobs[job]["resource"]]:
+                elif item in hostdata[jobs[job]["resource"]] and \
+                        hostdata[jobs[job]["resource"]][item] is not "":
 
-                    # Key exists, but is it simply blank?
-                    if hostdata[jobs[job]["resource"]][item] is not "":
-
-                        # Store it.
-                        jobs[job][item] = hostdata[jobs[job]["resource"]][item]
+                    # Store it.
+                    jobs[job][item] = hostdata[jobs[job]["resource"]][item]
 
     # Check parameters that are required for running jobs are provided.
     # Here we will only do validation on hosts that are referenced in jobs,
@@ -324,7 +315,7 @@ def processconfigs(parameters):
 
         # Give each job a remote base path, a random hash will be added to this
         # during job processing
-        jobs[job]["destdir"] = hosts[jobs[job]["resource"]]["remoteworkdir"]
+        jobs[job]["destdir"] = jobs[job]["remoteworkdir"]
 
     return jobs
 
