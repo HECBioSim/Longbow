@@ -9,7 +9,7 @@ QUERY_STRING = "unique identifier here."                        # IMPORTANT
 #------------------------------------------------------------------------------
 # Delete method.
 
-def delete(host, job):                                          # IMPORTANT
+def delete(job):                                          # IMPORTANT
 
 	jobid = job["jobid"]
 
@@ -27,12 +27,12 @@ def delete(host, job):                                          # IMPORTANT
 #------------------------------------------------------------------------------
 # Prepare method
 
-def prepare(hosts, jobname, jobs):                             # IMPORTANT
+def prepare(job):                             # IMPORTANT
 
     """Create the LSF jobfile ready for submitting jobs"""
 
     # Open file for script.
-    lsffile = os.path.join(jobs[jobname]["localworkdir"], "submit.extension")
+    lsffile = os.path.join(job["localworkdir"], "submit.extension")
     jobfile = open(lsffile, "w+")
 
     # Write the script
@@ -47,13 +47,13 @@ def prepare(hosts, jobname, jobs):                             # IMPORTANT
     ########################################################
 
     # Append submitfile to list of files ready for staging.
-    jobs[jobname]["subfile"] = "submit.extension"                     # IMPORTANT
+    job["subfile"] = "submit.extension"                     # IMPORTANT
 
 
 #------------------------------------------------------------------------------
 # Status method
 
-def status(host, jobid):                                        # IMPORTANT
+def status(jobid):                                        # IMPORTANT
 
     """Method for querying job."""
     
@@ -71,7 +71,7 @@ def status(host, jobid):                                        # IMPORTANT
 #------------------------------------------------------------------------------
 # Submit method
 
-def submit(host, jobname, jobs):                                # IMPORTANT
+def submit(job):                                # IMPORTANT
 
     """Method for submitting job."""
 
@@ -83,4 +83,4 @@ def submit(host, jobname, jobs):                                # IMPORTANT
     #                                                      #
     ########################################################    
 
-    jobs[jobname]["jobid"] = output                             # IMPORTANT
+    job["jobid"] = output                             # IMPORTANT

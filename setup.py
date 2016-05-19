@@ -41,6 +41,34 @@ else:
     print('The Python version installed "{0}.{1}" is supported by Longbow.'
           .format(major, minor))
 
+# Setup
+setup(name = 'Longbow',
+      version = '1.2.0',
+      description = 'Biomolecular simulation remote job submission tool.',
+      long_description = open('README.rst').read(),
+      author = 'James T Gebbie-Rayet, Gareth B Shannon',
+      author_email = ('james.gebbie@stfc.ac.uk, '
+                      'gareth.shannon@nottingham.ac.uk'),
+      url = 'www.hecbiosim.ac.uk',
+      license = 'OSI Approved :: GNU General Public License v2 (GPLv2)',
+      classifiers = ['Development Status :: 5 - Production/Stable',
+                     'Environment :: Console',
+                     'Programming Language :: Python',
+                     'Programming Language :: Python :: 2.6',
+                     'Programming Language :: Python :: 2.7',
+                     'Programming Language :: Python :: 3',
+                     'Topic :: Scientific/Engineering',
+                     'Topic :: Utilities',
+                     'Operating System :: MacOS :: MacOS X',
+                     'Operating System :: POSIX',
+                     'Operating System :: Unix'
+                     ],
+      packages = ['Longbow', 'Longbow.plugins', 'Longbow.plugins.schedulers',
+                  'Longbow.plugins.apps', 'Longbow.corelibs'],
+      scripts = ['Longbow/longbow'],
+      )
+
+# Try and create the .Longbow directory and a basic hosts.conf
 try:
     # Setting up the .Longbow directory.
     if not os.path.isdir(os.path.expanduser('~/.Longbow')):
@@ -71,31 +99,4 @@ except:
     print('Longbow failed to create the host configuration file in '
           '"~/.Longbow/hosts.conf", you will have to do this manually. The '
           'user documentation details the information that should be in this '
-          'file.')       
-
-# Setup
-setup(name = 'Longbow',
-      version = '1.2.0',
-      description = 'Biomolecular simulation remote job submission tool.',
-      long_description = open('README.rst').read(),
-      author = 'James T Gebbie-Rayet, Gareth B Shannon',
-      author_email = ('james.gebbie@stfc.ac.uk, '
-                      'gareth.shannon@nottingham.ac.uk'),
-      url = 'www.hecbiosim.ac.uk',
-      license = 'OSI Approved :: GNU General Public License v2 (GPLv2)',
-      classifiers = ['Development Status :: 5 - Production/Stable',
-                     'Environment :: Console',
-                     'Programming Language :: Python',
-                     'Programming Language :: Python :: 2.6',
-                     'Programming Language :: Python :: 2.7',
-                     'Programming Language :: Python :: 3',
-                     'Topic :: Scientific/Engineering',
-                     'Topic :: Utilities',
-                     'Operating System :: MacOS :: MacOS X',
-                     'Operating System :: POSIX',
-                     'Operating System :: Unix'
-                     ],
-      packages = ['Longbow', 'Longbow.plugins', 'Longbow.plugins.schedulers',
-                  'Longbow.plugins.apps', 'Longbow.corelibs'],
-      scripts = ['Longbow/longbow'],
-      )
+          'file.')    

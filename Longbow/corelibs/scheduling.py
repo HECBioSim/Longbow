@@ -71,9 +71,10 @@ except ImportError:
     STAGING = __import__("Longbow.corelibs.staging", fromlist=[''])
 
 LOG = logging.getLogger("Longbow.corelibs.scheduling")
+QUEUEINFO = {}
 
 
-def testenv(hostconf, hosts, jobs):
+def testenv(jobs, hostconf):
 
     """
     This method makes an attempt to test the environment and determine from
@@ -85,10 +86,6 @@ def testenv(hostconf, hosts, jobs):
     hostconf (string) - The path to the host configuration file, this should be
                         provided so that if any changes are made that they can
                         be saved.
-
-    hosts (dictionary) - The Longbow hosts data structure, see configuration.py
-                         for more information about the format of this
-                         structure.
 
     jobs (dictionary) - The Longbow jobs data structure, see configuration.py
                         for more information about the format of this
@@ -105,11 +102,13 @@ def testenv(hostconf, hosts, jobs):
     save = False
 
     checked = []
+    saveparams = {}
 
     # Take a look at each job.
-    for job in jobs:
+    for item in jobs:
 
-        resource = jobs[job]["resource"]
+        job = jobs[item]
+        resource = job["resource"]
 
         # If we have not checked this host already
         if resource not in checked:
@@ -117,8 +116,13 @@ def testenv(hostconf, hosts, jobs):
             # Make sure we don't check the same thing again.
             checked.extend([resource])
 
+            # If we don't have the resource defined then define it.
+            if resource not in saveparams:
+
+                saveparams[resource] = {}
+
             # If we have no scheduler defined by the user then find it.
-            if hosts[resource]["scheduler"] is "":
+            if job["scheduler"] is "":
 
                 LOG.info("No environment for this host '{0}' is specified - "
                          "attempting to determine it!".format(resource))
@@ -128,10 +132,10 @@ def testenv(hostconf, hosts, jobs):
 
                     try:
 
-                        SHELLWRAPPERS.sendtossh(hosts[resource],
-                                                schedulerqueries[param])
+                        SHELLWRAPPERS.sendtossh(job, schedulerqueries[param])
 
-                        hosts[resource]["scheduler"] = param
+                        job["scheduler"] = param
+                        saveparams[resource]["scheduler"] = param
 
                         LOG.info("The environment on this host is '{0}'"
                                  .format(param))
@@ -141,7 +145,7 @@ def testenv(hostconf, hosts, jobs):
 
                         LOG.debug("Environment is not '{0}'".format(param))
 
-                if hosts[resource]["scheduler"] is "":
+                if job["scheduler"] is "":
 
                     raise EX.SchedulercheckError(
                         "Could not find the job scheduling system.")
@@ -152,10 +156,10 @@ def testenv(hostconf, hosts, jobs):
             else:
 
                 LOG.info("The environment on host '{0}' is '{1}'"
-                         .format(resource, hosts[resource]["scheduler"]))
+                         .format(resource, job["scheduler"]))
 
             # If we have no job handler defined by the user then find it.
-            if hosts[resource]["handler"] is "":
+            if job["handler"] is "":
 
                 LOG.info("No queue handler was specified for host '{0}' - "
                          "attempting to find it".format(resource))
@@ -165,7 +169,7 @@ def testenv(hostconf, hosts, jobs):
                 # resources
                 cmdmod = []
 
-                for module in jobs[job]["modules"].split(","):
+                for module in job["modules"].split(","):
 
                     module = module.replace(" ", "")
                     cmdmod.extend(["module load " + module + "\n"])
@@ -176,9 +180,10 @@ def testenv(hostconf, hosts, jobs):
 
                         cmd = cmdmod[:]
                         cmd.extend(handlers[param])
-                        SHELLWRAPPERS.sendtossh(hosts[resource], cmd)
+                        SHELLWRAPPERS.sendtossh(job, cmd)
 
-                        hosts[resource]["handler"] = param
+                        job["handler"] = param
+                        saveparams[resource]["handler"] = param
 
                         LOG.info("The batch queue handler is '{0}'"
                                  .format(param))
@@ -190,7 +195,7 @@ def testenv(hostconf, hosts, jobs):
                         LOG.debug("The batch queue handler is not '{0}'"
                                   .format(param))
 
-                if hosts[resource]["handler"] is "":
+                if job["handler"] is "":
 
                     raise EX.HandlercheckError(
                         "Could not find the batch queue handler.")
@@ -201,15 +206,32 @@ def testenv(hostconf, hosts, jobs):
             else:
 
                 LOG.info("The handler on host '{0}' is '{1}'"
-                         .format(resource, hosts[resource]["handler"]))
+                         .format(resource, job["handler"]))
+
+        # If resource has been checked.
+        else:
+
+            # Then we should have a look if the resource for this job has been
+            # altered.
+            if resource in saveparams:
+
+                # Then check if scheduler has been added.
+                if "scheduler" in saveparams[resource]:
+
+                    job["scheduler"] = saveparams[resource]["scheduler"]
+
+                # Then check if handler has been added.
+                if "handler" in saveparams[resource]:
+
+                    job["handler"] = saveparams[resource]["handler"]
 
     # Do we have anything to change in the host file.
     if save is True:
 
-        CONFIGURATION.saveconfigs(hostconf, hosts)
+        CONFIGURATION.saveconfigs(hostconf, saveparams)
 
 
-def delete(hosts, jobs, jobname):
+def delete(job):
 
     """
     A method containing the generic and boiler plate Longbow code for deleting
@@ -228,15 +250,13 @@ def delete(hosts, jobs, jobname):
     jobname (string) - The jobname of the job for deletion.
     """
 
-    scheduler = hosts[jobs[jobname]["resource"]]["scheduler"]
-    host = hosts[jobs[jobname]["resource"]]
-    job = jobs[jobname]
+    scheduler = job["scheduler"]
 
     try:
 
-        LOG.info("Deleting the job '{0}'" .format(jobname))
+        LOG.info("Deleting the job '{0}'" .format(job["jobname"]))
 
-        getattr(SCHEDULERS, scheduler.lower()).delete(host, job)
+        getattr(SCHEDULERS, scheduler.lower()).delete(job)
 
     except AttributeError:
 
@@ -246,12 +266,12 @@ def delete(hosts, jobs, jobname):
 
     except EX.JobdeleteError:
 
-        LOG.info("Unable to delete job '{0}'".format(jobname))
+        LOG.info("Unable to delete job '{0}'".format(job["jobname"]))
 
     LOG.info("Deletion successful")
 
 
-def monitor(hosts, jobs):
+def monitor(jobs):
 
     """
     A method containing the generic and boiler plate Longbow code for
@@ -276,26 +296,32 @@ def monitor(hosts, jobs):
     interval = 0
     longbowdir = os.path.expanduser('~/.Longbow')
     jobfile = os.path.join(longbowdir, "jobs.recovery")
-    hostfile = os.path.join(longbowdir, "hosts.recovery")
 
     # Find out which job has been set the highest polling frequency and use
     # that.
-    for job in jobs:
+    for item in jobs:
+
+        job = jobs[item]
+
+        # If we came from recovery mode then rebuild the queueinfo structure.
+        if job["resource"] not in QUEUEINFO:
+
+            QUEUEINFO[job["resource"]] = {"queue-slots": job["queue-slots"],
+                                          "queue-max": job["queue-max"]}
 
         # Don't initialise if already set (submission errors are passed here)
-        if "laststatus" not in jobs[job]:
-            jobs[job]["laststatus"] = ""
+        if "laststatus" not in job:
+            job["laststatus"] = ""
 
-        if interval < int(jobs[job]["frequency"]):
+        if interval < int(job["frequency"]):
 
-            interval = int(jobs[job]["frequency"])
+            interval = int(job["frequency"])
 
     # Save out the recovery files.
     if os.path.isdir(longbowdir):
 
         try:
 
-            CONFIGURATION.saveini(hostfile, hosts)
             CONFIGURATION.saveini(jobfile, jobs)
 
         except (OSError, IOError):
@@ -307,21 +333,19 @@ def monitor(hosts, jobs):
     # Loop until all jobs are done.
     while allfinished is False:
 
-        for job in jobs:
+        for item in jobs:
 
-            resource = jobs[job]["resource"]
-            host = hosts[resource]
-            laststatus = jobs[job]["laststatus"]
-            scheduler = hosts[resource]["scheduler"]
+            job = jobs[item]
+            scheduler = job["scheduler"]
 
-            if (laststatus != "Finished" and laststatus != "Submit Error" and
-                    laststatus != "Waiting Submission"):
+            if (job["laststatus"] != "Finished" and
+                    job["laststatus"] != "Submit Error" and
+                    job["laststatus"] != "Waiting Submission"):
 
                 # Get the job status.
                 try:
 
-                    status = getattr(SCHEDULERS, scheduler.lower()).status(
-                        host, jobs[job]["jobid"])
+                    status = getattr(SCHEDULERS, scheduler.lower()).status(job)
 
                 except AttributeError:
 
@@ -331,19 +355,18 @@ def monitor(hosts, jobs):
 
                 # If the last status is different then change the flag (stops
                 # logfile getting flooded!)
-                if laststatus != status:
+                if job["laststatus"] != status:
 
-                    jobs[job]["laststatus"] = status
+                    job["laststatus"] = status
 
                     LOG.info("Status of job '{0}' with id '{1}' is '{2}'"
-                             .format(job, jobs[job]["jobid"], status))
+                             .format(item, job["jobid"], status))
 
                     # Save out the recovery files.
                     if os.path.isdir(longbowdir):
 
                         try:
 
-                            CONFIGURATION.saveini(hostfile, hosts)
                             CONFIGURATION.saveini(jobfile, jobs)
 
                         except (OSError, IOError):
@@ -354,50 +377,49 @@ def monitor(hosts, jobs):
 
                 # If the job is not finished and we set the polling frequency
                 # higher than 0 (off) then stage files.
-                if (jobs[job]["laststatus"] == "Running" or
-                        jobs[job]["laststatus"] == "Subjob(s) running" and
+                if (job["laststatus"] == "Running" or
+                        job["laststatus"] == "Subjob(s) running" and
                         interval is not 0):
 
-                    STAGING.stage_downstream(hosts, jobs, job)
+                    STAGING.stage_downstream(job)
 
                 # If job is done wait 60 seconds then transfer files (this is
                 # to stop users having to wait till all jobs end to grab last
                 # bit of staged files.)
-                if jobs[job]["laststatus"] == "Finished":
+                if job["laststatus"] == "Finished":
 
-                    hosts[resource]["queue-slots"] = \
-                        str(int(hosts[resource]["queue-slots"]) - 1)
+                    QUEUEINFO[job["resource"]]["queue-slots"] = \
+                        str(int(QUEUEINFO[job["resource"]]["queue-slots"]) - 1)
 
                     LOG.info("Job '{0}' is finishing, staging will begin in "
-                             "60 seconds".format(job))
+                             "60 seconds".format(item))
 
                     time.sleep(60.0)
 
-                    STAGING.stage_downstream(hosts, jobs, job)
+                    STAGING.stage_downstream(job)
 
             # Check if we can submit any further jobs.
-            if laststatus == "Waiting Submission":
+            if job["laststatus"] == "Waiting Submission":
 
                 # If we have less occupied slots than the queue-max then we
                 # can submit.
-                if int(hosts[resource]["queue-slots"]) < \
-                   int(hosts[resource]["queue-max"]):
+                if int(QUEUEINFO[job["resource"]]["queue-slots"]) < \
+                   int(QUEUEINFO[job["resource"]]["queue-max"]):
 
                     # Try and submit this job.
                     try:
 
-                        getattr(SCHEDULERS, scheduler.lower()).submit(
-                            host, job, jobs)
+                        getattr(SCHEDULERS, scheduler.lower()).submit(job)
 
-                        jobs[job]["laststatus"] = "Queued"
+                        job["laststatus"] = "Queued"
 
                         LOG.info("Job '{0}' submitted with id '{1}'"
-                                 .format(job, jobs[job]["jobid"]))
+                                 .format(item, job["jobid"]))
 
                         # Increment the queue counter by one (used to count
                         # the slots).
-                        hosts[resource]["queue-slots"] = \
-                            str(int(hosts[resource]["queue-slots"]) + 1)
+                        QUEUEINFO[job["resource"]]["queue-slots"] = str(
+                            int(QUEUEINFO[job["resource"]]["queue-slots"]) + 1)
 
                     # Submit method can't be found.
                     except AttributeError:
@@ -411,7 +433,7 @@ def monitor(hosts, jobs):
 
                         LOG.error(err)
 
-                        jobs[job]["laststatus"] = "Submit Error"
+                        job["laststatus"] = "Submit Error"
 
                     # This time if a queue error is raised it might be due to
                     # other constraints such as resource limits on the queue.
@@ -422,7 +444,7 @@ def monitor(hosts, jobs):
                                   "limits for this particular queue - marking "
                                   "this as in error state")
 
-                        jobs[job]["laststatus"] = "Submit Error"
+                        job["laststatus"] = "Submit Error"
 
         # If the polling interval is set at zero then staging will be disabled
         # however continue to poll jobs but do it on a low frequency. Staging
@@ -433,12 +455,14 @@ def monitor(hosts, jobs):
             time.sleep(300.0)
 
         # Find out if all jobs are completed.
-        for job in jobs:
+        for item in jobs:
+
+            job = jobs[job]
 
             # If a single job has a flag not associated with being done then
             # carry on.
-            if jobs[job]["laststatus"] != "Finished" and \
-               jobs[job]["laststatus"] != "Submit Error":
+            if job["laststatus"] != "Finished" and \
+               job["laststatus"] != "Submit Error":
 
                 allfinished = False
                 break
@@ -454,7 +478,7 @@ def monitor(hosts, jobs):
     LOG.info("All jobs are complete.")
 
 
-def prepare(hosts, jobs):
+def prepare(jobs):
 
     """
     A method containing the generic and boiler plate Longbow code for
@@ -473,15 +497,16 @@ def prepare(hosts, jobs):
 
     LOG.info("Creating submit files for job/s.")
 
-    for job in jobs:
+    for item in jobs:
 
-        scheduler = hosts[jobs[job]["resource"]]["scheduler"]
+        job = jobs[item]
+        scheduler = job["scheduler"]
 
         try:
 
-            LOG.info("Creating submit file for job '{0}'" .format(job))
+            LOG.info("Creating submit file for job '{0}'" .format(item))
 
-            getattr(SCHEDULERS, scheduler.lower()).prepare(hosts, job, jobs)
+            getattr(SCHEDULERS, scheduler.lower()).prepare(job)
 
             LOG.info("Submit file created successfully")
 
@@ -494,17 +519,13 @@ def prepare(hosts, jobs):
     LOG.info("Submit file/s created.")
 
 
-def submit(hosts, jobs):
+def submit(jobs):
 
     """
     A method containing the generic and boiler plate Longbow code for
     submitting a job.
 
     Required arguments are:
-
-    hosts (dictionary) - The Longbow hosts data structure, see configuration.py
-                         for more information about the format of this
-                         structure.
 
     jobs (dictionary) - The Longbow jobs data structure, see configuration.py
                         for more information about the format of this
@@ -518,35 +539,35 @@ def submit(hosts, jobs):
 
     LOG.info("Submitting job/s.")
 
-    for job in jobs:
+    for item in jobs:
 
-        scheduler = hosts[jobs[job]["resource"]]["scheduler"]
-        host = jobs[job]["resource"]
+        job = jobs[item]
 
-        # Initialise the queue slots parameter if it doesn't exist.
-        if "queue-slots" not in hosts[host]:
+        # Have we got this resource already?
+        if job["resource"] not in QUEUEINFO:
 
-            hosts[host]["queue-slots"] = str(0)
+            # no, well create it.
+            QUEUEINFO[job["resource"]] = {"queue-slots": str(0),
+                                          "queue-max": str(0)}
 
-        # Initialise the queue max slots parameter if it doesn't exist.
-        if "queue-max" not in hosts[host]:
+    for item in jobs:
 
-            hosts[host]["queue-max"] = str(0)
+        job = jobs[item]
+        scheduler = job["scheduler"]
 
         # Try and submit.
         try:
 
-            getattr(SCHEDULERS, scheduler.lower()).submit(hosts[host], job,
-                                                          jobs)
+            getattr(SCHEDULERS, scheduler.lower()).submit(job)
 
             LOG.info("Job '{0}' submitted with id '{1}'"
-                     .format(job, jobs[job]["jobid"]))
+                     .format(item, job["jobid"]))
 
-            jobs[job]["laststatus"] = "Queued"
+            job["laststatus"] = "Queued"
 
             # Increment the queue counter by one (used to count the slots).
-            hosts[host]["queue-slots"] = \
-                str(int(hosts[host]["queue-slots"]) + 1)
+            QUEUEINFO[job["resource"]]["queue-slots"] = \
+                str(int(QUEUEINFO[job["resource"]]["queue-slots"]) + 1)
 
             submitted += 1
 
@@ -561,7 +582,7 @@ def submit(hosts, jobs):
 
             LOG.error(err)
 
-            jobs[job]["laststatus"] = "Submit Error"
+            job["laststatus"] = "Submit Error"
 
             error += 1
 
@@ -570,18 +591,29 @@ def submit(hosts, jobs):
 
             LOG.info("The job '{0}' has been held back by Longbow due to "
                      "reaching queue slot limit, it will be submitted when a "
-                     "slot opens up.".format(job))
+                     "slot opens up.".format(item))
 
             # We will set a flag so that we can inform the user that it is
             # handled.
-            jobs[job]["laststatus"] = "Waiting Submission"
+            job["laststatus"] = "Waiting Submission"
 
             queued += 1
 
-    # We want to find out what the maximum number of slots we have are.
-    if int(hosts[host]["queue-slots"]) > int(hosts[host]["queue-max"]):
+        # We want to find out what the maximum number of slots we have are.
+        if int(QUEUEINFO[job["resource"]]["queue-slots"]) > \
+                int(QUEUEINFO[job["resource"]]["queue-max"]):
 
-        hosts[host]["queue-max"] = hosts[host]["queue-slots"]
+            QUEUEINFO[job["resource"]]["queue-max"] = \
+                QUEUEINFO[job["resource"]]["queue-slots"]
+
+    # Store a copy of the queueinfo data in the jobs data structure in case
+    # recovery is needed.
+    for item in jobs:
+
+        job = jobs[item]
+
+        job["queue-slots"] = QUEUEINFO[job["resource"]]["queue-slots"]
+        job["queue-max"] = QUEUEINFO[job["resource"]]["queue-max"]
 
     LOG.info("{0} Submitted, {1} Held due to queue limits and {2} Failed."
              .format(submitted, queued, error))

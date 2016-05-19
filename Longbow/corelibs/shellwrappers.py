@@ -25,7 +25,7 @@ are checked to make sure they are absolute paths.
 
 The following methods can be found:
 
-testconnections(hosts, jobs)
+testconnections(jobs)
     This method will test that connections to hosts specified in jobs can be
     established. Problems encountered at this stage could be due to either
     badly configured hosts, networking problems, or even system maintenance/
@@ -94,7 +94,7 @@ except ImportError:
 LOG = logging.getLogger("Longbow.corelibs.shellwrappers")
 
 
-def testconnections(hosts, jobs):
+def testconnections(jobs):
 
     """
     This method will test that connections to hosts specified in jobs can be
@@ -103,10 +103,6 @@ def testconnections(hosts, jobs):
     downtime on the HPC host.
 
     Required arguments are:
-
-    hosts (dictionary) - The Longbow hosts data structure, see configuration.py
-                         for more information about the format of this
-                         structure.
 
     jobs (dictionary) - The Longbow jobs data structure, see configuration.py
                         for more information about the format of this
@@ -121,10 +117,10 @@ def testconnections(hosts, jobs):
     # Test all of the computers listed in jobs in the job configuration
     # file, there is no need to check all the ones listed in host
     # configuration each time if they are not used.
-    for param in jobs:
+    for item in jobs:
 
-        resource = jobs[param]["resource"]
-        host = hosts[resource]
+        job = jobs[item]
+        resource = job["resource"]
 
         # Have we checked this connection already?
         if resource not in checked:
@@ -136,7 +132,7 @@ def testconnections(hosts, jobs):
 
             try:
 
-                sendtossh(host, ["ls"])
+                sendtossh(job, ["ls"])
 
             except EX.SSHError:
 
@@ -187,18 +183,13 @@ def sendtoshell(cmd):
     return stdout, stderr, errorstate
 
 
-def sendtossh(host, args):
+def sendtossh(job, args):
 
     """
     This method constructs a string containing commands to be executed via SSH.
     This string is then handed off to the sendtoshell() method for execution.
 
     Required arguments are:
-
-    host (dictionary) - A dictionary containing a single host, this is not to
-                        be confused with hosts. The best way to get a single
-                        dictionary for a host from hosts is to do:
-                        host = hosts[hostname]
 
     args (list) - A list containing commands to be sent to SSH, multiple
                   commands should each be an entry in the list.
@@ -211,7 +202,7 @@ def sendtossh(host, args):
     """
 
     # basic ssh command.
-    cmd = ["ssh", "-p " + host["port"], host["user"] + "@" + host["host"]]
+    cmd = ["ssh", "-p " + job["port"], job["user"] + "@" + job["host"]]
 
     # add the commands to be sent to ssh.
     cmd.extend(args)
@@ -259,7 +250,7 @@ def sendtossh(host, args):
     return shellout
 
 
-def sendtorsync(src, dst, port, includemask, excludemask):
+def sendtorsync(src, dst, job):
 
     """
     This method constructs a string that forms an rsync command, this string is
@@ -276,20 +267,14 @@ def sendtorsync(src, dst, port, includemask, excludemask):
                    if this is an upload then this should include the host
                    information. See the download and upload methods for how
                    this should be done (or just make use of those two methods).
-
-    port (port) - A string containing the port number as to which should be
-                  used for transfer.
-
-    includemask (string) - This is a string that should contain a comma
-                           separated list of files for transfer.
-
-    excludemask (string) - This is a string that should specify which files
-                           should be excluded from rsync transfer, this is
-                           useful for not transfering large unwanted files.
     """
 
     include = []
     exclude = []
+
+    excludemask = job["excludemask"]
+    includemask = job["includemask"]
+    port = job["port"]
 
     # Figure out if we are using masks to specify files.
     if excludemask is not "" and includemask is "":
@@ -523,7 +508,7 @@ def locallist(src):
     return filelist
 
 
-def remotecopy(host, src, dst):
+def remotecopy(job, src, dst):
 
     """
     This method is for copying a file/directory between two paths on a remote
@@ -558,14 +543,14 @@ def remotecopy(host, src, dst):
     # Send to subprocess.
     try:
 
-        sendtossh(host, ["cp -r", src, dst])
+        sendtossh(job, ["cp -r", src, dst])
 
     except EX.SSHError:
 
         raise EX.RemotecopyError("Could not copy file to host ", src, dst)
 
 
-def remotedelete(host, src):
+def remotedelete(job):
 
     """
     This method is for deleting a file/directory from a path on a remote host,
@@ -582,25 +567,27 @@ def remotedelete(host, src):
                    to be deleted (on the host).
     """
 
-    LOG.debug("Deleting '{0}'".format(src))
+    LOG.debug("Deleting '{0}'".format(job["destdir"]))
 
     # Are paths absolute.
-    if os.path.isabs(src) is False and src[0] != "~":
+    if os.path.isabs(job["destdir"]) is False and job["destdir"][0] != "~":
 
-        raise EX.AbsolutepathError("The source path is not absolute", src)
+        raise EX.AbsolutepathError("The source path is not absolute",
+                                   job["destdir"])
 
     # Send to subprocess.
     try:
 
-        sendtossh(host, ["rm -r", src])
+        sendtossh(job, ["rm -r", job["destdir"]])
 
     except EX.SSHError:
 
         raise EX.RemotedeleteError(
-            "Could not delete the file/directory on remote host", src)
+            "Could not delete the file/directory on remote host",
+            job["destdir"])
 
 
-def remotelist(host, src):
+def remotelist(job):
 
     """
     This method is for listing the contents of a directory on a remote host,
@@ -621,21 +608,23 @@ def remotelist(host, src):
     filelist (list) - A list of files within the specified directory.
     """
 
-    LOG.debug("Listing the contents of '{0}'".format(src))
+    LOG.debug("Listing the contents of '{0}'".format(job["destdir"]))
 
     # Are paths absolute.
-    if os.path.isabs(src) is False and src[0] != "~":
+    if os.path.isabs(job["destdir"]) is False and job["destdir"][0] != "~":
 
-        raise EX.AbsolutepathError("The source path is not absolute", src)
+        raise EX.AbsolutepathError("The source path is not absolute",
+                                   job["destdir"])
 
     # Send command to subprocess.
     try:
 
-        shellout = sendtossh(host, ["ls" + " " + src])
+        shellout = sendtossh(job, ["ls" + " " + job["destdir"]])
 
     except EX.SSHError:
 
-        raise EX.RemotelistError("Could not list the directory", src)
+        raise EX.RemotelistError("Could not list the directory",
+                                 job["destdir"])
 
     # Split the stdout into a list.
     filelist = shellout[0].split()
@@ -643,7 +632,7 @@ def remotelist(host, src):
     return filelist
 
 
-def upload(host, src, dst, includemask, excludemask):
+def upload(job):
 
     """
     This method is for uploading files to a remote host, this method is
@@ -669,29 +658,36 @@ def upload(host, src, dst, includemask, excludemask):
     """
 
     # Are paths absolute.
-    if os.path.isabs(src) is False and src[0] != "~":
+    if os.path.isabs(job["src"]) is False and job["src"][0] != "~":
 
-        raise EX.AbsolutepathError("The source path is not absolute", src)
+        raise EX.AbsolutepathError("The source path is not absolute",
+                                   job["src"])
 
-    if os.path.isabs(dst) is False and dst[0] != "~":
+    # We want to transfer whole directory.
+    if job["src"].endswith("/") is not True:
 
-        raise EX.AbsolutepathError("The destination path is not absolute", dst)
+        job["src"] = job["src"] + "/"
 
-    dst = (host["user"] + "@" + host["host"] + ":" + dst)
+    if os.path.isabs(job["dst"]) is False and job["dst"][0] != "~":
 
-    LOG.debug("Copying '{0}' to '{1}'".format(src, dst))
+        raise EX.AbsolutepathError("The destination path is not absolute",
+                                   job["dst"])
+
+    dst = (job["user"] + "@" + job["host"] + ":" + job["dst"])
+
+    LOG.debug("Copying '{0}' to '{1}'".format(job["src"], dst))
 
     # Send command to subprocess.
     try:
 
-        sendtorsync(src, dst, host["port"], includemask, excludemask)
+        sendtorsync(job, job["src"], dst)
 
     except EX.RsyncError:
 
         raise
 
 
-def download(host, src, dst, includemask, excludemask):
+def download(job):
 
     """
     This method is for downloading files from a remote host, this method is
@@ -717,22 +713,29 @@ def download(host, src, dst, includemask, excludemask):
     """
 
     # Are paths absolute.
-    if os.path.isabs(src) is False and src[0] != "~":
+    if os.path.isabs(job["src"]) is False and job["src"][0] != "~":
 
-        raise EX.AbsolutepathError("The source path is not absolute", src)
+        raise EX.AbsolutepathError("The source path is not absolute",
+                                   job["src"])
 
-    if os.path.isabs(dst) is False and dst[0] != "~":
+    # We want to transfer whole directory.
+    if job["src"].endswith("/") is not True:
 
-        raise EX.AbsolutepathError("The destination path is not absolute", dst)
+        job["src"] = job["src"] + "/"
 
-    src = (host["user"] + "@" + host["host"] + ":" + src)
+    if os.path.isabs(job["dst"]) is False and job["dst"][0] != "~":
 
-    LOG.debug("Copying '{0}' to '{1}'".format(src, dst))
+        raise EX.AbsolutepathError("The destination path is not absolute",
+                                   job["dst"])
+
+    src = (job["user"] + "@" + job["host"] + ":" + job["src"])
+
+    LOG.debug("Copying '{0}' to '{1}'".format(src, job["dst"]))
 
     # Send command to subprocess.
     try:
 
-        sendtorsync(src, dst, host["port"], includemask, excludemask)
+        sendtorsync(src, job["dst"], job)
 
     except EX.RsyncError:
 

@@ -57,7 +57,7 @@ except ImportError:
 LOG = logging.getLogger("Longbow.corelibs.applications")
 
 
-def testapp(hosts, jobs):
+def testapp(jobs):
 
     """
     This method will make an attempt to check that the application executables
@@ -79,10 +79,11 @@ def testapp(hosts, jobs):
 
     LOG.info("Testing the executables defined for each job.")
 
-    for job in jobs:
+    for item in jobs:
 
-        resource = jobs[job]["resource"]
-        executable = jobs[job]["executable"]
+        job = jobs[item]
+        resource = job["resource"]
+        executable = job["executable"]
 
         # If we haven't checked this resource then it is likely not in the dict
         if resource not in checked:
@@ -100,14 +101,14 @@ def testapp(hosts, jobs):
 
             cmd = []
 
-            if jobs[job]["modules"] is "":
+            if job["modules"] is "":
 
                 LOG.debug("Checking without modules.")
 
             else:
                 LOG.debug("Checking with modules.")
 
-                for module in jobs[job]["modules"].split(","):
+                for module in job["modules"].split(","):
 
                     module = module.replace(" ", "")
                     cmd.extend(["module load " + module + "\n"])
@@ -116,7 +117,7 @@ def testapp(hosts, jobs):
 
             try:
 
-                SHELLWRAPPERS.sendtossh(hosts[resource], cmd)
+                SHELLWRAPPERS.sendtossh(job, cmd)
                 LOG.info("Executable check - passed.")
 
             except EX.SSHError:
@@ -147,45 +148,46 @@ def processjobs(jobs):
     tmp = getattr(APPS, "DEFMODULES")
 
     # Process each job.
-    for job in jobs:
+    for item in jobs:
 
         # Initialise some basic parameters.
-        executable = jobs[job]["executable"]
+        job = jobs[item]
+        executable = job["executable"]
         app = tmp[executable]
-        args = jobs[job]["executableargs"]
+        args = job["executableargs"]
         filelist = []
 
         # Append a hash to the job directory to avoid directory clashes.
-        destdir = job + ''.join(["%s" % randint(0, 9) for _ in range(0, 5)])
+        destdir = item + ''.join(["%s" % randint(0, 9) for _ in range(0, 5)])
 
-        jobs[job]["destdir"] = os.path.join(jobs[job]["destdir"], destdir)
+        job["destdir"] = os.path.join(job["destdir"], destdir)
 
         LOG.debug("Job '{0}' will be run in the '{1}' directory on the remote "
-                  "resource.".format(job, jobs[job]["destdir"]))
+                  "resource.".format(item, job["destdir"]))
 
         LOG.debug("Command-line arguments for job '{0}'are '{1}'"
-                  .format(job, args))
+                  .format(item, args))
 
         # Check for any files that are located outside the work directory or
         # absolute paths.
-        for item in args:
+        for arg in args:
 
-            if item.count(os.path.pardir) > 0 or os.path.isabs(item):
+            if arg.count(os.path.pardir) > 0 or os.path.isabs(arg):
 
                 raise EX.RequiredinputError(
                     "In job '{0}' input files are being provided with "
                     "absolute paths or from directories above localworkdir. "
-                    "This is not supported".format(job))
+                    "This is not supported".format(item))
 
         # Base path to local job directory.
-        cwd = jobs[job]["localworkdir"]
+        cwd = job["localworkdir"]
 
         # If we have multiple jobs.
         if len(jobs) > 1:
 
             # Add the job name to the path.
-            cwd = os.path.join(cwd, job)
-            jobs[job]["localworkdir"] = cwd
+            cwd = os.path.join(cwd, item)
+            job["localworkdir"] = cwd
 
         # Check that the directory exists.
         if os.path.isdir(cwd) is False:
@@ -228,11 +230,11 @@ def processjobs(jobs):
 
                     # If 'replicates' == 1 then we will only check one file,
                     # else we will proceed to check files in all replicates.
-                    for i in range(1, int(jobs[job]["replicates"]) + 1):
+                    for i in range(1, int(job["replicates"]) + 1):
 
                         # If we do only have a single job then file path should
                         # be
-                        if int(jobs[job]["replicates"]) == 1:
+                        if int(job["replicates"]) == 1:
 
                             # For this type of job the file should be at [1].
                             fileitem = args[1]
@@ -303,7 +305,7 @@ def processjobs(jobs):
                         "In job '{0}' it appears that the input file is "
                         "missing, check your command line is of the form "
                         "longbow [longbow args] executable '<' "
-                        "[executable args]".format(job))
+                        "[executable args]".format(item))
 
             # Some programs are run with the format "executable input.file"
             elif args[0] is not "<":
@@ -313,11 +315,11 @@ def processjobs(jobs):
 
                     # If 'replicates' == 1 then we will only check one file,
                     # else we will proceed to check files in all replicates.
-                    for i in range(1, int(jobs[job]["replicates"]) + 1):
+                    for i in range(1, int(job["replicates"]) + 1):
 
                         # If we do only have a single job then file path should
                         # be
-                        if int(jobs[job]["replicates"]) == 1:
+                        if int(job["replicates"]) == 1:
 
                             # For this type of job the file should be at [0].
                             fileitem = args[0]
@@ -391,26 +393,26 @@ def processjobs(jobs):
                         "is missing, check your command line is of "
                         "the form: "
                         "longbow [longbow args] executable '<' "
-                        "[executable args]".format(job))
+                        "[executable args]".format(item))
 
         # Otherwise we have a more conventional command line of the form:
         # exec -a arg1 -b arg2 --foo bar
         else:
 
             # Run through each one.
-            for item in args:
+            for arg in args:
 
                 fileitem = ""
 
                 # If we have a flag (starting with '-') and it is in the list
                 # of required flags.
-                if item[0] is "-" and item in req_flags:
+                if arg[0] is "-" and arg in req_flags:
 
                     # Mark the flag as found
-                    found_flags.append(item)
+                    found_flags.append(arg)
 
                 # If we have a flag that is not in the list of required flags.
-                elif item[0] is "-" and item not in req_flags:
+                elif arg[0] is "-" and arg not in req_flags:
 
                     # Check then if this flag belongs to a case where it is
                     # either one or the other flag has to be provided (ie ones
@@ -424,7 +426,7 @@ def processjobs(jobs):
                             flags = flag.split(" || ")
 
                             # Now check if flag is present
-                            if item in flags:
+                            if arg in flags:
 
                                 # Mark it as found if it hasn't been already.
                                 if flag not in found_flags:
@@ -435,17 +437,17 @@ def processjobs(jobs):
 
                     # If 'replicates' == 1 then we will only check one file,
                     # else we will proceed to check files in all replicates.
-                    for i in range(1, int(jobs[job]["replicates"]) + 1):
+                    for i in range(1, int(job["replicates"]) + 1):
 
                         tmpitem = ""
 
                         # If we do only have a single job then file path should
                         # be
-                        if int(jobs[job]["replicates"]) == 1:
+                        if int(job["replicates"]) == 1:
 
-                            if os.path.isfile(os.path.join(cwd, item)):
+                            if os.path.isfile(os.path.join(cwd, arg)):
 
-                                fileitem = item
+                                fileitem = arg
 
                             # Hook for checking plugin specific file naming
                             # scenarios (eg. gromacs -deffnm test actually
@@ -456,7 +458,7 @@ def processjobs(jobs):
 
                                     fileitem = getattr(
                                         APPS, app.lower()).defaultfilename(
-                                            cwd, item)
+                                        cwd, arg)
 
                                 except AttributeError:
 
@@ -483,23 +485,23 @@ def processjobs(jobs):
                             # if the file resides within ./rep{i} or if it is
                             # a global (common to each replicate) file.
                             if os.path.isfile(
-                                    os.path.join(cwd, "rep" + str(i), item)):
+                                    os.path.join(cwd, "rep" + str(i), arg)):
 
                                 # Set the file path
-                                fileitem = os.path.join("rep" + str(i), item)
+                                fileitem = os.path.join("rep" + str(i), arg)
 
                             # Otherwise do we have a file here.
-                            elif os.path.isfile(os.path.join(cwd, item)):
+                            elif os.path.isfile(os.path.join(cwd, arg)):
 
                                 # If we do then set file path.
-                                fileitem = item
+                                fileitem = arg
 
                                 # Also update the command line to reflect a
                                 # global file.
-                                if item in initargs:
+                                if arg in initargs:
 
-                                    initargs[initargs.index(item)] = \
-                                        os.path.join("../", item)
+                                    initargs[initargs.index(arg)] = \
+                                        os.path.join("../", arg)
 
                             # Hook for checking plugin specific file naming
                             # scenarios (eg. gromacs -deffnm test actually
@@ -511,7 +513,7 @@ def processjobs(jobs):
                                     tmpitem = getattr(
                                         APPS, app.lower()).defaultfilename(
                                             cwd, os.path.join(
-                                                "rep" + str(i) + item))
+                                                "rep" + str(i) + arg))
 
                                 except AttributeError:
 
@@ -530,14 +532,14 @@ def processjobs(jobs):
 
                                         fileitem = getattr(
                                             APPS, app.lower()).defaultfilename(
-                                                cwd, item)
+                                                cwd, arg)
 
                                         # Also update the command line to
                                         # reflect a global file.
-                                        if item in initargs:
+                                        if arg in initargs:
 
-                                            initargs[initargs.index(item)] = \
-                                                os.path.join("../", item)
+                                            initargs[initargs.index(arg)] = \
+                                                os.path.join("../", arg)
 
                                     except AttributeError:
 
@@ -571,26 +573,26 @@ def processjobs(jobs):
                 raise EX.RequiredinputError(
                     "In job '{0}' there are missing flags on the command line "
                     "'{1}'. See user documentation for plug-in '{2}'".format(
-                        job, flags, getattr(APPS, "DEFMODULES")[executable]))
+                        item, flags, getattr(APPS, "DEFMODULES")[executable]))
 
         # Setup the rysnc upload masks.
-        if jobs[job]["upload-include"] is "":
+        if job["upload-include"] is "":
 
-            jobs[job]["upload-include"] = (", ".join(filelist))
+            job["upload-include"] = (", ".join(filelist))
 
         else:
 
-            jobs[job]["upload-include"] = (
-                jobs[job]["upload-include"] + ", " + ", ".join(filelist))
+            job["upload-include"] = (job["upload-include"] + ", " +
+                                     ", ".join(filelist))
 
-        jobs[job]["upload-exclude"] = "*"
+        job["upload-exclude"] = "*"
 
         # Replace the input command line with the execution command line.
         # initargs is a copy of the original args before text enforcing
         # substitutions was removed
-        jobs[job]["executableargs"] = executable + " " + " ".join(initargs)
+        job["executableargs"] = executable + " " + " ".join(initargs)
 
-        LOG.info("For job '{0}' - execution string: {1}".format(job,
-                 jobs[job]["executableargs"]))
+        LOG.info("For job '{0}' - execution string: {1}"
+                 .format(item, job["executableargs"]))
 
     LOG.info("Processing jobs - complete.")

@@ -53,7 +53,7 @@ except ImportError:
 QUERY_STRING = "env | grep -i 'pbs'"
 
 
-def delete(host, job):
+def delete(job):
 
     """
     Method for deleting job.
@@ -65,11 +65,11 @@ def delete(host, job):
 
         if int(job["replicates"]) > 1:
 
-            shellout = SHELLWRAPPERS.sendtossh(host, ["qdel " + jobid + "[]"])
+            shellout = SHELLWRAPPERS.sendtossh(job, ["qdel " + jobid + "[]"])
 
         else:
 
-            shellout = SHELLWRAPPERS.sendtossh(host, ["qdel " + jobid])
+            shellout = SHELLWRAPPERS.sendtossh(job, ["qdel " + jobid])
 
     except EX.SSHError:
 
@@ -78,49 +78,46 @@ def delete(host, job):
     return shellout[0]
 
 
-def prepare(hosts, jobname, jobs):
+def prepare(job):
 
     """
     Create the PBS jobfile ready for submitting jobs
     """
 
     # Open file for PBS script.
-    pbsfile = os.path.join(jobs[jobname]["localworkdir"], "submit.pbs")
+    pbsfile = os.path.join(job["localworkdir"], "submit.pbs")
     jobfile = open(pbsfile, "w+")
 
     # Write the PBS script
     jobfile.write("#!/bin/bash --login\n")
 
     # Job name (if supplied)
-    if jobname is not "":
+    if job["jobname"] is not "":
 
-        jobfile.write("#PBS -N " + jobname + "\n")
+        jobfile.write("#PBS -N " + job["jobname"] + "\n")
 
     # Queue to submit to (if supplied)
-    if jobs[jobname]["queue"] is not "":
+    if job["queue"] is not "":
 
-        jobfile.write("#PBS -q " + jobs[jobname]["queue"] + "\n")
+        jobfile.write("#PBS -q " + job["queue"] + "\n")
 
     # Account to charge (if supplied).
-    if hosts[jobs[jobname]["resource"]]["account"] is not "":
+    if job["account"] is not "":
 
         # if no accountflag is provided use the default
-        if hosts[jobs[jobname]["resource"]]["accountflag"] is "":
+        if job["accountflag"] is "":
 
-            jobfile.write(
-                "#PBS -A " + hosts[jobs[jobname]["resource"]]["account"] +
-                "\n")
+            jobfile.write("#PBS -A " + job["account"] + "\n")
 
         # else use the accountflag provided
         else:
 
-            jobfile.write(
-                "#PBS " + hosts[jobs[jobname]["resource"]]["accountflag"] +
-                " " + hosts[jobs[jobname]["resource"]]["account"] + "\n")
+            jobfile.write("#PBS " + job["accountflag"] + " " +
+                          job["account"] + "\n")
 
-    cpn = hosts[jobs[jobname]["resource"]]["corespernode"]
+    cpn = job["corespernode"]
 
-    cores = jobs[jobname]["cores"]
+    cores = job["cores"]
 
     # Load levelling override. In cases where # of cores is less than
     # corespernode, user is likely to be undersubscribing.
@@ -142,7 +139,7 @@ def prepare(hosts, jobname, jobs):
     mpiprocs = cpn
 
     # Memory size (used to select nodes with minimum memory).
-    memory = jobs[jobname]["memory"]
+    memory = job["memory"]
 
     tmp = "select=" + nodes + ":ncpus=" + ncpus + ":mpiprocs=" + mpiprocs
 
@@ -156,12 +153,12 @@ def prepare(hosts, jobname, jobs):
     jobfile.write("#PBS -l " + tmp + "\n")
 
     # Walltime for job.
-    jobfile.write("#PBS -l walltime=" + jobs[jobname]["maxtime"] + ":00\n")
+    jobfile.write("#PBS -l walltime=" + job["maxtime"] + ":00\n")
 
     # Set up replicates jobs
-    if int(jobs[jobname]["replicates"]) > 1:
+    if int(job["replicates"]) > 1:
 
-        jobfile.write("#PBS -J 1-" + jobs[jobname]["replicates"] + "\n")
+        jobfile.write("#PBS -J 1-" + job["replicates"] + "\n")
         jobfile.write("#PBS -r y\n")
 
     # Set some environment variables for PBS.
@@ -171,15 +168,15 @@ def prepare(hosts, jobname, jobs):
         "export OMP_NUM_THREADS=1\n\n")
 
     # Load up modules if required.
-    if jobs[jobname]["modules"] is not "":
+    if job["modules"] is not "":
 
-        for module in jobs[jobname]["modules"].split(","):
+        for module in job["modules"].split(","):
 
             module = module.replace(" ", "")
             jobfile.write("module load {0}\n\n" .format(module))
 
     # Handler that is used for job submission.
-    mpirun = hosts[jobs[jobname]["resource"]]["handler"]
+    mpirun = job["handler"]
 
     # CRAY's use aprun which has slightly different requirements to mpirun.
     if mpirun == "aprun":
@@ -187,28 +184,27 @@ def prepare(hosts, jobname, jobs):
         mpirun = mpirun + " -n " + cores + " -N " + mpiprocs
 
     # Single jobs only need one run command.
-    if int(jobs[jobname]["replicates"]) == 1:
+    if int(job["replicates"]) == 1:
 
-        jobfile.write(mpirun + " " + jobs[jobname]["executableargs"] + "\n")
+        jobfile.write(mpirun + " " + job["executableargs"] + "\n")
 
     # Job array
-    elif int(jobs[jobname]["replicates"]) > 1:
+    elif int(job["replicates"]) > 1:
 
         jobfile.write(
             "basedir=$PBS_O_WORKDIR \n"
             "cd $basedir/rep${PBS_ARRAY_INDEX}/\n\n" +
-            mpirun + " " + jobs[jobname]["executableargs"] + "\n")
+            mpirun + " " + job["executableargs"] + "\n")
 
     # Close the file (housekeeping)
     jobfile.close()
 
     # Append pbs file to list of files ready for staging.
-    jobs[jobname]["upload-include"] = (
-        jobs[jobname]["upload-include"] + ", submit.pbs")
-    jobs[jobname]["subfile"] = "submit.pbs"
+    job["upload-include"] = job["upload-include"] + ", submit.pbs"
+    job["subfile"] = "submit.pbs"
 
 
-def status(host, jobid):
+def status(job):
 
     """
     Method for querying job.
@@ -232,7 +228,7 @@ def status(host, jobid):
 
     try:
 
-        shellout = SHELLWRAPPERS.sendtossh(host, ["qstat -u " + host["user"]])
+        shellout = SHELLWRAPPERS.sendtossh(job, ["qstat -u " + job["user"]])
 
     except EX.SSHError:
 
@@ -245,7 +241,7 @@ def status(host, jobid):
 
         # Now match the jobid against the list of jobs, extract the line and
         # split it into a list
-        job = [line for line in stdout if jobid in line][0].split()
+        job = [line for line in stdout if job["jobid"] in line][0].split()
 
         # Look up the job state and convert it to Longbow terminology.
         jobstate = states[job[9]]
@@ -257,19 +253,18 @@ def status(host, jobid):
     return jobstate
 
 
-def submit(host, jobname, jobs):
+def submit(job):
 
     """
     Method for submitting a job.
     """
 
     # Change into the working directory and submit the job.
-    cmd = ["cd " + jobs[jobname]["destdir"] + "\n",
-           "qsub " + jobs[jobname]["subfile"]]
+    cmd = ["cd " + job["destdir"] + "\n", "qsub " + job["subfile"]]
 
     try:
 
-        shellout = SHELLWRAPPERS.sendtossh(host, cmd)
+        shellout = SHELLWRAPPERS.sendtossh(job, cmd)
 
     except EX.SSHError as inst:
 
@@ -345,4 +340,4 @@ def submit(host, jobname, jobs):
             "Longbow could not understand the returned information.")
 
     # Put jobid into the job dictionary.
-    jobs[jobname]["jobid"] = jobid
+    job["jobid"] = jobid

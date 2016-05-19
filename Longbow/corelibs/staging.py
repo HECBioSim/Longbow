@@ -59,7 +59,7 @@ except ImportError:
 LOG = logging.getLogger("Longbow.corelibs.staging")
 
 
-def stage_upstream(hosts, jobs):
+def stage_upstream(jobs):
 
     """
     A method for staging files for each job to the target HPC host. The
@@ -70,10 +70,6 @@ def stage_upstream(hosts, jobs):
 
     Required arguments are:
 
-    hosts (dictionary) - The Longbow hosts data structure, see configuration.py
-                         for more information about the format of this
-                         structure.
-
     jobs (dictionary) - The Longbow jobs data structure, see configuration.py
                         for more information about the format of this
                         structure.
@@ -81,49 +77,47 @@ def stage_upstream(hosts, jobs):
 
     LOG.info("Staging files for job/s.")
 
-    for job in jobs:
+    for item in jobs:
 
-        host = hosts[jobs[job]["resource"]]
-        src = jobs[job]["localworkdir"]
-        dst = jobs[job]["destdir"]
+        job = jobs[item]
+        destdir = job["destdir"]
 
         LOG.info("Transfering files for job '{0}' to host '{1}'"
-                 .format(job, jobs[job]["resource"]))
+                 .format(item, job["resource"]))
 
         try:
 
-            SHELLWRAPPERS.sendtossh(host, ["mkdir -p " + dst + "\n"])
+            SHELLWRAPPERS.sendtossh(job, ["mkdir -p " + destdir + "\n"])
 
-            LOG.info("Creation of directory '{0}' - successful.".format(dst))
+            LOG.info("Creation of directory '{0}' - successful."
+                     .format(destdir))
 
         except EX.SSHError:
 
             LOG.error(
                 "Creation of directory '{0}' - failed. Make sure that you "
                 "have write permissions at the top level of the path given."
-                .format(dst))
+                .format(destdir))
 
             raise
 
         # Transfer files upstream.
         try:
 
-            SHELLWRAPPERS.upload(
-                host, src + "/", dst,
-                jobs[job]["upload-include"],
-                jobs[job]["upload-exclude"])
+            SHELLWRAPPERS.upload(job)
 
         except EX.RsyncError:
 
             raise EX.StagingError(
-                "Could not stage file '{0}' upstream, make sure that you have "
+                "Could not stage '{0}' upstream, make sure that you have "
                 "supplied the correct remote working directory and that you "
-                "have chosen a path that you can write to.".format(src))
+                "have chosen a path that you can write to."
+                .format(job["localworkdir"]))
 
     LOG.info("Staging files upstream - complete.")
 
 
-def stage_downstream(hosts, jobs, jobname):
+def stage_downstream(job):
 
     """
     A method for staging files for each job to from target HPC host. The
@@ -134,10 +128,6 @@ def stage_downstream(hosts, jobs, jobname):
 
     Required arguments are:
 
-    hosts (dictionary) - The Longbow hosts data structure, see configuration.py
-                         for more information about the format of this
-                         structure.
-
     jobs (dictionary) - The Longbow jobs data structure, see configuration.py
                         for more information about the format of this
                         structure.
@@ -146,29 +136,22 @@ def stage_downstream(hosts, jobs, jobname):
                        (primary key in jobs dict)
     """
 
-    LOG.info("For job '{0}' staging files downstream.".format(jobname))
-
-    host = hosts[jobs[jobname]["resource"]]
-    src = jobs[jobname]["destdir"] + "/"
-    dst = jobs[jobname]["localworkdir"]
+    LOG.info("For job '{0}' staging files downstream.".format(job["jobname"]))
 
     # Download the whole directory with rsync.
     try:
 
-        SHELLWRAPPERS.download(
-            host, src, dst,
-            jobs[jobname]["download-include"],
-            jobs[jobname]["download-exclude"])
+        SHELLWRAPPERS.download(job)
 
     except EX.RsyncError:
 
-        raise EX.StagingError("Could not download file '{0}' "
-                              "to location '{1}'".format(src, dst))
+        raise EX.StagingError("Could not download file '{0}' to location '{1}'"
+                              .format(job["src"], job["dst"]))
 
     LOG.info("Staging complete.")
 
 
-def cleanup(hosts, jobs):
+def cleanup(jobs):
 
     """
     A method for cleaning up the working directory on the HPC host, this method
@@ -177,10 +160,6 @@ def cleanup(hosts, jobs):
 
     Required arguments are:
 
-    hosts (dictionary) - The Longbow hosts data structure, see configuration.py
-                         for more information about the format of this
-                         structure.
-
     jobs (dictionary) - The Longbow jobs data structure, see configuration.py
                         for more information about the format of this
                         structure.
@@ -188,20 +167,22 @@ def cleanup(hosts, jobs):
 
     LOG.info("Cleaning up the work directories.")
 
-    for job in jobs:
+    for item in jobs:
+
+        job = jobs[item]
+        destdir = job["destdir"]
+        remotedir = job["remoteworkdir"]
 
         try:
 
-            host = hosts[jobs[job]["resource"]]
-            path = jobs[job]["destdir"]
+            SHELLWRAPPERS.remotelist(job)
 
-            SHELLWRAPPERS.remotelist(host, path)
+            if destdir != remotedir:
 
-            if path != hosts[jobs[job]["resource"]]["remoteworkdir"]:
                 LOG.info("Deleting directory for job '{0}' - '{1}'"
-                         .format(job, path))
+                         .format(item, destdir))
 
-                SHELLWRAPPERS.remotedelete(hosts[jobs[job]["resource"]], path)
+                SHELLWRAPPERS.remotedelete(job)
 
             else:
 
@@ -211,25 +192,25 @@ def cleanup(hosts, jobs):
         except EX.RemoteworkdirError:
 
             LOG.debug("For job '{0}', cleanup not required because the "
-                      "'{1}xxxxx' subdirectory of {2} in which the job would "
-                      "have run has not yet been created on the remote "
-                      "resource.".format(job, job, host["remoteworkdir"]))
+                      "'{0}xxxxx' subdirectory of '{1}' in which the job "
+                      "would have run has not yet been created on the remote "
+                      "resource.".format(item, remotedir))
 
         except EX.RemotelistError:
 
             # Directory doesn't exist.
             LOG.debug("Directory on path '{0}' does not exist - skipping."
-                      .format(path))
+                      .format(destdir))
 
         except KeyError:
 
             LOG.debug("For job '{0}', cleanup not required - skipping."
-                      .format(job))
+                      .format(item))
 
         except EX.RemotedeleteError:
 
             LOG.debug("For job '{0}', cannot delete directory '{1}' - "
-                      "skipping.".format(job, path))
+                      "skipping.".format(item, destdir))
 
         except NameError:
 

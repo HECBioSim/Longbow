@@ -24,7 +24,7 @@
 This module contains the Longbow application entry point and the high level
 library methods. The following gives a summary of the methods available:
 
-main(files, parameters)
+main(parameters)
     This method is the upper level method of the Longbow library. Users
     interested in integrating Longbow into their applications without fine
     grain control may invoke this method, along with creating the data
@@ -73,7 +73,7 @@ LONGBOWVERSION = "1.2.0"
 LOG = logging.getLogger("Longbow")
 
 
-def main(files, parameters):
+def main(parameters):
 
     """
     This method is the main entry point of the Longbow library. This method,
@@ -93,19 +93,18 @@ def main(files, parameters):
     # escalating the exception to trigger graceful exit.
 
     # Load configurations and initialise Longbow data structures.
-    hosts, jobs = CONFIGURATION.processconfigs(files["hosts"], files["job"],
-                                               parameters)
+    jobs = CONFIGURATION.processconfigs(parameters)
 
     # Test all connection/s specified in the job configurations
-    SHELLWRAPPERS.testconnections(hosts, jobs)
+    SHELLWRAPPERS.testconnections(jobs)
 
     # Test the hosts listed in the jobs configuration file have their
     # scheduler environments listed, if not then test and save them.
-    SCHEDULING.testenv(files["hosts"], hosts, jobs)
+    SCHEDULING.testenv(jobs, parameters["hosts"])
 
     # Test that for the applications listed in the job configuration
     # file are available and that the executable is present.
-    APPLICATIONS.testapp(hosts, jobs)
+    APPLICATIONS.testapp(jobs)
 
     # Process the jobs command line arguments and find files for
     # staging.
@@ -113,22 +112,23 @@ def main(files, parameters):
 
     # Create jobfile and add it to the list of files that needs
     # uploading.
-    SCHEDULING.prepare(hosts, jobs)
+    SCHEDULING.prepare(jobs)
 
     # Exceptions that occur before here don't require cleanup operations before
     # reporting up.
     try:
 
         # Stage all of the job files along with the scheduling script.
-        STAGING.stage_upstream(hosts, jobs)
+        STAGING.stage_upstream(jobs)
 
         # Submit all jobs.
-        SCHEDULING.submit(hosts, jobs)
+        SCHEDULING.submit(jobs)
 
         # Monitor all jobs.
-        SCHEDULING.monitor(hosts, jobs)
+        SCHEDULING.monitor(jobs)
 
-        STAGING.cleanup(hosts, jobs)
+        # Clean up all jobs
+        STAGING.cleanup(jobs)
 
     # If the user interrupts Longbow at this stage then it they are aborting
     # the jobs, so kill off any running jobs and then remove the job
@@ -141,27 +141,29 @@ def main(files, parameters):
             "removed any files staged.")
 
         # If we are exiting at this stage then we need to kill off
-        for job in jobs:
+        for item in jobs:
 
-            if "jobid" in jobs[job] and "laststatus" in jobs[job]:
+            job = jobs[item]
+
+            if "jobid" in job and "laststatus" in job:
 
                 # If job is not finished delete and stage.
-                if (jobs[job]["laststatus"] != "Finished" and
-                        jobs[job]["laststatus"] != "Submit Error"):
+                if (job["laststatus"] != "Finished" and
+                        job["laststatus"] != "Submit Error"):
 
                     # Kill it.
-                    SCHEDULING.delete(hosts, jobs, job)
+                    SCHEDULING.delete(job)
 
                     # Transfer the directories as they are.
-                    STAGING.stage_downstream(hosts, jobs, job)
+                    STAGING.stage_downstream(job)
 
                 # Job is finished then just stage.
-                elif jobs[job]["laststatus"] != "Submit Error":
+                elif job["laststatus"] != "Submit Error":
 
                     # Transfer the directories as they are.
-                    STAGING.stage_downstream(hosts, jobs, job)
+                    STAGING.stage_downstream(job)
 
-        STAGING.cleanup(hosts, jobs)
+        STAGING.cleanup(jobs)
 
 
 def recover():
@@ -178,22 +180,7 @@ def recover():
     LOG.info("Attempting to find the recovery files")
 
     longbowdir = os.path.expanduser('~/.Longbow')
-    hostfile = os.path.join(longbowdir, "hosts.recovery")
     jobfile = os.path.join(longbowdir, "jobs.recovery")
-
-    # Load the hosts recovery file.
-    if os.path.isfile(hostfile):
-
-        LOG.info("Recovery file found at '{0}'".format(hostfile))
-
-        _, _, hosts = CONFIGURATION.loadconfigs(hostfile)
-
-    else:
-
-        raise EX.RequiredinputError(
-            "Recovery file could not be found at '{0}' make sure you are "
-            "running the recovery from the job directory that was initially "
-            "used to launch the failed job".format(hostfile))
 
     # Load the jobs recovery file.
     if os.path.isfile(jobfile):
@@ -211,10 +198,10 @@ def recover():
 
     # Rejoin at the monitoring stage. This will assume that all jobs that are
     # no longer in the queue have completed.
-    SCHEDULING.monitor(hosts, jobs)
+    SCHEDULING.monitor(jobs)
 
     # Cleanup the remote working directory.
-    STAGING.cleanup(hosts, jobs)
+    STAGING.cleanup(jobs)
 
 
 if __name__ == "__main__":
@@ -258,25 +245,20 @@ if __name__ == "__main__":
     COMMANDLINEARGS = sys.argv
     COMMANDLINEARGS.pop(0)
 
-    # Initialise file path params, so we can pass blank to signify use default
-    # paths if not supplied.
-    FILES = {
-        "hosts": "",
-        "job": "",
-        "log": ""
-    }
-
     RECOVER = False
     MODE = ""
 
     # Initialise parameters that could alternatively be provided in
     # configuration files
     PARAMETERS = {
-        "resource": "",
-        "replicates": "",
-        "jobname": "",
         "executable": "",
         "executableargs": "",
+        "hosts": "",
+        "job": "",
+        "jobname": "",
+        "log": "",
+        "resource": "",
+        "replicates": ""
     }
 
     # Specify all recognised longbow arguments
@@ -356,8 +338,6 @@ if __name__ == "__main__":
             # longbow argument, assume it, and all others following it are
             # executable arguments
             if (item not in ALLLONGBOWARGS and
-                    COMMANDLINEARGS[POSITION-1][1:] not in FILES and
-                    COMMANDLINEARGS[POSITION-1][2:] not in FILES and
                     COMMANDLINEARGS[POSITION-1][1:] not in PARAMETERS and
                     COMMANDLINEARGS[POSITION-1][2:] not in PARAMETERS):
 
@@ -515,7 +495,7 @@ if __name__ == "__main__":
 
         else:
 
-            FILES["log"] = LONGBOWARGS[POSITION + 1]
+            PARAMETERS["log"] = LONGBOWARGS[POSITION + 1]
 
     # Store the config file path
     if LONGBOWARGS.count("-hosts") == 1 or LONGBOWARGS.count("--hosts"):
@@ -536,7 +516,7 @@ if __name__ == "__main__":
                 "parameter e.g. longbow --hosts [filename] ...")
         else:
 
-            FILES["hosts"] = LONGBOWARGS[POSITION + 1]
+            PARAMETERS["hosts"] = LONGBOWARGS[POSITION + 1]
 
     # Store the job config file path
     if LONGBOWARGS.count("-job") == 1 or LONGBOWARGS.count("--job") == 1:
@@ -558,7 +538,7 @@ if __name__ == "__main__":
 
         else:
 
-            FILES["job"] = LONGBOWARGS[POSITION + 1]
+            PARAMETERS["job"] = LONGBOWARGS[POSITION + 1]
 
     if (LONGBOWARGS.count("-recover") == 1 or
             LONGBOWARGS.count("--recover") == 1):
@@ -656,14 +636,14 @@ if __name__ == "__main__":
     # set up their own handlers.
 
     # If no log file name was given then default to "log".
-    if FILES["log"] is "":
+    if PARAMETERS["log"] is "":
 
-        FILES["log"] = "log"
+        PARAMETERS["log"] = "log"
 
     # If the path isn't absolute then create the log in CWD.
-    if os.path.isabs(FILES["log"]) is False:
+    if os.path.isabs(PARAMETERS["log"]) is False:
 
-        FILES["log"] = os.path.join(os.getcwd(), FILES["log"])
+        PARAMETERS["log"] = os.path.join(os.getcwd(), PARAMETERS["log"])
 
     # In debug mode we would like more information and also to switch on the
     # debug messages, otherwise stick to information level logging.
@@ -683,7 +663,7 @@ if __name__ == "__main__":
         LOG.setLevel(logging.INFO)
 
     # All logging types use the file handler, so append the logfile.
-    HANDLER = logging.FileHandler(FILES["log"], mode="w")
+    HANDLER = logging.FileHandler(PARAMETERS["log"], mode="w")
     HANDLER.setFormatter(LOGFORMAT)
     LOG.addHandler(HANDLER)
 
@@ -724,33 +704,39 @@ if __name__ == "__main__":
         LOG.info("Longbow Commandline: {0}".format(COMMANDLINE))
 
         # Hosts - if a filename hasn't been provided default to hosts.conf
-        if FILES["hosts"] is "":
+        if PARAMETERS["hosts"] is "":
 
-            FILES["hosts"] = "hosts.conf"
+            PARAMETERS["hosts"] = "hosts.conf"
 
         # If a full absolute path has not been provided then check within the
         # current working directory, ~/.Longbow directory and the execution
         # directory.
-        if os.path.isabs(FILES["hosts"]) is False:
+        if os.path.isabs(PARAMETERS["hosts"]) is False:
 
-            # Current working directory.
-            if os.path.isfile(os.path.join(os.getcwd(), FILES["hosts"])):
+            # CWD.
+            CWD = os.path.join(os.getcwd(), PARAMETERS["hosts"])
 
-                FILES["hosts"] = os.path.join(os.getcwd(), FILES["hosts"])
+            # Path for ~/.Longbow directory.
+            LONGBOWDIR = os.path.join(os.path.expanduser("~/.Longbow"),
+                                      PARAMETERS["hosts"])
+
+            # Path for exec directory.
+            EXECDIR = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                   PARAMETERS["hosts"])
+
+            if os.path.isfile(CWD):
+
+                PARAMETERS["hosts"] = CWD
 
             # The ~/.Longbow directory.
-            elif os.path.isfile(os.path.join(
-                    os.path.expanduser("~/.Longbow"), FILES["hosts"])):
+            elif os.path.isfile(LONGBOWDIR):
 
-                FILES["hosts"] = os.path.join(
-                    os.path.expanduser("~/.Longbow"), FILES["hosts"])
+                PARAMETERS["hosts"] = LONGBOWDIR
 
             # As a last resort, within the execution directory.
-            elif os.path.isfile(os.path.join(os.path.dirname(
-                                os.path.realpath(__file__)), FILES["hosts"])):
+            elif os.path.isfile(EXECDIR):
 
-                FILES["hosts"] = os.path.join(os.path.dirname(
-                    os.path.realpath(__file__)), FILES["hosts"])
+                PARAMETERS["hosts"] = EXECDIR
 
             else:
 
@@ -764,17 +750,24 @@ if __name__ == "__main__":
         # Job - if a job configuration file has been supplied but the path
         # hasn't look in the current working directory and then the execution
         # directory if needs be.
-        if FILES["job"] is not "" and os.path.isabs(FILES["job"]) is False:
+        if PARAMETERS["job"] is not "":
 
-            if os.path.isfile(os.path.join(os.getcwd(), FILES["job"])):
+            if os.path.isabs(PARAMETERS["job"]) is False:
 
-                FILES["job"] = os.path.join(os.getcwd(), FILES["job"])
+                # Path for CWD.
+                CWD = os.path.join(os.getcwd(), PARAMETERS["job"])
 
-            elif os.path.isfile(os.path.join(os.path.dirname(
-                                os.path.realpath(__file__)), FILES["job"])):
+                # Path for exec dir.
+                EXECDIR = os.path.join(os.path.dirname(
+                    os.path.realpath(__file__)), PARAMETERS["job"])
 
-                FILES["job"] = os.path.join(os.path.dirname(
-                    os.path.realpath(__file__)), FILES["job"])
+                if os.path.isfile(CWD):
+
+                    PARAMETERS["job"] = CWD
+
+            elif os.path.isfile(EXECDIR):
+
+                PARAMETERS["job"] = EXECDIR
 
             else:
 
@@ -782,10 +775,10 @@ if __name__ == "__main__":
                     "The job configuration file '{0}' couldn't be found in "
                     "the current working directory '{1}', the execution "
                     "directory '{2}'."
-                    .format(FILES["job"], os.getcwd(),
+                    .format(PARAMETERS["job"], os.getcwd(),
                             os.path.dirname(os.path.realpath(__file__))))
 
-        LOG.info("hosts file is: '{0}'".format(FILES["hosts"]))
+        LOG.info("hosts file is: '{0}'".format(PARAMETERS["hosts"]))
 
         # ---------------------------------------------------------------------
         # Call one of the main methods at the top level of the library.
@@ -795,7 +788,7 @@ if __name__ == "__main__":
 
             LOG.info("Initialisation complete.")
 
-            main(FILES, PARAMETERS)
+            main(PARAMETERS)
 
         else:
 

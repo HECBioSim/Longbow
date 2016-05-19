@@ -50,7 +50,7 @@ except ImportError:
 QUERY_STRING = "env | grep -i 'lsf'"
 
 
-def delete(host, job):
+def delete(job):
 
     """
     Method for deleting job.
@@ -60,7 +60,7 @@ def delete(host, job):
 
     try:
 
-        shellout = SHELLWRAPPERS.sendtossh(host, ["bkill " + jobid])
+        shellout = SHELLWRAPPERS.sendtossh(job, ["bkill " + jobid])
 
     except EX.SSHError:
 
@@ -69,93 +69,86 @@ def delete(host, job):
     return shellout[0]
 
 
-def prepare(hosts, jobname, jobs):
+def prepare(job):
 
     """
     Create the LSF jobfile ready for submitting jobs.
     """
 
     # Open file for LSF script.
-    lsffile = os.path.join(jobs[jobname]["localworkdir"], "submit.lsf")
+    lsffile = os.path.join(job["localworkdir"], "submit.lsf")
     jobfile = open(lsffile, "w+")
 
     # Write the PBS script
     jobfile.write("#!/bin/bash --login\n")
 
-    if jobname is not "":
+    if job["jobname"] is not "":
 
         # Single job
-        if int(jobs[jobname]["replicates"]) == 1:
+        if int(job["replicates"]) == 1:
 
-            jobfile.write("#BSUB -J " + jobname + "\n")
+            jobfile.write("#BSUB -J " + job["jobname"] + "\n")
 
         # Job array
-        elif int(jobs[jobname]["replicates"]) > 1:
+        elif int(job["replicates"]) > 1:
 
-            jobfile.write("#BSUB -J " + jobname + "[1-" +
-                          jobs[jobname]["replicates"] + "]\n")
+            jobfile.write("#BSUB -J " + job["jobname"] + "[1-" +
+                          job["replicates"] + "]\n")
 
-    if jobs[jobname]["queue"] is not "":
+    if job["queue"] is not "":
 
-        jobfile.write("#BSUB -q " + jobs[jobname]["queue"] + "\n")
+        jobfile.write("#BSUB -q " + job["queue"] + "\n")
 
-    if jobs[jobname]["cluster"] is not "":
+    if job["cluster"] is not "":
 
-        jobfile.write("#BSUB -m " + jobs[jobname]["cluster"] + "\n")
+        jobfile.write("#BSUB -m " + job["cluster"] + "\n")
 
     # Account to charge (if supplied).
-    if hosts[jobs[jobname]["resource"]]["account"] is not "":
+    if job["account"] is not "":
 
         # if no accountflag is provided use the default
-        if hosts[jobs[jobname]["resource"]]["accountflag"] is "":
+        if job["accountflag"] is "":
 
-            jobfile.write("#BSUB -P " +
-                          hosts[jobs[jobname]["resource"]]["account"] +
-                          "\n")
+            jobfile.write("#BSUB -P " + job["account"] + "\n")
+
         else:
 
-            jobfile.write("#BSUB " +
-                          hosts[jobs[jobname]["resource"]]["accountflag"] +
-                          " " + hosts[jobs[jobname]["resource"]]["account"] +
-                          "\n")
+            jobfile.write("#BSUB " + job["accountflag"] + " " +
+                          job["account"] + "\n")
 
-    jobfile.write("#BSUB -W " + jobs[jobname]["maxtime"] + "\n")
+    jobfile.write("#BSUB -W " + job["maxtime"] + "\n")
 
-    jobfile.write("#BSUB -n " + jobs[jobname]["cores"] +
-                  "\n")
+    jobfile.write("#BSUB -n " + job["cores"] + "\n")
 
-    if jobs[jobname]["modules"] is not "":
+    if job["modules"] is not "":
 
-        for module in jobs[jobname]["modules"].split(","):
+        for module in job["modules"].split(","):
 
             module = module.replace(" ", "")
             jobfile.write("\n" + "module load {0}\n\n" .format(module))
 
-    mpirun = hosts[jobs[jobname]["resource"]]["handler"]
+    mpirun = job["handler"]
 
     # Single job
-    if int(jobs[jobname]["replicates"]) == 1:
+    if int(job["replicates"]) == 1:
 
-        jobfile.write(mpirun + " -lsf " + jobs[jobname]["executableargs"] +
-                      "\n")
+        jobfile.write(mpirun + " -lsf " + job["executableargs"] + "\n")
 
     # Job array
-    elif int(jobs[jobname]["replicates"]) > 1:
+    elif int(job["replicates"]) > 1:
 
-        jobfile.write("cd rep${LSB_JOBINDEX}/\n" +
-                      mpirun + " -lsf " + jobs[jobname]["executableargs"] +
-                      "\n")
+        jobfile.write("cd rep${LSB_JOBINDEX}/\n" + mpirun + " -lsf " +
+                      job["executableargs"] + "\n")
 
     # Close the file (housekeeping)
     jobfile.close()
 
     # Append lsf file to list of files ready for staging.
-    jobs[jobname]["upload-include"] = (
-        jobs[jobname]["upload-include"] + ", submit.lsf")
-    jobs[jobname]["subfile"] = "submit.lsf"
+    job["upload-include"] = job["upload-include"] + ", submit.lsf"
+    job["subfile"] = "submit.lsf"
 
 
-def status(host, jobid):
+def status(job):
 
     """
     Method for querying job.
@@ -178,7 +171,7 @@ def status(host, jobid):
 
     try:
 
-        shellout = SHELLWRAPPERS.sendtossh(host, ["bjobs -u " + host["user"]])
+        shellout = SHELLWRAPPERS.sendtossh(job, ["bjobs -u " + job["user"]])
 
     except EX.SSHError:
 
@@ -189,7 +182,7 @@ def status(host, jobid):
 
     # Now match the jobid against the list of jobs, extract the line and split
     # it into a list
-    job = [line for line in stdout if jobid in line][0].split()
+    job = [line for line in stdout if job["jobid"] in line][0].split()
 
     # Look up the job state and convert it to Longbow terminology.
     try:
@@ -203,23 +196,19 @@ def status(host, jobid):
     return jobstate
 
 
-def submit(host, jobname, jobs):
+def submit(job):
 
     """
     Method for submitting job.
     """
 
-    # Set the path to remoteworkdir/jobnamexxxxx
-    path = jobs[jobname]["destdir"]
-
     # cd into the working directory and submit the job.
-    cmd = ["cd " + path + "\n",
-           "bsub < " + jobs[jobname]["subfile"]]
+    cmd = ["cd " + job["destdir"] + "\n", "bsub < " + job["subfile"]]
 
     # Process the submit
     try:
 
-        shellout = SHELLWRAPPERS.sendtossh(host, cmd)
+        shellout = SHELLWRAPPERS.sendtossh(job, cmd)
 
     except EX.SSHError as inst:
 
@@ -247,4 +236,4 @@ def submit(host, jobname, jobs):
             "Longbow could not understand the returned information.")
 
     # Put jobid into the job dictionary.
-    jobs[jobname]["jobid"] = jobid
+    job["jobid"] = jobid

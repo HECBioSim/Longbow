@@ -51,7 +51,7 @@ except ImportError:
 QUERY_STRING = "which sbatch"
 
 
-def delete(host, job):
+def delete(job):
 
     """
     Method for deleting job.
@@ -61,7 +61,7 @@ def delete(host, job):
 
     try:
 
-        shellout = SHELLWRAPPERS.sendtossh(host, ["scancel " + jobid])
+        shellout = SHELLWRAPPERS.sendtossh(job, ["scancel " + jobid])
 
     except EX.SSHError:
 
@@ -70,47 +70,44 @@ def delete(host, job):
     return shellout[0]
 
 
-def prepare(hosts, jobname, jobs):
+def prepare(job):
 
     """
     Create the SLURM jobfile ready for submitting jobs.
     """
 
     # Open file for SLURM script.
-    slurmfile = os.path.join(jobs[jobname]["localworkdir"], "submit.slurm")
+    slurmfile = os.path.join(job["localworkdir"], "submit.slurm")
     jobfile = open(slurmfile, "w+")
 
     # Write the SLURM script
     jobfile.write("#!/bin/bash --login\n")
 
     # Job name (if supplied)
-    if jobname is not "":
+    if job["jobname"] is not "":
 
-        jobfile.write("#SBATCH -J " + jobname + "\n")
+        jobfile.write("#SBATCH -J " + job["jobname"] + "\n")
 
     # Queue to submit to (if supplied)
-    if jobs[jobname]["queue"] is not "":
+    if job["queue"] is not "":
 
-        jobfile.write("#SBATCH -p " + jobs[jobname]["queue"] + "\n")
-
-    resource = jobs[jobname]["resource"]
+        jobfile.write("#SBATCH -p " + job["queue"] + "\n")
 
     # Account to charge (if supplied)
-    if hosts[resource]["account"] is not "":
+    if job["account"] is not "":
 
         # if no accountflag is provided use the default
-        if hosts[resource]["accountflag"] is "":
+        if job["accountflag"] is "":
 
-            jobfile.write("#SBATCH -A " + hosts[resource]["account"] + "\n")
+            jobfile.write("#SBATCH -A " + job["account"] + "\n")
 
         else:
 
-            jobfile.write("#SBATCH " +
-                          hosts[resource]["accountflag"] +
-                          " " + hosts[resource]["account"] + "\n")
+            jobfile.write("#SBATCH " + job["accountflag"] + " " +
+                          job["account"] + "\n")
 
-    cores = jobs[jobname]["cores"]
-    cpn = hosts[resource]["corespernode"]
+    cores = job["cores"]
+    cpn = job["corespernode"]
 
     # Specify the total number of mpi tasks required
     jobfile.write("#SBATCH -n " + cores + "\n")
@@ -126,32 +123,32 @@ def prepare(hosts, jobname, jobs):
         jobfile.write("#SBATCH -N " + nodes + "\n")
 
     # Walltime for job
-    jobfile.write("#SBATCH -t " + jobs[jobname]["maxtime"] + ":00\n\n")
+    jobfile.write("#SBATCH -t " + job["maxtime"] + ":00\n\n")
 
     # Load up modules if required.
-    if jobs[jobname]["modules"] is not "":
+    if job["modules"] is not "":
 
-        for module in jobs[jobname]["modules"].split(","):
+        for module in job["modules"].split(","):
 
             module = module.replace(" ", "")
             jobfile.write("module load {0}\n\n" .format(module))
 
     # Handler that is used for job submission.
-    mpirun = hosts[resource]["handler"]
+    mpirun = job["handler"]
 
     # Single jobs only need one run command.
-    if int(jobs[jobname]["replicates"]) == 1:
+    if int(job["replicates"]) == 1:
 
-        jobfile.write(mpirun + " " + jobs[jobname]["executableargs"] + "\n")
+        jobfile.write(mpirun + " " + job["executableargs"] + "\n")
 
     # Ensemble jobs need a loop.
-    elif int(jobs[jobname]["replicates"]) > 1:
+    elif int(job["replicates"]) > 1:
 
-        jobfile.write("basedir = `pwd`"
-                      "for i in {1.." + jobs[jobname]["replicates"] + "};\n"
+        jobfile.write("basedir = `pwd`\n"
+                      "for i in {1.." + job["replicates"] + "};\n"
                       "do\n"
                       "  cd $basedir/rep$i/\n"
-                      "  " + mpirun + " " + jobs[jobname]["executableargs"] +
+                      "  " + mpirun + " " + job["executableargs"] +
                       "\n"
                       "done\n"
                       "wait\n")
@@ -160,12 +157,11 @@ def prepare(hosts, jobname, jobs):
     jobfile.close()
 
     # Append submitfile to list of files ready for staging.
-    jobs[jobname]["upload-include"] = (
-        jobs[jobname]["upload-include"] + ", submit.slurm")
-    jobs[jobname]["subfile"] = "submit.slurm"
+    job["upload-include"] = job["upload-include"] + ", submit.slurm"
+    job["subfile"] = "submit.slurm"
 
 
-def status(host, jobid):
+def status(job):
 
     """
     Method for querying job.
@@ -189,7 +185,7 @@ def status(host, jobid):
 
     try:
 
-        shellout = SHELLWRAPPERS.sendtossh(host, ["squeue -u " + host["user"]])
+        shellout = SHELLWRAPPERS.sendtossh(job, ["squeue -u " + job["user"]])
 
     except EX.SSHError:
 
@@ -200,7 +196,7 @@ def status(host, jobid):
 
     # Now match the jobid against the list of jobs, extract the line and split
     # it into a list
-    job = [line for line in stdout if jobid in line][0].split()
+    job = [line for line in stdout if job["jobid"] in line][0].split()
 
     # Look up the job state and convert it to Longbow terminology.
     try:
@@ -214,23 +210,19 @@ def status(host, jobid):
     return jobstate
 
 
-def submit(host, jobname, jobs):
+def submit(job):
 
     """
     Method for submitting job.
     """
 
-    # Set the path to remoteworkdir/jobnamexxxxx
-    path = jobs[jobname]["destdir"]
-
     # Change into the working directory and submit the job.
-    cmd = ["cd " + path + "\n",
-           "sbatch " + jobs[jobname]["subfile"]]
+    cmd = ["cd " + job["destdir"] + "\n", "sbatch " + job["subfile"]]
 
     # Process the submit
     try:
 
-        shellout = SHELLWRAPPERS.sendtossh(host, cmd)
+        shellout = SHELLWRAPPERS.sendtossh(job, cmd)
 
     except EX.SSHError as inst:
 
@@ -258,4 +250,4 @@ def submit(host, jobname, jobs):
             "Longbow could not understand the returned information.")
 
     # Put jobid into the job dictionary.
-    jobs[jobname]["jobid"] = jobid
+    job["jobid"] = jobid
