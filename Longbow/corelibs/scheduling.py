@@ -454,6 +454,15 @@ def monitor(jobs):
             # Default to 5 minute intervals
             time.sleep(300.0)
 
+        # Update the queue info settings to each job just in case something
+        # happens requiring user to use recovery.
+        for item in jobs:
+
+            job = jobs[item]
+
+            job["queue-slots"] = QUEUEINFO[job["resource"]]["queue-slots"]
+            job["queue-max"] = QUEUEINFO[job["resource"]]["queue-max"]
+
         # Find out if all jobs are completed.
         for item in jobs:
 
