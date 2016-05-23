@@ -259,7 +259,7 @@ def processconfigs(parameters):
                     jobs[job][item] = parameters[item]
 
                 # Job file is next highest in priority.
-                elif item in jobdata[job] and jobdata[job] is not "":
+                elif item in jobdata[job] and jobdata[job][item] is not "":
 
                     # Store it.
                     jobs[job][item] = jobdata[job][item]
