@@ -25,25 +25,25 @@ generic job concepts. The specific functionality that comes from each scheduler
 is accessed through the plug-in framework. To make use of these methods, the
 plug-in framework must be present alongside the core library.
 
-testenv(hostconf, hosts, jobs)
+testenv(jobs, hostconf)
     This method makes an attempt to test the environment and determine from
     a pre-configured list what scheduler and job submission handler is present
     on the machine.
 
-delete(hosts, jobs, jobname)
+delete(job)
     A method containing the generic and boiler plate Longbow code for deleting
     a job.
 
-monitor(hosts, jobs)
+monitor(jobs)
     A method containing the generic and boiler plate Longbow code for
     monitoring a job, this method contains the entire structure of the loop
     that deals with monitoring jobs.
 
-prepare(hosts, jobs)
+prepare(jobs)
     A method containing the generic and boiler plate Longbow code for
     constructing the submit file.
 
-submit(hosts, jobs)
+submit(jobs)
     A method containing the generic and boiler plate Longbow code for
     submitting a job.
 """
@@ -239,15 +239,8 @@ def delete(job):
 
     Required arguments are:
 
-    hosts (dictionary) - The Longbow hosts data structure, see configuration.py
-                         for more information about the format of this
-                         structure.
-
-    jobs (dictionary) - The Longbow jobs data structure, see configuration.py
-                        for more information about the format of this
-                        structure.
-
-    jobname (string) - The jobname of the job for deletion.
+    job (dictionary) - A single job dictionary, this is often simply passed in
+                       as a subset of the main jobs dictionary.
     """
 
     scheduler = job["scheduler"]
@@ -279,10 +272,6 @@ def monitor(jobs):
     that deals with monitoring jobs.
 
     Required arguments are:
-
-    hosts (dictionary) - The Longbow hosts data structure, see configuration.py
-                         for more information about the format of this
-                         structure.
 
     jobs (dictionary) - The Longbow jobs data structure, see configuration.py
                         for more information about the format of this
@@ -494,10 +483,6 @@ def prepare(jobs):
     constructing the submit file.
 
     Required arguments are:
-
-    hosts (dictionary) - The Longbow hosts data structure, see configuration.py
-                         for more information about the format of this
-                         structure.
 
     jobs (dictionary) - The Longbow jobs data structure, see configuration.py
                         for more information about the format of this

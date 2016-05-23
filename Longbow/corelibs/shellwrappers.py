@@ -35,11 +35,11 @@ sendtoshell(cmd)
     This method is responsible for handing off commands to the Unix shell, it
     makes use of the subprocess library from the Python standard library.
 
-sendtossh(host, args)
+sendtossh(job, args)
     This method constructs a string containing commands to be executed via SSH.
     This string is then handed off to the sendtoshell() method for execution.
 
-sendtorsync(src, dst, port, includemask, excludemask)
+sendtorsync(job, src, dst, includemask, excludemask)
     This method constructs a string that forms an rsync command, this string is
     then handed off to the sendtoshell() method for execution.
 
@@ -56,23 +56,23 @@ locallist(src)
     directory. This method relies on the Python standard library to perform
     operations.
 
-remotecopy(host, src, dst)
+remotecopy(job, src, dst)
     This method is for copying a file/directory between two paths on a remote
     host, this is done via passing a copy command to the sendtossh() method.
 
-remotedelete(host, src)
+remotedelete(job)
     This method is for deleting a file/directory from a path on a remote host,
     this is done via passing a delete command to the sendtossh() method.
 
-remotelist(host, src)
+remotelist(job)
     This method is for listing the contents of a directory on a remote host,
     this is done via passing a list command to the sendtoshell() method.
 
-upload(host, src, dst, includemask, excludemask)
+upload(job)
     This method is for uploading files to a remote host, this method is
     responsible for specifying the direction that the transfer takes place.
 
-download(host, src, dst, includemask, excludemask)
+download(job)
     This method is for downloading files from a remote host, this method is
     responsible for specifying the direction that the transfer takes place.
 """
@@ -191,6 +191,9 @@ def sendtossh(job, args):
 
     Required arguments are:
 
+    job (dictionary) - A single job dictionary, this is often simply passed in
+                       as a subset of the main jobs dictionary.
+
     args (list) - A list containing commands to be sent to SSH, multiple
                   commands should each be an entry in the list.
 
@@ -258,6 +261,9 @@ def sendtorsync(job, src, dst, includemask, excludemask):
 
     Required arguments are:
 
+    job (dictionary) - A single job dictionary, this is often simply passed in
+                       as a subset of the main jobs dictionary.
+
     src (string) - A string containing the source directory for transfer, if
                    this is a download then this should include the host
                    information. See the download and upload methods for how
@@ -267,6 +273,13 @@ def sendtorsync(job, src, dst, includemask, excludemask):
                    if this is an upload then this should include the host
                    information. See the download and upload methods for how
                    this should be done (or just make use of those two methods).
+
+    includemask (string) - This is a string that should contain a comma
+                           separated list of files for transfer.
+
+    excludemask (string) - This is a string that should specify which files
+                           should be excluded from rsync transfer, this is
+                           useful for not transfering large unwanted files.
     """
 
     include = []
@@ -513,10 +526,8 @@ def remotecopy(job, src, dst):
 
     Required arguments are:
 
-    host (dictionary) - A dictionary containing a single host, this is not to
-                        be confused with hosts. The best way to get a single
-                        dictionary for a host from hosts is to do:
-                        host = hosts[hostname]
+    job (dictionary) - A single job dictionary, this is often simply passed in
+                       as a subset of the main jobs dictionary.
 
     src (string) - A string containing the absolute path of the file/directory
                    to be copied (on the host).
@@ -555,13 +566,8 @@ def remotedelete(job):
 
     Required arguments are:
 
-    host (dictionary) - A dictionary containing a single host, this is not to
-                        be confused with hosts. The best way to get a single
-                        dictionary for a host from hosts is to do:
-                        host = hosts[hostname]
-
-    src (string) - A string containing the absolute path of the file/directory
-                   to be deleted (on the host).
+    job (dictionary) - A single job dictionary, this is often simply passed in
+                       as a subset of the main jobs dictionary.
     """
 
     LOG.debug("Deleting '{0}'".format(job["destdir"]))
@@ -592,13 +598,8 @@ def remotelist(job):
 
     Required arguments are:
 
-    host (dictionary) - A dictionary containing a single host, this is not to
-                        be confused with hosts. The best way to get a single
-                        dictionary for a host from hosts is to do:
-                        host = hosts[hostname]
-
-    src (string) - A string containing the absolute path of the file/directory
-                   to be listed (on the host).
+    job (dictionary) - A single job dictionary, this is often simply passed in
+                       as a subset of the main jobs dictionary.
 
     Returned parameters are:
 
@@ -637,21 +638,8 @@ def upload(job):
 
     Required arguments are:
 
-    host (dictionary) - A dictionary containing a single host, this is not to
-                        be confused with hosts. The best way to get a single
-                        dictionary for a host from hosts is to do:
-                        host = hosts[hostname]
-
-    src (string) - A string containing the source directory for transfer.
-
-    dst (string) - A string containing the destination directory for transfer.
-
-    includemask (string) - This is a string that should contain a comma
-                           separated list of files for transfer.
-
-    excludemask (string) - This is a string that should specify which files
-                           should be excluded from rsync transfer, this is
-                           useful for not transfering large unwanted files.
+    job (dictionary) - A single job dictionary, this is often simply passed in
+                       as a subset of the main jobs dictionary.
     """
 
     # Are paths absolute.
@@ -694,21 +682,8 @@ def download(job):
 
     Required arguments are:
 
-    host (dictionary) - A dictionary containing a single host, this is not to
-                        be confused with hosts. The best way to get a single
-                        dictionary for a host from hosts is to do:
-                        host = hosts[hostname]
-
-    src (string) - A string containing the source directory for transfer.
-
-    dst (string) - A string containing the destination directory for transfer.
-
-    includemask (string) - This is a string that should contain a comma
-                           separated list of files for transfer.
-
-    excludemask (string) - This is a string that should specify which files
-                           should be excluded from rsync transfer, this is
-                           useful for not transfering large unwanted files.
+    job (dictionary) - A single job dictionary, this is often simply passed in
+                       as a subset of the main jobs dictionary.
     """
 
     # Are paths absolute.

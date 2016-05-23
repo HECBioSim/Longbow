@@ -22,16 +22,16 @@
 This module contains the code to interact with the various flavours of
 PBS/Torque.
 
-delete(host, job)
+delete(job)
     A method for deleting a single job.
 
-prepare(hosts, jobname, jobs)
+prepare(job)
     The method for creating the job submission file for a single job.
 
-status(host, jobid)
+status(job)
     The method for checking the status of a job.
 
-submit(hosts, jobname, jobs)
+submit(job)
     The method for submitting a single job.
 """
 

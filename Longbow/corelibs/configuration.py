@@ -49,6 +49,11 @@ saveconfigs(configfile, params)
     Method for saving data to Longbow configuration files, this method will
     honour comments and simply amend the file structure with new or changed
     data.
+
+saveini(inifile, params)
+    A method to save an ini file formatted file (inifile) from a dictionary
+    structure (params). This method is much simpler than the saveconfigs
+    method which has been tuned to simply update configuration files.
 """
 
 import logging

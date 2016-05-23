@@ -24,21 +24,21 @@ between the local host and the remote host job directories.
 
 The following methods are contained within this module:
 
-stage_upstream(hosts, jobs)
+stage_upstream(jobs)
     A method for staging files for each job to the target HPC host. The
     underlying utility behind this transfer is rsync, thus it is possible
     to supply rsync file masks to blacklist unwanted large files. By default
     rsync is configured to transfer blockwise and only transfer the
     newest/changed blocks, this saves a lot of time during persistant staging.
 
-stage_downstream(hosts, jobs, jobname)
+stage_downstream(job)
     A method for staging files for each job to from target HPC host. The
     underlying utility behind this transfer is rsync, thus it is possible
     to supply rsync file masks to blacklist unwanted large files. By default
     rsync is configured to transfer blockwise and only transfer the
     newest/changed blocks, this saves a lot of time during persistant staging.
 
-cleanup(hosts, jobs)
+cleanup(jobs)
     A method for cleaning up the working directory on the HPC host, this method
     will only delete job directories that are valid for the given Longbow
     instance, thus avoid data loss.
@@ -128,12 +128,8 @@ def stage_downstream(job):
 
     Required arguments are:
 
-    jobs (dictionary) - The Longbow jobs data structure, see configuration.py
-                        for more information about the format of this
-                        structure.
-
-    jobname (string) - A string that matches the name of a job to be staged.
-                       (primary key in jobs dict)
+    job (dictionary) - A single job dictionary, this is often simply passed in
+                       as a subset of the main jobs dictionary.
     """
 
     LOG.info("For job '{0}' staging files downstream.".format(job["jobname"]))

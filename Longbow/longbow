@@ -36,8 +36,8 @@ recover()
     used in cases where jobs have been submitted to the host and somehow
     Longbow failed to stay connected. This will try to take the recovery file,
     written shortly after submission to recover the whole session. Jobs that
-    are no longer in the queue will be marked as finished and will be staged as
-    normal.
+    are no longer in the queue will be marked as finished and will be staged
+    as normal.
 """
 
 import os
@@ -78,15 +78,12 @@ def main(parameters):
     """
     This method is the main entry point of the Longbow library. This method,
     is a good place to link against Longbow if a developer does not want to
-    link against the executable in subprocess, or if low level linking is
-    unnecessary.
+    link against the executable, or if low level linking is over-kill.
 
     Required arguments are:
 
-    files (dictionary): A dictionary of containing the hosts, job and log file
-                        paths.
-
-    parameters (dictionary): A dictionary containing the parameter overrides.
+    parameters (dictionary): A dictionary containing the parameters and
+                             overrides from the command-line.
     """
 
     # A failure at this level will result in jobs being killed off before
@@ -170,11 +167,10 @@ def recover():
 
     """
     This method is for attempting to recover a Longbow session. This should be
-    used in cases where jobs have been submitted to the host and somehow
-    Longbow failed to stay connected. This will try to take the recovery file,
-    written shortly after submission to recover the whole session. Jobs that
-    are no longer in the queue will be marked as finished and will be staged as
-    normal.
+    used in cases where jobs have been submitted and somehow Longbow failed to
+    keep running. This will try to take the recovery file, written shortly
+    after submission to recover the whole session. Jobs that are no longer in
+    the queue will be marked as finished and will be staged as normal.
     """
 
     LOG.info("Attempting to find the recovery files")

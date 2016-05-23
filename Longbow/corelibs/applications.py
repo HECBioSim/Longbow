@@ -23,7 +23,7 @@ The applications module contains methods for processing the aspect of jobs
 which relate to external applications (such as an MD package). The following
 methods can be found within this module:
 
-testapp(hosts, jobs)
+testapp(jobs)
     This method will make an attempt to check that the application executables
     required to run a job/s is present on the specified host/s. This method is
     capable of using the module system.
@@ -65,10 +65,6 @@ def testapp(jobs):
     capable of using the module system.
 
     Required arguments are:
-
-    hosts (dictionary) - The Longbow hosts data structure, see configuration.py
-                         for more information about the format of this
-                         structure.
 
     jobs (dictionary) - The Longbow jobs data structure, see configuration.py
                         for more information about the format of this
