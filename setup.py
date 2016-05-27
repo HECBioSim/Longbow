@@ -84,16 +84,16 @@ try:
 
         os.mkdir(os.path.expanduser('~/.Longbow'))
     
-        hostfile = open(os.path.expanduser('~/.Longbow/hosts.conf', 'w+'))
+        hostfile = open(os.path.expanduser('~/.Longbow/hosts.conf'), 'w+')
     
-        hostfile.write('[QuickStart]')
-        hostfile.write('host = login.hpc.ac.uk')
-        hostfile.write('user = myusername')
-        hostfile.write('corespernode = 24')
-        hostfile.write('cores = 24')
-        hostfile.write('remoteworkdir = /work/myusername/')
-        hostfile.write('account = myaccount')
-        hostfile.write('modules = mymodules')
+        hostfile.write('[QuickStart]\n')
+        hostfile.write('host = login.hpc.ac.uk\n')
+        hostfile.write('user = myusername\n')
+        hostfile.write('corespernode = 24\n')
+        hostfile.write('cores = 24\n')
+        hostfile.write('remoteworkdir = /work/myusername/\n')
+        hostfile.write('account = myaccount\n')
+        hostfile.write('modules = mymodules\n')
 
         hostfile.close()
 
