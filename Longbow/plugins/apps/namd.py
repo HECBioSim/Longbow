@@ -85,7 +85,7 @@ def file_parser(filename, path, files, substitutions=None):
         # Define keywords and create a dictionary for variable substitutions
         keywords = ['coordinates', 'extendedsystem', 'structure', 'parameters',
                     'paraTypeXplor', 'paraTypeCharmm', 'velocities',
-                    'binvelocities', 'bincoordinates']
+                    'binvelocities', 'bincoordinates', 'ambercoor', 'parmfile']
         variables = {}
 
         fil = None
