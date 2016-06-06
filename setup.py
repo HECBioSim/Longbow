@@ -49,7 +49,7 @@ setup(name = 'Longbow',
       author = 'James T Gebbie-Rayet, Gareth B Shannon',
       author_email = ('james.gebbie@stfc.ac.uk, '
                       'gareth.shannon@nottingham.ac.uk'),
-      url = 'www.hecbiosim.ac.uk',
+      url = 'http://www.hecbiosim.ac.uk',
       license = 'OSI Approved :: GNU General Public License v2 (GPLv2)',
       classifiers = ['Development Status :: 5 - Production/Stable',
                      'Environment :: Console',
