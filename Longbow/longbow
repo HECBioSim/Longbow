@@ -163,7 +163,7 @@ def main(parameters):
         STAGING.cleanup(jobs)
 
 
-def recover():
+def recover(recoveryfile):
 
     """
     This method is for attempting to recover a Longbow session. This should be
@@ -176,7 +176,7 @@ def recover():
     LOG.info("Attempting to find the recovery files")
 
     longbowdir = os.path.expanduser('~/.Longbow')
-    jobfile = os.path.join(longbowdir, "jobs.recovery")
+    jobfile = os.path.join(longbowdir, recoveryfile)
 
     # Load the jobs recovery file.
     if os.path.isfile(jobfile):
@@ -541,6 +541,25 @@ if __name__ == "__main__":
 
         RECOVER = True
 
+        try:
+
+            POSITION = LONGBOWARGS.index("-recover")
+
+        except ValueError:
+
+            POSITION = LONGBOWARGS.index("--recover")
+
+        if (POSITION + 1 == len(LONGBOWARGS) or
+                LONGBOWARGS[POSITION + 1].startswith("-")):
+
+            raise EX.CommandlineargsError(
+                "Please specify a valid file for the --recover command line "
+                "parameter e.g. longbow --recover [filename] ...")
+
+        else:
+
+            RECOVERFILE = LONGBOWARGS[POSITION + 1]
+
     # Store the VERBOSE parameter
     if (LONGBOWARGS.count("-verbose") == 1 or
             LONGBOWARGS.count("--verbose") == 1):
@@ -790,7 +809,7 @@ if __name__ == "__main__":
 
             LOG.info("Entering recovery mode.")
 
-            recover()
+            recover(RECOVERFILE)
 
     except Exception as ERR:
 

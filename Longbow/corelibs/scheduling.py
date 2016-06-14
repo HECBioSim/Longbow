@@ -284,7 +284,10 @@ def monitor(jobs):
     allfinished = False
     interval = 0
     longbowdir = os.path.expanduser('~/.Longbow')
-    jobfile = os.path.join(longbowdir, "jobs.recovery")
+    jobfile = os.path.join(longbowdir, "recovery-",
+                           time.strftime("%Y%m%d-%H%M%S"))
+
+    LOG.info("recovery file will be placed at path '{0}'".format(jobfile))
 
     # Find out which job has been set the highest polling frequency and use
     # that.
