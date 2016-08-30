@@ -225,7 +225,7 @@ if __name__ == "__main__":
     --version
     --help
     --examples
-    --recover
+    --recover [filename]
 
     Read the documentation at http://www.hecbiosim.ac.uk/ for more information
     on how to setup and run jobs using Longbow.
@@ -335,7 +335,9 @@ if __name__ == "__main__":
             # executable arguments
             if (item not in ALLLONGBOWARGS and
                     COMMANDLINEARGS[POSITION-1][1:] not in PARAMETERS and
-                    COMMANDLINEARGS[POSITION-1][2:] not in PARAMETERS):
+                    COMMANDLINEARGS[POSITION-1][2:] not in PARAMETERS and
+                    COMMANDLINEARGS[POSITION-1] != "-recover" and
+                    COMMANDLINEARGS[POSITION-1] != "--recover"):
 
                 LONGBOWARGS = COMMANDLINEARGS[:POSITION]
                 EXECARGS = COMMANDLINEARGS[POSITION:]
