@@ -247,7 +247,7 @@ def delete(job):
 
     try:
 
-        LOG.info("Deleting the job '{0}'" .format(job["jobname"]))
+        LOG.info("Deleting the job '{0}'".format(job["jobname"]))
 
         getattr(SCHEDULERS, scheduler.lower()).delete(job)
 

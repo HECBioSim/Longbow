@@ -134,17 +134,17 @@ def prepare(job):
 
     else:
 
-        mpirun = job["handler"] + " -lsf "
+        mpirun = job["handler"] + " -lsf"
 
     # Single job
     if int(job["replicates"]) == 1:
 
-        jobfile.write(mpirun + job["executableargs"] + "\n")
+        jobfile.write(mpirun + " " + job["executableargs"] + "\n")
 
     # Job array
     elif int(job["replicates"]) > 1:
 
-        jobfile.write("cd rep${LSB_JOBINDEX}/\n" + mpirun +
+        jobfile.write("cd rep${LSB_JOBINDEX}/\n" + mpirun + " " +
                       job["executableargs"] + "\n")
 
     # Close the file (housekeeping)
