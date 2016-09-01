@@ -127,17 +127,24 @@ def prepare(job):
             module = module.replace(" ", "")
             jobfile.write("\n" + "module load {0}\n\n" .format(module))
 
-    mpirun = job["handler"]
+    # A quick work-around for the hartree phase 3 machines
+    if job["handler"] == "mpiexec.hydra":
+
+        mpirun = job["handler"]
+
+    else:
+
+        mpirun = job["handler"] + " -lsf"
 
     # Single job
     if int(job["replicates"]) == 1:
 
-        jobfile.write(mpirun + " -lsf " + job["executableargs"] + "\n")
+        jobfile.write(mpirun + " " + job["executableargs"] + "\n")
 
     # Job array
     elif int(job["replicates"]) > 1:
 
-        jobfile.write("cd rep${LSB_JOBINDEX}/\n" + mpirun + " -lsf " +
+        jobfile.write("cd rep${LSB_JOBINDEX}/\n" + mpirun + " " +
                       job["executableargs"] + "\n")
 
     # Close the file (housekeeping)

@@ -247,7 +247,7 @@ def delete(job):
 
     try:
 
-        LOG.info("Deleting the job '{0}'" .format(job["jobname"]))
+        LOG.info("Deleting the job '{0}'".format(job["jobname"]))
 
         getattr(SCHEDULERS, scheduler.lower()).delete(job)
 
@@ -284,7 +284,7 @@ def monitor(jobs):
     allfinished = False
     interval = 0
     longbowdir = os.path.expanduser('~/.Longbow')
-    jobfile = os.path.join(longbowdir, "recovery-",
+    jobfile = os.path.join(longbowdir, "recovery-" +
                            time.strftime("%Y%m%d-%H%M%S"))
 
     LOG.info("recovery file will be placed at path '{0}'".format(jobfile))

@@ -68,7 +68,7 @@ except ImportError:
     STAGING = __import__("Longbow.corelibs.staging", fromlist=[''])
 
 PYTHONVERSION = "{0}.{1}".format(sys.version_info[0], sys.version_info[1])
-LONGBOWVERSION = "1.2.1"
+LONGBOWVERSION = "1.2.2"
 
 LOG = logging.getLogger("Longbow")
 
@@ -213,19 +213,19 @@ if __name__ == "__main__":
     In addition, the following longbow flags may be provided before the
     executable (pmemd.MPI in the above example):
 
-    --hosts [host file name]
-    --job [job file name]
-    --log [log file name]
-    --recover [recovery file name]
+    --hosts [filename]
+    --job [filename]
+    --log [filename]
     --resource [remote resource name]
     --replicates [number]
-    --jobname [job name]
+    --jobname [jobname]
     --debug
     --verbose
     --about
     --version
     --help
     --examples
+    --recover [filename]
 
     Read the documentation at http://www.hecbiosim.ac.uk/ for more information
     on how to setup and run jobs using Longbow.
@@ -335,7 +335,9 @@ if __name__ == "__main__":
             # executable arguments
             if (item not in ALLLONGBOWARGS and
                     COMMANDLINEARGS[POSITION-1][1:] not in PARAMETERS and
-                    COMMANDLINEARGS[POSITION-1][2:] not in PARAMETERS):
+                    COMMANDLINEARGS[POSITION-1][2:] not in PARAMETERS and
+                    COMMANDLINEARGS[POSITION-1] != "-recover" and
+                    COMMANDLINEARGS[POSITION-1] != "--recover"):
 
                 LONGBOWARGS = COMMANDLINEARGS[:POSITION]
                 EXECARGS = COMMANDLINEARGS[POSITION:]
@@ -408,29 +410,29 @@ if __name__ == "__main__":
               "connection with a\n"
               "target remote resource and setup configuration files according "
               "to the\n"
-              "documentation http://www.hecbiosim.ac.uk/longbow-docs \n\n"
+              "documentation.\n\n"
               "Submit jobs using the following syntax:\n\n"
               "longbow [longbow args] executable [executable args]\n\n"
               "e.g.:\n"
               "%longbow --verbose pmemd.MPI -i example.in -c example.min -p "
               "example.top -o output\n\n"
               "longbow args:\n\n"
-              "--hosts [file name]       : specifies the hosts configuration "
-              "file file name\n"
-              "--job [file name]         : specifies the job configuration "
-              "file file name\n"
-              "--log [file name]         : specifies the file Longbow output "
+              "--hosts [filename]        : specifies the hosts configuration "
+              "file filename\n"
+              "--job [filename]          : specifies the job configuration "
+              "file filename\n"
+              "--log [filename]          : specifies the file Longbow output "
               "should be directed to\n"
               "--resource [name]         : specifies the remote resource\n"
               "--replicates [number]     : number of replicate jobs to be "
               "submitted\n"
-              "--jobname [job name]      : the name of the job to be submitted"
+              "--jobname [jobname]       : the name of the job to be submitted"
               "\n"
               "--debug                   : additional output to assist "
               "debugging\n"
               "--verbose                 : additional run-time info to be "
               "output\n"
-              "--recover [file name]     : Launches the recovery mode\n"
+              "--recover                 : Launches the recovery mode\n"
               "--about                   : prints Longbow description\n"
               "--version, -V             : prints Longbow version number\n"
               "--help, -h                : prints Longbow help\n"
