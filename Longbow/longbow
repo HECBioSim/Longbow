@@ -68,7 +68,7 @@ except ImportError:
     STAGING = __import__("Longbow.corelibs.staging", fromlist=[''])
 
 PYTHONVERSION = "{0}.{1}".format(sys.version_info[0], sys.version_info[1])
-LONGBOWVERSION = "1.2.0"
+LONGBOWVERSION = "1.2.2"
 
 LOG = logging.getLogger("Longbow")
 
