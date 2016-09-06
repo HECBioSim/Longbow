@@ -86,7 +86,7 @@ def file_parser(filename, path, files, substitutions=None):
         keywords = ['coordinates', 'extendedsystem', 'structure', 'parameters',
                     'paratypexplor', 'paratypecharmm', 'velocities',
                     'binvelocities', 'bincoordinates', 'ambercoor', 'parmfile',
-                    'conskfile', 'tclforcesscript']
+                    'conskfile', 'tclforcesscript', 'fixedatomsfile']
 
         variables = {}
 
