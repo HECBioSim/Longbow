@@ -675,10 +675,8 @@ def saveini(inifile, params):
 
         for option in params[section]:
 
-            if params[section][option] is not "":
-
-                ini.write(
-                    str(option) + " = " + str(params[section][option]) + "\n")
+            ini.write(str(option) + " = " + str(params[section][option]) +
+                      "\n")
 
         ini.write("\n")
 
