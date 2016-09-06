@@ -55,6 +55,16 @@ class DirectorynotfoundError(Exception):
 
     pass
 
+
+class DisconnectException(Exception):
+
+    """
+    Directory not found exception, to provide informative exceptions
+    of why a method has failed when directory cannot be found.
+    """
+
+    pass
+
 # -----------------------------------------------------------------------------
 # Exceptions for applications.py
 
