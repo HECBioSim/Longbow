@@ -72,6 +72,8 @@ except ImportError:
 
 LOG = logging.getLogger("Longbow.corelibs.scheduling")
 QUEUEINFO = {}
+JOBFILE = os.path.join(os.path.expanduser('~/.Longbow'), "recovery-" +
+                       time.strftime("%Y%m%d-%H%M%S"))
 
 
 def testenv(jobs, hostconf):
@@ -283,11 +285,6 @@ def monitor(jobs):
     # Some initial values
     allfinished = False
     interval = 0
-    longbowdir = os.path.expanduser('~/.Longbow')
-    jobfile = os.path.join(longbowdir, "recovery-" +
-                           time.strftime("%Y%m%d-%H%M%S"))
-
-    LOG.info("recovery file will be placed at path '{0}'".format(jobfile))
 
     # Find out which job has been set the highest polling frequency and use
     # that.
@@ -308,19 +305,6 @@ def monitor(jobs):
         if interval < int(job["frequency"]):
 
             interval = int(job["frequency"])
-
-    # Save out the recovery files.
-    if os.path.isdir(longbowdir):
-
-        try:
-
-            CONFIGURATION.saveini(jobfile, jobs)
-
-        except (OSError, IOError):
-
-            LOG.warning(
-                "Could not write recovery file, possibly due to permissions "
-                "on the ~/.Longbow directory.")
 
     # Loop until all jobs are done.
     while allfinished is False:
@@ -355,11 +339,11 @@ def monitor(jobs):
                              .format(item, job["jobid"], status))
 
                     # Save out the recovery files.
-                    if os.path.isdir(longbowdir):
+                    if os.path.isdir(os.path.expanduser('~/.Longbow')):
 
                         try:
 
-                            CONFIGURATION.saveini(jobfile, jobs)
+                            CONFIGURATION.saveini(JOBFILE, jobs)
 
                         except (OSError, IOError):
 
@@ -611,6 +595,22 @@ def submit(jobs):
 
         job["queue-slots"] = QUEUEINFO[job["resource"]]["queue-slots"]
         job["queue-max"] = QUEUEINFO[job["resource"]]["queue-max"]
+
+    # Save out the recovery files.
+    if os.path.isdir(os.path.expanduser('~/.Longbow')):
+
+        try:
+
+            LOG.info("recovery file will be placed at path '{0}'"
+                     .format(JOBFILE))
+
+            CONFIGURATION.saveini(JOBFILE, jobs)
+
+        except (OSError, IOError):
+
+            LOG.warning(
+                "Could not write recovery file, possibly due to permissions "
+                "on the ~/.Longbow directory.")
 
     LOG.info("{0} Submitted, {1} Held due to queue limits and {2} Failed."
              .format(submitted, queued, error))

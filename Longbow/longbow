@@ -121,6 +121,11 @@ def main(parameters):
         # Submit all jobs.
         SCHEDULING.submit(jobs)
 
+        # Process the disconnect function.
+        if parameters["disconnect"] is True:
+
+            raise EX.DisconnectException
+
         # Monitor all jobs.
         SCHEDULING.monitor(jobs)
 
@@ -161,6 +166,13 @@ def main(parameters):
                     STAGING.stage_downstream(job)
 
         STAGING.cleanup(jobs)
+
+    except (EX.DisconnectException):
+
+        LOG.info("User specified --disconnect flag on command-line, so "
+                 "Longbow will exit. You can reconnect this session by using "
+                 "the recovery file, details of this file will be listed in "
+                 "the logs")
 
 
 def recover(recoveryfile):
@@ -215,6 +227,7 @@ if __name__ == "__main__":
 
     --about
     --debug
+    --disconnect
     --examples
     --help
     --hosts [file name]
@@ -247,6 +260,7 @@ if __name__ == "__main__":
     # Initialise parameters that could alternatively be provided in
     # configuration files
     PARAMETERS = {
+        "disconnect": False,
         "executable": "",
         "executableargs": "",
         "hosts": "",
@@ -263,6 +277,8 @@ if __name__ == "__main__":
         "--about",
         "-debug",
         "--debug",
+        "-disconnect",
+        "--disconnect",
         "-examples",
         "--examples",
         "-h",
@@ -421,6 +437,8 @@ if __name__ == "__main__":
               "--about                   : prints Longbow description.\n"
               "--debug                   : additional output to assist "
               "debugging.\n"
+              "--disconnect              : instructs Longbow to disconnect and"
+              " exit\n after submitting jobs.\n"
               "--examples                : downloads example files to "
               "./LongbowExamples\n"
               "--help, -h                : prints Longbow help.\n"
@@ -573,6 +591,12 @@ if __name__ == "__main__":
     if LONGBOWARGS.count("-debug") == 1 or LONGBOWARGS.count("--debug") == 1:
 
         MODE = "debug"
+
+    # Is this a disconnectable session.
+    if (LONGBOWARGS.count("-disconnect") == 1 or
+            LONGBOWARGS.count("--disconnect") == 1):
+
+        PARAMETERS["disconnect"] = True
 
     # Store the resource name
     if (LONGBOWARGS.count("-resource") == 1 or
