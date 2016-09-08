@@ -88,6 +88,6 @@ into other software tools are welcome, we do ask that if you wish to contribute
 to the Longbow base code that you contact us first. The following resources are
 available to developers:
 
-source code: https://bitbucket.org/jimboid/longbow
+source code: https://github.com/jimboid/longbow
 
 documentation: http://www.hecbiosim.ac.uk/longbow-devdocs
