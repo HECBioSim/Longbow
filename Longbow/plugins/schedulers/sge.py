@@ -112,7 +112,11 @@ def prepare(job):
 
         jobfile.write("#$ -t 1-" + job["replicates"] + "\n")
 
-    jobfile.write("#$ -pe ib " + job["cores"] + "\n\n")
+    # Assume MPI for now - OMP could be added later on request.
+    if int(job["cores"]) > 1:
+
+        jobfile.write("#$ -pe " + job["sge-peflag"] + " " +
+                      job["cores"] + "\n\n")
 
     if job["modules"] is not "":
 
@@ -121,7 +125,13 @@ def prepare(job):
             module = module.replace(" ", "")
             jobfile.write("module load {0}\n\n" .format(module))
 
-    mpirun = job["handler"]
+    if int(job["cores"]) > 1:
+
+        mpirun = job["handler"] + " -n " + job["cores"]
+
+    else:
+
+        mpirun = job["handler"]
 
     # Single job
     if int(job["replicates"]) == 1:

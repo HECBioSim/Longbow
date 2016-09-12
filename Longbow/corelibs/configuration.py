@@ -92,6 +92,7 @@ JOBTEMPLATE = {
     "modules": "",
     "maxtime": "24:00",
     "memory": "",
+    "sge-peflag": "mpi",
     "port": "22",
     "queue": "",
     "remoteworkdir": "",
