@@ -93,6 +93,7 @@ JOBTEMPLATE = {
     "maxtime": "24:00",
     "memory": "",
     "sge-peflag": "mpi",
+    "sge-peoverride": "false",
     "port": "22",
     "queue": "",
     "remoteworkdir": "",
