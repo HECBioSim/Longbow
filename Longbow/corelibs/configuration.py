@@ -64,13 +64,13 @@ import os
 # different, this should handle both cases.
 try:
 
-    EX = __import__("corelibs.exceptions", fromlist=[''])
-    APPS = __import__("plugins.apps", fromlist=[''])
+    import corelibs.exceptions as exceptions
+    import plugins.apps as apps
 
 except ImportError:
 
-    EX = __import__("Longbow.corelibs.exceptions", fromlist=[''])
-    APPS = __import__("Longbow.plugins.apps", fromlist=[''])
+    import Longbow.corelibs.exceptions as exceptions
+    import Longbow.plugins.apps as apps
 
 
 LOG = logging.getLogger("Longbow.corelibs.configuration")
@@ -155,7 +155,7 @@ def processconfigs(parameters):
 
     # Define a dictionary of module defaults based on the plug-in names and
     # executables.
-    modules = getattr(APPS, "DEFMODULES")
+    modules = getattr(apps, "DEFMODULES")
     modules[""] = ""
 
     # Try and load the host file.
@@ -163,7 +163,7 @@ def processconfigs(parameters):
 
         _, hostsections, hostdata = loadconfigs(parameters["hosts"])
 
-    except EX.ConfigurationError:
+    except exceptions.ConfigurationError:
 
         raise
 
@@ -174,7 +174,7 @@ def processconfigs(parameters):
 
             _, _, jobdata = loadconfigs(parameters["job"])
 
-        except EX.ConfigurationError:
+        except exceptions.ConfigurationError:
 
             raise
 
@@ -241,7 +241,7 @@ def processconfigs(parameters):
         if jobs[job]["resource"] not in hostsections:
 
             # If not tell the user.
-            raise EX.CommandlineargsError(
+            raise exceptions.CommandlineargsError(
                 "The resource '{0}' that was given in the job config file "
                 "has not been configured in the host.conf. The hosts "
                 "available are '{1}'"
@@ -285,7 +285,7 @@ def processconfigs(parameters):
             if jobs[job][validationitem] is "":
 
                 # Throw an exception.
-                raise EX.ConfigurationError(REQUIRED[validationitem])
+                raise exceptions.ConfigurationError(REQUIRED[validationitem])
 
     # Some final initialisation.
     for job in jobs:
@@ -398,7 +398,7 @@ def loadconfigs(configfile):
 
     except IOError:
 
-        raise EX.ConfigurationError(
+        raise exceptions.ConfigurationError(
             "Can't read the configurations from '{0}'".format(configfile))
 
     # Strip out the newline chars.
@@ -451,7 +451,7 @@ def loadconfigs(configfile):
     # Check if there are zero sections.
     if len(sections) is 0:
 
-        raise EX.ConfigurationError(
+        raise exceptions.ConfigurationError(
             "Error no sections are defined in configuration file '{0}'"
             .format(configfile))
 
@@ -460,7 +460,7 @@ def loadconfigs(configfile):
 
         if len(params[section]) is 0:
 
-            raise EX.ConfigurationError(
+            raise exceptions.ConfigurationError(
                 "Error section '{0}' contains no parameter definitions using "
                 "configuration file '{1}'".format(section, configfile))
 
@@ -520,7 +520,7 @@ def saveconfigs(configfile, params):
 
         contents, _, oldparams = loadconfigs(configfile)
 
-    except EX.ConfigurationError:
+    except exceptions.ConfigurationError:
 
         contents = []
         oldparams = {}
@@ -649,7 +649,7 @@ def saveconfigs(configfile, params):
 
     except IOError:
 
-        raise EX.ConfigurationError(
+        raise exceptions.ConfigurationError(
             "Error saving to '{0}'".format(configfile))
 
 

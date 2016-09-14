@@ -44,15 +44,16 @@ from random import randint
 # different, this should handle both cases.
 try:
 
-    EX = __import__("corelibs.exceptions", fromlist=[''])
-    SHELLWRAPPERS = __import__("corelibs.shellwrappers", fromlist=[''])
-    APPS = __import__("plugins.apps", fromlist=[''])
+    import corelibs.exceptions as exceptions
+    import corelibs.shellwrappers as shellwrappers
+    import plugins.apps as apps
 
 except ImportError:
 
-    EX = __import__("Longbow.corelibs.exceptions", fromlist=[''])
-    SHELLWRAPPERS = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
-    APPS = __import__("Longbow.plugins.apps", fromlist=[''])
+    import Longbow.corelibs.exceptions as exceptions
+    import Longbow.corelibs.shellwrappers as shellwrappers
+    import Longbow.plugins.apps as apps
+
 
 LOG = logging.getLogger("Longbow.corelibs.applications")
 
@@ -113,10 +114,10 @@ def testapp(jobs):
 
             try:
 
-                SHELLWRAPPERS.sendtossh(job, cmd)
+                shellwrappers.sendtossh(job, cmd)
                 LOG.info("Executable check - passed.")
 
-            except EX.SSHError:
+            except exceptions.SSHError:
 
                 LOG.error("Executable check - failed.")
                 raise
@@ -141,7 +142,7 @@ def processjobs(jobs):
     LOG.info("Processing job/s and detecting files that require upload.")
 
     # Get dictionary of executables and their required flags from plug-ins.
-    tmp = getattr(APPS, "DEFMODULES")
+    tmp = getattr(apps, "DEFMODULES")
 
     # Process each job.
     for item in jobs:
@@ -170,7 +171,7 @@ def processjobs(jobs):
 
             if arg.count(os.path.pardir) > 0 or os.path.isabs(arg):
 
-                raise EX.RequiredinputError(
+                raise exceptions.RequiredinputError(
                     "In job '{0}' input files are being provided with "
                     "absolute paths or from directories above localworkdir. "
                     "This is not supported".format(item))
@@ -189,7 +190,7 @@ def processjobs(jobs):
         if os.path.isdir(cwd) is False:
 
             # If not, this is bad.
-            raise EX.DirectorynotfoundError(
+            raise exceptions.DirectorynotfoundError(
                 "The local job directory '{0}' cannot be found for job '{1}'"
                 .format(cwd, job))
 
@@ -201,7 +202,7 @@ def processjobs(jobs):
 
         try:
 
-            substte = getattr(APPS, app.lower()).sub_dict(args)
+            substte = getattr(apps, app.lower()).sub_dict(args)
 
         except AttributeError:
 
@@ -211,7 +212,7 @@ def processjobs(jobs):
         # files or dependencies within the files.
 
         # Get required flags.
-        req_flags = getattr(APPS, "EXECFLAGS")[executable]
+        req_flags = getattr(apps, "EXECFLAGS")[executable]
         found_flags = []
 
         # Start with the case where the command line would be provided like
@@ -285,7 +286,7 @@ def processjobs(jobs):
                             try:
 
                                 getattr(
-                                    APPS, app.lower()).file_parser(
+                                    apps, app.lower()).file_parser(
                                         fileitem, cwd, filelist, substte)
 
                             except AttributeError:
@@ -297,7 +298,7 @@ def processjobs(jobs):
                 # input file so raise an exception.
                 else:
 
-                    raise EX.RequiredinputError(
+                    raise exceptions.RequiredinputError(
                         "In job '{0}' it appears that the input file is "
                         "missing, check your command line is of the form "
                         "longbow [longbow args] executable '<' "
@@ -371,7 +372,7 @@ def processjobs(jobs):
                             try:
 
                                 getattr(
-                                    APPS, app.lower()).file_parser(
+                                    apps, app.lower()).file_parser(
                                         fileitem, cwd, filelist, substte)
 
                             except AttributeError:
@@ -384,7 +385,7 @@ def processjobs(jobs):
                 # input file so raise an exception.
                 else:
 
-                    raise EX.RequiredinputError(
+                    raise exceptions.RequiredinputError(
                         "In job '{0}' it appears that the input file "
                         "is missing, check your command line is of "
                         "the form: "
@@ -453,7 +454,7 @@ def processjobs(jobs):
                                 try:
 
                                     fileitem = getattr(
-                                        APPS, app.lower()).defaultfilename(
+                                        apps, app.lower()).defaultfilename(
                                         cwd, arg)
 
                                 except AttributeError:
@@ -507,7 +508,7 @@ def processjobs(jobs):
                                 try:
 
                                     tmpitem = getattr(
-                                        APPS, app.lower()).defaultfilename(
+                                        apps, app.lower()).defaultfilename(
                                             cwd, os.path.join(
                                                 "rep" + str(i) + arg))
 
@@ -527,7 +528,7 @@ def processjobs(jobs):
                                     try:
 
                                         fileitem = getattr(
-                                            APPS, app.lower()).defaultfilename(
+                                            apps, app.lower()).defaultfilename(
                                                 cwd, arg)
 
                                         # Also update the command line to
@@ -551,7 +552,7 @@ def processjobs(jobs):
                             try:
 
                                 getattr(
-                                    APPS, app.lower()).file_parser(
+                                    apps, app.lower()).file_parser(
                                         fileitem, cwd, filelist, substte)
 
                             except AttributeError:
@@ -566,10 +567,10 @@ def processjobs(jobs):
             # If there are any missing still then tell the user.
             if len(flags) is not 0:
 
-                raise EX.RequiredinputError(
+                raise exceptions.RequiredinputError(
                     "In job '{0}' there are missing flags on the command line "
                     "'{1}'. See user documentation for plug-in '{2}'".format(
-                        item, flags, getattr(APPS, "DEFMODULES")[executable]))
+                        item, flags, getattr(apps, "DEFMODULES")[executable]))
 
         # Setup the rysnc upload masks.
         if job["upload-include"] is "":

@@ -48,13 +48,13 @@ import logging
 
 try:
 
-    EX = __import__("corelibs.exceptions", fromlist=[''])
-    SHELLWRAPPERS = __import__("corelibs.shellwrappers", fromlist=[''])
+    import corelibs.exceptions as exceptions
+    import corelibs.shellwrappers as shellwrappers
 
 except ImportError:
 
-    EX = __import__("Longbow.corelibs.exceptions", fromlist=[''])
-    SHELLWRAPPERS = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
+    import Longbow.corelibs.exceptions as exceptions
+    import Longbow.corelibs.shellwrappers as shellwrappers
 
 LOG = logging.getLogger("Longbow.corelibs.staging")
 
@@ -87,12 +87,12 @@ def stage_upstream(jobs):
 
         try:
 
-            SHELLWRAPPERS.sendtossh(job, ["mkdir -p " + destdir + "\n"])
+            shellwrappers.sendtossh(job, ["mkdir -p " + destdir + "\n"])
 
             LOG.info("Creation of directory '{0}' - successful."
                      .format(destdir))
 
-        except EX.SSHError:
+        except exceptions.SSHError:
 
             LOG.error(
                 "Creation of directory '{0}' - failed. Make sure that you "
@@ -104,11 +104,11 @@ def stage_upstream(jobs):
         # Transfer files upstream.
         try:
 
-            SHELLWRAPPERS.upload(job)
+            shellwrappers.upload(job)
 
-        except EX.RsyncError:
+        except exceptions.RsyncError:
 
-            raise EX.StagingError(
+            raise exceptions.StagingError(
                 "Could not stage '{0}' upstream, make sure that you have "
                 "supplied the correct remote working directory and that you "
                 "have chosen a path that you can write to."
@@ -137,12 +137,13 @@ def stage_downstream(job):
     # Download the whole directory with rsync.
     try:
 
-        SHELLWRAPPERS.download(job)
+        shellwrappers.download(job)
 
-    except EX.RsyncError:
+    except exceptions.RsyncError:
 
-        raise EX.StagingError("Could not download file '{0}' to location '{1}'"
-                              .format(job["src"], job["dst"]))
+        raise exceptions.StagingError(
+            "Could not download file '{0}' to location '{1}'"
+            .format(job["src"], job["dst"]))
 
     LOG.info("Staging complete.")
 
@@ -171,28 +172,28 @@ def cleanup(jobs):
 
         try:
 
-            SHELLWRAPPERS.remotelist(job)
+            shellwrappers.remotelist(job)
 
             if destdir != remotedir:
 
                 LOG.info("Deleting directory for job '{0}' - '{1}'"
                          .format(item, destdir))
 
-                SHELLWRAPPERS.remotedelete(job)
+                shellwrappers.remotedelete(job)
 
             else:
 
-                raise EX.RemoteworkdirError(
+                raise exceptions.RemoteworkdirError(
                     "Subdirectory of remoteworkdir not yet created")
 
-        except EX.RemoteworkdirError:
+        except exceptions.RemoteworkdirError:
 
             LOG.debug("For job '{0}', cleanup not required because the "
                       "'{0}xxxxx' subdirectory of '{1}' in which the job "
                       "would have run has not yet been created on the remote "
                       "resource.".format(item, remotedir))
 
-        except EX.RemotelistError:
+        except exceptions.RemotelistError:
 
             # Directory doesn't exist.
             LOG.debug("Directory on path '{0}' does not exist - skipping."
@@ -203,7 +204,7 @@ def cleanup(jobs):
             LOG.debug("For job '{0}', cleanup not required - skipping."
                       .format(item))
 
-        except EX.RemotedeleteError:
+        except exceptions.RemotedeleteError:
 
             LOG.debug("For job '{0}', cannot delete directory '{1}' - "
                       "skipping.".format(item, destdir))

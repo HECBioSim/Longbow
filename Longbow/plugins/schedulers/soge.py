@@ -41,13 +41,13 @@ import re
 
 try:
 
-    EX = __import__("corelibs.exceptions", fromlist=[''])
-    SHELLWRAPPERS = __import__("corelibs.shellwrappers", fromlist=[''])
+    import corelibs.exceptions as exceptions
+    import corelibs.shellwrappers as shellwrappers
 
 except ImportError:
 
-    EX = __import__("Longbow.corelibs.exceptions", fromlist=[''])
-    SHELLWRAPPERS = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
+    import Longbow.corelibs.exceptions as exceptions
+    import Longbow.corelibs.shellwrappers as shellwrappers
 
 QUERY_STRING = "env | grep -i 'sge'"
 
@@ -62,11 +62,11 @@ def delete(job):
 
     try:
 
-        shellout = SHELLWRAPPERS.sendtossh(job, ["qdel " + jobid])
+        shellout = shellwrappers.sendtossh(job, ["qdel " + jobid])
 
-    except EX.SSHError:
+    except exceptions.SSHError:
 
-        raise EX.JobdeleteError("Unable to delete job.")
+        raise exceptions.JobdeleteError("Unable to delete job.")
 
     return shellout[0]
 
@@ -187,9 +187,9 @@ def status(job):
 
     try:
 
-        shellout = SHELLWRAPPERS.sendtossh(job, ["qstat -u " + job["user"]])
+        shellout = shellwrappers.sendtossh(job, ["qstat -u " + job["user"]])
 
-    except EX.SSHError:
+    except exceptions.SSHError:
 
         raise
 
@@ -224,17 +224,17 @@ def submit(job):
     # Process the submit
     try:
 
-        shellout = SHELLWRAPPERS.sendtossh(job, cmd)
+        shellout = shellwrappers.sendtossh(job, cmd)
 
-    except EX.SSHError as inst:
+    except exceptions.SSHError as inst:
 
         if "per user" or "per-user" in inst.stderr:
 
-            raise EX.QueuemaxError
+            raise exceptions.QueuemaxError
 
         else:
 
-            raise EX.JobsubmitError(
+            raise exceptions.JobsubmitError(
                 "Something went wrong when submitting. The following output "
                 "came back from the SSH call:\nstdout: {0}\nstderr {1}"
                 .format(shellout[0], shellout[1]))
@@ -246,7 +246,7 @@ def submit(job):
 
     except AttributeError:
 
-        raise EX.JobsubmitError(
+        raise exceptions.JobsubmitError(
             "Could not detect the job id during submission, this means that "
             "either the submission failed in an unexpected way, or that "
             "Longbow could not understand the returned information.")

@@ -25,11 +25,11 @@ import re
 
 try:
 
-    EX = __import__("corelibs.exceptions", fromlist=[''])
+    import corelibs.exceptions as exceptions
 
 except ImportError:
 
-    EX = __import__("Longbow.corelibs.exceptions", fromlist=[''])
+    import Longbow.corelibs.exceptions as exceptions
 
 
 EXECDATA = {
@@ -58,7 +58,7 @@ def file_parser(filename, path, files, substitutions=None):
 
         else:
 
-            raise EX.RequiredinputError(
+            raise exceptions.RequiredinputError(
                 "It appears that the user is trying to refer to a file '{0}' "
                 "using an explicit path. Please just provide the names of "
                 "input files".format(filename))
@@ -71,7 +71,7 @@ def file_parser(filename, path, files, substitutions=None):
     # else issue a warning
     else:
 
-        raise EX.RequiredinputError(
+        raise exceptions.RequiredinputError(
             "It appears the file '{0}' is not present in the expected"
             " directory.".format(filename))
 
@@ -93,7 +93,8 @@ def file_parser(filename, path, files, substitutions=None):
 
         except IOError:
 
-            EX.RequiredinputError("Can't read the file '{0}'".format(addfile))
+            exceptions.RequiredinputError("Can't read the file '{0}'"
+                                          .format(addfile))
 
         if fil:
 
@@ -165,7 +166,7 @@ def file_parser(filename, path, files, substitutions=None):
                             # referring to a file that is above cwd
                             else:
 
-                                raise EX.RequiredinputError(
+                                raise exceptions.RequiredinputError(
                                     "It appears that the"
                                     " user is trying to refer to a file '{0}'"
                                     " in file '{1}' that is a"
@@ -181,7 +182,7 @@ def file_parser(filename, path, files, substitutions=None):
                         # elif ../../ is used in an input script issue an error
                         elif newfile.count("../") > 1:
 
-                            raise EX.RequiredinputError(
+                            raise exceptions.RequiredinputError(
                                 "It appears that the user is trying to refer "
                                 "to a file '{0}' in file '{1}' that's multiple"
                                 " directories up from a valid directory. This "
@@ -207,7 +208,7 @@ def file_parser(filename, path, files, substitutions=None):
                             # warning
                             if re.search(r'rep\d', addfile):
 
-                                raise EX.RequiredinputError(
+                                raise exceptions.RequiredinputError(
                                     "It appears that the"
                                     "user is trying to refer to a file '{0}'"
                                     " that is in a repX/repX "

@@ -42,13 +42,13 @@ import re
 
 try:
 
-    EX = __import__("corelibs.exceptions", fromlist=[''])
-    SHELLWRAPPERS = __import__("corelibs.shellwrappers", fromlist=[''])
+    import corelibs.exceptions as exceptions
+    import corelibs.shellwrappers as shellwrappers
 
 except ImportError:
 
-    EX = __import__("Longbow.corelibs.exceptions", fromlist=[''])
-    SHELLWRAPPERS = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
+    import Longbow.corelibs.exceptions as exceptions
+    import Longbow.corelibs.shellwrappers as shellwrappers
 
 QUERY_STRING = "env | grep -i 'pbs'"
 
@@ -65,15 +65,15 @@ def delete(job):
 
         if int(job["replicates"]) > 1:
 
-            shellout = SHELLWRAPPERS.sendtossh(job, ["qdel " + jobid + "[]"])
+            shellout = shellwrappers.sendtossh(job, ["qdel " + jobid + "[]"])
 
         else:
 
-            shellout = SHELLWRAPPERS.sendtossh(job, ["qdel " + jobid])
+            shellout = shellwrappers.sendtossh(job, ["qdel " + jobid])
 
-    except EX.SSHError:
+    except exceptions.SSHError:
 
-        raise EX.JobdeleteError("Unable to delete job.")
+        raise exceptions.JobdeleteError("Unable to delete job.")
 
     return shellout[0]
 
@@ -228,9 +228,9 @@ def status(job):
 
     try:
 
-        shellout = SHELLWRAPPERS.sendtossh(job, ["qstat -u " + job["user"]])
+        shellout = shellwrappers.sendtossh(job, ["qstat -u " + job["user"]])
 
-    except EX.SSHError:
+    except exceptions.SSHError:
 
         raise
 
@@ -264,17 +264,17 @@ def submit(job):
 
     try:
 
-        shellout = SHELLWRAPPERS.sendtossh(job, cmd)
+        shellout = shellwrappers.sendtossh(job, cmd)
 
-    except EX.SSHError as inst:
+    except exceptions.SSHError as inst:
 
         if "would exceed" and "per-user limit" in inst.stderr:
 
-            raise EX.QueuemaxError
+            raise exceptions.QueuemaxError
 
         elif "set_booleans" in inst.stderr:
 
-            raise EX.JobsubmitError(
+            raise exceptions.JobsubmitError(
                 "Something went wrong when submitting. The likely cause is "
                 "your particular PBS install is not receiving the "
                 "information/options/parameters it " "requires "
@@ -284,7 +284,7 @@ def submit(job):
 
         elif "Job rejected by all possible destinations" in inst.stderr:
 
-            raise EX.JobsubmitError(
+            raise exceptions.JobsubmitError(
                 "Something went wrong when submitting. This may be because "
                 "you need to provide PBS with your account code and the "
                 "account flag your PBS install expects (Longbow defaults to "
@@ -294,14 +294,14 @@ def submit(job):
 
         elif "Job must specify budget (-A option)" in inst.stderr:
 
-            raise EX.JobsubmitError(
+            raise exceptions.JobsubmitError(
                 "Something went wrong when submitting. This may be because "
                 "you provided PBS with an account flag other than 'A' which "
                 "your PBS install expects")
 
         elif "Job exceeds queue and/or server resource limits" in inst.stderr:
 
-            raise EX.JobsubmitError(
+            raise exceptions.JobsubmitError(
                 "Something went wrong when submitting. PBS has reported "
                 "that 'Job exceeds queue and/or server resource limits'. "
                 "This may be because you set a walltime or some other "
@@ -309,20 +309,20 @@ def submit(job):
 
         elif "budget" in inst.stderr:
 
-            raise EX.JobsubmitError(
+            raise exceptions.JobsubmitError(
                 "Something went wrong when submitting. This may be that you "
                 "have entered an incorrect account code.")
 
         elif "illegal -N value" in inst.stderr:
 
-            raise EX.JobsubmitError(
+            raise exceptions.JobsubmitError(
                 "Something went wrong when submitting. This is due to the job "
                 "name being too long, consult your system administrators/"
                 "documentation to query this policy (try < 15 chars).")
 
         else:
 
-            raise EX.JobsubmitError(
+            raise exceptions.JobsubmitError(
                 "Something went wrong when submitting. The following output "
                 "came back from the SSH call:\nstdout: {0}\nstderr {1}"
                 .format(shellout[0], shellout[1]))
@@ -334,7 +334,7 @@ def submit(job):
 
     except AttributeError:
 
-        raise EX.JobsubmitError(
+        raise exceptions.JobsubmitError(
             "Could not detect the job id during submission, this means that "
             "either the submission failed in an unexpected way, or that "
             "Longbow could not understand the returned information.")

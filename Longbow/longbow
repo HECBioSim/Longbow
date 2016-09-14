@@ -54,23 +54,23 @@ import subprocess
 # different, this should handle most common cases.
 try:
 
-    APPLICATIONS = __import__("corelibs.applications", fromlist=[''])
-    APPS = __import__("plugins.apps", fromlist=[''])
-    CONFIGURATION = __import__("corelibs.configuration", fromlist=[''])
-    EX = __import__("corelibs.exceptions", fromlist=[''])
-    SCHEDULING = __import__("corelibs.scheduling", fromlist=[''])
-    SHELLWRAPPERS = __import__("corelibs.shellwrappers", fromlist=[''])
-    STAGING = __import__("corelibs.staging", fromlist=[''])
+    import corelibs.applications as applications
+    import plugins.apps as apps
+    import corelibs.configuration as configuration
+    import corelibs.exceptions as exceptions
+    import corelibs.scheduling as scheduling
+    import corelibs.shellwrappers as shellwrappers
+    import corelibs.staging as staging
 
 except ImportError:
 
-    APPLICATIONS = __import__("Longbow.corelibs.applications", fromlist=[''])
-    APPS = __import__("Longbow.plugins.apps", fromlist=[''])
-    CONFIGURATION = __import__("Longbow.corelibs.configuration", fromlist=[''])
-    EX = __import__("Longbow.corelibs.exceptions", fromlist=[''])
-    SCHEDULING = __import__("Longbow.corelibs.scheduling", fromlist=[''])
-    SHELLWRAPPERS = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
-    STAGING = __import__("Longbow.corelibs.staging", fromlist=[''])
+    import Longbow.corelibs.applications as applications
+    import Longbow.plugins.apps as apps
+    import Longbow.corelibs.configuration as configuration
+    import Longbow.corelibs.exceptions as exceptions
+    import Longbow.corelibs.scheduling as scheduling
+    import Longbow.corelibs.shellwrappers as shellwrappers
+    import Longbow.corelibs.staging as staging
 
 PYTHONVERSION = "{0}.{1}".format(sys.version_info[0], sys.version_info[1])
 LONGBOWVERSION = "1.3.0"
@@ -158,7 +158,7 @@ def main():
     # executable arguments
 
     # Get a list of recognised executables
-    execlist = getattr(APPS, "EXECLIST")
+    execlist = getattr(apps, "EXECLIST")
 
     # Search for recognised executables on the commandline
     for exe in execlist:
@@ -175,7 +175,7 @@ def main():
 
             else:
 
-                raise EX.CommandlineargsError(
+                raise exceptions.CommandlineargsError(
                     "More than one recognised executable has been specified on"
                     " the Longbow command line. Please provide just one.")
 
@@ -216,7 +216,7 @@ def main():
 
             allowedargs = " ".join(alllongbowargs)
 
-            raise EX.CommandlineargsError(
+            raise exceptions.CommandlineargsError(
                 "Argument '{0}' is not a recognised Longbow argument. "
                 "Recognised arguments are: {1}".format(item, allowedargs))
 
@@ -348,7 +348,7 @@ def main():
         if (position + 1 == len(longbowargs) or
                 longbowargs[position + 1].startswith("-")):
 
-            raise EX.CommandlineargsError(
+            raise exceptions.CommandlineargsError(
                 "Please specify a valid file for the --log command line "
                 "parameter e.g. longbow --log [filename] ...")
 
@@ -370,7 +370,7 @@ def main():
         if (position + 1 == len(longbowargs) or
                 longbowargs[position + 1].startswith("-")):
 
-            raise EX.CommandlineargsError(
+            raise exceptions.CommandlineargsError(
                 "Please specify a valid file for the --hosts command line "
                 "parameter e.g. longbow --hosts [filename] ...")
         else:
@@ -391,7 +391,7 @@ def main():
         if (position + 1 == len(longbowargs) or
                 longbowargs[position + 1].startswith("-")):
 
-            raise EX.CommandlineargsError(
+            raise exceptions.CommandlineargsError(
                 "Please specify a valid file for the --job command line "
                 "parameter e.g. longbow --job [filename] ...")
 
@@ -415,7 +415,7 @@ def main():
         if (position + 1 == len(longbowargs) or
                 longbowargs[position + 1].startswith("-")):
 
-            raise EX.CommandlineargsError(
+            raise exceptions.CommandlineargsError(
                 "Please specify a valid file for the --recover command line "
                 "parameter e.g. longbow --recover [filename] ...")
 
@@ -455,7 +455,7 @@ def main():
         if (position + 1 == len(longbowargs) or
                 longbowargs[position + 1].startswith("-")):
 
-            raise EX.commandlineargserror(
+            raise exceptions.CommandlineargsError(
                 "Please specify a valid remote resource for the --resource "
                 "command line parameter e.g. longbow --resource hpc ...")
 
@@ -478,7 +478,7 @@ def main():
         if (position + 1 == len(longbowargs) or
                 longbowargs[position + 1].startswith("-")):
 
-            raise EX.CommandlineargsError(
+            raise exceptions.CommandlineargsError(
                 "Please specify a number for the --replicates command line "
                 "parameter e.g. longbow --replicates 5 ...")
 
@@ -501,7 +501,7 @@ def main():
         if (position + 1 == len(longbowargs) or
                 longbowargs[position + 1].startswith("-")):
 
-            raise EX.CommandlineargsError(
+            raise exceptions.CommandlineargsError(
                 "Please specify a name for the --jobname command line "
                 "parameter e.g. longbow --jobname myjob ...")
 
@@ -624,7 +624,7 @@ def main():
 
             else:
 
-                raise EX.RequiredinputError(
+                raise exceptions.RequiredinputError(
                     "No host configuration file found in the current working "
                     "directory '{0}', the execution directory '{1}' or in the "
                     "~/.Longbow directory."
@@ -655,7 +655,7 @@ def main():
 
             else:
 
-                raise EX.RequiredinputError(
+                raise exceptions.RequiredinputError(
                     "The job configuration file '{0}' couldn't be found in "
                     "the current working directory '{1}', the execution "
                     "directory '{2}'."
@@ -714,47 +714,47 @@ def longbowmain(parameters):
     # escalating the exception to trigger graceful exit.
 
     # Load configurations and initialise Longbow data structures.
-    jobs = CONFIGURATION.processconfigs(parameters)
+    jobs = configuration.processconfigs(parameters)
 
     # Test all connection/s specified in the job configurations
-    SHELLWRAPPERS.testconnections(jobs)
+    shellwrappers.testconnections(jobs)
 
     # Test the hosts listed in the jobs configuration file have their
     # scheduler environments listed, if not then test and save them.
-    SCHEDULING.testenv(jobs, parameters["hosts"])
+    scheduling.testenv(jobs, parameters["hosts"])
 
     # Test that for the applications listed in the job configuration
     # file are available and that the executable is present.
-    APPLICATIONS.testapp(jobs)
+    applications.testapp(jobs)
 
     # Process the jobs command line arguments and find files for
     # staging.
-    APPLICATIONS.processjobs(jobs)
+    applications.processjobs(jobs)
 
     # Create jobfile and add it to the list of files that needs
     # uploading.
-    SCHEDULING.prepare(jobs)
+    scheduling.prepare(jobs)
 
     # Exceptions that occur before here don't require cleanup operations before
     # reporting up.
     try:
 
         # Stage all of the job files along with the scheduling script.
-        STAGING.stage_upstream(jobs)
+        staging.stage_upstream(jobs)
 
         # Submit all jobs.
-        SCHEDULING.submit(jobs)
+        scheduling.submit(jobs)
 
         # Process the disconnect function.
         if parameters["disconnect"] is True:
 
-            raise EX.DisconnectException
+            raise exceptions.DisconnectException
 
         # Monitor all jobs.
-        SCHEDULING.monitor(jobs)
+        scheduling.monitor(jobs)
 
         # Clean up all jobs
-        STAGING.cleanup(jobs)
+        staging.cleanup(jobs)
 
     # If the user interrupts Longbow at this stage then it they are aborting
     # the jobs, so kill off any running jobs and then remove the job
@@ -778,20 +778,20 @@ def longbowmain(parameters):
                         job["laststatus"] != "Submit Error"):
 
                     # Kill it.
-                    SCHEDULING.delete(job)
+                    scheduling.delete(job)
 
                     # Transfer the directories as they are.
-                    STAGING.stage_downstream(job)
+                    staging.stage_downstream(job)
 
                 # Job is finished then just stage.
                 elif job["laststatus"] != "Submit Error":
 
                     # Transfer the directories as they are.
-                    STAGING.stage_downstream(job)
+                    staging.stage_downstream(job)
 
-        STAGING.cleanup(jobs)
+        staging.cleanup(jobs)
 
-    except (EX.DisconnectException):
+    except (exceptions.DisconnectException):
 
         LOG.info("User specified --disconnect flag on command-line, so "
                  "Longbow will exit. You can reconnect this session by using "
@@ -819,21 +819,21 @@ def recover(recoveryfile):
 
         LOG.info("Recovery file found at '{0}'".format(jobfile))
 
-        _, _, jobs = CONFIGURATION.loadconfigs(jobfile)
+        _, _, jobs = configuration.loadconfigs(jobfile)
 
     else:
 
-        raise EX.RequiredinputError(
+        raise exceptions.RequiredinputError(
             "Recovery file could not be found at '{0}' make sure you are "
             "running the recovery from the job directory that was initially "
             "used to launch the failed job".format(jobfile))
 
     # Rejoin at the monitoring stage. This will assume that all jobs that are
     # no longer in the queue have completed.
-    SCHEDULING.monitor(jobs)
+    scheduling.monitor(jobs)
 
     # Cleanup the remote working directory.
-    STAGING.cleanup(jobs)
+    staging.cleanup(jobs)
 
 
 if __name__ == "__main__":

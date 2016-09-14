@@ -56,19 +56,20 @@ import os
 # different, this should handle both cases.
 try:
 
-    CONFIGURATION = __import__("corelibs.configuration", fromlist=[''])
-    EX = __import__("corelibs.exceptions", fromlist=[''])
-    SCHEDULERS = __import__("plugins.schedulers", fromlist=[''])
-    SHELLWRAPPERS = __import__("corelibs.shellwrappers", fromlist=[''])
-    STAGING = __import__("corelibs.staging", fromlist=[''])
+    import corelibs.configuration as configuration
+    import corelibs.exceptions as exceptions
+    import corelibs.shellwrappers as shellwrappers
+    import corelibs.staging as staging
+    import plugins.schedulers as schedulers
 
 except ImportError:
 
-    CONFIGURATION = __import__("Longbow.corelibs.configuration", fromlist=[''])
-    EX = __import__("Longbow.corelibs.exceptions", fromlist=[''])
-    SCHEDULERS = __import__("Longbow.plugins.schedulers", fromlist=[''])
-    SHELLWRAPPERS = __import__("Longbow.corelibs.shellwrappers", fromlist=[''])
-    STAGING = __import__("Longbow.corelibs.staging", fromlist=[''])
+    import Longbow.corelibs.configuration as configuration
+    import Longbow.corelibs.exceptions as exceptions
+    import Longbow.corelibs.shellwrappers as shellwrappers
+    import Longbow.corelibs.staging as staging
+    import Longbow.plugins.schedulers as schedulers
+
 
 LOG = logging.getLogger("Longbow.corelibs.scheduling")
 QUEUEINFO = {}
@@ -94,7 +95,7 @@ def testenv(jobs, hostconf):
                         structure.
     """
 
-    schedulerqueries = getattr(SCHEDULERS, "QUERY")
+    schedulerqueries = getattr(schedulers, "QUERY")
 
     handlers = {
         "aprun": ["which aprun"],
@@ -134,7 +135,7 @@ def testenv(jobs, hostconf):
 
                     try:
 
-                        SHELLWRAPPERS.sendtossh(job, schedulerqueries[param])
+                        shellwrappers.sendtossh(job, schedulerqueries[param])
 
                         job["scheduler"] = param
                         saveparams[resource]["scheduler"] = param
@@ -143,13 +144,13 @@ def testenv(jobs, hostconf):
                                  .format(param))
                         break
 
-                    except EX.SSHError:
+                    except exceptions.SSHError:
 
                         LOG.debug("Environment is not '{0}'".format(param))
 
                 if job["scheduler"] is "":
 
-                    raise EX.SchedulercheckError(
+                    raise exceptions.SchedulercheckError(
                         "Could not find the job scheduling system.")
 
                 # If we changed anything then mark for saving.
@@ -182,7 +183,7 @@ def testenv(jobs, hostconf):
 
                         cmd = cmdmod[:]
                         cmd.extend(handlers[param])
-                        SHELLWRAPPERS.sendtossh(job, cmd)
+                        shellwrappers.sendtossh(job, cmd)
 
                         job["handler"] = param
                         saveparams[resource]["handler"] = param
@@ -192,14 +193,14 @@ def testenv(jobs, hostconf):
 
                         break
 
-                    except EX.SSHError:
+                    except exceptions.SSHError:
 
                         LOG.debug("The batch queue handler is not '{0}'"
                                   .format(param))
 
                 if job["handler"] is "":
 
-                    raise EX.HandlercheckError(
+                    raise exceptions.HandlercheckError(
                         "Could not find the batch queue handler.")
 
                 # If we changed anything then mark for saving.
@@ -230,7 +231,7 @@ def testenv(jobs, hostconf):
     # Do we have anything to change in the host file.
     if save is True:
 
-        CONFIGURATION.saveconfigs(hostconf, saveparams)
+        configuration.saveconfigs(hostconf, saveparams)
 
 
 def delete(job):
@@ -251,15 +252,15 @@ def delete(job):
 
         LOG.info("Deleting the job '{0}'".format(job["jobname"]))
 
-        getattr(SCHEDULERS, scheduler.lower()).delete(job)
+        getattr(schedulers, scheduler.lower()).delete(job)
 
     except AttributeError:
 
-        raise EX.PluginattributeError(
+        raise exceptions.PluginattributeError(
             "delete method cannot be found in plugin '{0}'"
             .format(scheduler))
 
-    except EX.JobdeleteError:
+    except exceptions.JobdeleteError:
 
         LOG.info("Unable to delete job '{0}'".format(job["jobname"]))
 
@@ -321,11 +322,11 @@ def monitor(jobs):
                 # Get the job status.
                 try:
 
-                    status = getattr(SCHEDULERS, scheduler.lower()).status(job)
+                    status = getattr(schedulers, scheduler.lower()).status(job)
 
                 except AttributeError:
 
-                    raise EX.PluginattributeError(
+                    raise exceptions.PluginattributeError(
                         "status method cannot be found in plugin '{0}'"
                         .format(scheduler))
 
@@ -343,7 +344,7 @@ def monitor(jobs):
 
                         try:
 
-                            CONFIGURATION.saveini(JOBFILE, jobs)
+                            configuration.saveini(JOBFILE, jobs)
 
                         except (OSError, IOError):
 
@@ -357,7 +358,7 @@ def monitor(jobs):
                         job["laststatus"] == "Subjob(s) running" and
                         interval is not 0):
 
-                    STAGING.stage_downstream(job)
+                    staging.stage_downstream(job)
 
                 # If job is done wait 60 seconds then transfer files (this is
                 # to stop users having to wait till all jobs end to grab last
@@ -372,7 +373,7 @@ def monitor(jobs):
 
                     time.sleep(60.0)
 
-                    STAGING.stage_downstream(job)
+                    staging.stage_downstream(job)
 
             # Check if we can submit any further jobs.
             if job["laststatus"] == "Waiting Submission":
@@ -385,7 +386,7 @@ def monitor(jobs):
                     # Try and submit this job.
                     try:
 
-                        getattr(SCHEDULERS, scheduler.lower()).submit(job)
+                        getattr(schedulers, scheduler.lower()).submit(job)
 
                         job["laststatus"] = "Queued"
 
@@ -400,12 +401,12 @@ def monitor(jobs):
                     # Submit method can't be found.
                     except AttributeError:
 
-                        raise EX.PluginattributeError(
+                        raise exceptions.PluginattributeError(
                             "submit method cannot be found in plugin '{0}'"
                             .format(scheduler))
 
                     # Some sort of error in submitting the job.
-                    except EX.JobsubmitError as err:
+                    except exceptions.JobsubmitError as err:
 
                         LOG.error(err)
 
@@ -413,7 +414,7 @@ def monitor(jobs):
 
                     # This time if a queue error is raised it might be due to
                     # other constraints such as resource limits on the queue.
-                    except EX.QueuemaxError:
+                    except exceptions.QueuemaxError:
 
                         LOG.error("Job is still failing to submit, which "
                                   "could indicate problems with resource "
@@ -487,13 +488,13 @@ def prepare(jobs):
 
             LOG.info("Creating submit file for job '{0}'" .format(item))
 
-            getattr(SCHEDULERS, scheduler.lower()).prepare(job)
+            getattr(schedulers, scheduler.lower()).prepare(job)
 
             LOG.info("Submit file created successfully")
 
         except AttributeError:
 
-            raise EX.PluginattributeError(
+            raise exceptions.PluginattributeError(
                 "prepare method cannot be found in plugin '{0}'"
                 .format(scheduler))
 
@@ -539,7 +540,7 @@ def submit(jobs):
         # Try and submit.
         try:
 
-            getattr(SCHEDULERS, scheduler.lower()).submit(job)
+            getattr(schedulers, scheduler.lower()).submit(job)
 
             LOG.info("Job '{0}' submitted with id '{1}'"
                      .format(item, job["jobid"]))
@@ -555,11 +556,12 @@ def submit(jobs):
         # Submit method can't be found.
         except AttributeError:
 
-            raise EX.PluginattributeError("submit method cannot be found in "
-                                          "plugin '{0}'".format(scheduler))
+            raise exceptions.PluginattributeError(
+                "submit method cannot be found in plugin '{0}'"
+                .format(scheduler))
 
         # Some sort of error in submitting the job.
-        except EX.JobsubmitError as err:
+        except exceptions.JobsubmitError as err:
 
             LOG.error(err)
 
@@ -568,7 +570,7 @@ def submit(jobs):
             error += 1
 
         # Hit maximum slots on resource, Longbow will sub-schedule these.
-        except EX.QueuemaxError:
+        except exceptions.QueuemaxError:
 
             LOG.info("The job '{0}' has been held back by Longbow due to "
                      "reaching queue slot limit, it will be submitted when a "
@@ -604,7 +606,7 @@ def submit(jobs):
             LOG.info("recovery file will be placed at path '{0}'"
                      .format(JOBFILE))
 
-            CONFIGURATION.saveini(JOBFILE, jobs)
+            configuration.saveini(JOBFILE, jobs)
 
         except (OSError, IOError):
 
