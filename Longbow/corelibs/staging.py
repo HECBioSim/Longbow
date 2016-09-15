@@ -82,22 +82,21 @@ def stage_upstream(jobs):
         job = jobs[item]
         destdir = job["destdir"]
 
-        LOG.info("Transfering files for job '{0}' to host '{1}'"
-                 .format(item, job["resource"]))
+        LOG.info("Transfering files for job '%s' to host '%s'",
+                 item, job["resource"])
 
         try:
 
             shellwrappers.sendtossh(job, ["mkdir -p " + destdir + "\n"])
 
-            LOG.info("Creation of directory '{0}' - successful."
-                     .format(destdir))
+            LOG.info("Creation of directory '%s' - successful.", destdir)
 
         except exceptions.SSHError:
 
             LOG.error(
-                "Creation of directory '{0}' - failed. Make sure that you "
-                "have write permissions at the top level of the path given."
-                .format(destdir))
+                "Creation of directory '%s' - failed. Make sure that you "
+                "have write permissions at the top level of the path given.",
+                destdir)
 
             raise
 
@@ -132,7 +131,7 @@ def stage_downstream(job):
                        as a subset of the main jobs dictionary.
     """
 
-    LOG.info("For job '{0}' staging files downstream.".format(job["jobname"]))
+    LOG.info("For job '%s' staging files downstream.", job["jobname"])
 
     # Download the whole directory with rsync.
     try:
@@ -176,8 +175,8 @@ def cleanup(jobs):
 
             if destdir != remotedir:
 
-                LOG.info("Deleting directory for job '{0}' - '{1}'"
-                         .format(item, destdir))
+                LOG.info("Deleting directory for job '%s' - '%s'",
+                         item, destdir)
 
                 shellwrappers.remotedelete(job)
 
@@ -188,26 +187,25 @@ def cleanup(jobs):
 
         except exceptions.RemoteworkdirError:
 
-            LOG.debug("For job '{0}', cleanup not required because the "
-                      "'{0}xxxxx' subdirectory of '{1}' in which the job "
+            LOG.debug("For job '%s', cleanup not required because the "
+                      "'%sxxxxx' subdirectory of '%s' in which the job "
                       "would have run has not yet been created on the remote "
-                      "resource.".format(item, remotedir))
+                      "resource.", item, item, remotedir)
 
         except exceptions.RemotelistError:
 
             # Directory doesn't exist.
-            LOG.debug("Directory on path '{0}' does not exist - skipping."
-                      .format(destdir))
+            LOG.debug("Directory on path '%s' does not exist - skipping.",
+                      destdir)
 
         except KeyError:
 
-            LOG.debug("For job '{0}', cleanup not required - skipping."
-                      .format(item))
+            LOG.debug("For job '%s', cleanup not required - skipping.", item)
 
         except exceptions.RemotedeleteError:
 
-            LOG.debug("For job '{0}', cannot delete directory '{1}' - "
-                      "skipping.".format(item, destdir))
+            LOG.debug("For job '%s', cannot delete directory '%s' - skipping.",
+                      item, destdir)
 
         except NameError:
 

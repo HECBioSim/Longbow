@@ -127,8 +127,8 @@ def testenv(jobs, hostconf):
             # If we have no scheduler defined by the user then find it.
             if job["scheduler"] is "":
 
-                LOG.info("No environment for this host '{0}' is specified - "
-                         "attempting to determine it!".format(resource))
+                LOG.info("No environment for this host '%s' is specified - "
+                         "attempting to determine it!", resource)
 
                 # Go through the schedulers we are supporting.
                 for param in schedulerqueries:
@@ -140,13 +140,12 @@ def testenv(jobs, hostconf):
                         job["scheduler"] = param
                         saveparams[resource]["scheduler"] = param
 
-                        LOG.info("The environment on this host is '{0}'"
-                                 .format(param))
+                        LOG.info("The environment on this host is '%s'", param)
                         break
 
                     except exceptions.SSHError:
 
-                        LOG.debug("Environment is not '{0}'".format(param))
+                        LOG.debug("Environment is not '%s'", param)
 
                 if job["scheduler"] is "":
 
@@ -158,14 +157,14 @@ def testenv(jobs, hostconf):
 
             else:
 
-                LOG.info("The environment on host '{0}' is '{1}'"
-                         .format(resource, job["scheduler"]))
+                LOG.info("The environment on host '%s' is '%s'",
+                         resource, job["scheduler"])
 
             # If we have no job handler defined by the user then find it.
             if job["handler"] is "":
 
-                LOG.info("No queue handler was specified for host '{0}' - "
-                         "attempting to find it".format(resource))
+                LOG.info("No queue handler was specified for host '%s' - "
+                         "attempting to find it", resource)
 
                 # Go through the handlers and find out which is there.
                 # Load modules first as this is necessary for some remote
@@ -188,15 +187,14 @@ def testenv(jobs, hostconf):
                         job["handler"] = param
                         saveparams[resource]["handler"] = param
 
-                        LOG.info("The batch queue handler is '{0}'"
-                                 .format(param))
+                        LOG.info("The batch queue handler is '%s'", param)
 
                         break
 
                     except exceptions.SSHError:
 
-                        LOG.debug("The batch queue handler is not '{0}'"
-                                  .format(param))
+                        LOG.debug("The batch queue handler is not '%s'",
+                                  param)
 
                 if job["handler"] is "":
 
@@ -208,8 +206,8 @@ def testenv(jobs, hostconf):
 
             else:
 
-                LOG.info("The handler on host '{0}' is '{1}'"
-                         .format(resource, job["handler"]))
+                LOG.info("The handler on host '%s' is '%s'",
+                         resource, job["handler"])
 
         # If resource has been checked.
         else:
@@ -250,7 +248,7 @@ def delete(job):
 
     try:
 
-        LOG.info("Deleting the job '{0}'".format(job["jobname"]))
+        LOG.info("Deleting the job '%s'", job["jobname"])
 
         getattr(schedulers, scheduler.lower()).delete(job)
 
@@ -262,7 +260,7 @@ def delete(job):
 
     except exceptions.JobdeleteError:
 
-        LOG.info("Unable to delete job '{0}'".format(job["jobname"]))
+        LOG.info("Unable to delete job '%s'", job["jobname"])
 
     LOG.info("Deletion successful")
 
@@ -336,8 +334,8 @@ def monitor(jobs):
 
                     job["laststatus"] = status
 
-                    LOG.info("Status of job '{0}' with id '{1}' is '{2}'"
-                             .format(item, job["jobid"], status))
+                    LOG.info("Status of job '%s' with id '%s' is '%s'",
+                             item, job["jobid"], status)
 
                     # Save out the recovery files.
                     if os.path.isdir(os.path.expanduser('~/.Longbow')):
@@ -368,8 +366,8 @@ def monitor(jobs):
                     QUEUEINFO[job["resource"]]["queue-slots"] = \
                         str(int(QUEUEINFO[job["resource"]]["queue-slots"]) - 1)
 
-                    LOG.info("Job '{0}' is finishing, staging will begin in "
-                             "60 seconds".format(item))
+                    LOG.info("Job '%s' is finishing, staging will begin in "
+                             "60 seconds", item)
 
                     time.sleep(60.0)
 
@@ -390,8 +388,8 @@ def monitor(jobs):
 
                         job["laststatus"] = "Queued"
 
-                        LOG.info("Job '{0}' submitted with id '{1}'"
-                                 .format(item, job["jobid"]))
+                        LOG.info("Job '%s' submitted with id '%s'",
+                                 item, job["jobid"])
 
                         # Increment the queue counter by one (used to count
                         # the slots).
@@ -486,7 +484,7 @@ def prepare(jobs):
 
         try:
 
-            LOG.info("Creating submit file for job '{0}'" .format(item))
+            LOG.info("Creating submit file for job '%s'", item)
 
             getattr(schedulers, scheduler.lower()).prepare(job)
 
@@ -542,8 +540,7 @@ def submit(jobs):
 
             getattr(schedulers, scheduler.lower()).submit(job)
 
-            LOG.info("Job '{0}' submitted with id '{1}'"
-                     .format(item, job["jobid"]))
+            LOG.info("Job '%s' submitted with id '%s'", item, job["jobid"])
 
             job["laststatus"] = "Queued"
 
@@ -572,9 +569,9 @@ def submit(jobs):
         # Hit maximum slots on resource, Longbow will sub-schedule these.
         except exceptions.QueuemaxError:
 
-            LOG.info("The job '{0}' has been held back by Longbow due to "
+            LOG.info("The job '%s' has been held back by Longbow due to "
                      "reaching queue slot limit, it will be submitted when a "
-                     "slot opens up.".format(item))
+                     "slot opens up.", item)
 
             # We will set a flag so that we can inform the user that it is
             # handled.
@@ -603,8 +600,7 @@ def submit(jobs):
 
         try:
 
-            LOG.info("recovery file will be placed at path '{0}'"
-                     .format(JOBFILE))
+            LOG.info("recovery file will be placed at path '%s'", JOBFILE)
 
             configuration.saveini(JOBFILE, jobs)
 
@@ -614,5 +610,5 @@ def submit(jobs):
                 "Could not write recovery file, possibly due to permissions "
                 "on the ~/.Longbow directory.")
 
-    LOG.info("{0} Submitted, {1} Held due to queue limits and {2} Failed."
-             .format(submitted, queued, error))
+    LOG.info("%s Submitted, %s Held due to queue limits and %s Failed.",
+             submitted, queued, error)

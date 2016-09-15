@@ -382,8 +382,7 @@ def loadconfigs(configfile):
                           dictionaries).
     """
 
-    LOG.info("Loading configuration information from file '{0}'"
-             .format(configfile))
+    LOG.info("Loading configuration information from file '%s'", configfile)
 
     sections = []
     params = {}
@@ -509,8 +508,7 @@ def saveconfigs(configfile, params):
                          be saved (typically hosts or job configs structure).
     """
 
-    LOG.info("Saving configuration information to file '{0}'"
-             .format(configfile))
+    LOG.info("Saving configuration information to file '%s'", configfile)
 
     keydiff = {}
     valuediff = {}
@@ -667,7 +665,7 @@ def saveini(inifile, params):
                          be saved (typically hosts or jobs structure).
     """
 
-    LOG.info("Saving current state to recovery file '{0}'".format(inifile))
+    LOG.info("Saving current state to recovery file '%s'", inifile)
 
     ini = open(inifile, "w")
 

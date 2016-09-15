@@ -93,8 +93,7 @@ def testapp(jobs):
             # If not then add it to the list now.
             checked[resource].extend([executable])
 
-            LOG.info("Checking executable '{0}' on '{1}'"
-                     .format(executable, resource))
+            LOG.info("Checking executable '%s' on '%s'", executable, resource)
 
             cmd = []
 
@@ -159,11 +158,10 @@ def processjobs(jobs):
 
         job["destdir"] = os.path.join(job["destdir"], destdir)
 
-        LOG.debug("Job '{0}' will be run in the '{1}' directory on the remote "
-                  "resource.".format(item, job["destdir"]))
+        LOG.debug("Job '%s' will be run in the '%s' directory on the remote "
+                  "resource.", item, job["destdir"])
 
-        LOG.debug("Command-line arguments for job '{0}'are '{1}'"
-                  .format(item, args))
+        LOG.debug("Command-line arguments for job '%s'are '%s'", item, args)
 
         # Check for any files that are located outside the work directory or
         # absolute paths.
@@ -589,7 +587,7 @@ def processjobs(jobs):
         # substitutions was removed
         job["executableargs"] = executable + " " + " ".join(initargs)
 
-        LOG.info("For job '{0}' - execution string: {1}"
-                 .format(item, job["executableargs"]))
+        LOG.info("For job '%s' - execution string: %s",
+                 item, job["executableargs"])
 
     LOG.info("Processing jobs - complete.")

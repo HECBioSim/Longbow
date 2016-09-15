@@ -128,7 +128,7 @@ def testconnections(jobs):
             # Make sure we don't check this again.
             checked.extend([resource])
 
-            LOG.debug("Testing connection to '{0}'".format(resource))
+            LOG.debug("Testing connection to '%s'", resource)
 
             try:
 
@@ -138,7 +138,7 @@ def testconnections(jobs):
 
                 raise
 
-            LOG.info("Test connection to '{0}' - passed".format(resource))
+            LOG.info("Test connection to '%s' - passed", resource)
 
 
 def sendtoshell(cmd):
@@ -163,7 +163,7 @@ def sendtoshell(cmd):
                           with.
     """
 
-    LOG.debug("Sending the following to subprocess '{0}'".format(cmd))
+    LOG.debug("Sending the following to subprocess '%s'", cmd)
 
     handle = subprocess.Popen(
         cmd,
@@ -376,7 +376,7 @@ def localcopy(src, dst):
                    copied to.
     """
 
-    LOG.debug("Copying '{0}' to '{1}'".format(src, dst))
+    LOG.debug("Copying '%s' to '%s'", src, dst)
 
     # Expand tildas (if present) otherwise these will not change anything.
     src = os.path.expanduser(src)
@@ -448,7 +448,7 @@ def localdelete(src):
                    to be deleted.
     """
 
-    LOG.debug("Deleting '{0}'".format(src))
+    LOG.debug("Deleting '%s'", src)
 
     # Expand tildas (if present) otherwise these will not change anything.
     src = os.path.expanduser(src)
@@ -499,7 +499,7 @@ def locallist(src):
     filelist (list) - A list of files within the specified directory.
     """
 
-    LOG.debug("Listing the contents of '{0}'".format(src))
+    LOG.debug("Listing the contents of '%s'", src)
 
     # Expand tildas (if present) otherwise these will not change anything.
     src = os.path.expanduser(src)
@@ -540,7 +540,7 @@ def remotecopy(job, src, dst):
                    copied to (on the host).
     """
 
-    LOG.debug("Copying '{0}' to '{1}'".format(src, dst))
+    LOG.debug("Copying '%s' to '%s'", src, dst)
 
     # Are paths absolute. Do we start with tildas, if so since we are going
     # through the shell allow it to expand the tilda on the remote host for us.
@@ -577,7 +577,7 @@ def remotedelete(job):
                        as a subset of the main jobs dictionary.
     """
 
-    LOG.debug("Deleting '{0}'".format(job["destdir"]))
+    LOG.debug("Deleting '%s'", job["destdir"])
 
     # Are paths absolute.
     if os.path.isabs(job["destdir"]) is False and job["destdir"][0] != "~":
@@ -613,7 +613,7 @@ def remotelist(job):
     filelist (list) - A list of files within the specified directory.
     """
 
-    LOG.debug("Listing the contents of '{0}'".format(job["destdir"]))
+    LOG.debug("Listing the contents of '%s'", job["destdir"])
 
     # Are paths absolute.
     if os.path.isabs(job["destdir"]) is False and job["destdir"][0] != "~":
@@ -668,7 +668,7 @@ def upload(job):
 
     dst = (job["user"] + "@" + job["host"] + ":" + job["destdir"])
 
-    LOG.debug("Copying '{0}' to '{1}'".format(job["localworkdir"], dst))
+    LOG.debug("Copying '%s' to '%s'", job["localworkdir"], dst)
 
     # Send command to subprocess.
     try:
@@ -712,7 +712,7 @@ def download(job):
 
     src = (job["user"] + "@" + job["host"] + ":" + job["destdir"])
 
-    LOG.debug("Copying '{0}' to '{1}'".format(src, job["localworkdir"]))
+    LOG.debug("Copying '%s' to '%s'", src, job["localworkdir"])
 
     # Send command to subprocess.
     try:
