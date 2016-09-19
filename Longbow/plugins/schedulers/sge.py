@@ -125,7 +125,7 @@ def prepare(job):
             module = module.replace(" ", "")
             jobfile.write("module load {0}\n\n" .format(module))
 
-    if int(job["cores"]) > 1 or job["sge-peoverrides"].lower() is "true":
+    if int(job["cores"]) > 1 or job["sge-peoverride"].lower() is "true":
 
         mpirun = job["handler"] + " -n " + job["cores"]
 

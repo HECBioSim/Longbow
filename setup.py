@@ -27,28 +27,28 @@ import os
 import sys
 
 # Check for unsupported Python versions.
-major = sys.version_info[0]
-minor = sys.version_info[1]
+MAJOR = sys.version_info[0]
+MINOR = sys.version_info[1]
 
-if not (major >= 2 and minor >= 6):
+if not (MAJOR >= 2 and MINOR >= 6):
 
-    print('The Python version installed is "{0}.{1}", Longbow does not support '
-          'this version. We recommend that you install at least version 2.7'
-          .format(major, minor))
+    print('The Python version installed is "{0}.{1}", Longbow does not support'
+          ' this version. We recommend that you install at least version 2.7'
+          .format(MAJOR, MINOR))
 
 else:
 
     print('The Python version installed "{0}.{1}" is supported by Longbow.'
-          .format(major, minor))
+          .format(MAJOR, MINOR))
 
 # Setup
-setup(name = 'Longbow',
-      version = '1.3.0',
-      description = 'Biomolecular simulation remote job submission tool.',
-      long_description = open('README.rst').read(),
-      author = 'James T Gebbie-Rayet, Gareth B Shannon',
-      author_email = ('james.gebbie@stfc.ac.uk, '
-                      'gareth.shannon@nottingham.ac.uk'),
+setup(name='Longbow',
+      version='1.3.1',
+      description='Biomolecular simulation remote job submission tool.',
+      long_description=open('README.rst').read(),
+      author='James T Gebbie-Rayet, Gareth B Shannon',
+      author_email=('james.gebbie@stfc.ac.uk, '
+                    'gareth.shannon@nottingham.ac.uk'),
       url = 'http://www.hecbiosim.ac.uk',
       license = 'OSI Approved :: GNU General Public License v2 (GPLv2)',
       classifiers = ['Development Status :: 5 - Production/Stable',
@@ -83,28 +83,28 @@ try:
               'information - www.hecbiosim.ac.uk/longbow-docs')
 
         os.mkdir(os.path.expanduser('~/.Longbow'))
-    
-        hostfile = open(os.path.expanduser('~/.Longbow/hosts.conf'), 'w+')
-    
-        hostfile.write('[QuickStart]\n')
-        hostfile.write('host = login.hpc.ac.uk\n')
-        hostfile.write('user = myusername\n')
-        hostfile.write('corespernode = 24\n')
-        hostfile.write('cores = 24\n')
-        hostfile.write('remoteworkdir = /work/myusername/\n')
-        hostfile.write('account = myaccount\n')
-        hostfile.write('modules = mymodules\n')
 
-        hostfile.close()
+        HOSTFILE = open(os.path.expanduser('~/.Longbow/hosts.conf'), 'w+')
+
+        HOSTFILE.write('[QuickStart]\n')
+        HOSTFILE.write('host = login.hpc.ac.uk\n')
+        HOSTFILE.write('user = myusername\n')
+        HOSTFILE.write('corespernode = 24\n')
+        HOSTFILE.write('cores = 24\n')
+        HOSTFILE.write('remoteworkdir = /work/myusername/\n')
+        HOSTFILE.write('account = myaccount\n')
+        HOSTFILE.write('modules = mymodules\n')
+
+        HOSTFILE.close()
 
     else:
-        
+
         print('Directory already exists - skipping.')
 
 
 except:
-    
+
     print('Longbow failed to create the host configuration file in '
           '"~/.Longbow/hosts.conf", you will have to do this manually. The '
           'user documentation details the information that should be in this '
-          'file.')    
+          'file.')
