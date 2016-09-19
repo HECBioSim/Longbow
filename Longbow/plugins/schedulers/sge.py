@@ -113,7 +113,7 @@ def prepare(job):
         jobfile.write("#$ -t 1-" + job["replicates"] + "\n")
 
     # Assume MPI for now - OMP could be added later on request.
-    if int(job["cores"]) > 1 or job["sge-peoverrides"].lower() is "true":
+    if int(job["cores"]) > 1 or job["sge-peoverride"].lower() is "true":
 
         jobfile.write("#$ -pe " + job["sge-peflag"] + " " +
                       job["cores"] + "\n\n")
