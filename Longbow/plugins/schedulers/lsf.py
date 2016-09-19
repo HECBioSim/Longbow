@@ -120,6 +120,17 @@ def prepare(job):
 
     jobfile.write("#BSUB -n " + job["cores"] + "\n")
 
+    # Load any custom scripts.
+    if job["scripts"] != "":
+
+        scripts = job["scripts"].split(',')
+
+        if len(scripts) > 1:
+
+            for item in scripts:
+
+                jobfile.write(item.strip() + "\n\n")
+
     if job["modules"] is not "":
 
         for module in job["modules"].split(","):

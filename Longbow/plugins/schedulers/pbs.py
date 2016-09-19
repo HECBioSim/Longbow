@@ -167,6 +167,17 @@ def prepare(job):
         "cd $PBS_O_WORKDIR\n"
         "export OMP_NUM_THREADS=1\n\n")
 
+    # Load any custom scripts.
+    if job["scripts"] != "":
+
+        scripts = job["scripts"].split(',')
+
+        if len(scripts) > 1:
+
+            for item in scripts:
+
+                jobfile.write(item.strip() + "\n\n")
+
     # Load up modules if required.
     if job["modules"] is not "":
 

@@ -92,6 +92,7 @@ JOBTEMPLATE = {
     "modules": "",
     "maxtime": "24:00",
     "memory": "",
+    "scripts": "",
     "sge-peflag": "mpi",
     "sge-peoverride": "false",
     "port": "22",

@@ -118,6 +118,18 @@ def prepare(job):
         jobfile.write("#$ -pe " + job["sge-peflag"] + " " +
                       job["cores"] + "\n\n")
 
+    # Load any custom scripts.
+    if job["scripts"] != "":
+
+        scripts = job["scripts"].split(',')
+
+        if len(scripts) > 1:
+
+            for item in scripts:
+
+                jobfile.write(item.strip() + "\n\n")
+
+    # Add in module to be loaded.
     if job["modules"] is not "":
 
         for module in job["modules"].split(","):

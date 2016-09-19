@@ -125,6 +125,17 @@ def prepare(job):
     # Walltime for job
     jobfile.write("#SBATCH -t " + job["maxtime"] + ":00\n\n")
 
+    # Load any custom scripts.
+    if job["scripts"] != "":
+
+        scripts = job["scripts"].split(',')
+
+        if len(scripts) > 1:
+
+            for item in scripts:
+
+                jobfile.write(item.strip() + "\n\n")
+
     # Load up modules if required.
     if job["modules"] is not "":
 
