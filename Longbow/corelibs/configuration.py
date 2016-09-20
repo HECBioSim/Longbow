@@ -218,25 +218,31 @@ def processconfigs(parameters):
 
         # If user has not indicated which resource to use or didn't use a
         # job.conf then check other sources.
-        if jobdata[job]["resource"] is "":
+        try:
 
-            # Since at this point we only have command-line as higher
-            # priority.
-            if parameters["resource"] is not "":
+            if jobdata[job]["resource"] is "":
 
-                jobs[job]["resource"] = parameters["resource"]
+                # Since at this point we only have command-line as higher
+                # priority.
+                if parameters["resource"] is not "":
 
-            # Otherwise lets try and use the top host in the list from
-            # host.conf. This should never be an empty list since the
-            # parser would provide an error on load.
+                    jobs[job]["resource"] = parameters["resource"]
+
+                # Otherwise lets try and use the top host in the list from
+                # host.conf. This should never be an empty list since the
+                # parser would provide an error on load.
+                else:
+
+                    jobs[job]["resource"] = hostsections[0]
+
+            # Just copy it over.
             else:
 
-                jobs[job]["resource"] = hostsections[0]
+                jobs[job]["resource"] = jobdata[job]["resource"]
 
-        # Just copy it over.
-        else:
+        except KeyError:
 
-            jobs[job]["resource"] = jobdata[job]["resource"]
+            jobs[job]["resource"] = hostsections[0]
 
         # Validate that we have this host listed.
         if jobs[job]["resource"] not in hostsections:
