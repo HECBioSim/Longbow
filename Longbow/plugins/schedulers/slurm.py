@@ -130,7 +130,7 @@ def prepare(job):
 
         scripts = job["scripts"].split(',')
 
-        if len(scripts) > 1:
+        if len(scripts) > 0:
 
             for item in scripts:
 
