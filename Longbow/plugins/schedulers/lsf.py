@@ -116,6 +116,15 @@ def prepare(job):
             jobfile.write("#BSUB " + job["accountflag"] + " " +
                           job["account"] + "\n")
 
+    # Email user.
+    if job["email-address"] is not "":
+
+        if job["email-flags"] is not "":
+            
+            jobfile.write("#BSUB " + job["email-flags"])
+
+        jobfile.write("#BSUB -u " + job["email-address"])
+
     jobfile.write("#BSUB -W " + job["maxtime"] + "\n")
 
     jobfile.write("#BSUB -n " + job["cores"] + "\n")

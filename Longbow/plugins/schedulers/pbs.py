@@ -152,6 +152,15 @@ def prepare(job):
     # Write the resource requests
     jobfile.write("#PBS -l " + tmp + "\n")
 
+    # Email user.
+    if job["email-address"] is not "":
+
+        if job["email-flags"] is not "":
+            
+            jobfile.write("#PBS -m " + job["email-flags"])
+
+        jobfile.write("#PBS -M " + job["email-address"])
+
     # Walltime for job.
     jobfile.write("#PBS -l walltime=" + job["maxtime"] + ":00\n")
 

@@ -107,6 +107,15 @@ def prepare(job):
 
     jobfile.write("#$ -l h_rt=" + job["maxtime"] + ":00\n")
 
+    # Email user.
+    if job["email-address"] is not "":
+
+        if job["email-flags"] is not "":
+            
+            jobfile.write("#$ -m " + job["email-flags"])
+
+        jobfile.write("#$ -M " + job["email-address"])
+
     # Job array
     if int(job["replicates"]) > 1:
 

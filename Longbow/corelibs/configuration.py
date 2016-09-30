@@ -83,6 +83,8 @@ JOBTEMPLATE = {
     "corespernode": "24",
     "download-exclude": "",
     "download-include": "",
+    "email-address": "",
+    "email-flags": "",
     "executable": "",
     "executableargs": "",
     "frequency": "300",
