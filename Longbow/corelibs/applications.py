@@ -531,7 +531,7 @@ def processjobs(jobs):
 
                                         # Also update the command line to
                                         # reflect a global file.
-                                        if arg in initargs:
+                                        if fileitem is not "" and arg in initargs:
 
                                             initargs[initargs.index(arg)] = \
                                                 os.path.join("../", arg)
