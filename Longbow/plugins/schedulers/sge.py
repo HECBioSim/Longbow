@@ -153,7 +153,7 @@ def prepare(job):
     # Job array
     elif int(job["replicates"]) > 1:
 
-        jobfile.write("cd rep${SGE_TASK_ID}/\n" + mpirun +
+        jobfile.write("cd rep${SGE_TASK_ID}/\n" + mpirun + " " +
                       job["executableargs"] + "\n")
 
     # Close the file (housekeeping)
