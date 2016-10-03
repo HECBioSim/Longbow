@@ -22,5 +22,6 @@
 
 EXECDATA = {
     "pmemd": ["-c", "-i", "-p"],
-    "pmemd.MPI": ["-c", "-i", "-p"]
+    "pmemd.MPI": ["-c", "-i", "-p"],
+    "pmemd.cuda": ["-c", "-i", "-p"]
     }
