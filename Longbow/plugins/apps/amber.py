@@ -21,7 +21,19 @@
 """."""
 
 EXECDATA = {
-    "pmemd": ["-c", "-i", "-p"],
-    "pmemd.MPI": ["-c", "-i", "-p"],
-    "pmemd.cuda": ["-c", "-i", "-p"]
+    "pmemd": {
+        "subexecutable": [],
+        "requiredfiles": ["-c", "-i", "-p"],
+        "requiredparam": []
+        },
+    "pmemd.MPI": {
+        "subexecutable": [],
+        "requiredfiles": ["-c", "-i", "-p"],
+        "requiredparam": []
+        },
+    "pmemd.cuda": {
+        "subexecutable": [],
+        "requiredfiles": ["-c", "-i", "-p"],
+        "requiredparam": []
+        }
     }
