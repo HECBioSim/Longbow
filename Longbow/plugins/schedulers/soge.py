@@ -114,9 +114,9 @@ def prepare(job):
 
         if job["email-flags"] is not "":
             
-            jobfile.write("#$ -m " + job["email-flags"])
+            jobfile.write("#$ -m " + job["email-flags"] + "\n")
 
-        jobfile.write("#$ -M " + job["email-address"])
+        jobfile.write("#$ -M " + job["email-address"] + "\n")
 
     # Job array
     if int(job["replicates"]) > 1:

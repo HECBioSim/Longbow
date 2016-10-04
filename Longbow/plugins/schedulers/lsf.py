@@ -121,9 +121,9 @@ def prepare(job):
 
         if job["email-flags"] is not "":
             
-            jobfile.write("#BSUB " + job["email-flags"])
+            jobfile.write("#BSUB " + job["email-flags"] + "\n")
 
-        jobfile.write("#BSUB -u " + job["email-address"])
+        jobfile.write("#BSUB -u " + job["email-address"] + "\n")
 
     jobfile.write("#BSUB -W " + job["maxtime"] + "\n")
 

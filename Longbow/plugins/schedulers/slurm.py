@@ -111,9 +111,9 @@ def prepare(job):
 
         if job["email-flags"] is not "":
             
-            jobfile.write("#SBATCH --mail-type=" + job["email-flags"])
+            jobfile.write("#SBATCH --mail-type=" + job["email-flags"] + "\n")
 
-        jobfile.write("#SBATCH --mail-user=" + job["email-address"])
+        jobfile.write("#SBATCH --mail-user=" + job["email-address"] + "\n")
 
     cores = job["cores"]
     cpn = job["corespernode"]

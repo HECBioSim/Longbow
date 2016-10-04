@@ -157,9 +157,9 @@ def prepare(job):
 
         if job["email-flags"] is not "":
             
-            jobfile.write("#PBS -m " + job["email-flags"])
+            jobfile.write("#PBS -m " + job["email-flags"] + "\n")
 
-        jobfile.write("#PBS -M " + job["email-address"])
+        jobfile.write("#PBS -M " + job["email-address"] + "\n")
 
     # Walltime for job.
     jobfile.write("#PBS -l walltime=" + job["maxtime"] + ":00\n")
