@@ -21,19 +21,9 @@
 """."""
 
 EXECDATA = {
-    "pmemd": {
+    "desmond": {
         "subexecutables": [],
-        "requiredfiles": ["-c", "-i", "-p"],
+        "requiredfiles": ["--include || --restore"],
         "requiredparam": []
         },
-    "pmemd.MPI": {
-        "subexecutables": [],
-        "requiredfiles": ["-c", "-i", "-p"],
-        "requiredparam": []
-        },
-    "pmemd.cuda": {
-        "subexecutables": [],
-        "requiredfiles": ["-c", "-i", "-p"],
-        "requiredparam": []
-        }
     }

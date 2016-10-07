@@ -591,3 +591,43 @@ def processjobs(jobs):
                  item, job["executableargs"])
 
     LOG.info("Processing jobs - complete.")
+
+
+def _appcommandlinetype1():
+
+    """
+    Processor for applications that have the command-line type:
+    
+    exec input.file
+    """
+
+
+def _appcommandlinetype2():
+
+    """
+    Processor for applications that have the command-line type:
+    
+    exec < input.file
+    exec < input.file > output.file
+    """
+
+
+def _appcommandlinetype3():
+
+    """
+    Processor for applications that have the command-line type:
+    
+    exec --input file1 -file file2 -parameter1 --parameter2
+    """
+
+
+def _appcommandlinetype4():
+
+    """
+    Processor for applications that have the command-line type:
+    
+    exec subexec --file1 file1 -file2 file2 -parameter1 --parameter2
+    """
+
+
+    

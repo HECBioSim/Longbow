@@ -33,7 +33,11 @@ except ImportError:
 
 
 EXECDATA = {
-    "namd2": ["?"]
+    "namd2": {
+        "subexecutables": [],
+        "requiredfiles": ["<"],
+        "requiredparam": []
+        }
     }
 
 
