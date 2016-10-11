@@ -678,7 +678,7 @@ def main():
 
             LOG.info("Entering recovery mode.")
 
-            recover(recoverfile)
+            recovery(recoverfile)
 
     except Exception as ERR:
 
@@ -799,7 +799,7 @@ def longbowmain(parameters):
                  "the logs")
 
 
-def recover(recoveryfile):
+def recovery(recoveryfile):
 
     """
     This method is for attempting to recover a Longbow session. This should be
