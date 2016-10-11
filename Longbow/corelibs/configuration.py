@@ -59,6 +59,7 @@ saveini(inifile, params)
 import logging
 import re
 import os
+from random import randint
 
 # Depending on how Longbow is installed/utilised the import will be slightly
 # different, this should handle both cases.
@@ -329,9 +330,15 @@ def processconfigs(parameters):
 
             jobs[job]["modules"] = modules[jobs[job]["executable"]]
 
-        # Give each job a remote base path, a random hash will be added to this
-        # during job processing
-        jobs[job]["destdir"] = jobs[job]["remoteworkdir"]
+        # Give each job a unique remote base path by adding a random hash to
+        # jobname.
+        destdir = job + ''.join(["%s" % randint(0, 9) for _ in range(0, 5)])
+
+        jobs[job]["destdir"] = os.path.join(jobs[job]["remoteworkdir"],
+                                            destdir)
+
+        LOG.debug("Job '%s' will be run in the '%s' directory on the remote "
+                  "resource.", item, jobs[job]["destdir"])
 
     return jobs
 
