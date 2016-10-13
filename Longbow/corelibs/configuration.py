@@ -159,7 +159,7 @@ def processconfigs(parameters):
 
     # Define a dictionary of module defaults based on the plug-in names and
     # executables.
-    modules = getattr(apps, "DEFMODULES")
+    modules = getattr(apps, "PLUGINEXECS")
     modules[""] = ""
 
     # Try and load the host file.

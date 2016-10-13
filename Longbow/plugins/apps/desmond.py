@@ -24,6 +24,5 @@ EXECDATA = {
     "desmond": {
         "subexecutables": [],
         "requiredfiles": ["--include || --restore"],
-        "requiredparam": []
         },
     }

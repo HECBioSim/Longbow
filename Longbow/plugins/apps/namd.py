@@ -36,7 +36,14 @@ EXECDATA = {
     "namd2": {
         "subexecutables": [],
         "requiredfiles": ["<"],
-        "requiredparam": []
+        },
+    "namd2.mpi": {
+        "subexecutables": [],
+        "requiredfiles": ["<"],
+        },
+    "namd2.cuda": {
+        "subexecutables": [],
+        "requiredfiles": ["<"],
         }
     }
 

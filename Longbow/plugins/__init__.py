@@ -19,25 +19,6 @@
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This module provides the basic import framwork for Longbow plug-ins. On import,
-this module will import an plug-in packages that are contained within the
-plug-ins directory. This gives direct access to any new plug-ins that are added
-to the directory for use within the core library.
+This is the top level of the plugin framework. Longbow only natively supports
+plugin for applications (plugins.apps) and schedulers (plugins.schedulers).
 """
-
-import pkgutil
-import os
-import sys
-
-PATH = os.path.dirname(__file__)
-PACKAGES = pkgutil.walk_packages(path=[PATH])
-PLUGINS = {}
-
-for packageloader, packagename, ispkg in PACKAGES:
-    try:
-        package = __import__("Longbow.plugins." + packagename)
-
-    except ImportError:
-        package = __import__("plugins." + packagename)
-
-    PLUGINS[packagename] = "plugins." + packagename

@@ -32,60 +32,44 @@ import sys
 PATH = os.path.dirname(__file__)
 MODULES = pkgutil.iter_modules(path=[PATH])
 
-# These structures make using the code lighter on the utilisation side
-# devs can get the data they want using getattr without having to construct
-# there own structures. This is at least true for basic lists and dicts.
-APPDATA = {}
 EXECLIST = []
-DEFMODULES = {}
-EXECFLAGS = {}
+PLUGINEXECS = {}
 
-# Optional param for if the modules are named in a different way to simply
-# that the modules are called the same as the software (rare).
-MODULEOVERIDES = {}
 # Loop through all the modules in the plugin.
 for loader, modulename, ispkg in MODULES:
 
-    # check for double loading in the namespace.
+    # Check for double loading in the namespace.
     if modulename not in sys.modules:
-        # try to import using the pip package path.
+
+        # Try to import from the site-packages path.
         try:
-            mod = __import__(
-                "Longbow.plugins.apps." + modulename, fromlist=[""])
+
+            mod = __import__("Longbow.plugins.apps." + modulename,
+                             fromlist=[""])
 
         except ImportError:
-            # Else try to import using the non packaged path.
+
+            # Else try to import from a directory installed path.
             try:
-                mod = __import__(
-                    "plugins.apps." + modulename, fromlist=[""])
+                mod = __import__("plugins.apps." + modulename,
+                                 fromlist=[""])
+
             except ImportError:
+
                 # Otherwise we've had it! Raise exception.
                 raise
 
         # Now try and pull in attributes.
         try:
-            APPDATA[modulename] = getattr(mod, "EXECDATA")
+
+            for executable, _ in getattr(mod, "EXECDATA").items():
+
+                # Compile a list of executables across all plugins.
+                EXECLIST.append(executable)
+
+                # Compile a dictionary associating executable with plugins.
+                PLUGINEXECS[executable] = modulename
 
         except AttributeError:
+
             raise
-
-        try:
-            MODULEOVERIDES[modulename] = getattr(mod, "MODULEOVERIDE")
-
-        except AttributeError:
-            MODULEOVERIDES[modulename] = ""
-
-# Construct common structures to make programmers lives easier.
-for plugin in APPDATA:
-    for executable, flags in APPDATA[plugin].items():
-        # compile a list of executables.
-        EXECLIST.append(executable)
-
-        # compile dictionary of required input flags.
-        EXECFLAGS[executable] = flags
-
-        # Compile a list of default modules.
-        if MODULEOVERIDES[plugin] == "":
-            DEFMODULES[executable] = plugin
-        else:
-            DEFMODULES[executable] = MODULEOVERIDES[plugin]

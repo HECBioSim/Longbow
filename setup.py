@@ -49,23 +49,23 @@ setup(name='Longbow',
       author='James T Gebbie-Rayet, Gareth B Shannon',
       author_email=('james.gebbie@stfc.ac.uk, '
                     'gareth.shannon@nottingham.ac.uk'),
-      url = 'http://www.hecbiosim.ac.uk',
-      license = 'OSI Approved :: GNU General Public License v2 (GPLv2)',
-      classifiers = ['Development Status :: 5 - Production/Stable',
-                     'Environment :: Console',
-                     'Programming Language :: Python',
-                     'Programming Language :: Python :: 2.6',
-                     'Programming Language :: Python :: 2.7',
-                     'Programming Language :: Python :: 3',
-                     'Topic :: Scientific/Engineering',
-                     'Topic :: Utilities',
-                     'Operating System :: MacOS :: MacOS X',
-                     'Operating System :: POSIX',
-                     'Operating System :: Unix'
-                     ],
-      packages = ['Longbow', 'Longbow.plugins', 'Longbow.plugins.schedulers',
+      url='http://www.hecbiosim.ac.uk',
+      license='OSI Approved :: GNU General Public License v2 (GPLv2)',
+      classifiers=['Development Status :: 5 - Production/Stable',
+                   'Environment :: Console',
+                   'Programming Language :: Python',
+                   'Programming Language :: Python :: 2.6',
+                   'Programming Language :: Python :: 2.7',
+                   'Programming Language :: Python :: 3',
+                   'Topic :: Scientific/Engineering',
+                   'Topic :: Utilities',
+                   'Operating System :: MacOS :: MacOS X',
+                   'Operating System :: POSIX',
+                   'Operating System :: Unix'
+                   ],
+      packages=['Longbow', 'Longbow.plugins', 'Longbow.plugins.schedulers',
                   'Longbow.plugins.apps', 'Longbow.corelibs'],
-      scripts = ['Longbow/longbow'],
+      scripts=['Longbow/longbow'],
       )
 
 # Try and create the .Longbow directory and a basic hosts.conf
@@ -102,7 +102,7 @@ try:
         print('Directory already exists - skipping.')
 
 
-except:
+except IOError:
 
     print('Longbow failed to create the host configuration file in '
           '"~/.Longbow/hosts.conf", you will have to do this manually. The '

@@ -113,7 +113,7 @@ def prepare(job):
     if job["email-address"] is not "":
 
         if job["email-flags"] is not "":
-            
+
             jobfile.write("#$ -m " + job["email-flags"])
 
         jobfile.write("#$ -M " + job["email-address"])

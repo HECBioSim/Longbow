@@ -26,32 +26,26 @@ EXECDATA = {
     "gmx": {
         "subexecutables": ["mdrun", "mdrun_mpi"],
         "requiredfiles": ["-s || -deffnm"],
-        "requiredparam": []
         },
     "gmx_d": {
         "subexecutables": ["mdrun", "mdrun_mpi"],
         "requiredfiles": ["-s || -deffnm"],
-        "requiredparam": []
         },
     "mdrun": {
         "subexecutables": [],
         "requiredfiles": ["-s || -deffnm"],
-        "requiredparam": []
         },
     "mdrun_d": {
         "subexecutables": [],
         "requiredfiles": ["-s || -deffnm"],
-        "requiredparam": []
         },
     "mdrun_mpi": {
         "subexecutables": [],
         "requiredfiles": ["-s || -deffnm"],
-        "requiredparam": []
         },
     "mdrun_mpi_d": {
         "subexecutables": [],
         "requiredfiles": ["-s || -deffnm"],
-        "requiredparam": []
         }
     }
 

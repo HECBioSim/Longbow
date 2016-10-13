@@ -140,18 +140,17 @@ def processjobs(jobs):
     LOG.info("Processing job/s and detecting files that require upload.")
 
     # Get dictionary of executables and their required flags from plug-ins.
-    appplugins = getattr(apps, "DEFMODULES")
+    appplugins = getattr(apps, "PLUGINEXECS")
 
     # Process each job.
     for job in jobs:
 
-        # Initialise some basic parameters.
-        executable = jobs[job]["executable"]
-        app = appplugins[executable]
+        app = appplugins[jobs[job]["executable"]]
         args = jobs[job]["executableargs"]
-        filelist = []
+        reqflags = getattr(apps, app.lower()).EXECDATA[jobs[job]["executable"]]
 
-        LOG.debug("Command-line arguments for job '%s'are '%s'", job, args)
+        LOG.debug("Command-line arguments for job '%s' are '%s'",
+                  job, " ".join(args))
 
         # Check for any files that are located outside the work directory or
         # absolute paths.
@@ -160,9 +159,9 @@ def processjobs(jobs):
             if arg.count(os.path.pardir) > 0 or os.path.isabs(arg):
 
                 raise exceptions.RequiredinputError(
-                    "In job '{0}' input files are being provided with "
-                    "absolute paths or from directories above localworkdir. "
-                    "This is not supported".format(job))
+                    "In job '{0}' input files are being provided with absolute"
+                    " paths or from directories above localworkdir. This is "
+                    "not supported".format(job))
 
         # Base path to local job directory.
         cwd = jobs[job]["localworkdir"]
@@ -172,19 +171,48 @@ def processjobs(jobs):
 
             # Add the job name to the path.
             cwd = os.path.join(cwd, job)
-            job["localworkdir"] = cwd
+            jobs[job]["localworkdir"] = cwd
 
+        # Check that the directory exists.
+        if os.path.isdir(cwd) is False:
 
+            # If not, this is bad.
+            raise exceptions.DirectorynotfoundError(
+                "The local job directory '{0}' cannot be found for job '{1}'"
+                .format(cwd, job))
 
+        # Determine the command-line type and call the processor method.
+        # Start with command-lines of the type exec < input.file.
+        if args[0] is "<":
 
+            # Command-line type exec < input.file
+            filelist, foundflags = _proccommandlinetype1(jobs[job], app, cwd)
 
+        elif "-" in args[0]:
 
+            # Command-line type exec -i file -c file
+            filelist, foundflags = _proccommandlinetype2(jobs[job], app, cwd)
 
+        elif "-" not in args[0] and "-" in args[1]:
 
+            # Command-line type exec subexec -i file -c file
+            filelist, foundflags = _proccommandlinetype3(jobs[job], app, cwd)
 
+        else:
 
+            # Command-line type exec input.file
+            filelist, foundflags = _proccommandlinetype4(jobs[job], app, cwd)
 
+        # Final check for if any required flags are missing.
+        flags = list(set(reqflags) - set(foundflags))
 
+        # If there are any missing still then tell the user.
+        if len(flags) is not 0:
+
+            raise exceptions.RequiredinputError(
+                "In job '{0}' there are missing flags on the command line "
+                "'{1}'. See user documentation for plug-in '{2}'"
+                .format(job, flags, app))
 
         # Setup the rysnc upload masks.
         if jobs[job]["upload-include"] is "":
@@ -193,32 +221,26 @@ def processjobs(jobs):
 
         else:
 
-            jobs[job]["upload-include"] = (job["upload-include"] + ", " +
+            jobs[job]["upload-include"] = (jobs[job]["upload-include"] + ", "
                                            ", ".join(filelist))
 
         jobs[job]["upload-exclude"] = "*"
 
         # Replace the input command line with the execution command line.
-        # initargs is a copy of the original args before text enforcing
-        # substitutions was removed
-        jobs[job]["executableargs"] = executable + " " + " ".join(initargs)
+        jobs[job]["executableargs"] = (jobs[job]["executable"] + " " +
+                                       " ".join(jobs[job]["executableargs"]))
 
         LOG.info("For job '%s' - execution string: %s",
                  job, jobs[job]["executableargs"])
 
     LOG.info("Processing jobs - complete.")
 
+    import sys
 
-def _appcommandlinetype1():
-
-    """
-    Processor for applications that have the command-line type:
-
-    exec input.file
-    """
+    sys.exit()
 
 
-def _appcommandlinetype2():
+def _proccommandlinetype1(job, app, cwd):
 
     """
     Processor for applications that have the command-line type:
@@ -227,8 +249,72 @@ def _appcommandlinetype2():
     exec < input.file > output.file
     """
 
+    filelist = []
+    foundflags = []
+    args = list(job["executableargs"])
+    initargs = list(job["executableargs"])
+    substitution = {}
 
-def _appcommandlinetype3():
+    # Detect command-line parameter substitutions.
+    try:
+
+        substitution = getattr(apps, app.lower()).sub_dict(args)
+
+    except AttributeError:
+
+        pass
+
+    # Check the length of the command line.
+    if len(args) > 1:
+
+        # If 'replicates' == 1 then we will only check one file, else we will
+        # proceed to check files in all replicates.
+        for rep in range(1, int(job["replicates"]) + 1):
+
+            fileitem = ""
+
+            # If we do only have a single job then file path should be.
+            if int(job["replicates"]) == 1:
+
+                _procsinglejob(app, args[1], cwd, fileitem)
+
+            # We have a replicate job so we should amend the paths.
+            else:
+
+                _procreplicatejobs(
+                    app, args[1], cwd, fileitem, filelist, initargs, rep)
+
+            # If the next argument along is a valid file.
+            if os.path.isfile(os.path.join(cwd, fileitem)):
+
+                # Then mark the flag as found.
+                foundflags.append("<")
+
+                # Search input file for any file dependencies.
+                try:
+
+                    getattr(apps, app.lower()).file_parser(
+                        fileitem, cwd, filelist, substitution)
+
+                except AttributeError:
+
+                    if fileitem not in filelist:
+
+                        filelist.append(fileitem)
+
+    # Looks like the command line is too short to contain the
+    # input file so raise an exception.
+    else:
+
+        raise exceptions.RequiredinputError(
+            "In job '{0}' it appears that the input file is missing, check "
+            "your command line is of the form longbow [longbow args] "
+            "executable '<' [executable args]".format(job["jobname"]))
+
+    return filelist, foundflags
+
+
+def _proccommandlinetype2(job, app, cwd):
 
     """
     Processor for applications that have the command-line type:
@@ -236,11 +322,302 @@ def _appcommandlinetype3():
     exec --input file1 -file file2 -parameter1 --parameter2
     """
 
+    filelist = []
+    foundflags = []
+    args = list(job["executableargs"])
+    initargs = list(job["executableargs"])
+    substitution = {}
 
-def _appcommandlinetype4():
+    # Detect command-line parameter substitutions.
+    try:
+
+        substitution = getattr(apps, app.lower()).sub_dict(args)
+
+    except AttributeError:
+
+        pass
+
+    # Run through each one.
+    for arg in args:
+
+        fileitem = ""
+
+        # If we have a flag (starting with '-') and it is in the list of
+        # required flags.
+        if arg[0] is "-":
+
+            # Mark the flag as found
+            foundflags.append(arg)
+
+        # Otherwise it could just be a file or a parameter.
+        else:
+
+            # Check for as many files as there are replicates (default of 1).
+            for rep in range(1, int(job["replicates"]) + 1):
+
+                # If we do only have a single job then file path should be.
+                if int(job["replicates"]) == 1:
+
+                    _procsinglejob(app, arg, cwd, fileitem)
+
+                # Otherwise we have a replicate job so check these.
+                else:
+
+                    _procreplicatejobs(
+                        app, arg, cwd, fileitem, filelist, initargs, rep)
+
+                # If we have a valid file
+                if os.path.isfile(os.path.join(cwd, fileitem)):
+
+                    # Search input file for any file dependencies.
+                    try:
+
+                        getattr(apps, app.lower()).file_parser(
+                            fileitem, cwd, filelist, substitution)
+
+                    except AttributeError:
+
+                        if fileitem not in filelist:
+
+                            filelist.append(fileitem)
+
+    return filelist, foundflags
+
+
+def _proccommandlinetype3(job, app, cwd):
 
     """
     Processor for applications that have the command-line type:
 
     exec subexec --file1 file1 -file2 file2 -parameter1 --parameter2
     """
+
+    filelist = []
+    foundflags = []
+    args = list(job["executableargs"])
+    initargs = list(job["executableargs"])
+    substitution = {}
+
+    # Detect command-line parameter substitutions.
+    try:
+
+        substitution = getattr(apps, app.lower()).sub_dict(args)
+
+    except AttributeError:
+
+        pass
+
+    # Run through each one.
+    for arg in args[1:]:
+
+        fileitem = ""
+
+        # If we have a flag (starting with '-') and it is in the list of
+        # required flags.
+        if arg[0] is "-":
+
+            # Mark the flag as found
+            foundflags.append(arg)
+
+        # Otherwise it could just be a file or a parameter.
+        else:
+
+            # Check for as many files as there are replicates (default of 1).
+            for rep in range(1, int(job["replicates"]) + 1):
+
+                # If we do only have a single job then file path should be.
+                if int(job["replicates"]) == 1:
+
+                    _procsinglejob(app, arg, cwd, fileitem)
+
+                # Otherwise we have a replicate job so check these.
+                else:
+
+                    _procreplicatejobs(
+                        app, arg, cwd, fileitem, filelist, initargs, rep)
+
+                # If we have a valid file
+                if os.path.isfile(os.path.join(cwd, fileitem)):
+
+                    # Search input file for any file dependencies.
+                    try:
+
+                        getattr(apps, app.lower()).file_parser(
+                            fileitem, cwd, filelist, substitution)
+
+                    except AttributeError:
+
+                        if fileitem not in filelist:
+
+                            filelist.append(fileitem)
+
+    return filelist, foundflags
+
+
+def _proccommandlinetype4(job, app, cwd):
+
+    """
+    Processor for applications that have the command-line type:
+
+    exec input.file
+    """
+
+    filelist = []
+    foundflags = []
+    args = list(job["executableargs"])
+    initargs = list(job["executableargs"])
+    substitution = {}
+
+    # Detect command-line parameter substitutions.
+    try:
+
+        substitution = getattr(apps, app.lower()).sub_dict(args)
+
+    except AttributeError:
+
+        pass
+
+    # Lets make sure that we actually have something to load.
+    if len(args) > 0:
+
+        # If 'replicates' == 1 then we will only check one file, else we will
+        # proceed to check files in all replicates.
+        for rep in range(1, int(job["replicates"]) + 1):
+
+            fileitem = ""
+
+            # If we do only have a single job then file path should be.
+            if int(job["replicates"]) == 1:
+
+                _procsinglejob(app, args[0], cwd, fileitem)
+
+            # Otherwise we have a replicate job so we should amend the paths.
+            else:
+
+                _procreplicatejobs(
+                    app, args[0], cwd, fileitem, filelist, initargs, rep)
+
+            # If we have something to load then check that it is a valid file.
+            if os.path.isfile(os.path.join(cwd, fileitem)):
+
+                # Then mark the flag as found.
+                foundflags.append("<")
+
+                # Search input file for any file dependencies that don't exist.
+                try:
+
+                    getattr(apps, app.lower()).file_parser(
+                        fileitem, cwd, filelist, substitution)
+
+                except AttributeError:
+
+                    if fileitem not in filelist:
+
+                        filelist.append(fileitem)
+
+    # Looks like the command-line is too short to contain the input file so
+    # raise an exception.
+    else:
+
+        raise exceptions.RequiredinputError(
+            "In job '{0}' it appears that the input file is missing, check "
+            "your command line is of the form: longbow [longbow args] "
+            "executable '<' [executable args]".format(job["jobname"]))
+
+    return filelist, foundflags
+
+
+def _procsinglejob(app, arg, cwd, fileitem):
+
+    """
+    Processor for replicate jobs.
+    """
+
+    if os.path.isfile(os.path.join(cwd, arg)):
+
+        fileitem = arg
+
+    # Hook for checking plugin specific file naming scenarios eg (gromacs
+    # -deffnm test) actually referring to test.tpr
+    else:
+
+        try:
+
+            fileitem = getattr(apps, app.lower()).defaultfilename(cwd, arg)
+
+        except AttributeError:
+
+            pass
+
+    return fileitem
+
+
+def _procreplicatejobs(app, arg, cwd, fileitem, filelist, initargs, rep):
+
+    """
+    Processor for replicate jobs.
+    """
+
+    tmpitem = ""
+
+    # We should check that the replicate directory structure exists.
+    if os.path.isdir(os.path.join(cwd, "rep" + str(rep))) is False:
+
+        os.mkdir(os.path.join(cwd, "rep" + str(rep)))
+
+    # Add the repX dir to the file list as rsync will not create them.
+    if ("rep" + str(rep)) not in filelist:
+
+        filelist.append("rep" + str(rep))
+
+    # If we have a replicate job then we should check if the file resides
+    # within ./rep{i} or if it is a global (common to each replicate) file.
+    if os.path.isfile(os.path.join(cwd, "rep" + str(rep), arg)):
+
+        fileitem = os.path.join("rep" + str(rep), arg)
+
+    # Otherwise do we have a file in cwd
+    elif os.path.isfile(os.path.join(cwd, arg)):
+
+        fileitem = arg
+
+        # Also update the command line to reflect a global file.
+        if arg in initargs:
+
+            initargs[initargs.index(arg)] = os.path.join("../", arg)
+
+    # Hook for checking plugin specific file naming scenarios
+    # eg (gromacs -deffnm test) actually referring to test.tpr
+    else:
+
+        try:
+
+            tmpitem = getattr(apps, app.lower()).defaultfilename(
+                cwd, os.path.join("rep" + str(rep) + arg))
+
+        except AttributeError:
+
+            pass
+
+        # If we have a positive check then file found in rep$i directories.
+        if tmpitem is not "":
+
+            fileitem = tmpitem
+
+        # Otherwise check for global one.
+        else:
+
+            try:
+
+                fileitem = getattr(apps, app.lower()).defaultfilename(cwd, arg)
+
+                # Also update the command line to reflect a global file.
+                if fileitem is not "" and arg in initargs:
+
+                    initargs[initargs.index(arg)] = os.path.join("../", arg)
+
+            except AttributeError:
+
+                pass
+
+    return fileitem, filelist

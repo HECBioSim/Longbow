@@ -36,32 +36,26 @@ EXECDATA = {
     "lmp_xc30": {
         "subexecutables": [],
         "requiredfiles": ["-i"],
-        "requiredparam": []
         },
     "lmp_linux": {
         "subexecutables": [],
         "requiredfiles": ["-i"],
-        "requiredparam": []
         },
     "lmp_gpu": {
         "subexecutables": [],
         "requiredfiles": ["-i"],
-        "requiredparam": []
         },
     "lmp_mpi": {
         "subexecutables": [],
         "requiredfiles": ["-i"],
-        "requiredparam": []
         },
     "lmp_cuda": {
         "subexecutables": [],
         "requiredfiles": ["-i"],
-        "requiredparam": []
         },
     "lmp": {
         "subexecutables": [],
         "requiredfiles": ["-i"],
-        "requiredparam": []
         }
     }
 
