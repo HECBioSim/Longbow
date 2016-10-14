@@ -18,7 +18,11 @@
 # You should have received a copy of the GNU General Public License along with
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-This is the top level of the plugin framework. Longbow only natively supports
-plugin for applications (plugins.apps) and schedulers (plugins.schedulers).
-"""
+"""."""
+
+EXECDATA = {
+    "desmond": {
+        "subexecutables": [],
+        "requiredfiles": ["--include || --restore"],
+        },
+    }

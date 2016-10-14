@@ -33,7 +33,30 @@ except ImportError:
 
 
 EXECDATA = {
-    "lmp_xc30": ["-i"]
+    "lmp_xc30": {
+        "subexecutables": [],
+        "requiredfiles": ["-i"],
+        },
+    "lmp_linux": {
+        "subexecutables": [],
+        "requiredfiles": ["-i"],
+        },
+    "lmp_gpu": {
+        "subexecutables": [],
+        "requiredfiles": ["-i"],
+        },
+    "lmp_mpi": {
+        "subexecutables": [],
+        "requiredfiles": ["-i"],
+        },
+    "lmp_cuda": {
+        "subexecutables": [],
+        "requiredfiles": ["-i"],
+        },
+    "lmp": {
+        "subexecutables": [],
+        "requiredfiles": ["-i"],
+        }
     }
 
 

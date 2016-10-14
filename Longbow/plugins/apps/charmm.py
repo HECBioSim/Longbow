@@ -33,7 +33,18 @@ except ImportError:
 
 
 EXECDATA = {
-    "charmm": ["?"]
+    "charmm": {
+        "subexecutables": [],
+        "requiredfiles": ["<"],
+        },
+    "charmm_mpi": {
+        "subexecutables": [],
+        "requiredfiles": ["<"],
+        },
+    "charmm_cuda": {
+        "subexecutables": [],
+        "requiredfiles": ["<"],
+        }
     }
 
 
