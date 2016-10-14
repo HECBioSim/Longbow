@@ -120,13 +120,8 @@ def prepare(job):
     if job["email-address"] is not "":
 
         if job["email-flags"] is not "":
-<<<<<<< HEAD
-            
-            jobfile.write("#BSUB " + job["email-flags"] + "\n")
-=======
 
-            jobfile.write("#BSUB " + job["email-flags"])
->>>>>>> refs/heads/issues2-5-12
+            jobfile.write("#BSUB " + job["email-flags"] + "\n")
 
         jobfile.write("#BSUB -u " + job["email-address"] + "\n")
 

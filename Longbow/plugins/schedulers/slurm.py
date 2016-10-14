@@ -110,13 +110,8 @@ def prepare(job):
     if job["email-address"] is not "":
 
         if job["email-flags"] is not "":
-<<<<<<< HEAD
-            
-            jobfile.write("#SBATCH --mail-type=" + job["email-flags"] + "\n")
-=======
 
-            jobfile.write("#SBATCH --mail-type=" + job["email-flags"])
->>>>>>> refs/heads/issues2-5-12
+            jobfile.write("#SBATCH --mail-type=" + job["email-flags"] + "\n")
 
         jobfile.write("#SBATCH --mail-user=" + job["email-address"] + "\n")
 
