@@ -147,7 +147,9 @@ def processjobs(jobs):
 
         app = appplugins[jobs[job]["executable"]]
         args = jobs[job]["executableargs"]
-        reqflags = getattr(apps, app.lower()).EXECDATA[jobs[job]["executable"]]
+        execdata = getattr(
+            apps, app.lower()).EXECDATA[jobs[job]["executable"]]
+        filelist = []
 
         LOG.debug("Command-line arguments for job '%s' are '%s'",
                   job, " ".join(args))
@@ -186,25 +188,29 @@ def processjobs(jobs):
         if args[0] is "<":
 
             # Command-line type exec < input.file
-            filelist, foundflags = _proccommandlinetype1(jobs[job], app, cwd)
+            filelist, foundflags = _proccommandlinetype1(jobs[job], app, cwd,
+                                                         filelist)
 
         elif "-" in args[0]:
 
             # Command-line type exec -i file -c file
-            filelist, foundflags = _proccommandlinetype2(jobs[job], app, cwd)
+            filelist, foundflags = _proccommandlinetype2(jobs[job], app, cwd,
+                                                         filelist)
 
         elif "-" not in args[0] and "-" in args[1]:
 
             # Command-line type exec subexec -i file -c file
-            filelist, foundflags = _proccommandlinetype3(jobs[job], app, cwd)
+            filelist, foundflags = _proccommandlinetype3(jobs[job], app, cwd,
+                                                         filelist)
 
         else:
 
             # Command-line type exec input.file
-            filelist, foundflags = _proccommandlinetype4(jobs[job], app, cwd)
+            filelist, foundflags = _proccommandlinetype4(jobs[job], app, cwd,
+                                                         filelist)
 
         # Final check for if any required flags are missing.
-        flags = list(set(reqflags) - set(foundflags))
+        flags = list(set(execdata["requiredfiles"]) - set(foundflags))
 
         # If there are any missing still then tell the user.
         if len(flags) is not 0:
@@ -233,14 +239,18 @@ def processjobs(jobs):
         LOG.info("For job '%s' - execution string: %s",
                  job, jobs[job]["executableargs"])
 
+        print "filelist = ", filelist
+        print "includes = ", jobs[job]["upload-include"]
+        print "excludes = ", jobs[job]["upload-exclude"]
+        print "execargs = ", jobs[job]["executableargs"]
+
     LOG.info("Processing jobs - complete.")
 
     import sys
-
     sys.exit()
 
 
-def _proccommandlinetype1(job, app, cwd):
+def _proccommandlinetype1(job, app, cwd, filelist):
 
     """
     Processor for applications that have the command-line type:
@@ -249,7 +259,6 @@ def _proccommandlinetype1(job, app, cwd):
     exec < input.file > output.file
     """
 
-    filelist = []
     foundflags = []
     args = list(job["executableargs"])
     initargs = list(job["executableargs"])
@@ -276,12 +285,12 @@ def _proccommandlinetype1(job, app, cwd):
             # If we do only have a single job then file path should be.
             if int(job["replicates"]) == 1:
 
-                _procsinglejob(app, args[1], cwd, fileitem)
+                fileitem = _procsinglejob(app, args[1], cwd)
 
             # We have a replicate job so we should amend the paths.
             else:
 
-                _procreplicatejobs(
+                fileitem, filelist = _procreplicatejobs(
                     app, args[1], cwd, fileitem, filelist, initargs, rep)
 
             # If the next argument along is a valid file.
@@ -314,7 +323,7 @@ def _proccommandlinetype1(job, app, cwd):
     return filelist, foundflags
 
 
-def _proccommandlinetype2(job, app, cwd):
+def _proccommandlinetype2(job, app, cwd, filelist):
 
     """
     Processor for applications that have the command-line type:
@@ -322,7 +331,6 @@ def _proccommandlinetype2(job, app, cwd):
     exec --input file1 -file file2 -parameter1 --parameter2
     """
 
-    filelist = []
     foundflags = []
     args = list(job["executableargs"])
     initargs = list(job["executableargs"])
@@ -358,12 +366,12 @@ def _proccommandlinetype2(job, app, cwd):
                 # If we do only have a single job then file path should be.
                 if int(job["replicates"]) == 1:
 
-                    _procsinglejob(app, arg, cwd, fileitem)
+                    fileitem = _procsinglejob(app, arg, cwd)
 
                 # Otherwise we have a replicate job so check these.
                 else:
 
-                    _procreplicatejobs(
+                    fileitem, filelist = _procreplicatejobs(
                         app, arg, cwd, fileitem, filelist, initargs, rep)
 
                 # If we have a valid file
@@ -384,7 +392,7 @@ def _proccommandlinetype2(job, app, cwd):
     return filelist, foundflags
 
 
-def _proccommandlinetype3(job, app, cwd):
+def _proccommandlinetype3(job, app, cwd, filelist):
 
     """
     Processor for applications that have the command-line type:
@@ -392,7 +400,6 @@ def _proccommandlinetype3(job, app, cwd):
     exec subexec --file1 file1 -file2 file2 -parameter1 --parameter2
     """
 
-    filelist = []
     foundflags = []
     args = list(job["executableargs"])
     initargs = list(job["executableargs"])
@@ -428,12 +435,12 @@ def _proccommandlinetype3(job, app, cwd):
                 # If we do only have a single job then file path should be.
                 if int(job["replicates"]) == 1:
 
-                    _procsinglejob(app, arg, cwd, fileitem)
+                    fileitem = _procsinglejob(app, arg, cwd)
 
                 # Otherwise we have a replicate job so check these.
                 else:
 
-                    _procreplicatejobs(
+                    fileitem, filelist = _procreplicatejobs(
                         app, arg, cwd, fileitem, filelist, initargs, rep)
 
                 # If we have a valid file
@@ -454,7 +461,7 @@ def _proccommandlinetype3(job, app, cwd):
     return filelist, foundflags
 
 
-def _proccommandlinetype4(job, app, cwd):
+def _proccommandlinetype4(job, app, cwd, filelist):
 
     """
     Processor for applications that have the command-line type:
@@ -462,7 +469,6 @@ def _proccommandlinetype4(job, app, cwd):
     exec input.file
     """
 
-    filelist = []
     foundflags = []
     args = list(job["executableargs"])
     initargs = list(job["executableargs"])
@@ -489,12 +495,12 @@ def _proccommandlinetype4(job, app, cwd):
             # If we do only have a single job then file path should be.
             if int(job["replicates"]) == 1:
 
-                _procsinglejob(app, args[0], cwd, fileitem)
+                fileitem = _procsinglejob(app, args[0], cwd)
 
             # Otherwise we have a replicate job so we should amend the paths.
             else:
 
-                _procreplicatejobs(
+                fileitem, filelist = _procreplicatejobs(
                     app, args[0], cwd, fileitem, filelist, initargs, rep)
 
             # If we have something to load then check that it is a valid file.
@@ -527,11 +533,13 @@ def _proccommandlinetype4(job, app, cwd):
     return filelist, foundflags
 
 
-def _procsinglejob(app, arg, cwd, fileitem):
+def _procsinglejob(app, arg, cwd):
 
     """
     Processor for replicate jobs.
     """
+
+    fileitem = ""
 
     if os.path.isfile(os.path.join(cwd, arg)):
 

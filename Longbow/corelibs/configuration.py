@@ -338,7 +338,7 @@ def processconfigs(parameters):
                                             destdir)
 
         LOG.debug("Job '%s' will be run in the '%s' directory on the remote "
-                  "resource.", item, jobs[job]["destdir"])
+                  "resource.", job, jobs[job]["destdir"])
 
     return jobs
 
