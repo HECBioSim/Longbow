@@ -213,7 +213,22 @@ def processjobs(jobs):
         flags = list(set(execdata["requiredfiles"]) - set(foundflags))
 
         # If there are any missing still then tell the user.
-        if len(flags) is not 0:
+        if len(flags) > 0:
+
+            # Firstly is this due to it being an either type flag?
+            for flag in flags:
+
+                if "||" in flag:
+
+                    tmpflags = flag.split(" || ")
+                    tmpflag = list(set(tmpflags).intersection(set(foundflags)))
+
+                    if len(tmpflag) > 0:
+
+                        flags.remove(flag)
+
+        # If there are any missing still then tell the user.
+        if len(flags) > 0:
 
             raise exceptions.RequiredinputError(
                 "In job '{0}' there are missing flags on the command line "
@@ -239,15 +254,7 @@ def processjobs(jobs):
         LOG.info("For job '%s' - execution string: %s",
                  job, jobs[job]["executableargs"])
 
-        print "filelist = ", filelist
-        print "includes = ", jobs[job]["upload-include"]
-        print "excludes = ", jobs[job]["upload-exclude"]
-        print "execargs = ", jobs[job]["executableargs"]
-
     LOG.info("Processing jobs - complete.")
-
-    import sys
-    sys.exit()
 
 
 def _proccommandlinetype1(job, app, cwd, filelist):
@@ -290,8 +297,10 @@ def _proccommandlinetype1(job, app, cwd, filelist):
             # We have a replicate job so we should amend the paths.
             else:
 
-                fileitem, filelist = _procreplicatejobs(
+                fileitem, filelist, initargs = _procreplicatejobs(
                     app, args[1], cwd, fileitem, filelist, initargs, rep)
+
+                job["executableargs"] = initargs
 
             # If the next argument along is a valid file.
             if os.path.isfile(os.path.join(cwd, fileitem)):
@@ -371,8 +380,10 @@ def _proccommandlinetype2(job, app, cwd, filelist):
                 # Otherwise we have a replicate job so check these.
                 else:
 
-                    fileitem, filelist = _procreplicatejobs(
+                    fileitem, filelist, initargs = _procreplicatejobs(
                         app, arg, cwd, fileitem, filelist, initargs, rep)
+
+                    job["executableargs"] = initargs
 
                 # If we have a valid file
                 if os.path.isfile(os.path.join(cwd, fileitem)):
@@ -440,8 +451,10 @@ def _proccommandlinetype3(job, app, cwd, filelist):
                 # Otherwise we have a replicate job so check these.
                 else:
 
-                    fileitem, filelist = _procreplicatejobs(
+                    fileitem, filelist, initargs = _procreplicatejobs(
                         app, arg, cwd, fileitem, filelist, initargs, rep)
+
+                    job["executableargs"] = initargs
 
                 # If we have a valid file
                 if os.path.isfile(os.path.join(cwd, fileitem)):
@@ -500,8 +513,10 @@ def _proccommandlinetype4(job, app, cwd, filelist):
             # Otherwise we have a replicate job so we should amend the paths.
             else:
 
-                fileitem, filelist = _procreplicatejobs(
+                fileitem, filelist, initargs = _procreplicatejobs(
                     app, args[0], cwd, fileitem, filelist, initargs, rep)
+
+                job["executableargs"] = initargs
 
             # If we have something to load then check that it is a valid file.
             if os.path.isfile(os.path.join(cwd, fileitem)):
@@ -551,7 +566,8 @@ def _procsinglejob(app, arg, cwd):
 
         try:
 
-            fileitem = getattr(apps, app.lower()).defaultfilename(cwd, arg)
+            fileitem, _ = getattr(
+                apps, app.lower()).defaultfilename(cwd, arg, "")
 
         except AttributeError:
 
@@ -600,8 +616,8 @@ def _procreplicatejobs(app, arg, cwd, fileitem, filelist, initargs, rep):
 
         try:
 
-            tmpitem = getattr(apps, app.lower()).defaultfilename(
-                cwd, os.path.join("rep" + str(rep) + arg))
+            tmpitem, _ = getattr(apps, app.lower()).defaultfilename(
+                cwd, os.path.join("rep" + str(rep) + arg), "")
 
         except AttributeError:
 
@@ -617,15 +633,11 @@ def _procreplicatejobs(app, arg, cwd, fileitem, filelist, initargs, rep):
 
             try:
 
-                fileitem = getattr(apps, app.lower()).defaultfilename(cwd, arg)
-
-                # Also update the command line to reflect a global file.
-                if fileitem is not "" and arg in initargs:
-
-                    initargs[initargs.index(arg)] = os.path.join("../", arg)
+                fileitem, initargs = getattr(
+                    apps, app.lower()).defaultfilename(cwd, arg, initargs)
 
             except AttributeError:
 
                 pass
 
-    return fileitem, filelist
+    return fileitem, filelist, initargs

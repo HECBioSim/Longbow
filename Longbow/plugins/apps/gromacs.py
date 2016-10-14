@@ -50,7 +50,7 @@ EXECDATA = {
     }
 
 
-def defaultfilename(path, item):
+def defaultfilename(path, item, initargs):
 
     """Method for dealing with input files that are provided by the -deffnm
     flag. The reason this needs a special message is due to the fact that
@@ -64,4 +64,13 @@ def defaultfilename(path, item):
 
         filename = item + ".tpr"
 
-    return filename
+        if initargs != "":
+
+            if "-s" not in initargs and "-deffnm" in initargs:
+
+                index = initargs.index("-deffnm")
+
+                initargs.insert(index, os.path.join("../", filename))
+                initargs.insert(index, "-s")
+
+    return filename, initargs

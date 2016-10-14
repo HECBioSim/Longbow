@@ -161,23 +161,15 @@ def main():
     execlist = getattr(apps, "EXECLIST")
 
     # Search for recognised executables on the commandline
-    for exe in execlist:
+    for item in commandlineargs:
 
-        if exe in commandlineargs:
+        if item in execlist:
 
-            if commandlineargs.count(exe) == 1:
-
-                executable = exe
-                position = commandlineargs.index(exe)
-                longbowargs = commandlineargs[:position]
-                execargs = commandlineargs[position+1:]
-                break
-
-            else:
-
-                raise exceptions.CommandlineargsError(
-                    "More than one recognised executable has been specified on"
-                    " the Longbow command line. Please provide just one.")
+            executable = item
+            position = commandlineargs.index(item)
+            longbowargs = commandlineargs[:position]
+            execargs = commandlineargs[position+1:]
+            break
 
     # If an executable wasn't found perhaps it is specified in a configuration
     # file. Executable arguments might still be provided on the command line so
