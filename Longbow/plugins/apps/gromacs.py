@@ -31,6 +31,14 @@ EXECDATA = {
         "subexecutables": ["mdrun", "mdrun_mpi"],
         "requiredfiles": ["-s || -deffnm"],
         },
+    "gmx_mpi": {
+        "subexecutables": ["mdrun"],
+        "requiredfiles": ["-s || -deffnm"],
+        },
+    "gmx_mpi_d": {
+        "subexecutables": ["mdrun"],
+        "requiredfiles": ["-s || -deffnm"],
+    },
     "mdrun": {
         "subexecutables": [],
         "requiredfiles": ["-s || -deffnm"],
