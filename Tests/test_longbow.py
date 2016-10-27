@@ -1,8 +1,30 @@
+"""
+docstring
+"""
+
+
+def function():
+
+    """
+    docstring
+    """
+
+    return True
+
+
 def test_pass():
 
-    assert True == True
+    """
+    docstring
+    """
+
+    assert function() is True, "Value should be true"
 
 
 def test_fail():
 
-    assert False == True
+    """
+    docstring
+    """
+
+    assert function() is False, "Value should be false"
