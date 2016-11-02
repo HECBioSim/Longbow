@@ -19,6 +19,8 @@
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+
 This is the top level of the plugin framework. Longbow only natively supports
 plugin for applications (plugins.apps) and schedulers (plugins.schedulers).
+
 """
