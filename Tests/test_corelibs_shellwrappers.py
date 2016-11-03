@@ -144,8 +144,15 @@ def test_sendtoshell_unicode(mock_subprocess):
     Test the unicode line, would pass in python 3 but not 2.
     """
 
-    mock_subprocess.return_value.communicate.return_value = \
-        unicode("Linux"), ""
+    try:
+
+        mock_subprocess.return_value.communicate.return_value = \
+            unicode("Linux"), ""
+
+    except NameError:
+
+        mock_subprocess.return_value.communicate.return_value = \
+            "Linux", ""
 
     stdout = shellwrappers.sendtoshell(["uname"])[0]
 
