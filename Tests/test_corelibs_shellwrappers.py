@@ -137,18 +137,19 @@ def test_sendtoshell_errcodefailure():
     assert errcode == 2
 
 
-#@mock.patch('subprocess.Popen')
-#def test_sendtoshell_unicode(mock_subprocess):
-#
-#    """
-#    Test the unicode line, would pass in python 3 but not 2.
-#    """
-#
-#    mock_subprocess.return_value.communicate.return_value = u"Linux", ""
-#
-#    stdout = shellwrappers.sendtoshell(["uname"])[0]
-#
-#    assert stdout == "Linux"
+@mock.patch('subprocess.Popen')
+def test_sendtoshell_unicode(mock_subprocess):
+
+    """
+    Test the unicode line, would pass in python 3 but not 2.
+    """
+
+    mock_subprocess.return_value.communicate.return_value = \
+        unicode("Linux"), ""
+
+    stdout = shellwrappers.sendtoshell(["uname"])[0]
+
+    assert stdout == "Linux"
 
 # ---------------------------------------------------------------------------#
 # Tests for sendtossh()
