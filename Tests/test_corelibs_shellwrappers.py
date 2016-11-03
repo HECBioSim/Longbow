@@ -88,6 +88,69 @@ def test_testconnections_sshexcept(mock_sendtossh):
         shellwrappers.testconnections(jobs)
 
 # ---------------------------------------------------------------------------#
+# Tests for sendtoshell()
+
+
+def test_sendtoshell_stdoutcapture():
+
+    """
+    Capture stdout for a known command and see if the output is actually
+    returned.
+    """
+
+    stdout = shellwrappers.sendtoshell(["uname"])[0]
+
+    assert stdout == "Linux\n"
+
+
+def test_sendtoshell_stderrcapture():
+
+    """
+    Capture stderr for a known command and see if the output is actually
+    returned.
+    """
+
+    stderr = shellwrappers.sendtoshell(["ls", "-al dir"])[1]
+
+    assert stderr != ""
+
+
+def test_sendtoshell_errcodesuccess():
+
+    """
+    Capture errcode for a known command and see if it is a success code.
+    """
+
+    errcode = shellwrappers.sendtoshell(["uname"])[2]
+
+    assert errcode == 0
+
+
+def test_sendtoshell_errcodefailure():
+
+    """
+    Capture errcode for a known command and see if it is a failure code.
+    """
+
+    errcode = shellwrappers.sendtoshell(["ls", "-al dir"])[2]
+
+    assert errcode == 2
+
+
+@mock.patch('subprocess.Popen')
+def test_sendtoshell_unicode(mock_subprocess):
+
+    """
+    Test the unicode line, would pass in python 3 but not 2.
+    """
+
+    mock_subprocess.return_value.communicate.return_value = u"Linux", ""
+
+    stdout = shellwrappers.sendtoshell(["uname"])[0]
+
+    assert stdout == "Linux"
+
+# ---------------------------------------------------------------------------#
 # Tests for sendtossh()
 
 
@@ -336,58 +399,262 @@ def test_sendtorsync_rsyncformat4(mock_sendtoshell):
 # Tests for localcopy()
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtoshell')
-def test_localcopy_(mock_sendtoshell):
+def test_localcopy_srcpathcheck():
 
     """
-    docstring
+    Test that the absolute path exception is raised with non absolute paths.
     """
 
-    job = {
-        "port": "22",
-        "user": "juan_trique-ponee",
-        "host": "massive-machine"
-    }
+    src = "source/directory/path"
+    dst = "/source/directory/path"
 
-    return
+    with pytest.raises(exceptions.AbsolutepathError):
+
+        shellwrappers.localcopy(src, dst)
+
+
+def test_localcopy_dstpathcheck():
+
+    """
+    Test that the absolute path exception is raised with non absolute paths.
+    """
+
+    src = "/source/directory/path"
+    dst = "source/directory/path"
+
+    with pytest.raises(exceptions.AbsolutepathError):
+
+        shellwrappers.localcopy(src, dst)
+
+
+@mock.patch('shutil.copy')
+@mock.patch('os.path.exists')
+@mock.patch('os.path.isfile')
+def test_localcopy_fileexcept1(mock_isfile, mock_exists, mock_copy):
+
+    """
+    Test that the correct exception is raised if the copy fails.
+    """
+
+    src = "/source/directory/path"
+    dst = "/source/directory/path"
+
+    mock_isfile.return_value = True
+    mock_exists.return_value = True
+    mock_copy.side_effect = IOError
+
+    with pytest.raises(exceptions.LocalcopyError):
+
+        shellwrappers.localcopy(src, dst)
+
+
+@mock.patch('shutil.copy')
+@mock.patch('os.makedirs')
+@mock.patch('os.path.exists')
+@mock.patch('os.path.isfile')
+def test_localcopy_fileexcept2(mock_isfile, mock_exists, mock_dirs, mock_copy):
+
+    """
+    Test that the correct exception is raised if the copy fails.
+    """
+
+    src = "/source/directory/path"
+    dst = "/source/directory/path"
+
+    mock_isfile.return_value = True
+    mock_exists.return_value = False
+    mock_dirs.return_value = True
+    mock_copy.side_effect = IOError
+
+    with pytest.raises(exceptions.LocalcopyError):
+
+        shellwrappers.localcopy(src, dst)
+
+
+@mock.patch('shutil.copytree')
+@mock.patch('shutil.rmtree')
+@mock.patch('os.path.exists')
+@mock.patch('os.path.isdir')
+def test_localcopy_direxcept1(mock_isdir, mock_exists, mock_rmt, mock_cpt):
+
+    """
+    Test that the correct exception is raised if the copy fails.
+    """
+
+    src = "/source/directory/path"
+    dst = "/source/directory/path"
+
+    mock_isdir.return_value = True
+    mock_exists.return_value = True
+    mock_rmt.return_value = True
+    mock_cpt.side_effect = IOError
+
+    with pytest.raises(exceptions.LocalcopyError):
+
+        shellwrappers.localcopy(src, dst)
+
+
+@mock.patch('shutil.copytree')
+@mock.patch('os.path.exists')
+@mock.patch('os.path.isdir')
+def test_localcopy_direxcept2(mock_isdir, mock_exists, mock_cpt):
+
+    """
+    Test that the correct exception is raised if the copy fails.
+    """
+
+    src = "/source/directory/path"
+    dst = "/source/directory/path"
+
+    mock_isdir.return_value = True
+    mock_exists.return_value = False
+    mock_cpt.side_effect = IOError
+
+    with pytest.raises(exceptions.LocalcopyError):
+
+        shellwrappers.localcopy(src, dst)
+
+
+@mock.patch('os.path.isdir')
+@mock.patch('os.path.isfile')
+def test_localcopy_notexist(mock_isfile, mock_isdir):
+
+    """
+    Test that the correct exception is raised if file does not exist.
+    """
+
+    src = "/source/directory/path"
+    dst = "/source/directory/path"
+
+    mock_isfile.return_value = False
+    mock_isdir.return_value = False
+
+    with pytest.raises(exceptions.LocalcopyError):
+
+        shellwrappers.localcopy(src, dst)
 
 # ---------------------------------------------------------------------------#
 # Tests for localdelete()
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtoshell')
-def test_localdelete_(mock_sendtoshell):
+def test_localdelete_srcpathcheck():
 
     """
-    docstring
+    Test that the absolute path exception is raised with non absolute paths.
     """
 
-    job = {
-        "port": "22",
-        "user": "juan_trique-ponee",
-        "host": "massive-machine"
-    }
+    src = "source/directory/path"
 
-    return
+    with pytest.raises(exceptions.AbsolutepathError):
+
+        shellwrappers.localdelete(src)
+
+
+@mock.patch('os.path.isfile')
+@mock.patch('os.remove')
+def test_localdelete_fileexcept(mock_remove, mock_isfile):
+
+    """
+    Test that delete exception is raised if remove file fails.
+    """
+
+    src = "/source/directory/path"
+
+    mock_isfile.return_value = True
+    mock_remove.side_effect = IOError()
+
+    with pytest.raises(exceptions.LocaldeleteError):
+
+        shellwrappers.localdelete(src)
+
+
+@mock.patch('shutil.rmtree')
+@mock.patch('os.path.isdir')
+@mock.patch('os.path.isfile')
+def test_localdelete_direxcept(mock_isfile, mock_isdir, mock_remove):
+
+    """
+    Test that delete exception is raised if remove directory fails.
+    """
+
+    src = "/source/directory/path"
+
+    mock_isfile.return_value = False
+    mock_isdir.return_value = True
+    mock_remove.side_effect = IOError()
+
+    with pytest.raises(exceptions.LocaldeleteError):
+
+        shellwrappers.localdelete(src)
+
+
+@mock.patch('os.path.isdir')
+@mock.patch('os.path.isfile')
+def test_localdelete_notexist(mock_isfile, mock_isdir):
+
+    """
+    Test that the correct exception is raised when src does not exist.
+    """
+
+    src = "/source/directory/path"
+
+    mock_isfile.return_value = False
+    mock_isdir.return_value = False
+
+    with pytest.raises(exceptions.LocaldeleteError):
+
+        shellwrappers.localdelete(src)
 
 # ---------------------------------------------------------------------------#
 # Tests for locallist()
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtoshell')
-def test_locallist_(mock_sendtoshell):
+def test_locallist_srcpathcheck():
 
     """
-    docstring
+    Test that the absolute path exception is raised with non absolute paths.
     """
 
-    job = {
-        "port": "22",
-        "user": "juan_trique-ponee",
-        "host": "massive-machine"
-    }
+    src = "source/directory/path"
 
-    return
+    with pytest.raises(exceptions.AbsolutepathError):
+
+        shellwrappers.locallist(src)
+
+
+@mock.patch('os.listdir')
+@mock.patch('os.path.exists')
+def test_locallist_returncheck(mock_exists, mock_listdir):
+
+    """
+    Test that the method is returning a list.
+    """
+
+    src = "/source/directory/path"
+
+    mock_exists.return_value = True
+    mock_listdir.return_value = ["item1", "item2"]
+
+    output = shellwrappers.locallist(src)
+
+    assert output[0] == "item1"
+    assert output[1] == "item2"
+
+
+@mock.patch('os.path.exists')
+def test_locallist_exceptiontest(mock_exists):
+
+    """
+    Test that the correct exception is raised when things go wrong.
+    """
+
+    src = "/source/directory/path"
+
+    mock_exists.return_value = False
+
+    with pytest.raises(exceptions.LocallistError):
+
+        shellwrappers.locallist(src)
 
 # ---------------------------------------------------------------------------#
 # Tests for remotecopy()
@@ -406,7 +673,6 @@ def test_remotecopy_srcpathcheck():
     }
 
     src = "source/directory/path"
-
     dst = "~/source/directory/path"
 
     with pytest.raises(exceptions.AbsolutepathError):
@@ -427,7 +693,6 @@ def test_remotecopy_dstpathcheck():
     }
 
     src = "~/source/directory/path"
-
     dst = "source/directory/path"
 
     with pytest.raises(exceptions.AbsolutepathError):
@@ -450,7 +715,6 @@ def test_remotecopy_formattest(mock_sendtossh):
     }
 
     src = "~/source/directory/path"
-
     dst = "~/destination/directory/path"
 
     shellwrappers.remotecopy(job, src, dst)
@@ -475,7 +739,6 @@ def test_remotecopy_exceptiontest(mock_sendtossh):
     }
 
     src = "~/source/directory/path"
-
     dst = "~/destination/directory/path"
 
     mock_sendtossh.side_effect = exceptions.SSHError("SSHError", "Error")
