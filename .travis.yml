@@ -1,19 +1,22 @@
 language: python
 python:
-  - "2.6"
-  - "2.7"
-  - "3.2"
-  - "3.3"
-  - "3.4"
-  - "3.5"
+  - 2.6
+  - 2.7
+  - 3.2
+  - 3.3
+  - 3.4
+  - 3.5
 # command to install dependencies
 before_install:
   # Coveralls 4.0 doesn't support Python 3.2
   - if [ "$TRAVIS_PYTHON_VERSION" == "3.2" ]; then travis_retry pip install coverage==3.7.1; fi
   - if [ "$TRAVIS_PYTHON_VERSION" != "3.2" ]; then travis_retry pip install coverage; fi
   - pip install coveralls
-install: "pip install ."
+install: 
+  - pip install .
 # command to run tests
-script: py.test
+script: 
+  - coverage run --source Longbow -m py.test
+  - coverage report -m
 after_success:
-    - coveralls
+  - coveralls
