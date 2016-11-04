@@ -17,5 +17,6 @@ install:
 # command to run tests
 script: 
   - coverage run --source Longbow -m py.test
+  - coverage report -m
 after_success:
   - coveralls
