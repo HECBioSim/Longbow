@@ -433,7 +433,12 @@ def localcopy(src, dst):
         except (shutil.Error, IOError):
 
             raise exceptions.LocalcopyError(
-                "Could not copy the directory '{0}'".format(src))
+                "Could not copy the directory", src)
+
+    else:
+
+        raise exceptions.LocalcopyError(
+            "Could not copy file it appears to not exist.", src)
 
 
 def localdelete(src):
@@ -480,6 +485,11 @@ def localdelete(src):
         except IOError:
 
             raise exceptions.LocaldeleteError("Could not delete file", src)
+
+    else:
+
+        raise exceptions.LocaldeleteError(
+            "Could not delete file it appears to not exist.", src)
 
 
 def locallist(src):
