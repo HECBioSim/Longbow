@@ -1,3 +1,10 @@
+.. image:: https://img.shields.io/pypi/pyversions/Longbow.svg
+  :target: https://pypi.python.org/pypi/Longbow
+.. image:: https://travis-ci.org/HECBioSim/Longbow.svg?branch=issue3
+  :target: https://travis-ci.org/HECBioSim/Longbow
+.. image:: https://coveralls.io/repos/github/HECBioSim/Longbow/badge.svg?branch=issue3
+  :target: https://coveralls.io/github/HECBioSim/Longbow?branch=issue3
+
 Longbow is a piece of software that acts as a job proxying tool for 
 biomolecular simulations, Longbow reproduces the native look and feel of using
 popular molecular dynamics packages (AMBER, CHARMM, GROMACS, LAMMPS and NAMD),
