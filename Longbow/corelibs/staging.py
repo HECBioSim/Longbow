@@ -141,8 +141,8 @@ def stage_downstream(job):
     except exceptions.RsyncError:
 
         raise exceptions.StagingError(
-            "Could not download file '{0}' to location '{1}'"
-            .format(job["src"], job["dst"]))
+            "Could not download a file from '{0}' to '{1}'".format(
+                job["destdir"], job["localworkdir"]))
 
     LOG.info("Staging complete.")
 
