@@ -46,15 +46,8 @@ cleanup(jobs)
 
 import logging
 
-try:
-
-    import corelibs.exceptions as exceptions
-    import corelibs.shellwrappers as shellwrappers
-
-except ImportError:
-
-    import Longbow.corelibs.exceptions as exceptions
-    import Longbow.corelibs.shellwrappers as shellwrappers
+import Longbow.corelibs.exceptions as exceptions
+import Longbow.corelibs.shellwrappers as shellwrappers
 
 LOG = logging.getLogger("Longbow.corelibs.staging")
 

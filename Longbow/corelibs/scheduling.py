@@ -52,23 +52,11 @@ import logging
 import time
 import os
 
-# Depending on how longbow is installed/utilised the import will be slightly
-# different, this should handle both cases.
-try:
-
-    import corelibs.configuration as configuration
-    import corelibs.exceptions as exceptions
-    import corelibs.shellwrappers as shellwrappers
-    import corelibs.staging as staging
-    import plugins.schedulers as schedulers
-
-except ImportError:
-
-    import Longbow.corelibs.configuration as configuration
-    import Longbow.corelibs.exceptions as exceptions
-    import Longbow.corelibs.shellwrappers as shellwrappers
-    import Longbow.corelibs.staging as staging
-    import Longbow.plugins.schedulers as schedulers
+import Longbow.corelibs.configuration as configuration
+import Longbow.corelibs.exceptions as exceptions
+import Longbow.corelibs.shellwrappers as shellwrappers
+import Longbow.corelibs.staging as staging
+import Longbow.plugins.schedulers as schedulers
 
 
 LOG = logging.getLogger("Longbow.corelibs.scheduling")

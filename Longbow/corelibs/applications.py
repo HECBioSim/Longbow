@@ -39,19 +39,9 @@ processjobs(jobs)
 import logging
 import os
 
-# Depending on how longbow is installed/utilised the import will be slightly
-# different, this should handle both cases.
-try:
-
-    import corelibs.exceptions as exceptions
-    import corelibs.shellwrappers as shellwrappers
-    import plugins.apps as apps
-
-except ImportError:
-
-    import Longbow.corelibs.exceptions as exceptions
-    import Longbow.corelibs.shellwrappers as shellwrappers
-    import Longbow.plugins.apps as apps
+import Longbow.corelibs.exceptions as exceptions
+import Longbow.corelibs.shellwrappers as shellwrappers
+import Longbow.plugins.apps as apps
 
 
 LOG = logging.getLogger("Longbow.corelibs.applications")

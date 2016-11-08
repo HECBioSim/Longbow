@@ -61,17 +61,8 @@ import re
 import os
 from random import randint
 
-# Depending on how Longbow is installed/utilised the import will be slightly
-# different, this should handle both cases.
-try:
-
-    import corelibs.exceptions as exceptions
-    import plugins.apps as apps
-
-except ImportError:
-
-    import Longbow.corelibs.exceptions as exceptions
-    import Longbow.plugins.apps as apps
+import Longbow.corelibs.exceptions as exceptions
+import Longbow.plugins.apps as apps
 
 
 LOG = logging.getLogger("Longbow.corelibs.configuration")

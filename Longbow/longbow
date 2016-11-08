@@ -50,27 +50,13 @@ import sys
 import logging
 import subprocess
 
-# Depending on how longbow is installed/utilised the import will be slightly
-# different, this should handle most common cases.
-try:
-
-    import corelibs.applications as applications
-    import plugins.apps as apps
-    import corelibs.configuration as configuration
-    import corelibs.exceptions as exceptions
-    import corelibs.scheduling as scheduling
-    import corelibs.shellwrappers as shellwrappers
-    import corelibs.staging as staging
-
-except ImportError:
-
-    import Longbow.corelibs.applications as applications
-    import Longbow.plugins.apps as apps
-    import Longbow.corelibs.configuration as configuration
-    import Longbow.corelibs.exceptions as exceptions
-    import Longbow.corelibs.scheduling as scheduling
-    import Longbow.corelibs.shellwrappers as shellwrappers
-    import Longbow.corelibs.staging as staging
+import Longbow.corelibs.applications as applications
+import Longbow.plugins.apps as apps
+import Longbow.corelibs.configuration as configuration
+import Longbow.corelibs.exceptions as exceptions
+import Longbow.corelibs.scheduling as scheduling
+import Longbow.corelibs.shellwrappers as shellwrappers
+import Longbow.corelibs.staging as staging
 
 PYTHONVERSION = "{0}.{1}".format(sys.version_info[0], sys.version_info[1])
 LONGBOWVERSION = "1.3.2"
