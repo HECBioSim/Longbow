@@ -83,13 +83,6 @@ def testenv(jobs, hostconf):
                         structure.
     """
 
-    schedulerqueries = getattr(schedulers, "QUERY")
-
-    handlers = {
-        "aprun": ["which aprun"],
-        "mpirun": ["which mpirun"]
-    }
-
     save = False
 
     checked = []
@@ -99,120 +92,58 @@ def testenv(jobs, hostconf):
     for item in jobs:
 
         job = jobs[item]
-        resource = job["resource"]
 
         # If we have not checked this host already
-        if resource not in checked:
+        if job["resource"] not in checked:
 
             # Make sure we don't check the same thing again.
-            checked.extend([resource])
+            checked.extend([job["resource"]])
 
             # If we don't have the resource defined then define it.
-            if resource not in saveparams:
+            if job["resource"] not in saveparams:
 
-                saveparams[resource] = {}
+                saveparams[job["resource"]] = {}
 
             # If we have no scheduler defined by the user then find it.
             if job["scheduler"] is "":
 
-                LOG.info("No environment for this host '%s' is specified - "
-                         "attempting to determine it!", resource)
-
-                # Go through the schedulers we are supporting.
-                for param in schedulerqueries:
-
-                    try:
-
-                        shellwrappers.sendtossh(job, schedulerqueries[param])
-
-                        job["scheduler"] = param
-                        saveparams[resource]["scheduler"] = param
-
-                        LOG.info("The environment on this host is '%s'", param)
-                        break
-
-                    except exceptions.SSHError:
-
-                        LOG.debug("Environment is not '%s'", param)
-
-                if job["scheduler"] is "":
-
-                    raise exceptions.SchedulercheckError(
-                        "Could not find the job scheduling system.")
-
-                # If we changed anything then mark for saving.
+                _testscheduler(job)
+                saveparams[job["resource"]]["scheduler"] = job["scheduler"]
                 save = True
 
             else:
 
                 LOG.info("The environment on host '%s' is '%s'",
-                         resource, job["scheduler"])
+                         job["resource"], job["scheduler"])
 
             # If we have no job handler defined by the user then find it.
             if job["handler"] is "":
 
-                LOG.info("No queue handler was specified for host '%s' - "
-                         "attempting to find it", resource)
-
-                # Go through the handlers and find out which is there.
-                # Load modules first as this is necessary for some remote
-                # resources
-                cmdmod = []
-
-                for module in job["modules"].split(","):
-
-                    module = module.replace(" ", "")
-                    cmdmod.extend(["module load " + module + "\n"])
-
-                for param in handlers:
-
-                    try:
-
-                        cmd = cmdmod[:]
-                        cmd.extend(handlers[param])
-                        shellwrappers.sendtossh(job, cmd)
-
-                        job["handler"] = param
-                        saveparams[resource]["handler"] = param
-
-                        LOG.info("The batch queue handler is '%s'", param)
-
-                        break
-
-                    except exceptions.SSHError:
-
-                        LOG.debug("The batch queue handler is not '%s'",
-                                  param)
-
-                if job["handler"] is "":
-
-                    raise exceptions.HandlercheckError(
-                        "Could not find the batch queue handler.")
-
-                # If we changed anything then mark for saving.
+                _testhandler(job)
+                saveparams[job["resource"]]["handler"] = job["handler"]
                 save = True
 
             else:
 
                 LOG.info("The handler on host '%s' is '%s'",
-                         resource, job["handler"])
+                         job["resource"], job["handler"])
 
         # If resource has been checked.
         else:
 
             # Then we should have a look if the resource for this job has been
             # altered.
-            if resource in saveparams:
+            if job["resource"] in saveparams:
 
                 # Then check if scheduler has been added.
-                if "scheduler" in saveparams[resource]:
+                if "scheduler" in saveparams[job["resource"]]:
 
-                    job["scheduler"] = saveparams[resource]["scheduler"]
+                    job["scheduler"] = saveparams[job["resource"]]["scheduler"]
 
                 # Then check if handler has been added.
-                if "handler" in saveparams[resource]:
+                if "handler" in saveparams[job["resource"]]:
 
-                    job["handler"] = saveparams[resource]["handler"]
+                    job["handler"] = saveparams[job["resource"]]["handler"]
 
     # Do we have anything to change in the host file.
     if save is True:
@@ -600,3 +531,82 @@ def submit(jobs):
 
     LOG.info("%s Submitted, %s Held due to queue limits and %s Failed.",
              submitted, queued, error)
+
+
+def _testscheduler(job):
+
+    """
+    The test logic for finding out what scheduler is on the system.
+    """
+
+    schedulerqueries = getattr(schedulers, "QUERY")
+
+    LOG.info("No environment for this host '%s' is specified - attempting to "
+             "determine it!", job["resource"])
+
+    # Go through the schedulers we are supporting.
+    for param in schedulerqueries:
+
+        try:
+
+            shellwrappers.sendtossh(job, schedulerqueries[param])
+
+            job["scheduler"] = param
+
+            LOG.info("The environment on this host is '%s'", param)
+            break
+
+        except exceptions.SSHError:
+
+            LOG.debug("Environment is not '%s'", param)
+
+    if job["scheduler"] is "":
+
+        raise exceptions.SchedulercheckError("Could not find the job "
+                                             "scheduling system.")
+
+
+def _testhandler(job):
+
+    """
+    The test logic for finding out job handler is on the system.
+    """
+
+    handlers = {
+        "aprun": ["which aprun"],
+        "mpirun": ["which mpirun"]
+    }
+
+    LOG.info("No queue handler was specified for host '%s' - attempting to "
+             "find it", job["resource"])
+
+    modules = []
+
+    # Go through the handlers and find out which is there. Load modules first
+    # as this is necessary for some remote resources
+    for module in job["modules"].split(","):
+
+        module = module.replace(" ", "")
+        modules.extend(["module load " + module + "\n"])
+
+    for param in handlers:
+
+        try:
+
+            cmd = modules[:]
+            cmd.extend(handlers[param])
+            shellwrappers.sendtossh(job, cmd)
+
+            job["handler"] = param
+
+            LOG.info("The batch queue handler is '%s'", param)
+            break
+
+        except exceptions.SSHError:
+
+            LOG.debug("The batch queue handler is not '%s'", param)
+
+    if job["handler"] is "":
+
+        raise exceptions.HandlercheckError("Could not find the batch queue "
+                                           "handler.")
