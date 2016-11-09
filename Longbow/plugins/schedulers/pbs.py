@@ -39,16 +39,8 @@ import math
 import os
 import re
 
-
-try:
-
-    import corelibs.exceptions as exceptions
-    import corelibs.shellwrappers as shellwrappers
-
-except ImportError:
-
-    import Longbow.corelibs.exceptions as exceptions
-    import Longbow.corelibs.shellwrappers as shellwrappers
+import Longbow.corelibs.exceptions as exceptions
+import Longbow.corelibs.shellwrappers as shellwrappers
 
 QUERY_STRING = "env | grep -i 'pbs'"
 

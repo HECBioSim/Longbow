@@ -40,14 +40,7 @@ for loader, modulename, ispkg in MODULES:
 
         except ImportError:
 
-            try:
-
-                mod = __import__("plugins.schedulers." + modulename,
-                                 fromlist=[""])
-
-            except ImportError:
-
-                raise
+            raise
 
         try:
 

@@ -23,13 +23,7 @@
 import os
 import re
 
-try:
-
-    import corelibs.exceptions as exceptions
-
-except ImportError:
-
-    import Longbow.corelibs.exceptions as exceptions
+import Longbow.corelibs.exceptions as exceptions
 
 
 EXECDATA = {

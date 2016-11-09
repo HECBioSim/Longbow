@@ -83,13 +83,7 @@ import subprocess
 import logging
 import time
 
-try:
-
-    import corelibs.exceptions as exceptions
-
-except ImportError:
-
-    import Longbow.corelibs.exceptions as exceptions
+import Longbow.corelibs.exceptions as exceptions
 
 LOG = logging.getLogger("Longbow.corelibs.shellwrappers")
 

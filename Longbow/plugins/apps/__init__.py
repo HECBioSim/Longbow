@@ -49,15 +49,8 @@ for loader, modulename, ispkg in MODULES:
 
         except ImportError:
 
-            # Else try to import from a directory installed path.
-            try:
-                mod = __import__("plugins.apps." + modulename,
-                                 fromlist=[""])
-
-            except ImportError:
-
-                # Otherwise we've had it! Raise exception.
-                raise
+            # Otherwise we've had it! Raise exception.
+            raise
 
         # Now try and pull in attributes.
         try:
