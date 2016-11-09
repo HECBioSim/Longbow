@@ -87,6 +87,7 @@ JOBTEMPLATE = {
     "maxtime": "24:00",
     "memory": "",
     "scripts": "",
+    "staging-frequency": "300",
     "sge-peflag": "mpi",
     "sge-peoverride": "false",
     "port": "22",
