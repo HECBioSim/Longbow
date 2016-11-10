@@ -673,7 +673,17 @@ def _checkcomplete(jobs):
     """
 
     allcomplete = True
-    allfinished = False
+    allfinished = True
+
+    # Find out if all jobs are finished.
+    for job in jobs:
+
+        if (jobs[job]["laststatus"] != "Finished" and
+                jobs[job]["laststatus"] != "Complete" and
+                jobs[job]["laststatus"] != "Submit Error"):
+
+            allfinished = False
+            break
 
     # Find out if all jobs are completed.
     for job in jobs:
@@ -682,12 +692,6 @@ def _checkcomplete(jobs):
                 jobs[job]["laststatus"] != "Submit Error"):
 
             allcomplete = False
-            allfinished = True
-
-            if jobs[job]["laststatus"] != "Finished":
-
-                allfinished = False
-
             break
 
     return allfinished, allcomplete
