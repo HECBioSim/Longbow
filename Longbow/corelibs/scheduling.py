@@ -201,15 +201,17 @@ def monitor(jobs):
     LOG.info("Monitoring job/s, depending on the chosen logging mode Longbow"
              "might appear to be doing nothing. Please be patient!")
 
-    allfinished, stageinterval, pollinterval = _monitorinitialise(jobs)
+    stageinterval, pollinterval = _monitorinitialise(jobs)
 
+    allcomplete = False
+    allfinished = False
     lastpolltime = 0
     laststagetime = 0
     saverecoveryfile = True
     recoveryfileerror = False
 
     # Loop until all jobs are done.
-    while allfinished is False:
+    while allcomplete is False:
 
         now = time.time()
 
@@ -221,8 +223,8 @@ def monitor(jobs):
             saverecoveryfile = _checkwaitingjobs(jobs, saverecoveryfile)
 
         # Check if we should be staging.
-        if (int(now - laststagetime) > int(stageinterval) and
-                int(stageinterval) != 0):
+        if ((int(now - laststagetime) > int(stageinterval) and
+                int(stageinterval) != 0) or allfinished is True):
 
             laststagetime = int(now)
             saverecoveryfile = _stagejobfiles(jobs, saverecoveryfile)
@@ -253,7 +255,7 @@ def monitor(jobs):
                 LOG.warning("Could not write recovery file, possibly due to "
                             "permissions on the ~/.Longbow directory.")
 
-        allfinished = _checkfinished(jobs)
+        allfinished, allcomplete = _checkcomplete(jobs)
 
     LOG.info("All jobs are complete.")
 
@@ -496,7 +498,6 @@ def _monitorinitialise(jobs):
     """
 
     # Some initial values
-    allfinished = False
     pollinterval = 0
     stageinterval = 0
 
@@ -532,7 +533,7 @@ def _monitorinitialise(jobs):
 
         pollinterval = 300
 
-    return allfinished, stageinterval, pollinterval
+    return stageinterval, pollinterval
 
 
 def _polljobs(jobs, save):
@@ -665,25 +666,28 @@ def _checkwaitingjobs(jobs, save):
     return save
 
 
-def _checkfinished(jobs):
+def _checkcomplete(jobs):
 
     """
-    Check if all the jobs are finished.
+    Check if all the jobs are complete.
     """
 
+    allcomplete = True
     allfinished = False
 
     # Find out if all jobs are completed.
     for job in jobs:
 
-        # If a single job has a flag not associated with being done then
-        # carry on.
         if (jobs[job]["laststatus"] != "Complete" and
                 jobs[job]["laststatus"] != "Submit Error"):
 
-            allfinished = False
+            allcomplete = False
+            allfinished = True
+
+            if jobs[job]["laststatus"] != "Finished":
+
+                allfinished = False
+
             break
 
-        allfinished = True
-
-    return allfinished
+    return allfinished, allcomplete

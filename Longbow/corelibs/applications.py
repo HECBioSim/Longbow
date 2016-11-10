@@ -226,14 +226,12 @@ def processjobs(jobs):
                 .format(job, flags, app))
 
         # Setup the rysnc upload masks.
-        if jobs[job]["upload-include"] is "":
+        if jobs[job]["upload-include"] != "":
 
-            jobs[job]["upload-include"] = (", ".join(filelist))
+            jobs[job]["upload-include"] = jobs[job]["upload-include"] + ", "
 
-        else:
-
-            jobs[job]["upload-include"] = (jobs[job]["upload-include"] + ", "
-                                           ", ".join(filelist))
+        jobs[job]["upload-include"] = (jobs[job]["upload-include"] + ", "
+                                       ", ".join(filelist))
 
         jobs[job]["upload-exclude"] = "*"
 
@@ -287,8 +285,13 @@ def _proccommandlinetype1(job, app, cwd, filelist):
             # We have a replicate job so we should amend the paths.
             else:
 
-                fileitem, filelist, initargs = _procreplicatejobs(
-                    app, args[1], cwd, fileitem, filelist, initargs, rep)
+                # Add the repX dir
+                if ("rep" + str(rep)) not in filelist:
+
+                    filelist.append("rep" + str(rep))
+
+                fileitem, initargs = _procreplicatejobs(
+                    app, args[1], cwd, initargs, rep)
 
                 job["executableargs"] = initargs
 
@@ -370,8 +373,13 @@ def _proccommandlinetype2(job, app, cwd, filelist):
                 # Otherwise we have a replicate job so check these.
                 else:
 
-                    fileitem, filelist, initargs = _procreplicatejobs(
-                        app, arg, cwd, fileitem, filelist, initargs, rep)
+                    # Add the repX dir
+                    if ("rep" + str(rep)) not in filelist:
+
+                        filelist.append("rep" + str(rep))
+
+                    fileitem, initargs = _procreplicatejobs(
+                        app, arg, cwd, initargs, rep)
 
                     job["executableargs"] = initargs
 
@@ -441,8 +449,13 @@ def _proccommandlinetype3(job, app, cwd, filelist):
                 # Otherwise we have a replicate job so check these.
                 else:
 
-                    fileitem, filelist, initargs = _procreplicatejobs(
-                        app, arg, cwd, fileitem, filelist, initargs, rep)
+                    # Add the repX dir
+                    if ("rep" + str(rep)) not in filelist:
+
+                        filelist.append("rep" + str(rep))
+
+                    fileitem, initargs = _procreplicatejobs(
+                        app, arg, cwd, initargs, rep)
 
                     job["executableargs"] = initargs
 
@@ -503,8 +516,13 @@ def _proccommandlinetype4(job, app, cwd, filelist):
             # Otherwise we have a replicate job so we should amend the paths.
             else:
 
-                fileitem, filelist, initargs = _procreplicatejobs(
-                    app, args[0], cwd, fileitem, filelist, initargs, rep)
+                # Add the repX dir to the file list as rsync will not make it.
+                if ("rep" + str(rep)) not in filelist:
+
+                    filelist.append("rep" + str(rep))
+
+                fileitem, initargs = _procreplicatejobs(
+                    app, args[0], cwd, initargs, rep)
 
                 job["executableargs"] = initargs
 
@@ -566,7 +584,7 @@ def _procsinglejob(app, arg, cwd):
     return fileitem
 
 
-def _procreplicatejobs(app, arg, cwd, fileitem, filelist, initargs, rep):
+def _procreplicatejobs(app, arg, cwd, initargs, rep):
 
     """
     Processor for replicate jobs.
@@ -578,11 +596,6 @@ def _procreplicatejobs(app, arg, cwd, fileitem, filelist, initargs, rep):
     if os.path.isdir(os.path.join(cwd, "rep" + str(rep))) is False:
 
         os.mkdir(os.path.join(cwd, "rep" + str(rep)))
-
-    # Add the repX dir to the file list as rsync will not create them.
-    if ("rep" + str(rep)) not in filelist:
-
-        filelist.append("rep" + str(rep))
 
     # If we have a replicate job then we should check if the file resides
     # within ./rep{i} or if it is a global (common to each replicate) file.
@@ -630,4 +643,4 @@ def _procreplicatejobs(app, arg, cwd, fileitem, filelist, initargs, rep):
 
                 pass
 
-    return fileitem, filelist, initargs
+    return fileitem, initargs
