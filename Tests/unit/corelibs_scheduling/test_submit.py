@@ -36,7 +36,7 @@ import Longbow.corelibs.exceptions as exceptions
 import Longbow.corelibs.scheduling as scheduling
 
 
-@mock.patch('Longbow.plugins.schedulers.lsf.submit')
+@mock.patch('Longbow.schedulers.lsf.submit')
 @mock.patch('os.path.isdir')
 def test_submit_single(mock_isdir, mock_submit):
 
@@ -61,7 +61,7 @@ def test_submit_single(mock_isdir, mock_submit):
     assert jobs["job-one"]["laststatus"] == "Queued"
 
 
-@mock.patch('Longbow.plugins.schedulers.lsf.submit')
+@mock.patch('Longbow.schedulers.lsf.submit')
 @mock.patch('os.path.isdir')
 def test_submit_multiplesame(mock_isdir, mock_lsf):
 
@@ -95,9 +95,9 @@ def test_submit_multiplesame(mock_isdir, mock_lsf):
         "For a multi job this method should only be called more than once"
 
 
-@mock.patch('Longbow.plugins.schedulers.slurm.submit')
-@mock.patch('Longbow.plugins.schedulers.pbs.submit')
-@mock.patch('Longbow.plugins.schedulers.lsf.submit')
+@mock.patch('Longbow.schedulers.slurm.submit')
+@mock.patch('Longbow.schedulers.pbs.submit')
+@mock.patch('Longbow.schedulers.lsf.submit')
 @mock.patch('os.path.isdir')
 def test_submit_multiplediff(mock_isdir, mock_lsf, mock_pbs, mock_slurm):
 
@@ -136,7 +136,7 @@ def test_submit_multiplediff(mock_isdir, mock_lsf, mock_pbs, mock_slurm):
 
 
 @mock.patch('Longbow.corelibs.configuration.saveini')
-@mock.patch('Longbow.plugins.schedulers.lsf.submit')
+@mock.patch('Longbow.schedulers.lsf.submit')
 @mock.patch('os.path.isdir')
 def test_submit_fileexcept1(mock_isdir, mock_submit, mock_savini):
 
@@ -160,7 +160,7 @@ def test_submit_fileexcept1(mock_isdir, mock_submit, mock_savini):
 
 
 @mock.patch('Longbow.corelibs.configuration.saveini')
-@mock.patch('Longbow.plugins.schedulers.lsf.submit')
+@mock.patch('Longbow.schedulers.lsf.submit')
 @mock.patch('os.path.isdir')
 def test_submit_fileexcept2(mock_isdir, mock_submit, mock_savini):
 
@@ -184,7 +184,7 @@ def test_submit_fileexcept2(mock_isdir, mock_submit, mock_savini):
 
 
 @mock.patch('Longbow.corelibs.configuration.saveini')
-@mock.patch('Longbow.plugins.schedulers.lsf.submit')
+@mock.patch('Longbow.schedulers.lsf.submit')
 @mock.patch('os.path.isdir')
 def test_submit_attrexcept(mock_isdir, mock_submit, mock_savini):
 
@@ -210,7 +210,7 @@ def test_submit_attrexcept(mock_isdir, mock_submit, mock_savini):
 
 
 @mock.patch('Longbow.corelibs.configuration.saveini')
-@mock.patch('Longbow.plugins.schedulers.lsf.submit')
+@mock.patch('Longbow.schedulers.lsf.submit')
 @mock.patch('os.path.isdir')
 def test_submit_submitexcept(mock_isdir, mock_submit, mock_savini):
 
@@ -236,7 +236,7 @@ def test_submit_submitexcept(mock_isdir, mock_submit, mock_savini):
 
 
 @mock.patch('Longbow.corelibs.configuration.saveini')
-@mock.patch('Longbow.plugins.schedulers.lsf.submit')
+@mock.patch('Longbow.schedulers.lsf.submit')
 @mock.patch('os.path.isdir')
 def test_submit_queueexcept(mock_isdir, mock_submit, mock_savini):
 
@@ -263,7 +263,7 @@ def test_submit_queueexcept(mock_isdir, mock_submit, mock_savini):
 
 
 @mock.patch('Longbow.corelibs.configuration.saveini')
-@mock.patch('Longbow.plugins.schedulers.lsf.submit')
+@mock.patch('Longbow.schedulers.lsf.submit')
 @mock.patch('os.path.isdir')
 def test_submit_queueinfo(mock_isdir, mock_submit, mock_savini):
 

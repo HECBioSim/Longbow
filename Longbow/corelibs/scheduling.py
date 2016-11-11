@@ -56,7 +56,7 @@ import Longbow.corelibs.configuration as configuration
 import Longbow.corelibs.exceptions as exceptions
 import Longbow.corelibs.shellwrappers as shellwrappers
 import Longbow.corelibs.staging as staging
-import Longbow.plugins.schedulers as schedulers
+import Longbow.schedulers as schedulers
 
 
 LOG = logging.getLogger("Longbow.corelibs.scheduling")

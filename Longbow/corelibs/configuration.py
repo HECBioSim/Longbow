@@ -62,7 +62,7 @@ import os
 from random import randint
 
 import Longbow.corelibs.exceptions as exceptions
-import Longbow.plugins.apps as apps
+import Longbow.apps as apps
 
 
 LOG = logging.getLogger("Longbow.corelibs.configuration")

@@ -1,0 +1,814 @@
+#!/usr/bin/env python
+
+# Longbow is Copyright (C) of James T Gebbie-Rayet and Gareth B Shannon 2015.
+#
+# This file is part of the Longbow software which was developed as part of the
+# HECBioSim project (http://www.hecbiosim.ac.uk/).
+#
+# HECBioSim facilitates and supports high-end computing within the UK
+# biomolecular simulation community on resources such as ARCHER.
+#
+# Longbow is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 2 of the License, or (at your option) any later
+# version.
+#
+# Longbow is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Longbow.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+This module contains the Longbow application entry point and the high level
+library methods. The following gives a summary of the methods available:
+
+main()
+    This is the main entrypoint for Longbow when used as an application.
+    This method is not intended to be used by developers making use of the
+    library.
+
+longbowmain(parameters)
+    This method is the upper level method of the Longbow library. Users
+    interested in integrating Longbow into their applications without fine
+    grain control may invoke this method, along with creating the data
+    structures that the main entry point of the application would normally
+    create.
+
+recover(recoveryfile)
+    This method is for attempting to recover a Longbow session. This should be
+    used in cases where jobs have been submitted to the host and somehow
+    Longbow failed to stay connected. This will try to take the recovery file,
+    written shortly after submission to recover the whole session. Jobs that
+    are no longer in the queue will be marked as finished and will be staged
+    as normal.
+"""
+
+import os
+import sys
+import logging
+import subprocess
+
+import Longbow.corelibs.applications as applications
+import Longbow.apps as apps
+import Longbow.corelibs.configuration as configuration
+import Longbow.corelibs.exceptions as exceptions
+import Longbow.corelibs.scheduling as scheduling
+import Longbow.corelibs.shellwrappers as shellwrappers
+import Longbow.corelibs.staging as staging
+
+PYTHONVERSION = "{0}.{1}".format(sys.version_info[0], sys.version_info[1])
+LONGBOWVERSION = "1.3.2"
+
+LOG = logging.getLogger("Longbow")
+
+
+def main():
+
+    """
+    This is the main entrypoint for Longbow when used as an application.
+    This method is not intended to be used by developers making use of the
+    library.
+    """
+
+    # -------------------------------------------------------------------------
+    # Some defaults and parameter initialisation.
+
+    # Actual command line.
+    commandline = (" ").join(sys.argv)
+
+    # Fetch command line arguments as list and remove longbow exec
+    commandlineargs = sys.argv
+    commandlineargs.pop(0)
+
+    recover = False
+    mode = ""
+
+    # Initialise parameters that could alternatively be provided in
+    # configuration files
+    parameters = {
+        "disconnect": False,
+        "executable": "",
+        "executableargs": "",
+        "hosts": "",
+        "job": "",
+        "jobname": "",
+        "log": "",
+        "resource": "",
+        "replicates": ""
+    }
+
+    # Specify all recognised longbow arguments
+    alllongbowargs = [
+        "-about",
+        "--about",
+        "-debug",
+        "--debug",
+        "-disconnect",
+        "--disconnect",
+        "-examples",
+        "--examples",
+        "-h",
+        "-help",
+        "--help",
+        "-hosts",
+        "--hosts",
+        "-job",
+        "--job",
+        "-jobname",
+        "--jobname",
+        "-log",
+        "--log",
+        "-recover",
+        "--recover",
+        "-resource",
+        "--resource",
+        "-replicates",
+        "--replicates",
+        "-V",
+        "-verbose",
+        "--verbose",
+        "-version",
+        "--version"
+    ]
+
+    # Initialise
+    executable = ""
+    position = ""
+    longbowargs = ""
+    execargs = ""
+
+    # -------------------------------------------------------------------------
+    # Split the command line into longbow arguments, the executable and
+    # executable arguments
+
+    # Get a list of recognised executables
+    execlist = getattr(apps, "EXECLIST")
+
+    # Search for recognised executables on the commandline
+    for item in commandlineargs:
+
+        if item in execlist:
+
+            executable = item
+            position = commandlineargs.index(item)
+            longbowargs = commandlineargs[:position]
+            execargs = commandlineargs[position+1:]
+            break
+
+    # If an executable wasn't found perhaps it is specified in a configuration
+    # file. Executable arguments might still be provided on the command line so
+    # try to detect them.
+    if executable == "":
+
+        for item in commandlineargs:
+
+            position = commandlineargs.index(item)
+
+            # if item provided on the commandline doesn't appear to be a
+            # longbow argument, assume it, and all others following it are
+            # executable arguments
+            if (item not in alllongbowargs and
+                    commandlineargs[position-1][1:] not in parameters and
+                    commandlineargs[position-1][2:] not in parameters and
+                    commandlineargs[position-1] != "-recover" and
+                    commandlineargs[position-1] != "--recover"):
+
+                longbowargs = commandlineargs[:position]
+                execargs = commandlineargs[position:]
+                break
+
+        # if no executable arguments have been found, everything on the command
+        # line must be longbow arguments since we know the executable hasn't
+        # been provided on the command line either.
+        if execargs == "":
+
+            longbowargs = commandlineargs
+
+    # make sure the user hasn't provided bogus longbow arguments or those
+    # that aren't recognised on the command line
+    for item in longbowargs:
+
+        if item.startswith("-") and item not in alllongbowargs:
+
+            allowedargs = " ".join(alllongbowargs)
+
+            raise exceptions.CommandlineargsError(
+                "Argument '{0}' is not a recognised Longbow argument. "
+                "Recognised arguments are: {1}".format(item, allowedargs))
+
+    # -------------------------------------------------------------------------
+    # Determine if the user is trying to run a sub-functionality such as
+    # % longbow -about for example.
+
+    # Test for the about command line flag, print message and exit if found.
+    if longbowargs.count("-about") == 1 or longbowargs.count("--about") == 1:
+
+        # Text aligned against an 80 character width.
+        print("Welcome to Longbow!\n\n"
+              "Longbow is a remote job submission utility designed for "
+              "biomolecular\n"
+              "simulation. This software was developed as part of the "
+              "EPSRC-funded HECBioSim\n"
+              "project http://www.hecbiosim.ac.uk/\n\n"
+              "HECBioSim facilitates high-end biomolecular simulation on "
+              "resources such as\n"
+              "ARCHER.\n\n"
+              "Longbow is Copyright (C) of James T Gebbie-Rayet and Gareth B "
+              "Shannon 2015.\n\n"
+              "Please cite our paper: Gebbie-Rayet, J, Shannon, G, Loeffler, "
+              "H H and\n"
+              "Laughton, C A 2016 Longbow: A Lightweight Remote Job Submission"
+              " Tool. Journal\n"
+              "of Open Research Software, 4: e1, "
+              "DOI: http://dx.doi.org/10.5334/jors.95")
+
+        exit(0)
+
+    # Test for the version command line flag, print message and exit if found.
+    if (longbowargs.count("-version") == 1 or
+            longbowargs.count("--version") == 1 or
+            longbowargs.count("-V") == 1):
+
+        print("Longbow v{0}".format(LONGBOWVERSION))
+
+        exit(0)
+
+    # Test for the help command line flag, print message and exit if found.
+    if (longbowargs.count("-help") == 1 or longbowargs.count("--help") == 1 or
+            longbowargs.count("-h") == 1):
+
+        # Text aligned against an 80 character width in the terminal window.
+        print("Welcome to Longbow!\n\n"
+              "Usage:\n\n"
+              "Before running Longbow, first setup a password-less SSH "
+              "connection with a\n"
+              "target remote resource and setup configuration files according "
+              "to the\n"
+              "documentation.\n\n"
+              "documentation http://www.hecbiosim.ac.uk/longbow-docs \n\n"
+              "Submit jobs using the following syntax:\n\n"
+              "longbow [longbow args] executable [executable args]\n\n"
+              "e.g.:\n"
+              "%longbow --verbose pmemd.MPI -i example.in -c example.min -p "
+              "example.top -o output\n\n"
+              "longbow args:\n\n"
+              "--about                   : prints Longbow description.\n"
+              "--debug                   : additional output to assist "
+              "debugging.\n"
+              "--disconnect              : instructs Longbow to disconnect and"
+              " exit\n after submitting jobs.\n"
+              "--examples                : downloads example files to "
+              "./LongbowExamples\n"
+              "--help, -h                : prints Longbow help.\n"
+              "--hosts [file name]       : specifies the hosts configuration "
+              "file name.\n"
+              "--job [file name]         : specifies the job configuration "
+              "file name.\n"
+              "--jobname [job name]      : the name of the job to be "
+              "submitted.\n"
+              "--log [file name]         : specifies the file Longbow output "
+              "should be directed to.\n"
+              "--recover [file name]     : Launches the recovery mode.\n"
+              "--resource [name]         : specifies the remote resource.\n"
+              "--replicates [number]     : number of replicate jobs to be "
+              "submitted.\n"
+              "--verbose                 : additional run-time info to be "
+              "output.\n"
+              "--version, -V             : prints Longbow version number.\n"
+              "\n"
+              "Read the documentation at http://www.hecbiosim.ac.uk/ for more "
+              "information on\n"
+              "how to setup and run jobs using Longbow.")
+
+        exit(0)
+
+    # Test for the examples command line flag, download files and exit if found
+    if longbowargs.count("-examples") or longbowargs.count("--examples") == 1:
+
+        if not os.path.isfile(
+                os.path.join(os.getcwd(), "LongbowExamples.zip")):
+
+            try:
+
+                subprocess.check_output([
+                    "wget", "http://www.hecbiosim.ac.uk/downloads/send/"
+                    "2-software/4-longbow-examples", "-O",
+                    os.path.join(os.getcwd(), "LongbowExamples.zip")])
+
+            except subprocess.CalledProcessError:
+
+                subprocess.call([
+                    "curl", "-L", "http://www.hecbiosim.ac.uk/downloads/send/"
+                    "2-software/4-longbow-examples", "-o",
+                    os.path.join(os.getcwd(), "LongbowExamples.zip")])
+
+            subprocess.call(["unzip", "-d", os.getcwd(),
+                             os.path.join(os.getcwd(), "LongbowExamples.zip")])
+
+        exit(0)
+
+    # -------------------------------------------------------------------------
+    # Grab the Longbow command-line arguments and their values.
+
+    # Store the log file path
+    if longbowargs.count("-log") == 1 or longbowargs.count("--log") == 1:
+
+        try:
+
+            position = longbowargs.index("-log")
+
+        except ValueError:
+
+            position = longbowargs.index("--log")
+
+        if (position + 1 == len(longbowargs) or
+                longbowargs[position + 1].startswith("-")):
+
+            raise exceptions.CommandlineargsError(
+                "Please specify a valid file for the --log command line "
+                "parameter e.g. longbow --log [filename] ...")
+
+        else:
+
+            parameters["log"] = longbowargs[position + 1]
+
+    # Store the config file path
+    if longbowargs.count("-hosts") == 1 or longbowargs.count("--hosts"):
+
+        try:
+
+            position = longbowargs.index("-hosts")
+
+        except ValueError:
+
+            position = longbowargs.index("--hosts")
+
+        if (position + 1 == len(longbowargs) or
+                longbowargs[position + 1].startswith("-")):
+
+            raise exceptions.CommandlineargsError(
+                "Please specify a valid file for the --hosts command line "
+                "parameter e.g. longbow --hosts [filename] ...")
+        else:
+
+            parameters["hosts"] = longbowargs[position + 1]
+
+    # Store the job config file path
+    if longbowargs.count("-job") == 1 or longbowargs.count("--job") == 1:
+
+        try:
+
+            position = longbowargs.index("-job")
+
+        except ValueError:
+
+            position = longbowargs.index("--job")
+
+        if (position + 1 == len(longbowargs) or
+                longbowargs[position + 1].startswith("-")):
+
+            raise exceptions.CommandlineargsError(
+                "Please specify a valid file for the --job command line "
+                "parameter e.g. longbow --job [filename] ...")
+
+        else:
+
+            parameters["job"] = longbowargs[position + 1]
+
+    if (longbowargs.count("-recover") == 1 or
+            longbowargs.count("--recover") == 1):
+
+        recover = True
+
+        try:
+
+            position = longbowargs.index("-recover")
+
+        except ValueError:
+
+            position = longbowargs.index("--recover")
+
+        if (position + 1 == len(longbowargs) or
+                longbowargs[position + 1].startswith("-")):
+
+            raise exceptions.CommandlineargsError(
+                "Please specify a valid file for the --recover command line "
+                "parameter e.g. longbow --recover [filename] ...")
+
+        else:
+
+            recoverfile = longbowargs[position + 1]
+
+    # Store the verbose parameter
+    if (longbowargs.count("-verbose") == 1 or
+            longbowargs.count("--verbose") == 1):
+
+        mode = "verbose"
+
+    # Store the DEBUG parameter
+    if longbowargs.count("-debug") == 1 or longbowargs.count("--debug") == 1:
+
+        mode = "debug"
+
+    # Is this a disconnectable session.
+    if (longbowargs.count("-disconnect") == 1 or
+            longbowargs.count("--disconnect") == 1):
+
+        parameters["disconnect"] = True
+
+    # Store the resource name
+    if (longbowargs.count("-resource") == 1 or
+            longbowargs.count("--resource") == 1):
+
+        try:
+
+            position = longbowargs.index("-resource")
+
+        except ValueError:
+
+            position = longbowargs.index("--resource")
+
+        if (position + 1 == len(longbowargs) or
+                longbowargs[position + 1].startswith("-")):
+
+            raise exceptions.CommandlineargsError(
+                "Please specify a valid remote resource for the --resource "
+                "command line parameter e.g. longbow --resource hpc ...")
+
+        else:
+
+            parameters["resource"] = longbowargs[position + 1]
+
+    # Store the replicates name
+    if (longbowargs.count("-replicates") == 1 or
+            longbowargs.count("--replicates") == 1):
+
+        try:
+
+            position = longbowargs.index("-replicates")
+
+        except ValueError:
+
+            position = longbowargs.index("--replicates")
+
+        if (position + 1 == len(longbowargs) or
+                longbowargs[position + 1].startswith("-")):
+
+            raise exceptions.CommandlineargsError(
+                "Please specify a number for the --replicates command line "
+                "parameter e.g. longbow --replicates 5 ...")
+
+        else:
+
+            parameters["replicates"] = longbowargs[position + 1]
+
+    # Store the jobname name
+    if (longbowargs.count("-jobname") == 1 or
+            longbowargs.count("--jobname") == 1):
+
+        try:
+
+            position = longbowargs.index("-jobname")
+
+        except ValueError:
+
+            position = longbowargs.index("--jobname")
+
+        if (position + 1 == len(longbowargs) or
+                longbowargs[position + 1].startswith("-")):
+
+            raise exceptions.CommandlineargsError(
+                "Please specify a name for the --jobname command line "
+                "parameter e.g. longbow --jobname myjob ...")
+
+        else:
+
+            parameters["jobname"] = longbowargs[position + 1]
+
+    parameters["executable"] = executable
+    parameters["executableargs"] = execargs
+
+    # -------------------------------------------------------------------------
+    # Set up logging.
+
+    # Logging should be started here such that only users of the application
+    # have logging rules and filters setup. Library users will want/need to
+    # set up their own handlers.
+
+    # If no log file name was given then default to "log".
+    if parameters["log"] is "":
+
+        parameters["log"] = "log"
+
+    # If the path isn't absolute then create the log in CWD.
+    if os.path.isabs(parameters["log"]) is False:
+
+        parameters["log"] = os.path.join(os.getcwd(), parameters["log"])
+
+    # In debug mode we would like more information and also to switch on the
+    # debug messages, otherwise stick to information level logging.
+    if mode == "debug":
+
+        logformat = logging.Formatter('%(asctime)s - %(levelname)-8s - '
+                                      '%(name)s - %(message)s',
+                                      '%Y-%m-%d %H:%M:%S')
+
+        LOG.setLevel(logging.DEBUG)
+
+    else:
+
+        logformat = logging.Formatter('%(asctime)s - %(message)s',
+                                      '%Y-%m-%d %H:%M:%S')
+
+        LOG.setLevel(logging.INFO)
+
+    # All logging types use the file handler, so append the logfile.
+    handler = logging.FileHandler(parameters["log"], mode="w")
+    handler.setFormatter(logformat)
+    LOG.addHandler(handler)
+
+    # Verbose and debugging mode need console output as well as logging to
+    # file.
+    if mode == "debug" or mode == "verbose":
+
+        handler = logging.StreamHandler()
+        handler.setFormatter(logformat)
+        LOG.addHandler(handler)
+
+    # -------------------------------------------------------------------------
+    # Setup the top level exception handler, this handler should give the user
+    # nicely formatted and understandable error messages (unless run in debug
+    # mode).
+
+    # The top level exception handler, this level is simply for the graceful
+    # exit and final reporting of errors only. All actions should have been
+    # taken by this stage.
+    try:
+
+        # Log the start up message, if the user got this far then we are ok to
+        # properly start Longbow.
+        LOG.info("Welcome to Longbow!")
+        LOG.info("This software was developed as part of the EPSRC-funded "
+                 "HECBioSim project (http://www.hecbiosim.ac.uk/)")
+        LOG.info("HECBioSim facilitates high-end biomolecular simulation "
+                 "on resources such as ARCHER")
+        LOG.info("Longbow is Copyright (C) of James T Gebbie-Rayet and "
+                 "Gareth B Shannon 2015.")
+        LOG.info("Please cite our paper: Gebbie-Rayet, J, Shannon, G, "
+                 "Loeffler, H H and Laughton, C A 2016 Longbow: A "
+                 "Lightweight Remote Job Submission Tool. Journal of "
+                 "Open Research Software, 4: e1, "
+                 "DOI: http://dx.doi.org/10.5334/jors.95")
+        LOG.info("Python version: {0}".format(PYTHONVERSION))
+        LOG.info("Longbow version: {0}".format(LONGBOWVERSION))
+        LOG.info("Longbow Commandline: {0}".format(commandline))
+
+        # Hosts - if a filename hasn't been provided default to hosts.conf
+        if parameters["hosts"] is "":
+
+            parameters["hosts"] = "hosts.conf"
+
+        # If a full absolute path has not been provided then check within the
+        # current working directory, ~/.Longbow directory and the execution
+        # directory.
+        if os.path.isabs(parameters["hosts"]) is False:
+
+            # CWD.
+            cwd = os.path.join(os.getcwd(), parameters["hosts"])
+
+            # Path for ~/.Longbow directory.
+            longbowdir = os.path.join(os.path.expanduser("~/.Longbow"),
+                                      parameters["hosts"])
+
+            # Path for exec directory.
+            execdir = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                   parameters["hosts"])
+
+            if os.path.isfile(cwd):
+
+                parameters["hosts"] = cwd
+
+            # The ~/.Longbow directory.
+            elif os.path.isfile(longbowdir):
+
+                parameters["hosts"] = longbowdir
+
+            # As a last resort, within the execution directory.
+            elif os.path.isfile(execdir):
+
+                parameters["hosts"] = execdir
+
+            else:
+
+                raise exceptions.RequiredinputError(
+                    "No host configuration file found in the current working "
+                    "directory '{0}', the execution directory '{1}' or in the "
+                    "~/.Longbow directory."
+                    .format(os.getcwd(),
+                            os.path.dirname(os.path.realpath(__file__))))
+
+        # Job - if a job configuration file has been supplied but the path
+        # hasn't look in the current working directory and then the execution
+        # directory if needs be.
+        if parameters["job"] is not "":
+
+            if os.path.isabs(parameters["job"]) is False:
+
+                # Path for CWD.
+                cwd = os.path.join(os.getcwd(), parameters["job"])
+
+                # Path for exec dir.
+                execdir = os.path.join(os.path.dirname(
+                    os.path.realpath(__file__)), parameters["job"])
+
+                if os.path.isfile(cwd):
+
+                    parameters["job"] = cwd
+
+            elif os.path.isfile(execdir):
+
+                parameters["job"] = execdir
+
+            else:
+
+                raise exceptions.RequiredinputError(
+                    "The job configuration file '{0}' couldn't be found in "
+                    "the current working directory '{1}', the execution "
+                    "directory '{2}'."
+                    .format(parameters["job"], os.getcwd(),
+                            os.path.dirname(os.path.realpath(__file__))))
+
+        LOG.info("hosts file is: '{0}'".format(parameters["hosts"]))
+
+        # ---------------------------------------------------------------------
+        # Call one of the main methods at the top level of the library.
+
+        # Are we trying to recover or are we running as normal.
+        if recover is False:
+
+            LOG.info("Initialisation complete.")
+
+            longbowmain(parameters)
+
+        else:
+
+            LOG.info("Entering recovery mode.")
+
+            recovery(recoverfile)
+
+    except Exception as err:
+
+        if mode == "debug":
+
+            LOG.exception(err)
+
+        else:
+
+            LOG.error(err)
+
+    finally:
+
+        LOG.info("Good bye from Longbow!")
+        LOG.info("Check out http://www.hecbiosim.ac.uk/ for other "
+                 "powerful biomolecular simulation software tools.")
+
+
+def longbowmain(parameters):
+
+    """
+    This method is the main entry point of the Longbow library. This method,
+    is a good place to link against Longbow if a developer does not want to
+    link against the executable, or if low level linking is over-kill.
+
+    Required arguments are:
+
+    parameters (dictionary): A dictionary containing the parameters and
+                             overrides from the command-line.
+    """
+
+    # A failure at this level will result in jobs being killed off before
+    # escalating the exception to trigger graceful exit.
+
+    # Load configurations and initialise Longbow data structures.
+    jobs = configuration.processconfigs(parameters)
+
+    # Test all connection/s specified in the job configurations
+    shellwrappers.testconnections(jobs)
+
+    # Test the hosts listed in the jobs configuration file have their
+    # scheduler environments listed, if not then test and save them.
+    scheduling.testenv(jobs, parameters["hosts"])
+
+    # Test that for the applications listed in the job configuration
+    # file are available and that the executable is present.
+    applications.testapp(jobs)
+
+    # Process the jobs command line arguments and find files for
+    # staging.
+    applications.processjobs(jobs)
+
+    # Create jobfile and add it to the list of files that needs
+    # uploading.
+    scheduling.prepare(jobs)
+
+    # Exceptions that occur before here don't require cleanup operations before
+    # reporting up.
+    try:
+
+        # Stage all of the job files along with the scheduling script.
+        staging.stage_upstream(jobs)
+
+        # Submit all jobs.
+        scheduling.submit(jobs)
+
+        # Process the disconnect function.
+        if parameters["disconnect"] is True:
+
+            raise exceptions.DisconnectException
+
+        # Monitor all jobs.
+        scheduling.monitor(jobs)
+
+        # Clean up all jobs
+        staging.cleanup(jobs)
+
+    # If the user interrupts Longbow at this stage then it they are aborting
+    # the jobs, so kill off any running jobs and then remove the job
+    # directories. Otherwise just raise all other errors to the top level where
+    # in future we can attempt to recover.
+    except (SystemExit, KeyboardInterrupt):
+
+        LOG.info(
+            "User interrupt detected, kill any queued or running jobs and "
+            "removed any files staged.")
+
+        # If we are exiting at this stage then we need to kill off
+        for item in jobs:
+
+            job = jobs[item]
+
+            if "jobid" in job and "laststatus" in job:
+
+                # If job is not finished delete and stage.
+                if (job["laststatus"] != "Finished" and
+                        job["laststatus"] != "Submit Error"):
+
+                    # Kill it.
+                    scheduling.delete(job)
+
+                    # Transfer the directories as they are.
+                    staging.stage_downstream(job)
+
+                # Job is finished then just stage.
+                elif job["laststatus"] != "Submit Error":
+
+                    # Transfer the directories as they are.
+                    staging.stage_downstream(job)
+
+        staging.cleanup(jobs)
+
+    except exceptions.DisconnectException:
+
+        LOG.info("User specified --disconnect flag on command-line, so "
+                 "Longbow will exit. You can reconnect this session by using "
+                 "the recovery file, details of this file will be listed in "
+                 "the logs")
+
+
+def recovery(recoveryfile):
+
+    """
+    This method is for attempting to recover a Longbow session. This should be
+    used in cases where jobs have been submitted and somehow Longbow failed to
+    keep running. This will try to take the recovery file, written shortly
+    after submission to recover the whole session. Jobs that are no longer in
+    the queue will be marked as finished and will be staged as normal.
+    """
+
+    LOG.info("Attempting to find the recovery files")
+
+    longbowdir = os.path.expanduser('~/.Longbow')
+    jobfile = os.path.join(longbowdir, recoveryfile)
+
+    # Load the jobs recovery file.
+    if os.path.isfile(jobfile):
+
+        LOG.info("Recovery file found at '{0}'".format(jobfile))
+
+        _, _, jobs = configuration.loadconfigs(jobfile)
+
+    else:
+
+        raise exceptions.RequiredinputError(
+            "Recovery file could not be found at '{0}' make sure you are "
+            "running the recovery from the job directory that was initially "
+            "used to launch the failed job".format(jobfile))
+
+    # Rejoin at the monitoring stage. This will assume that all jobs that are
+    # no longer in the queue have completed.
+    scheduling.monitor(jobs)
+
+    # Cleanup the remote working directory.
+    staging.cleanup(jobs)

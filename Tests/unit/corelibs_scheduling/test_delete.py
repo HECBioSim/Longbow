@@ -36,7 +36,7 @@ import Longbow.corelibs.exceptions as exceptions
 import Longbow.corelibs.scheduling as scheduling
 
 
-@mock.patch('Longbow.plugins.schedulers.lsf.delete')
+@mock.patch('Longbow.schedulers.lsf.delete')
 def test_delete_single(mock_delete):
 
     """
@@ -56,7 +56,7 @@ def test_delete_single(mock_delete):
         "For a single job this method should only be called once"
 
 
-@mock.patch('Longbow.plugins.schedulers.lsf.delete')
+@mock.patch('Longbow.schedulers.lsf.delete')
 def test_delete_attrexcept(mock_delete):
 
     """
@@ -77,7 +77,7 @@ def test_delete_attrexcept(mock_delete):
         scheduling.delete(job)
 
 
-@mock.patch('Longbow.plugins.schedulers.lsf.delete')
+@mock.patch('Longbow.schedulers.lsf.delete')
 def test_delete_deleteexcept(mock_delete):
 
     """

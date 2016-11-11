@@ -45,7 +45,7 @@ def addjobid(job):
     job["jobid"] = "123456"
 
 
-@mock.patch('Longbow.plugins.schedulers.lsf.submit')
+@mock.patch('Longbow.schedulers.lsf.submit')
 def test_checkwaitingjobs_none(mock_submit):
 
     """
@@ -69,7 +69,7 @@ def test_checkwaitingjobs_none(mock_submit):
     assert mock_submit.call_count == 0, "Should not be trying to submit"
 
 
-@mock.patch('Longbow.plugins.schedulers.lsf.submit')
+@mock.patch('Longbow.schedulers.lsf.submit')
 def test_checkwaitingjobs_one(mock_submit):
 
     """
@@ -106,7 +106,7 @@ def test_checkwaitingjobs_one(mock_submit):
     assert scheduling.QUEUEINFO["test-machine"]["queue-slots"] == "2"
 
 
-@mock.patch('Longbow.plugins.schedulers.lsf.submit')
+@mock.patch('Longbow.schedulers.lsf.submit')
 def test_checkwaitingjobs_two(mock_submit):
 
     """
@@ -142,7 +142,7 @@ def test_checkwaitingjobs_two(mock_submit):
     assert scheduling.QUEUEINFO["test-machine"]["queue-slots"] == "3"
 
 
-@mock.patch('Longbow.plugins.schedulers.lsf.submit')
+@mock.patch('Longbow.schedulers.lsf.submit')
 def test_checkwaitingjobs_except1(mock_submit):
 
     """
@@ -176,7 +176,7 @@ def test_checkwaitingjobs_except1(mock_submit):
         scheduling._checkwaitingjobs(jobs, False)
 
 
-@mock.patch('Longbow.plugins.schedulers.lsf.submit')
+@mock.patch('Longbow.schedulers.lsf.submit')
 def test_checkwaitingjobs_except2(mock_submit):
 
     """
@@ -213,7 +213,7 @@ def test_checkwaitingjobs_except2(mock_submit):
     assert jobs["jobthree"]["laststatus"] == "Submit Error"
 
 
-@mock.patch('Longbow.plugins.schedulers.lsf.submit')
+@mock.patch('Longbow.schedulers.lsf.submit')
 def test_checkwaitingjobs_except3(mock_submit):
 
     """

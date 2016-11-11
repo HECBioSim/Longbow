@@ -18,9 +18,22 @@
 # You should have received a copy of the GNU General Public License along with
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
+"""."""
 
-This is the top level of the plugin framework. Longbow only natively supports
-plugin for applications (plugins.apps) and schedulers (plugins.schedulers).
+import sys
+import os
+import pkgutil
 
-"""
+QUERY = {}
+
+PATH = os.path.dirname(__file__)
+MODULES = pkgutil.iter_modules(path=[PATH])
+
+for loader, modulename, ispkg in MODULES:
+
+    if modulename not in sys.modules:
+
+        mod = __import__("Longbow.schedulers." + modulename,
+                         fromlist=[""])
+
+        QUERY[modulename] = [getattr(mod, "QUERY_STRING")]

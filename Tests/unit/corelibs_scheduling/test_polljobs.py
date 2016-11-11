@@ -36,7 +36,7 @@ import Longbow.corelibs.exceptions as exceptions
 import Longbow.corelibs.scheduling as scheduling
 
 
-@mock.patch('Longbow.plugins.schedulers.lsf.status')
+@mock.patch('Longbow.schedulers.lsf.status')
 def test_polljobs_callcount(mock_status):
 
     """
@@ -85,7 +85,7 @@ def test_polljobs_callcount(mock_status):
     assert returnval is True
 
 
-@mock.patch('Longbow.plugins.schedulers.lsf.status')
+@mock.patch('Longbow.schedulers.lsf.status')
 def test_polljobs_finished(mock_status):
 
     """
@@ -142,7 +142,7 @@ def test_polljobs_finished(mock_status):
     assert scheduling.QUEUEINFO["test-machine"]["queue-slots"] == "0"
 
 
-@mock.patch('Longbow.plugins.schedulers.lsf.status')
+@mock.patch('Longbow.schedulers.lsf.status')
 def test_polljobs_except(mock_status):
 
     """

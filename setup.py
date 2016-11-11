@@ -66,8 +66,8 @@ setup(name='Longbow',
                    'Operating System :: POSIX',
                    'Operating System :: Unix'
                    ],
-      packages=['Longbow', 'Longbow.plugins', 'Longbow.plugins.schedulers',
-                  'Longbow.plugins.apps', 'Longbow.corelibs'],
+      packages=['Longbow', 'Longbow.schedulers', 'Longbow.apps',
+                'Longbow.corelibs'],
       scripts=['Longbow/longbow'],
       )
 

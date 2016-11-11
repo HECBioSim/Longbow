@@ -41,7 +41,7 @@ import os
 
 import Longbow.corelibs.exceptions as exceptions
 import Longbow.corelibs.shellwrappers as shellwrappers
-import Longbow.plugins.apps as apps
+import Longbow.apps as apps
 
 
 LOG = logging.getLogger("Longbow.corelibs.applications")

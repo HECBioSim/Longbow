@@ -36,7 +36,7 @@ import Longbow.corelibs.exceptions as exceptions
 import Longbow.corelibs.scheduling as scheduling
 
 
-@mock.patch('Longbow.plugins.schedulers.lsf.prepare')
+@mock.patch('Longbow.schedulers.lsf.prepare')
 def test_prepare_single(mock_prepare):
 
     """
@@ -57,7 +57,7 @@ def test_prepare_single(mock_prepare):
         "For a single job this method should only be called once"
 
 
-@mock.patch('Longbow.plugins.schedulers.lsf.prepare')
+@mock.patch('Longbow.schedulers.lsf.prepare')
 def test_prepare_multiple(mock_prepare):
 
     """
@@ -89,7 +89,7 @@ def test_prepare_multiple(mock_prepare):
         "For a multi job this method should be called once for each job"
 
 
-@mock.patch('Longbow.plugins.schedulers.lsf.prepare')
+@mock.patch('Longbow.schedulers.lsf.prepare')
 def test_prepare_attrexcept(mock_prepare):
 
     """
