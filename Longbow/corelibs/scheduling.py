@@ -596,11 +596,11 @@ def _stagejobfiles(jobs, save):
         if (jobs[job]["laststatus"] == "Running" or
                 jobs[job]["laststatus"] == "Subjob(s) running"):
 
-            staging.stage_downstream(job)
+            staging.stage_downstream(jobs[job])
 
         if jobs[job]["laststatus"] == "Finished":
 
-            staging.stage_downstream(job)
+            staging.stage_downstream(jobs[job])
 
             jobs[job]["laststatus"] = "Complete"
 
@@ -672,26 +672,27 @@ def _checkcomplete(jobs):
     Check if all the jobs are complete.
     """
 
-    allcomplete = True
-    allfinished = True
+    allfinished = False
+    allcomplete = False
+    complete = []
+    finished = []
 
-    # Find out if all jobs are finished.
     for job in jobs:
 
-        if (jobs[job]["laststatus"] != "Finished" and
-                jobs[job]["laststatus"] != "Complete" and
-                jobs[job]["laststatus"] != "Submit Error"):
+        if jobs[job]["laststatus"] != "Submit Error":
 
-            allfinished = False
-            break
+            complete.append(jobs[job]["laststatus"])
 
-    # Find out if all jobs are completed.
-    for job in jobs:
+            if jobs[job]["laststatus"] != "Complete":
 
-        if (jobs[job]["laststatus"] != "Complete" and
-                jobs[job]["laststatus"] != "Submit Error"):
+                finished.append(jobs[job]["laststatus"])
 
-            allcomplete = False
-            break
+    if all(state == "Complete" for state in complete) and len(complete) != 0:
+
+        allcomplete = True
+
+    if all(state == "Finished" for state in finished) and len(finished) != 0:
+
+        allfinished = True
 
     return allfinished, allcomplete

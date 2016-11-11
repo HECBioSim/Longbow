@@ -230,7 +230,7 @@ def processjobs(jobs):
 
             jobs[job]["upload-include"] = jobs[job]["upload-include"] + ", "
 
-        jobs[job]["upload-include"] = (jobs[job]["upload-include"] + ", "
+        jobs[job]["upload-include"] = (jobs[job]["upload-include"] +
                                        ", ".join(filelist))
 
         jobs[job]["upload-exclude"] = "*"
