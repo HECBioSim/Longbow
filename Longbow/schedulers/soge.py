@@ -78,9 +78,7 @@ def prepare(job):
     jobfile.write("#!/bin/bash --login\n"
                   "#$ -cwd -V\n")
 
-    if job["jobname"] is not "":
-
-        jobfile.write("#$ -N " + job["jobname"] + "\n")
+    jobfile.write("#$ -N " + job["jobname"] + "\n")
 
     if job["queue"] is not "":
 
@@ -214,9 +212,14 @@ def status(job):
 
         # Now match the jobid against the list of jobs, extract the line and
         # split it into a list
-        job = [line for line in stdout if job["jobid"] in line][0].split()
+        for line in stdout:
 
-        jobstate = states[job[4]]
+            line = line.split()
+
+            if job["jobid"] in line[0]:
+
+                jobstate = states[line[4]]
+                break
 
     except (IndexError, KeyError):
 
@@ -241,7 +244,7 @@ def submit(job):
 
     except exceptions.SSHError as inst:
 
-        if "per user" or "per-user" in inst.stderr:
+        if "per user" in inst.stderr or "per-user" in inst.stderr:
 
             raise exceptions.QueuemaxError
 

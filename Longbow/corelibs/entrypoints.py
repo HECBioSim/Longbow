@@ -561,9 +561,9 @@ def main():
                  "Lightweight Remote Job Submission Tool. Journal of "
                  "Open Research Software, 4: e1, "
                  "DOI: http://dx.doi.org/10.5334/jors.95")
-        LOG.info("Python version: {0}".format(PYTHONVERSION))
-        LOG.info("Longbow version: {0}".format(LONGBOWVERSION))
-        LOG.info("Longbow Commandline: {0}".format(commandline))
+        LOG.info("Python version: %s", PYTHONVERSION)
+        LOG.info("Longbow version: %s", LONGBOWVERSION)
+        LOG.info("Longbow Commandline: %s", commandline)
 
         # Hosts - if a filename hasn't been provided default to hosts.conf
         if parameters["hosts"] is "":
@@ -640,7 +640,7 @@ def main():
                     .format(parameters["job"], os.getcwd(),
                             os.path.dirname(os.path.realpath(__file__))))
 
-        LOG.info("hosts file is: '{0}'".format(parameters["hosts"]))
+        LOG.info("hosts file is: '%s'", parameters["hosts"])
 
         # ---------------------------------------------------------------------
         # Call one of the main methods at the top level of the library.
@@ -795,7 +795,7 @@ def recovery(recoveryfile):
     # Load the jobs recovery file.
     if os.path.isfile(jobfile):
 
-        LOG.info("Recovery file found at '{0}'".format(jobfile))
+        LOG.info("Recovery file found at '%s'", jobfile)
 
         _, _, jobs = configuration.loadconfigs(jobfile)
 

@@ -84,9 +84,7 @@ def prepare(job):
     jobfile.write("#!/bin/bash --login\n")
 
     # Job name (if supplied)
-    if job["jobname"] is not "":
-
-        jobfile.write("#PBS -N " + job["jobname"] + "\n")
+    jobfile.write("#PBS -N " + job["jobname"] + "\n")
 
     # Queue to submit to (if supplied)
     if job["queue"] is not "":
@@ -251,12 +249,14 @@ def status(job):
 
     try:
 
-        # Now match the jobid against the list of jobs, extract the line and
-        # split it into a list
-        job = [line for line in stdout if job["jobid"] in line][0].split()
+        for line in stdout:
 
-        # Look up the job state and convert it to Longbow terminology.
-        jobstate = states[job[9]]
+            line = line.split()
+
+            if job["jobid"] in line[0]:
+
+                jobstate = states[line[9]]
+                break
 
     except (IndexError, KeyError):
 
@@ -280,7 +280,7 @@ def submit(job):
 
     except exceptions.SSHError as inst:
 
-        if "would exceed" and "per-user limit" in inst.stderr:
+        if "would exceed" in inst.stderr and "per-user limit" in inst.stderr:
 
             raise exceptions.QueuemaxError
 

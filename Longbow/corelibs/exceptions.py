@@ -214,21 +214,6 @@ class LocallistError(Exception):
         self.path = path
 
 
-class ProtocolError(Exception):
-
-    """
-    Unknown protocol exception.
-    """
-
-    def __init__(self, message, protocol):
-
-        # Call the base class constructor.
-        super(ProtocolError, self).__init__(message)
-
-        # Bind the standard outputs.
-        self.path = protocol
-
-
 class RemotecopyError(Exception):
 
     """

@@ -75,18 +75,16 @@ def prepare(job):
     # Write the PBS script
     jobfile.write("#!/bin/bash --login\n")
 
-    if job["jobname"] is not "":
+    # Single job
+    if int(job["replicates"]) == 1:
 
-        # Single job
-        if int(job["replicates"]) == 1:
+        jobfile.write("#BSUB -J " + job["jobname"] + "\n")
 
-            jobfile.write("#BSUB -J " + job["jobname"] + "\n")
+    # Job array
+    elif int(job["replicates"]) > 1:
 
-        # Job array
-        elif int(job["replicates"]) > 1:
-
-            jobfile.write("#BSUB -J " + job["jobname"] + "[1-" +
-                          job["replicates"] + "]\n")
+        jobfile.write("#BSUB -J " + job["jobname"] + "[1-" +
+                      job["replicates"] + "]\n")
 
     if job["queue"] is not "":
 
@@ -205,9 +203,14 @@ def status(job):
 
         # Now match the jobid against the list of jobs, extract the line and
         # split it into a list
-        job = [line for line in stdout if job["jobid"] in line][0].split()
+        for line in stdout:
 
-        jobstate = states[job[2]]
+            line = line.split()
+
+            if job["jobid"] in line[0]:
+
+                jobstate = states[line[2]]
+                break
 
     except (IndexError, KeyError):
 

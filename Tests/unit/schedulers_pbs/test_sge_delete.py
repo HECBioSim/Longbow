@@ -1,4 +1,3 @@
-
 # Longbow is Copyright (C) of James T Gebbie-Rayet and Gareth B Shannon 2015.
 #
 # This file is part of the Longbow software which was developed as part of the
@@ -20,7 +19,7 @@
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This test module contains tests for the PBS scheduler plugin.
+This test module contains tests for the SGE scheduler plugin.
 """
 
 try:
@@ -34,23 +33,46 @@ except ImportError:
 import pytest
 
 import Longbow.corelibs.exceptions as exceptions
-import Longbow.schedulers.pbs as pbs
+import Longbow.schedulers.sge as sge
 
 
 @mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
-def test_submit_except1(mock_ssh):
+def test_delete_test1(mock_ssh):
 
     """
+    Test if job id is grabbed.
     """
 
     job = {
-        "destdir": "/path/to/destdir",
-        "subfile": "submit.file"
+        "jobid": "12345",
+        "replicates": "1"
     }
 
-    mock_ssh.side_effect = exceptions.SSHError("Error", ("out", "err", 0))
-    mock_ssh.return_value = ("success", "error", 0)
+    mock_ssh.return_value = ("Success", "", 0)
 
-    with pytest.raises(exceptions.JobsubmitError):
+    output = sge.delete(job)
 
-        pbs.submit(job)
+    args = mock_ssh.call_args[0][1]
+
+    assert output == "Success"
+    assert " ".join(args) == "qdel 12345"
+
+
+@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+def test_delete_except1(mock_ssh):
+
+    """
+    Test if Queuemax exception is triggered based on output from scheduler.
+    """
+
+    job = {
+        "jobid": "12345",
+        "replicates": "1"
+    }
+
+    mock_ssh.side_effect = exceptions.SSHError(
+        "Error", ("out", "", 0))
+
+    with pytest.raises(exceptions.JobdeleteError):
+
+        sge.delete(job)
