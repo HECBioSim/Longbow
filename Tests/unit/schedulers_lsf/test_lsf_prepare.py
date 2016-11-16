@@ -22,32 +22,274 @@
 This test module contains tests for the LSF scheduler plugin.
 """
 
-try:
-
-    from unittest import mock
-
-except ImportError:
-
-    import mock
-
-import pytest
 import os
-
-import Longbow.corelibs.exceptions as exceptions
 import Longbow.schedulers.lsf as lsf
 
 
 def test_prepare_case1():
 
     """
+    Simple test
     """
 
-    jobfile = open("/tmp/submit.lsf", "w+")
+    job = {
+        "account": "",
+        "cluster": "",
+        "cores": "24",
+        "executableargs": "pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out",
+        "handler": "mpirun",
+        "email-address": "",
+        "email-flags": "",
+        "jobname": "testjob",
+        "localworkdir": "/tmp",
+        "maxtime": "24:00",
+        "modules": "amber",
+        "queue": "debug",
+        "replicates": "1",
+        "scripts": "",
+        "upload-include": "file1, file2"
+    }
 
-    jobfile.write("line 1\n")
-    jobfile.write("line 2\n")
-    jobfile.write("line 3")
+    lsf.prepare(job)
 
-    jobfile.close()
+    assert job["subfile"] == "submit.lsf"
+    assert job["upload-include"] == "file1, file2, submit.lsf"
+    assert open("/tmp/submit.lsf", "rb").read() == open(
+        os.path.join(os.getcwd(),
+                     "Tests/standards/lsfsubfile_testcase1.txt"), "rb").read()
 
-    assert open("/tmp/submit.lsf", "rb").read() == open(os.path.join(os.getcwd(), "Tests/standards/testcase1.txt"), "rb").read()
+
+def test_prepare_case2():
+
+    """
+    Test replicates
+    """
+
+    job = {
+        "account": "",
+        "cluster": "",
+        "cores": "24",
+        "executableargs": "pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out",
+        "handler": "mpirun",
+        "email-address": "",
+        "email-flags": "",
+        "jobname": "testjob",
+        "localworkdir": "/tmp",
+        "maxtime": "24:00",
+        "modules": "amber",
+        "queue": "debug",
+        "replicates": "5",
+        "scripts": "",
+        "upload-include": "file1, file2"
+    }
+
+    lsf.prepare(job)
+
+    assert job["subfile"] == "submit.lsf"
+    assert job["upload-include"] == "file1, file2, submit.lsf"
+    assert open("/tmp/submit.lsf", "rb").read() == open(
+        os.path.join(os.getcwd(),
+                     "Tests/standards/lsfsubfile_testcase2.txt"), "rb").read()
+
+
+def test_prepare_case3():
+
+    """
+    Test cluster parameter
+    """
+
+    job = {
+        "account": "",
+        "cluster": "cluster1",
+        "cores": "24",
+        "executableargs": "pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out",
+        "handler": "mpirun",
+        "email-address": "",
+        "email-flags": "",
+        "jobname": "testjob",
+        "localworkdir": "/tmp",
+        "maxtime": "24:00",
+        "modules": "amber",
+        "queue": "debug",
+        "replicates": "1",
+        "scripts": "",
+        "upload-include": "file1, file2"
+    }
+
+    lsf.prepare(job)
+
+    assert job["subfile"] == "submit.lsf"
+    assert job["upload-include"] == "file1, file2, submit.lsf"
+    assert open("/tmp/submit.lsf", "rb").read() == open(
+        os.path.join(os.getcwd(),
+                     "Tests/standards/lsfsubfile_testcase3.txt"), "rb").read()
+
+
+def test_prepare_case4():
+
+    """
+    Test account parameter
+    """
+
+    job = {
+        "account": "accno1234",
+        "accountflag": "",
+        "cluster": "",
+        "cores": "24",
+        "executableargs": "pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out",
+        "handler": "mpirun",
+        "email-address": "",
+        "email-flags": "",
+        "jobname": "testjob",
+        "localworkdir": "/tmp",
+        "maxtime": "24:00",
+        "modules": "amber",
+        "queue": "debug",
+        "replicates": "1",
+        "scripts": "",
+        "upload-include": "file1, file2"
+    }
+
+    lsf.prepare(job)
+
+    assert job["subfile"] == "submit.lsf"
+    assert job["upload-include"] == "file1, file2, submit.lsf"
+    assert open("/tmp/submit.lsf", "rb").read() == open(
+        os.path.join(os.getcwd(),
+                     "Tests/standards/lsfsubfile_testcase4.txt"), "rb").read()
+
+
+def test_prepare_case5():
+
+    """
+    Test account parameter
+    """
+
+    job = {
+        "account": "accno1234",
+        "accountflag": "-F",
+        "cluster": "",
+        "cores": "24",
+        "executableargs": "pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out",
+        "handler": "mpirun",
+        "email-address": "",
+        "email-flags": "",
+        "jobname": "testjob",
+        "localworkdir": "/tmp",
+        "maxtime": "24:00",
+        "modules": "amber",
+        "queue": "debug",
+        "replicates": "1",
+        "scripts": "",
+        "upload-include": "file1, file2"
+    }
+
+    lsf.prepare(job)
+
+    assert job["subfile"] == "submit.lsf"
+    assert job["upload-include"] == "file1, file2, submit.lsf"
+    assert open("/tmp/submit.lsf", "rb").read() == open(
+        os.path.join(os.getcwd(),
+                     "Tests/standards/lsfsubfile_testcase5.txt"), "rb").read()
+
+
+def test_prepare_case6():
+
+    """
+    Test email parameters
+    """
+
+    job = {
+        "account": "",
+        "accountflag": "",
+        "cluster": "",
+        "cores": "24",
+        "executableargs": "pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out",
+        "handler": "mpirun",
+        "email-address": "test.email@server.com",
+        "email-flags": "-B",
+        "jobname": "testjob",
+        "localworkdir": "/tmp",
+        "maxtime": "24:00",
+        "modules": "amber",
+        "queue": "debug",
+        "replicates": "1",
+        "scripts": "",
+        "upload-include": "file1, file2"
+    }
+
+    lsf.prepare(job)
+
+    assert job["subfile"] == "submit.lsf"
+    assert job["upload-include"] == "file1, file2, submit.lsf"
+    assert open("/tmp/submit.lsf", "rb").read() == open(
+        os.path.join(os.getcwd(),
+                     "Tests/standards/lsfsubfile_testcase6.txt"), "rb").read()
+
+
+def test_prepare_case7():
+
+    """
+    Test email parameters
+    """
+
+    job = {
+        "account": "",
+        "accountflag": "",
+        "cluster": "",
+        "cores": "24",
+        "executableargs": "pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out",
+        "handler": "mpirun",
+        "email-address": "",
+        "email-flags": "",
+        "jobname": "testjob",
+        "localworkdir": "/tmp",
+        "maxtime": "24:00",
+        "modules": "amber",
+        "queue": "debug",
+        "replicates": "1",
+        "scripts": "ls /dir, cd /dir",
+        "upload-include": "file1, file2"
+    }
+
+    lsf.prepare(job)
+
+    assert job["subfile"] == "submit.lsf"
+    assert job["upload-include"] == "file1, file2, submit.lsf"
+    assert open("/tmp/submit.lsf", "rb").read() == open(
+        os.path.join(os.getcwd(),
+                     "Tests/standards/lsfsubfile_testcase7.txt"), "rb").read()
+
+
+def test_prepare_case8():
+
+    """
+    Test email parameters
+    """
+
+    job = {
+        "account": "",
+        "accountflag": "",
+        "cluster": "",
+        "cores": "24",
+        "executableargs": "pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out",
+        "handler": "mpiexec.hydra",
+        "email-address": "",
+        "email-flags": "",
+        "jobname": "testjob",
+        "localworkdir": "/tmp",
+        "maxtime": "24:00",
+        "modules": "amber",
+        "queue": "debug",
+        "replicates": "1",
+        "scripts": "",
+        "upload-include": "file1, file2"
+    }
+
+    lsf.prepare(job)
+
+    assert job["subfile"] == "submit.lsf"
+    assert job["upload-include"] == "file1, file2, submit.lsf"
+    assert open("/tmp/submit.lsf", "rb").read() == open(
+        os.path.join(os.getcwd(),
+                     "Tests/standards/lsfsubfile_testcase8.txt"), "rb").read()

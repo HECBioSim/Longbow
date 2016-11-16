@@ -40,7 +40,7 @@ import Longbow.schedulers.lsf as lsf
 def test_delete_test1(mock_ssh):
 
     """
-    Test if job id is grabbed.
+    Test if job kill message gets sent to ssh.
     """
 
     job = {
@@ -62,7 +62,7 @@ def test_delete_test1(mock_ssh):
 def test_delete_except1(mock_ssh):
 
     """
-    Test if Queuemax exception is triggered based on output from scheduler.
+    Test if jobdelete exception is triggered based on output from scheduler.
     """
 
     job = {

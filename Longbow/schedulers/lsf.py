@@ -127,9 +127,11 @@ def prepare(job):
 
         if len(scripts) > 0:
 
+            jobfile.write("\n")
+
             for item in scripts:
 
-                jobfile.write(item.strip() + "\n\n")
+                jobfile.write(item.strip() + "\n")
 
     if job["modules"] is not "":
 
