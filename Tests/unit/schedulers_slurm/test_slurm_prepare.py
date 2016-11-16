@@ -22,16 +22,7 @@
 This test module contains tests for the slurm scheduler plugin.
 """
 
-try:
-
-    from unittest import mock
-
-except ImportError:
-
-    import mock
-
-import pytest
-
-import Longbow.corelibs.exceptions as exceptions
+import os
 import Longbow.schedulers.slurm as slurm
+
 

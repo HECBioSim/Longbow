@@ -71,7 +71,7 @@ def prepare(job):
     """
 
     # Open file for SGE script.
-    sgefile = os.path.join(job["localworkdir"], "submit.sge")
+    sgefile = os.path.join(job["localworkdir"], "submit.soge")
     jobfile = open(sgefile, "w+")
 
     # Write the PBS script
@@ -152,7 +152,9 @@ def prepare(job):
 
             for item in scripts:
 
-                jobfile.write(item.strip() + "\n\n")
+                jobfile.write(item.strip() + "\n")
+
+            jobfile.write("\n")
 
     if job["modules"] is not "":
 
@@ -178,8 +180,8 @@ def prepare(job):
     jobfile.close()
 
     # Append lsf file to list of files ready for staging.
-    job["upload-include"] = job["upload-include"] + ", submit.sge"
-    job["subfile"] = "submit.sge"
+    job["upload-include"] = job["upload-include"] + ", submit.soge"
+    job["subfile"] = "submit.soge"
 
 
 def status(job):

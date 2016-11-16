@@ -1,4 +1,3 @@
-
 # Longbow is Copyright (C) of James T Gebbie-Rayet and Gareth B Shannon 2015.
 #
 # This file is part of the Longbow software which was developed as part of the
@@ -23,16 +22,257 @@
 This test module contains tests for the SoGE scheduler plugin.
 """
 
-try:
-
-    from unittest import mock
-
-except ImportError:
-
-    import mock
-
-import pytest
-
-import Longbow.corelibs.exceptions as exceptions
+import os
 import Longbow.schedulers.soge as soge
 
+
+def test_prepare_case1():
+
+    """
+    Simple test
+    """
+
+    job = {
+        "account": "",
+        "cluster": "",
+        "cores": "24",
+        "corespernode": "24",
+        "executableargs": "pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out",
+        "handler": "mpirun",
+        "email-address": "",
+        "email-flags": "",
+        "jobname": "testjob",
+        "localworkdir": "/tmp",
+        "maxtime": "24:00",
+        "memory": "",
+        "modules": "amber",
+        "queue": "debug",
+        "replicates": "1",
+        "scripts": "",
+        "sge-peflag": "mpi",
+        "sge-peoverride": "false",
+        "upload-include": "file1, file2"
+    }
+
+    soge.prepare(job)
+
+    assert job["subfile"] == "submit.soge"
+    assert job["upload-include"] == "file1, file2, submit.soge"
+    assert open("/tmp/submit.soge", "rb").read() == open(
+        os.path.join(os.getcwd(),
+                     "Tests/standards/sogesubfile_testcase1.txt"), "rb").read()
+
+
+def test_prepare_case2():
+
+    """
+    Test replicates
+    """
+
+    job = {
+        "account": "",
+        "cluster": "",
+        "cores": "24",
+        "corespernode": "24",
+        "executableargs": "pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out",
+        "handler": "mpirun",
+        "email-address": "",
+        "email-flags": "",
+        "jobname": "testjob",
+        "localworkdir": "/tmp",
+        "maxtime": "24:00",
+        "memory": "",
+        "modules": "amber",
+        "queue": "debug",
+        "replicates": "5",
+        "scripts": "",
+        "sge-peflag": "mpi",
+        "sge-peoverride": "false",
+        "upload-include": "file1, file2"
+    }
+
+    soge.prepare(job)
+
+    assert open("/tmp/submit.soge", "rb").read() == open(
+        os.path.join(os.getcwd(),
+                     "Tests/standards/sogesubfile_testcase2.txt"), "rb").read()
+
+
+def test_prepare_case3():
+
+    """
+    Test account parameter
+    """
+
+    job = {
+        "account": "accno1234",
+        "accountflag": "",
+        "cluster": "",
+        "cores": "24",
+        "corespernode": "24",
+        "executableargs": "pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out",
+        "handler": "mpirun",
+        "email-address": "",
+        "email-flags": "",
+        "jobname": "testjob",
+        "localworkdir": "/tmp",
+        "maxtime": "24:00",
+        "memory": "",
+        "modules": "amber",
+        "queue": "debug",
+        "replicates": "1",
+        "scripts": "",
+        "sge-peflag": "mpi",
+        "sge-peoverride": "false",
+        "upload-include": "file1, file2"
+    }
+
+    soge.prepare(job)
+
+    assert open("/tmp/submit.soge", "rb").read() == open(
+        os.path.join(os.getcwd(),
+                     "Tests/standards/sogesubfile_testcase3.txt"), "rb").read()
+
+
+def test_prepare_case4():
+
+    """
+    Test account parameter
+    """
+
+    job = {
+        "account": "accno1234",
+        "accountflag": "-P",
+        "cluster": "",
+        "cores": "24",
+        "corespernode": "24",
+        "executableargs": "pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out",
+        "handler": "mpirun",
+        "email-address": "",
+        "email-flags": "",
+        "jobname": "testjob",
+        "localworkdir": "/tmp",
+        "maxtime": "24:00",
+        "memory": "",
+        "modules": "amber",
+        "queue": "debug",
+        "replicates": "1",
+        "scripts": "",
+        "sge-peflag": "mpi",
+        "sge-peoverride": "false",
+        "upload-include": "file1, file2"
+    }
+
+    soge.prepare(job)
+
+    assert open("/tmp/submit.soge", "rb").read() == open(
+        os.path.join(os.getcwd(),
+                     "Tests/standards/sogesubfile_testcase4.txt"), "rb").read()
+
+
+def test_prepare_case5():
+
+    """
+    Test email parameters
+    """
+
+    job = {
+        "account": "",
+        "accountflag": "",
+        "cluster": "",
+        "cores": "24",
+        "corespernode": "24",
+        "executableargs": "pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out",
+        "handler": "mpirun",
+        "email-address": "test.email@server.com",
+        "email-flags": "bn",
+        "jobname": "testjob",
+        "localworkdir": "/tmp",
+        "maxtime": "24:00",
+        "memory": "",
+        "modules": "amber",
+        "queue": "debug",
+        "replicates": "1",
+        "scripts": "",
+        "sge-peflag": "mpi",
+        "sge-peoverride": "false",
+        "upload-include": "file1, file2"
+    }
+
+    soge.prepare(job)
+
+    assert open("/tmp/submit.soge", "rb").read() == open(
+        os.path.join(os.getcwd(),
+                     "Tests/standards/sogesubfile_testcase5.txt"), "rb").read()
+
+
+def test_prepare_case6():
+
+    """
+    Test script parameters
+    """
+
+    job = {
+        "account": "",
+        "accountflag": "",
+        "cluster": "",
+        "cores": "24",
+        "corespernode": "24",
+        "executableargs": "pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out",
+        "handler": "mpirun",
+        "email-address": "",
+        "email-flags": "",
+        "jobname": "testjob",
+        "localworkdir": "/tmp",
+        "maxtime": "24:00",
+        "memory": "",
+        "modules": "amber",
+        "queue": "debug",
+        "replicates": "1",
+        "scripts": "ls /dir, cd /dir",
+        "sge-peflag": "mpi",
+        "sge-peoverride": "false",
+        "upload-include": "file1, file2"
+    }
+
+    soge.prepare(job)
+
+    assert open("/tmp/submit.soge", "rb").read() == open(
+        os.path.join(os.getcwd(),
+                     "Tests/standards/sogesubfile_testcase6.txt"), "rb").read()
+
+
+def test_prepare_case7():
+
+    """
+    Test under subscription
+    """
+
+    job = {
+        "account": "",
+        "accountflag": "",
+        "cluster": "",
+        "cores": "12",
+        "corespernode": "24",
+        "executableargs": "pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out",
+        "handler": "mpiexec",
+        "email-address": "",
+        "email-flags": "",
+        "jobname": "testjob",
+        "localworkdir": "/tmp",
+        "maxtime": "24:00",
+        "memory": "",
+        "modules": "amber",
+        "queue": "debug",
+        "replicates": "1",
+        "scripts": "",
+        "sge-peflag": "mpi",
+        "sge-peoverride": "false",
+        "upload-include": "file1, file2"
+    }
+
+    soge.prepare(job)
+
+    assert open("/tmp/submit.soge", "rb").read() == open(
+        os.path.join(os.getcwd(),
+                     "Tests/standards/sogesubfile_testcase7.txt"), "rb").read()
