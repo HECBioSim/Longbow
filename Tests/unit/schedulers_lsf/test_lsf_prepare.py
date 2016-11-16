@@ -85,8 +85,6 @@ def test_prepare_case2():
 
     lsf.prepare(job)
 
-    assert job["subfile"] == "submit.lsf"
-    assert job["upload-include"] == "file1, file2, submit.lsf"
     assert open("/tmp/submit.lsf", "rb").read() == open(
         os.path.join(os.getcwd(),
                      "Tests/standards/lsfsubfile_testcase2.txt"), "rb").read()
@@ -118,8 +116,6 @@ def test_prepare_case3():
 
     lsf.prepare(job)
 
-    assert job["subfile"] == "submit.lsf"
-    assert job["upload-include"] == "file1, file2, submit.lsf"
     assert open("/tmp/submit.lsf", "rb").read() == open(
         os.path.join(os.getcwd(),
                      "Tests/standards/lsfsubfile_testcase3.txt"), "rb").read()
@@ -152,8 +148,6 @@ def test_prepare_case4():
 
     lsf.prepare(job)
 
-    assert job["subfile"] == "submit.lsf"
-    assert job["upload-include"] == "file1, file2, submit.lsf"
     assert open("/tmp/submit.lsf", "rb").read() == open(
         os.path.join(os.getcwd(),
                      "Tests/standards/lsfsubfile_testcase4.txt"), "rb").read()
@@ -186,8 +180,6 @@ def test_prepare_case5():
 
     lsf.prepare(job)
 
-    assert job["subfile"] == "submit.lsf"
-    assert job["upload-include"] == "file1, file2, submit.lsf"
     assert open("/tmp/submit.lsf", "rb").read() == open(
         os.path.join(os.getcwd(),
                      "Tests/standards/lsfsubfile_testcase5.txt"), "rb").read()
@@ -220,8 +212,6 @@ def test_prepare_case6():
 
     lsf.prepare(job)
 
-    assert job["subfile"] == "submit.lsf"
-    assert job["upload-include"] == "file1, file2, submit.lsf"
     assert open("/tmp/submit.lsf", "rb").read() == open(
         os.path.join(os.getcwd(),
                      "Tests/standards/lsfsubfile_testcase6.txt"), "rb").read()
@@ -230,7 +220,7 @@ def test_prepare_case6():
 def test_prepare_case7():
 
     """
-    Test email parameters
+    Test script parameters
     """
 
     job = {
@@ -254,8 +244,6 @@ def test_prepare_case7():
 
     lsf.prepare(job)
 
-    assert job["subfile"] == "submit.lsf"
-    assert job["upload-include"] == "file1, file2, submit.lsf"
     assert open("/tmp/submit.lsf", "rb").read() == open(
         os.path.join(os.getcwd(),
                      "Tests/standards/lsfsubfile_testcase7.txt"), "rb").read()
@@ -264,7 +252,7 @@ def test_prepare_case7():
 def test_prepare_case8():
 
     """
-    Test email parameters
+    Test handler parameters
     """
 
     job = {
@@ -288,8 +276,6 @@ def test_prepare_case8():
 
     lsf.prepare(job)
 
-    assert job["subfile"] == "submit.lsf"
-    assert job["upload-include"] == "file1, file2, submit.lsf"
     assert open("/tmp/submit.lsf", "rb").read() == open(
         os.path.join(os.getcwd(),
                      "Tests/standards/lsfsubfile_testcase8.txt"), "rb").read()

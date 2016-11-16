@@ -1,0 +1,18 @@
+#!/bin/bash --login
+#PBS -N testjob
+#PBS -q debug
+#PBS -l select=1:ncpus=24:mpiprocs=24
+#PBS -l walltime=24:00:00
+#PBS -J 1-5
+#PBS -r y
+
+export PBS_O_WORKDIR=$(readlink -f $PBS_O_WORKDIR)
+cd $PBS_O_WORKDIR
+export OMP_NUM_THREADS=1
+
+module load amber
+
+basedir=$PBS_O_WORKDIR 
+cd $basedir/rep${PBS_ARRAY_INDEX}/
+
+mpirun pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out
