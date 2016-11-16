@@ -127,7 +127,9 @@ def prepare(job):
 
             for item in scripts:
 
-                jobfile.write(item.strip() + "\n\n")
+                jobfile.write(item.strip() + "\n")
+
+            jobfile.write("\n")
 
     # Add in module to be loaded.
     if job["modules"] is not "":

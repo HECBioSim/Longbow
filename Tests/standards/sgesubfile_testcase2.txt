@@ -1,0 +1,12 @@
+#!/bin/bash --login
+#$ -cwd -V
+#$ -N testjob
+#$ -q debug
+#$ -l h_rt=24:00:00
+#$ -t 1-5
+#$ -pe mpi 24
+
+module load amber
+
+cd rep${SGE_TASK_ID}/
+mpirun -n 24 pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out
