@@ -133,7 +133,9 @@ def prepare(job):
 
             for item in scripts:
 
-                jobfile.write(item.strip() + "\n\n")
+                jobfile.write(item.strip() + "\n")
+
+            jobfile.write("\n")
 
     # Load up modules if required.
     if job["modules"] is not "":

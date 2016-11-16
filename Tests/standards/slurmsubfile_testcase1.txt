@@ -1,0 +1,10 @@
+#!/bin/bash --login
+#SBATCH -J testjob
+#SBATCH -p debug
+#SBATCH -n 24
+#SBATCH -N 1
+#SBATCH -t 24:00:00
+
+module load amber
+
+mpirun pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out
