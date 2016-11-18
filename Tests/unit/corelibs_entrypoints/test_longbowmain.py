@@ -43,8 +43,9 @@ import Longbow.corelibs.entrypoints as mains
 @mock.patch('Longbow.corelibs.scheduling.testenv')
 @mock.patch('Longbow.corelibs.shellwrappers.testconnections')
 @mock.patch('Longbow.corelibs.configuration.processconfigs')
-def test_recovery_disconnect(m_procconf, m_testcon, m_testenv, m_testapp,
-                             m_procjob, m_schedprep, m_stagup, m_sub, m_clean):
+def test_longbowmain_disconnect(m_procconf, m_testcon, m_testenv, m_testapp,
+                                m_procjob, m_schedprep, m_stagup, m_sub,
+                                m_clean):
 
     """
     Check that the disconnect mode is activated.
@@ -78,9 +79,9 @@ def test_recovery_disconnect(m_procconf, m_testcon, m_testenv, m_testapp,
 @mock.patch('Longbow.corelibs.scheduling.testenv')
 @mock.patch('Longbow.corelibs.shellwrappers.testconnections')
 @mock.patch('Longbow.corelibs.configuration.processconfigs')
-def test_recovery_testcalls(m_procconf, m_testcon, m_testenv, m_testapp,
-                            m_procjob, m_schedprep, m_stagup, m_sub, m_mon,
-                            m_clean):
+def test_longbowmain_testcalls(m_procconf, m_testcon, m_testenv, m_testapp,
+                               m_procjob, m_schedprep, m_stagup, m_sub, m_mon,
+                               m_clean):
 
     """
     Check that the correct function calls are made.
@@ -117,9 +118,9 @@ def test_recovery_testcalls(m_procconf, m_testcon, m_testenv, m_testapp,
 @mock.patch('Longbow.corelibs.scheduling.testenv')
 @mock.patch('Longbow.corelibs.shellwrappers.testconnections')
 @mock.patch('Longbow.corelibs.configuration.processconfigs')
-def test_recovery_killrunning(m_procconf, m_testcon, m_testenv, m_testapp,
-                              m_procjob, m_schedprep, m_stagup, m_sub, m_mon,
-                              m_del, m_stagdown, m_clean):
+def test_longbowmain_killrunning(m_procconf, m_testcon, m_testenv, m_testapp,
+                                 m_procjob, m_schedprep, m_stagup, m_sub,
+                                 m_mon, m_del, m_stagdown, m_clean):
 
     """
     Check that the correct function calls are made.
@@ -169,9 +170,9 @@ def test_recovery_killrunning(m_procconf, m_testcon, m_testenv, m_testapp,
 @mock.patch('Longbow.corelibs.scheduling.testenv')
 @mock.patch('Longbow.corelibs.shellwrappers.testconnections')
 @mock.patch('Longbow.corelibs.configuration.processconfigs')
-def test_recovery_killcomplete(m_procconf, m_testcon, m_testenv, m_testapp,
-                               m_procjob, m_schedprep, m_stagup, m_sub, m_mon,
-                               m_del, m_stagdown, m_clean):
+def test_longbowmain_killcomplete(m_procconf, m_testcon, m_testenv, m_testapp,
+                                  m_procjob, m_schedprep, m_stagup, m_sub,
+                                  m_mon, m_del, m_stagdown, m_clean):
 
     """
     Check that the correct function calls are made.

@@ -23,6 +23,8 @@ This testing module contains the tests for the main method within the
 entrypoint module.
 """
 
+import sys
+
 try:
 
     from unittest import mock
@@ -35,3 +37,16 @@ import pytest
 
 import Longbow.corelibs.exceptions as exceptions
 import Longbow.corelibs.entrypoints as mains
+
+
+# def test_main_unrecognisedflag():
+# 
+#     """
+#     Check that the disconnect mode is activated.
+#     """
+# 
+#     with mock.patch.object(sys, "argv", ["longbow", "-flag1"]):
+# 
+#         with pytest.raises(exceptions.CommandlineargsError):
+# 
+#             mains.main()
