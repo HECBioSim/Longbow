@@ -19,7 +19,8 @@
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This testing module contains the tests for the scheduling module methods.
+This testing module contains the tests for the delete method within the
+scheduling module.
 """
 
 try:

@@ -19,8 +19,8 @@
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This testing module contains the tests for the stage_downstream method within
-the staging module.
+This testing module contains the tests for the recovery method within the
+entrypoint module.
 """
 
 try:
@@ -34,44 +34,41 @@ except ImportError:
 import pytest
 
 import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.staging as staging
+import Longbow.corelibs.entrypoints as mains
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.download')
-def test_stage_downstream_except(mock_download):
-
-    """
-    Test if staging exception is correctly raised if rsync exception happens.
-    """
-
-    job = {
-        "jobname": "jobone",
-        "destdir": "/path/to/jobone12484",
-        "localworkdir": "/path/to/local/dir"
-    }
-
-    mock_download.side_effect = exceptions.RsyncError("Rsync Error", "output")
-
-    with pytest.raises(exceptions.StagingError):
-
-        staging.stage_downstream(job)
-
-
-@mock.patch('Longbow.corelibs.shellwrappers.download')
-def test_stage_downstream_params(mock_download):
+@mock.patch('Longbow.corelibs.configuration.loadconfigs')
+@mock.patch('Longbow.corelibs.staging.cleanup')
+@mock.patch('Longbow.corelibs.scheduling.monitor')
+@mock.patch('os.path.isfile')
+def test_recovery_check(mock_file, mock_mon, mock_clean, mock_load):
 
     """
-    Test that a dict actually makes it to the download method.
+    Check that the correct function calls are made.
     """
 
-    job = {
-        "jobname": "jobone",
-        "destdir": "/path/to/jobone12484",
-        "localworkdir": "/path/to/local/dir"
-    }
+    mock_file.return_value = True
+    mock_load.return_value = ("", "", "testjobs")
 
-    staging.stage_downstream(job)
+    mains.recovery("recovery.file")
 
-    downloadarg1 = mock_download.call_args[0][0]
+    assert mock_mon.call_args[0][0] == "testjobs"
+    assert mock_clean.call_args[0][0] == "testjobs"
 
-    assert isinstance(downloadarg1, dict)
+
+@mock.patch('Longbow.corelibs.staging.cleanup')
+@mock.patch('Longbow.corelibs.scheduling.monitor')
+@mock.patch('os.path.isfile')
+def test_recovery_except(mock_isfile, mock_monitor, mock_cleanup):
+
+    """
+    Check that exception is raised on bad file.
+    """
+
+    mock_isfile.return_value = False
+    mock_monitor.return_value = None
+    mock_cleanup.return_value = None
+
+    with pytest.raises(exceptions.RequiredinputError):
+
+        mains.recovery("recovery.file")

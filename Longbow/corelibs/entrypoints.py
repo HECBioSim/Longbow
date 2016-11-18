@@ -749,10 +749,10 @@ def longbowmain(parameters):
 
             job = jobs[item]
 
-            if "jobid" in job and "laststatus" in job:
+            if "laststatus" in job:
 
                 # If job is not finished delete and stage.
-                if (job["laststatus"] != "Finished" and
+                if (job["laststatus"] != "Complete" and
                         job["laststatus"] != "Submit Error"):
 
                     # Kill it.

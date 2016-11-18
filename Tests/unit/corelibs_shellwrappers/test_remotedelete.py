@@ -19,7 +19,8 @@
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This testing module contains the tests for the shellwrappers module methods.
+This testing module contains the tests for the remotedelete method within the
+shellwrappers module.
 """
 
 try:

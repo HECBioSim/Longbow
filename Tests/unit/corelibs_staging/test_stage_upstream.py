@@ -19,7 +19,8 @@
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This testing module contains the tests for the staging module methods.
+This testing module contains the tests for the stage_upstream method within
+the staging module.
 """
 
 try:

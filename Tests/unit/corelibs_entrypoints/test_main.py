@@ -19,8 +19,8 @@
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This testing module contains the tests for the stage_downstream method within
-the staging module.
+This testing module contains the tests for the main method within the
+entrypoint module.
 """
 
 try:
@@ -34,44 +34,4 @@ except ImportError:
 import pytest
 
 import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.staging as staging
-
-
-@mock.patch('Longbow.corelibs.shellwrappers.download')
-def test_stage_downstream_except(mock_download):
-
-    """
-    Test if staging exception is correctly raised if rsync exception happens.
-    """
-
-    job = {
-        "jobname": "jobone",
-        "destdir": "/path/to/jobone12484",
-        "localworkdir": "/path/to/local/dir"
-    }
-
-    mock_download.side_effect = exceptions.RsyncError("Rsync Error", "output")
-
-    with pytest.raises(exceptions.StagingError):
-
-        staging.stage_downstream(job)
-
-
-@mock.patch('Longbow.corelibs.shellwrappers.download')
-def test_stage_downstream_params(mock_download):
-
-    """
-    Test that a dict actually makes it to the download method.
-    """
-
-    job = {
-        "jobname": "jobone",
-        "destdir": "/path/to/jobone12484",
-        "localworkdir": "/path/to/local/dir"
-    }
-
-    staging.stage_downstream(job)
-
-    downloadarg1 = mock_download.call_args[0][0]
-
-    assert isinstance(downloadarg1, dict)
+import Longbow.corelibs.entrypoints as mains
