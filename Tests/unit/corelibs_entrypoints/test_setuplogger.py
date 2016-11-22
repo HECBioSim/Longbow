@@ -23,17 +23,77 @@ This testing module contains the tests for the main method within the
 entrypoint module.
 """
 
-import os
+import logging
 
-try:
-
-    from unittest import mock
-
-except ImportError:
-
-    import mock
-
-import pytest
-
-import Longbow.corelibs.exceptions as exceptions
 import Longbow.corelibs.entrypoints as mains
+
+
+def test_setuplogger_testdebug():
+
+    """
+    Test to check if the logging method sets up logging properly. This is
+    a very rudimentary check as it is difficult to test this.
+    """
+
+    parameters = {
+        "debug": True,
+        "disconnect": False,
+        "executable": "",
+        "executableargs": [],
+        "hosts": "",
+        "job": "job.conf",
+        "jobname": "",
+        "log": "",
+        "recover": "",
+        "resource": "",
+        "replicates": "",
+        "verbose": False
+    }
+
+    mains._setuplogger(parameters)
+
+    log = logging.getLogger("Longbow")
+    log.debug("debug1")
+    log.info("info1")
+
+    logfile = open("log", "r")
+    contents = logfile.readlines()
+
+    assert "debug1" in contents[0]
+    assert "info1" in contents[1]
+
+
+def test_setuplogger_testverbose():
+
+    """
+    Test to check if the logging method sets up logging properly. This is
+    a very rudimentary check as it is difficult to test this.
+    """
+
+    parameters = {
+        "debug": False,
+        "disconnect": False,
+        "executable": "",
+        "executableargs": [],
+        "hosts": "",
+        "job": "job.conf",
+        "jobname": "",
+        "log": "",
+        "recover": "",
+        "resource": "",
+        "replicates": "",
+        "verbose": True
+    }
+
+    mains._setuplogger(parameters)
+
+    log = logging.getLogger("Longbow")
+    log.debug("debug1")
+    log.info("info1")
+
+    logfile = open("log", "r")
+    contents = logfile.readlines()
+
+    assert "debug1" not in contents[0]
+    assert "debug1" not in contents[1]
+    assert "info1" in contents[0]
