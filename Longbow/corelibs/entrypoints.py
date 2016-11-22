@@ -146,52 +146,10 @@ def main():
     # Grab the Longbow command-line arguments and their values.
     _parsecommandlineswitches(parameters, longbowargs)
 
-    # -------------------------------------------------------------------------
-    # Set up logging.
-
-    # Logging should be started here such that only users of the application
+    # Logging should be started here, such that only users of the application
     # have logging rules and filters setup. Library users will want/need to
     # set up their own handlers.
-
-    # If no log file name was given then default to "log".
-    if parameters["log"] is "":
-
-        parameters["log"] = "log"
-
-    # If the path isn't absolute then create the log in CWD.
-    if os.path.isabs(parameters["log"]) is False:
-
-        parameters["log"] = os.path.join(os.getcwd(), parameters["log"])
-
-    # In debug mode we would like more information and also to switch on the
-    # debug messages, otherwise stick to information level logging.
-    if parameters["debug"] is True:
-
-        logformat = logging.Formatter('%(asctime)s - %(levelname)-8s - '
-                                      '%(name)s - %(message)s',
-                                      '%Y-%m-%d %H:%M:%S')
-
-        LOG.setLevel(logging.DEBUG)
-
-    else:
-
-        logformat = logging.Formatter('%(asctime)s - %(message)s',
-                                      '%Y-%m-%d %H:%M:%S')
-
-        LOG.setLevel(logging.INFO)
-
-    # All logging types use the file handler, so append the logfile.
-    handler = logging.FileHandler(parameters["log"], mode="w")
-    handler.setFormatter(logformat)
-    LOG.addHandler(handler)
-
-    # Verbose and debugging mode need console output as well as logging to
-    # file.
-    if parameters["debug"] is True or parameters["verbose"] is True:
-
-        handler = logging.StreamHandler()
-        handler.setFormatter(logformat)
-        LOG.addHandler(handler)
+    _setuplogger(parameters)
 
     # -------------------------------------------------------------------------
     # Setup the top level exception handler, this handler should give the user
@@ -221,80 +179,8 @@ def main():
         LOG.info("Longbow version: %s", LONGBOWVERSION)
         LOG.info("Longbow Commandline: %s", (" ").join(sys.argv))
 
-        # Hosts - if a filename hasn't been provided default to hosts.conf
-        if parameters["hosts"] is "":
-
-            parameters["hosts"] = "hosts.conf"
-
-        # If a full absolute path has not been provided then check within the
-        # current working directory, ~/.Longbow directory and the execution
-        # directory.
-        if os.path.isabs(parameters["hosts"]) is False:
-
-            # CWD.
-            cwd = os.path.join(os.getcwd(), parameters["hosts"])
-
-            # Path for ~/.Longbow directory.
-            longbowdir = os.path.join(os.path.expanduser("~/.Longbow"),
-                                      parameters["hosts"])
-
-            # Path for exec directory.
-            execdir = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                   parameters["hosts"])
-
-            if os.path.isfile(cwd):
-
-                parameters["hosts"] = cwd
-
-            # The ~/.Longbow directory.
-            elif os.path.isfile(longbowdir):
-
-                parameters["hosts"] = longbowdir
-
-            # As a last resort, within the execution directory.
-            elif os.path.isfile(execdir):
-
-                parameters["hosts"] = execdir
-
-            else:
-
-                raise exceptions.RequiredinputError(
-                    "No host configuration file found in the current working "
-                    "directory '{0}', the execution directory '{1}' or in the "
-                    "~/.Longbow directory."
-                    .format(os.getcwd(),
-                            os.path.dirname(os.path.realpath(__file__))))
-
-        # Job - if a job configuration file has been supplied but the path
-        # hasn't look in the current working directory and then the execution
-        # directory if needs be.
-        if parameters["job"] is not "":
-
-            if os.path.isabs(parameters["job"]) is False:
-
-                # Path for CWD.
-                cwd = os.path.join(os.getcwd(), parameters["job"])
-
-                # Path for exec dir.
-                execdir = os.path.join(os.path.dirname(
-                    os.path.realpath(__file__)), parameters["job"])
-
-                if os.path.isfile(cwd):
-
-                    parameters["job"] = cwd
-
-            elif os.path.isfile(execdir):
-
-                parameters["job"] = execdir
-
-            else:
-
-                raise exceptions.RequiredinputError(
-                    "The job configuration file '{0}' couldn't be found in "
-                    "the current working directory '{1}', the execution "
-                    "directory '{2}'."
-                    .format(parameters["job"], os.getcwd(),
-                            os.path.dirname(os.path.realpath(__file__))))
+        _hostfileproc(parameters)
+        _jobfileproc(parameters)
 
         LOG.info("hosts file is: '%s'", parameters["hosts"])
 
@@ -575,6 +461,78 @@ def _downloadexamples(longbowargs):
         exit(0)
 
 
+def _hostfileproc(parameters):
+
+    """
+    This method handles the location of the host configuration file.
+    """
+
+    # Hosts - if a filename hasn't been provided default to hosts.conf
+    if parameters["hosts"] is "":
+
+        parameters["hosts"] = "hosts.conf"
+
+    # If a full absolute path has not been provided then check within the
+    # current working directory, ~/.Longbow directory and the execution
+    # directory.
+    if os.path.isabs(parameters["hosts"]) is False:
+
+        # CWD.
+        cwd = os.path.join(os.getcwd(), parameters["hosts"])
+
+        # Path for ~/.Longbow directory.
+        longbowdir = os.path.join(os.path.expanduser("~/.Longbow"),
+                                  parameters["hosts"])
+
+        if os.path.isfile(cwd):
+
+            parameters["hosts"] = cwd
+
+        # The ~/.Longbow directory.
+        elif os.path.isfile(longbowdir):
+
+            parameters["hosts"] = longbowdir
+
+        else:
+
+            raise exceptions.RequiredinputError(
+                "No host configuration file found in the current working "
+                "directory '{0}', the execution directory '{1}' or in the "
+                "~/.Longbow directory."
+                .format(os.getcwd(),
+                        os.path.dirname(os.path.realpath(__file__))))
+
+
+def _jobfileproc(parameters):
+
+    """
+    This method handles the location of the job configuration file.
+    """
+
+    # Job - if a job configuration file has been supplied but the path hasn't
+    # look in the current working directory and then the execution directory
+    # if needs be.
+    if parameters["job"] is not "":
+
+        if os.path.isabs(parameters["job"]) is False:
+
+            # Path for CWD.
+            cwd = os.path.join(os.getcwd(), parameters["job"])
+
+            if os.path.isfile(cwd):
+
+                parameters["job"] = cwd
+
+            else:
+
+                raise exceptions.RequiredinputError(
+                    "The job configuration file '{0}' couldn't be found in "
+                    "the current working directory '{1}', the execution "
+                    "directory '{2}'."
+                    .format(parameters["job"], os.getcwd(),
+                            os.path.dirname(os.path.realpath(__file__))))
+
+
 def _messageflags(longbowargs):
 
     """
@@ -707,3 +665,51 @@ def _parsecommandlineswitches(parameters, longbowargs):
             else:
 
                 parameters[parameter] = longbowargs[position + 1]
+
+
+def _setuplogger(parameters):
+
+    """
+    Configure the Longbow logger, this is for the application. Library users
+    should configure their own logging.
+    """
+
+    # If no log file name was given then default to "log".
+    if parameters["log"] is "":
+
+        parameters["log"] = "log"
+
+    # If the path isn't absolute then create the log in CWD.
+    if os.path.isabs(parameters["log"]) is False:
+
+        parameters["log"] = os.path.join(os.getcwd(), parameters["log"])
+
+    # In debug mode we would like more information and also to switch on the
+    # debug messages, otherwise stick to information level logging.
+    if parameters["debug"] is True:
+
+        logformat = logging.Formatter('%(asctime)s - %(levelname)-8s - '
+                                      '%(name)s - %(message)s',
+                                      '%Y-%m-%d %H:%M:%S')
+
+        LOG.setLevel(logging.DEBUG)
+
+    else:
+
+        logformat = logging.Formatter('%(asctime)s - %(message)s',
+                                      '%Y-%m-%d %H:%M:%S')
+
+        LOG.setLevel(logging.INFO)
+
+    # All logging types use the file handler, so append the logfile.
+    handler = logging.FileHandler(parameters["log"], mode="w")
+    handler.setFormatter(logformat)
+    LOG.addHandler(handler)
+
+    # Verbose and debugging mode need console output as well as logging to
+    # file.
+    if parameters["debug"] is True or parameters["verbose"] is True:
+
+        handler = logging.StreamHandler()
+        handler.setFormatter(logformat)
+        LOG.addHandler(handler)
