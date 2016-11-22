@@ -19,7 +19,7 @@
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This testing module contains the tests for the main method within the
+This testing module contains the tests for the messageflags method within the
 entrypoint module.
 """
 

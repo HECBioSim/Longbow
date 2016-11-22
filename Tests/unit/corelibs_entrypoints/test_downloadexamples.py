@@ -19,7 +19,7 @@
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This testing module contains the tests for the main method within the
+This testing module contains the tests for the downloadexamples method within the
 entrypoint module.
 """
 
@@ -40,7 +40,7 @@ import Longbow.corelibs.entrypoints as mains
 
 
 @mock.patch('subprocess.call')
-@mock.patch('subprocess.check_output')
+@mock.patch('subprocess.check_call')
 def test_downloadexamples_wget(mock_output, mock_call):
 
     """
@@ -61,7 +61,7 @@ def test_downloadexamples_wget(mock_output, mock_call):
 
 
 @mock.patch('subprocess.call')
-@mock.patch('subprocess.check_output')
+@mock.patch('subprocess.check_call')
 def test_downloadexamples_curl(mock_output, mock_call):
 
     """

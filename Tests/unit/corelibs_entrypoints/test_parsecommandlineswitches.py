@@ -19,8 +19,8 @@
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This testing module contains the tests for the main method within the
-entrypoint module.
+This testing module contains the tests for the parsecommandlineswitches method
+within the entrypoint module.
 """
 
 import pytest
@@ -29,32 +29,35 @@ import Longbow.corelibs.exceptions as exceptions
 import Longbow.corelibs.entrypoints as mains
 
 
-def test_parsecommandlineswitches_test1():
+def test_parsecmdlineswitches_test1():
 
     """
     Test that with no commandline parameter, that nothing gets made up.
     """
 
     parameters = {
+        "debug": False,
         "disconnect": False,
         "executable": "",
-        "executableargs": "",
+        "executableargs": [],
         "hosts": "",
         "job": "",
         "jobname": "",
         "log": "",
         "recover": "",
         "resource": "",
-        "replicates": ""
+        "replicates": "",
+        "verbose": False
     }
 
     longbowargs = []
 
     mains._parsecommandlineswitches(parameters, longbowargs)
 
-    assert parameters["disconnect"] == False
+    assert parameters["debug"] is False
+    assert parameters["disconnect"] is False
     assert parameters["executable"] == ""
-    assert parameters["executableargs"] == ""
+    assert parameters["executableargs"] == []
     assert parameters["hosts"] == ""
     assert parameters["job"] == ""
     assert parameters["jobname"] == ""
@@ -62,10 +65,11 @@ def test_parsecommandlineswitches_test1():
     assert parameters["recover"] == ""
     assert parameters["resource"] == ""
     assert parameters["replicates"] == ""
-    assert len(parameters) == 10
+    assert parameters["verbose"] == False
+    assert len(parameters) == 12
 
 
-def test_parsecommandlineswitches_test2():
+def test_parsecmdlineswitches_test2():
 
     """
     Test that parameters get picked up and the disconnect param is ignored,
@@ -73,27 +77,31 @@ def test_parsecommandlineswitches_test2():
     """
 
     parameters = {
+        "debug": False,
         "disconnect": False,
         "executable": "",
-        "executableargs": "",
+        "executableargs": [],
         "hosts": "",
         "job": "",
         "jobname": "",
         "log": "",
         "recover": "",
         "resource": "",
-        "replicates": ""
+        "replicates": "",
+        "verbose": False
     }
 
     longbowargs = ["-resource", "whoppa", "-log", "logfile", "--job",
                    "jobfile", "-hosts", "hostfile", "--jobname", "test",
-                   "-replicates", "5", "--disconnect", "--recover", "recfile"]
+                   "-replicates", "5", "--disconnect", "--verbose",
+                   "--recover", "recfile"]
 
     mains._parsecommandlineswitches(parameters, longbowargs)
 
-    assert parameters["disconnect"] == False
+    assert parameters["debug"] is False
+    assert parameters["disconnect"] is True
     assert parameters["executable"] == ""
-    assert parameters["executableargs"] == ""
+    assert parameters["executableargs"] == []
     assert parameters["hosts"] == "hostfile"
     assert parameters["job"] == "jobfile"
     assert parameters["jobname"] == "test"
@@ -101,26 +109,29 @@ def test_parsecommandlineswitches_test2():
     assert parameters["recover"] == "recfile"
     assert parameters["resource"] == "whoppa"
     assert parameters["replicates"] == "5"
-    assert len(parameters) == 10
+    assert parameters["verbose"] is True
+    assert len(parameters) == 12
 
 
-def test_parsecommandlineswitches_test3():
+def test_parsecmdlineswitches_test3():
 
     """
     Check that the exception is raised when a param value is missed.
     """
 
     parameters = {
+        "debug": False,
         "disconnect": False,
         "executable": "",
-        "executableargs": "",
+        "executableargs": [],
         "hosts": "",
         "job": "",
         "jobname": "",
         "log": "",
         "recover": "",
         "resource": "",
-        "replicates": ""
+        "replicates": "",
+        "verbose": False
     }
 
     longbowargs = ["-resource", "whoppa", "-log", "logfile", "--job",
@@ -132,23 +143,25 @@ def test_parsecommandlineswitches_test3():
         mains._parsecommandlineswitches(parameters, longbowargs)
 
 
-def test_parsecommandlineswitches_test4():
+def test_parsecmdlineswitches_test4():
 
     """
     Check that the exception is raised when a param value is missed.
     """
 
     parameters = {
+        "debug": False,
         "disconnect": False,
         "executable": "",
-        "executableargs": "",
+        "executableargs": [],
         "hosts": "",
         "job": "",
         "jobname": "",
         "log": "",
         "recover": "",
         "resource": "",
-        "replicates": ""
+        "replicates": "",
+        "verbose": False
     }
 
     longbowargs = ["-resource", "whoppa", "-log", "logfile", "--job",
@@ -158,3 +171,46 @@ def test_parsecommandlineswitches_test4():
     with pytest.raises(exceptions.CommandlineargsError):
 
         mains._parsecommandlineswitches(parameters, longbowargs)
+
+
+def test_parsecmdlineswitches_test5():
+
+    """
+    Test for hypocthetical true to false switch.
+    """
+
+    parameters = {
+        "debug": False,
+        "disconnect": False,
+        "executable": "",
+        "executableargs": [],
+        "hosts": "",
+        "job": "",
+        "jobname": "",
+        "log": "",
+        "recover": "",
+        "resource": "",
+        "replicates": "",
+        "verbose": True
+    }
+
+    longbowargs = ["-resource", "whoppa", "-log", "logfile", "--job",
+                   "jobfile", "-hosts", "hostfile", "--jobname", "test",
+                   "-replicates", "5", "--disconnect", "--verbose",
+                   "--recover", "recfile"]
+
+    mains._parsecommandlineswitches(parameters, longbowargs)
+
+    assert parameters["debug"] is False
+    assert parameters["disconnect"] is True
+    assert parameters["executable"] == ""
+    assert parameters["executableargs"] == []
+    assert parameters["hosts"] == "hostfile"
+    assert parameters["job"] == "jobfile"
+    assert parameters["jobname"] == "test"
+    assert parameters["log"] == "logfile"
+    assert parameters["recover"] == "recfile"
+    assert parameters["resource"] == "whoppa"
+    assert parameters["replicates"] == "5"
+    assert parameters["verbose"] is False
+    assert len(parameters) == 12

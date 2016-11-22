@@ -59,7 +59,7 @@ import Longbow.corelibs.shellwrappers as shellwrappers
 import Longbow.corelibs.staging as staging
 
 PYTHONVERSION = "{0}.{1}".format(sys.version_info[0], sys.version_info[1])
-LONGBOWVERSION = "1.3.2"
+LONGBOWVERSION = "1.4.0"
 
 LOG = logging.getLogger("Longbow")
 
@@ -79,21 +79,21 @@ def main():
     commandlineargs = sys.argv
     commandlineargs.pop(0)
 
-    mode = ""
-
     # Initialise parameters that could alternatively be provided in
     # configuration files
     parameters = {
+        "debug": False,
         "disconnect": False,
         "executable": "",
-        "executableargs": "",
+        "executableargs": [],
         "hosts": "",
         "job": "",
         "jobname": "",
         "log": "",
         "recover": "",
         "resource": "",
-        "replicates": ""
+        "replicates": "",
+        "verbose": False
     }
 
     # Specify all recognised longbow arguments
@@ -130,69 +130,12 @@ def main():
         "--version"
     ]
 
-    # Initialise
-    executable = ""
-    position = ""
-    longbowargs = ""
-    execargs = ""
-
     # -------------------------------------------------------------------------
-    # Split the command line into longbow arguments, the executable and
-    # executable arguments
+    # Detection of commandline flags and sub functionality.
 
-    # Search for recognised executables on the commandline
-    for item in commandlineargs:
-
-        if item in getattr(apps, "EXECLIST"):
-
-            executable = item
-            position = commandlineargs.index(item)
-            longbowargs = commandlineargs[:position]
-            execargs = commandlineargs[position+1:]
-            break
-
-    # If an executable wasn't found perhaps it is specified in a configuration
-    # file. Executable arguments might still be provided on the command line so
-    # try to detect them.
-    if executable == "":
-
-        for item in commandlineargs:
-
-            position = commandlineargs.index(item)
-
-            # if item provided on the commandline doesn't appear to be a
-            # longbow argument, assume it, and all others following it are
-            # executable arguments
-            if (item not in alllongbowargs and
-                    commandlineargs[position-1][1:] not in parameters and
-                    commandlineargs[position-1][2:] not in parameters):
-
-                longbowargs = commandlineargs[:position]
-                execargs = commandlineargs[position:]
-                break
-
-        # if no executable arguments have been found, everything on the command
-        # line must be longbow arguments since we know the executable hasn't
-        # been provided on the command line either.
-        if execargs == "":
-
-            longbowargs = commandlineargs
-
-    # make sure the user hasn't provided bogus longbow arguments or those
-    # that aren't recognised on the command line
-    for item in longbowargs:
-
-        if item.startswith("-") and item not in alllongbowargs:
-
-            allowedargs = " ".join(alllongbowargs)
-
-            raise exceptions.CommandlineargsError(
-                "Argument '{0}' is not a recognised Longbow argument. "
-                "Recognised arguments are: {1}".format(item, allowedargs))
-
-    # -------------------------------------------------------------------------
-    # Determine if the user is trying to run a sub-functionality such as
-    # % longbow -about for example.
+    # Detect Longbow arguments, the executable and the executable arguments
+    # from the command-line.
+    longbowargs = _commandlineproc(alllongbowargs, commandlineargs, parameters)
 
     # Check for information flags such as help or about
     _messageflags(longbowargs)
@@ -202,26 +145,6 @@ def main():
 
     # Grab the Longbow command-line arguments and their values.
     _parsecommandlineswitches(parameters, longbowargs)
-
-    # Store the verbose parameter
-    if (longbowargs.count("-verbose") == 1 or
-            longbowargs.count("--verbose") == 1):
-
-        mode = "verbose"
-
-    # Store the DEBUG parameter
-    if longbowargs.count("-debug") == 1 or longbowargs.count("--debug") == 1:
-
-        mode = "debug"
-
-    # Is this a disconnectable session.
-    if (longbowargs.count("-disconnect") == 1 or
-            longbowargs.count("--disconnect") == 1):
-
-        parameters["disconnect"] = True
-
-    parameters["executable"] = executable
-    parameters["executableargs"] = execargs
 
     # -------------------------------------------------------------------------
     # Set up logging.
@@ -242,7 +165,7 @@ def main():
 
     # In debug mode we would like more information and also to switch on the
     # debug messages, otherwise stick to information level logging.
-    if mode == "debug":
+    if parameters["debug"] is True:
 
         logformat = logging.Formatter('%(asctime)s - %(levelname)-8s - '
                                       '%(name)s - %(message)s',
@@ -264,7 +187,7 @@ def main():
 
     # Verbose and debugging mode need console output as well as logging to
     # file.
-    if mode == "debug" or mode == "verbose":
+    if parameters["debug"] is True or parameters["verbose"] is True:
 
         handler = logging.StreamHandler()
         handler.setFormatter(logformat)
@@ -393,7 +316,7 @@ def main():
 
     except Exception as err:
 
-        if mode == "debug":
+        if parameters["debug"] is True:
 
             LOG.exception(err)
 
@@ -547,6 +470,111 @@ def recovery(recoveryfile):
     staging.cleanup(jobs)
 
 
+def _commandlineproc(alllongbowargs, cmdlnargs, parameters):
+
+    """
+    This method is used to process the command-line to discover any Longbow
+    arguments, executables and their arguments.
+    """
+
+    executable = ""
+    longbowargs = []
+    execargs = []
+
+    # Search for recognised executables on the commandline
+    for item in cmdlnargs:
+
+        if item in getattr(apps, "EXECLIST"):
+
+            longbowargs = cmdlnargs[:cmdlnargs.index(item)]
+            executable = item
+            execargs = cmdlnargs[cmdlnargs.index(item) + 1:]
+            break
+
+    # If a known executable wasn't found then treat command-line as strictly
+    # of the form: longbow <longbow args> exec [exec args].
+    if executable == "":
+
+        for index, item in enumerate(cmdlnargs):
+
+            # if item provided on the commandline doesn't appear to be a
+            # longbow argument, then assume the first is the exec and anything
+            # after it are exec args.
+            if item not in alllongbowargs:
+
+                previtem = cmdlnargs[index - 1].replace("-", "")
+
+                if previtem not in parameters:
+
+                    longbowargs = cmdlnargs[:index]
+                    executable = item
+                    execargs = cmdlnargs[index + 1:]
+                    break
+
+                elif(previtem in parameters and
+                        isinstance(parameters[previtem], bool)):
+
+                    longbowargs = cmdlnargs[:index]
+                    executable = item
+                    execargs = cmdlnargs[index + 1:]
+                    break
+
+        # If nothing but Longbow arguments are found then assume other stuff
+        # is in configuration files. This will be checked later.
+        if len(execargs) == 0 and executable == "":
+
+            longbowargs = cmdlnargs
+
+    # make sure the user hasn't provided bogus longbow arguments or those
+    # that aren't recognised on the command line
+    for item in longbowargs:
+
+        if item.startswith("-") and item not in alllongbowargs:
+
+            allowedargs = " ".join(alllongbowargs)
+
+            raise exceptions.CommandlineargsError(
+                "Argument '{0}' is not a recognised Longbow argument. "
+                "Recognised arguments are: {1}".format(item, allowedargs))
+
+    parameters["executable"] = executable
+    parameters["executableargs"] = execargs
+
+    return longbowargs
+
+
+def _downloadexamples(longbowargs):
+
+    """
+    Does user want to download the Longbow examples.
+    """
+
+    # Test for the examples command line flag, download files and exit if found
+    if longbowargs.count("-examples") or longbowargs.count("--examples") == 1:
+
+        if not os.path.isfile(
+                os.path.join(os.getcwd(), "LongbowExamples.zip")):
+
+            try:
+
+                subprocess.check_call([
+                    "wget", "http://www.hecbiosim.ac.uk/downloads/send/"
+                    "2-software/4-longbow-examples", "-O",
+                    os.path.join(os.getcwd(), "LongbowExamples.zip")])
+
+            except subprocess.CalledProcessError:
+
+                subprocess.call([
+                    "curl", "-L", "http://www.hecbiosim.ac.uk/downloads/send/"
+                    "2-software/4-longbow-examples", "-o",
+                    os.path.join(os.getcwd(), "LongbowExamples.zip")])
+
+            subprocess.call(["unzip", "-d", os.getcwd(),
+                             os.path.join(os.getcwd(), "LongbowExamples.zip")])
+
+        exit(0)
+
+
 def _messageflags(longbowargs):
 
     """
@@ -582,7 +610,8 @@ def _messageflags(longbowargs):
             longbowargs.count("--version") == 1 or
             longbowargs.count("-V") == 1):
 
-        print("Longbow v{0}".format(LONGBOWVERSION))
+        print("Longbow v{0}"
+              .format(LONGBOWVERSION))
 
         exit(0)
 
@@ -636,38 +665,6 @@ def _messageflags(longbowargs):
         exit(0)
 
 
-def _downloadexamples(longbowargs):
-
-    """
-    Does user want to download the Longbow examples.
-    """
-
-    # Test for the examples command line flag, download files and exit if found
-    if longbowargs.count("-examples") or longbowargs.count("--examples") == 1:
-
-        if not os.path.isfile(
-                os.path.join(os.getcwd(), "LongbowExamples.zip")):
-
-            try:
-
-                subprocess.check_output([
-                    "wget", "http://www.hecbiosim.ac.uk/downloads/send/"
-                    "2-software/4-longbow-examples", "-O",
-                    os.path.join(os.getcwd(), "LongbowExamples.zip")])
-
-            except subprocess.CalledProcessError:
-
-                subprocess.call([
-                    "curl", "-L", "http://www.hecbiosim.ac.uk/downloads/send/"
-                    "2-software/4-longbow-examples", "-o",
-                    os.path.join(os.getcwd(), "LongbowExamples.zip")])
-
-            subprocess.call(["unzip", "-d", os.getcwd(),
-                             os.path.join(os.getcwd(), "LongbowExamples.zip")])
-
-        exit(0)
-
-
 def _parsecommandlineswitches(parameters, longbowargs):
 
     """
@@ -677,28 +674,36 @@ def _parsecommandlineswitches(parameters, longbowargs):
 
     for parameter in parameters:
 
-        if parameters[parameter] == "":
+        # Is this a flag, if it is then next parameter is the value.
+        if (longbowargs.count("-" + parameter) == 1 or
+                longbowargs.count("--" + parameter) == 1):
 
-            # Store the log file path
-            if (longbowargs.count("-" + parameter) == 1 or
-                    longbowargs.count("--" + parameter) == 1):
+            try:
 
-                try:
+                position = longbowargs.index("-" + parameter)
 
-                    position = longbowargs.index("-" + parameter)
+            except ValueError:
 
-                except ValueError:
+                position = longbowargs.index("--" + parameter)
 
-                    position = longbowargs.index("--" + parameter)
+            if (position + 1 == len(longbowargs) or
+                    longbowargs[position + 1].startswith("-")):
 
-                if (position + 1 == len(longbowargs) or
-                        longbowargs[position + 1].startswith("-")):
+                if parameters[parameter] == "":
 
                     raise exceptions.CommandlineargsError(
                         "Please specify a valid value for the --" + parameter +
                         " command line parameter e.g. longbow --" + parameter +
                         "value ...")
 
-                else:
+                if parameters[parameter] is True:
 
-                    parameters[parameter] = longbowargs[position + 1]
+                    parameters[parameter] = False
+
+                elif parameters[parameter] is False:
+
+                    parameters[parameter] = True
+
+            else:
+
+                parameters[parameter] = longbowargs[position + 1]
