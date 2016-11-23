@@ -184,6 +184,15 @@ def main():
 
         LOG.info("hosts file is: '%s'", parameters["hosts"])
 
+        # If no executable and jobfile has been given then fail.
+        if (parameters["executable"] == "" and parameters["job"] == "" and
+                parameters["recover"] == ""):
+
+            raise exceptions.RequiredinputError(
+                "There was no executable or job file given on the "
+                "command-line, you need to supply one or the other otherwise "
+                "Longbow cannot decipher what you would like to do.")
+
         # ---------------------------------------------------------------------
         # Call one of the main methods at the top level of the library.
 

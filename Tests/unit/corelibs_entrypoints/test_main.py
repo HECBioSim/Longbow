@@ -33,8 +33,6 @@ except ImportError:
 
     import mock
 
-import pytest
-
 import Longbow.corelibs.exceptions as exceptions
 import Longbow.corelibs.entrypoints as mains
 
@@ -209,3 +207,25 @@ def test_main_test5(m_isfile, m_longbowmain):
     assert params["resource"] == "big-machine"
     assert params["replicates"] == ""
     assert params["verbose"] is False
+
+
+@mock.patch('Longbow.corelibs.entrypoints.recovery')
+@mock.patch('Longbow.corelibs.entrypoints.longbowmain')
+@mock.patch('os.path.isfile')
+def test_main_test6(m_isfile, m_longbowmain, m_recovery):
+
+    """
+    Test that exception handling happens properly.
+    """
+
+    m_isfile.return_value = True
+
+    args = ["longbow", "--jobname", "testjob", "--resource", "big-machine",
+            "--debug"]
+
+    with mock.patch('sys.argv', args):
+
+        mains.main()
+
+    assert m_longbowmain.call_count == 0
+    assert m_recovery.call_count == 0

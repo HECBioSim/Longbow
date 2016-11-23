@@ -19,22 +19,39 @@
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This is the AMBER plugin module. This plugin is relatively simple in the fact
-that adding new executables is as simple as modifying the EXECDATA structure
-below.
+This testing module contains basic testing for the CHARMM plugin.
 """
 
-EXECDATA = {
-    "pmemd": {
-        "subexecutables": [],
-        "requiredfiles": ["-c", "-i", "-p"],
-        },
-    "pmemd.MPI": {
-        "subexecutables": [],
-        "requiredfiles": ["-c", "-i", "-p"],
-        },
-    "pmemd.cuda": {
-        "subexecutables": [],
-        "requiredfiles": ["-c", "-i", "-p"],
-        }
-    }
+import Longbow.apps.charmm as charmm
+
+
+def test_subdict_test1():
+
+    """
+    Test substitutions of the form param:value
+    """
+
+    args = ["myvar:myprot", "thingvar:mything", "<", "example.inp"]
+
+    subs = charmm.sub_dict(args)
+
+    assert isinstance(subs, dict)
+    assert subs["myvar"] == "myprot"
+    assert subs["thingvar"] == "mything"
+    assert args == ["<", "example.inp"]
+
+
+def test_subdict_test2():
+
+    """
+    Test substitutions of the form param=value
+    """
+
+    args = ["myvar=myprot", "thingvar=mything", "<", "example.inp"]
+
+    subs = charmm.sub_dict(args)
+
+    assert isinstance(subs, dict)
+    assert subs["myvar"] == "myprot"
+    assert subs["thingvar"] == "mything"
+    assert args == ["<", "example.inp"]

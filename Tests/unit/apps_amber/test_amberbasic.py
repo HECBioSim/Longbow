@@ -19,22 +19,44 @@
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This is the AMBER plugin module. This plugin is relatively simple in the fact
-that adding new executables is as simple as modifying the EXECDATA structure
-below.
+This testing module contains basic testing for the AMBER plugin.
 """
 
-EXECDATA = {
-    "pmemd": {
-        "subexecutables": [],
-        "requiredfiles": ["-c", "-i", "-p"],
-        },
-    "pmemd.MPI": {
-        "subexecutables": [],
-        "requiredfiles": ["-c", "-i", "-p"],
-        },
-    "pmemd.cuda": {
-        "subexecutables": [],
-        "requiredfiles": ["-c", "-i", "-p"],
-        }
-    }
+import Longbow.apps.amber as amber
+
+
+def test_basic1():
+
+    """
+    Test that the data structure is a dictionary.
+    """
+
+    execdata = amber.EXECDATA
+
+    assert isinstance(execdata, dict)
+
+
+def test_basic2():
+
+    """
+    Test that the data structure has values.
+    """
+
+    execdata = amber.EXECDATA
+
+    assert len(execdata) > 0
+
+
+def test_basic3():
+
+    """
+    Test that the data structure has minimum parameters.
+    """
+
+    execdata = amber.EXECDATA
+
+    for param in execdata:
+
+        assert isinstance(execdata[param], dict)
+        assert "subexecutables" in execdata[param]
+        assert "requiredfiles" in execdata[param]

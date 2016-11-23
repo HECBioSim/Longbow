@@ -19,22 +19,37 @@
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This is the AMBER plugin module. This plugin is relatively simple in the fact
-that adding new executables is as simple as modifying the EXECDATA structure
-below.
+This testing module contains basic testing for the LAMMPS plugin.
 """
 
-EXECDATA = {
-    "pmemd": {
-        "subexecutables": [],
-        "requiredfiles": ["-c", "-i", "-p"],
-        },
-    "pmemd.MPI": {
-        "subexecutables": [],
-        "requiredfiles": ["-c", "-i", "-p"],
-        },
-    "pmemd.cuda": {
-        "subexecutables": [],
-        "requiredfiles": ["-c", "-i", "-p"],
-        }
-    }
+import Longbow.apps.lammps as lammps
+
+
+def test_subdict_test1():
+
+    """
+    Test substitutions of the form -var
+    """
+
+    args = ["-var", "myvar", "mydata", "-i", "example.in", "-l", "output"]
+
+    subs = lammps.sub_dict(args)
+
+    assert isinstance(subs, dict)
+    assert subs["myvar"] == "mydata"
+    assert args == ["-i", "example.in", "-l", "output"]
+
+
+def test_subdict_test2():
+
+    """
+    Test substitutions of the form -v
+    """
+
+    args = ["-v", "p", "myprot", "-i", "example.in", "-l", "output"]
+
+    subs = lammps.sub_dict(args)
+
+    assert isinstance(subs, dict)
+    assert subs["p"] == "myprot"
+    assert args == ["-i", "example.in", "-l", "output"]
