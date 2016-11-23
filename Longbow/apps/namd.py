@@ -54,35 +54,7 @@ def file_parser(filename, path, files, substitutions=None):
     searched. Substitutions is a dictionary of "$" style variables.
     '''
 
-    # Check the location of filename
-    addfile = ""
-
-    # if the filename has an absolute path but doesn't exist locally, assume
-    # it is on the remote resource
-    if os.path.isabs(filename) is True:
-
-        if os.path.isfile(filename) is False:
-
-            addfile = ""
-
-        else:
-
-            raise exceptions.RequiredinputError(
-                "It appears that the user is trying to refer to a file '{0}' "
-                "using an explicit path. Please just provide the names of "
-                "input files".format(filename))
-
-    # elif the file is in the given path
-    elif os.path.isfile(os.path.join(path, filename)) is True:
-
-        addfile = filename
-
-    # else issue a warning
-    else:
-
-        raise exceptions.RequiredinputError(
-            "It appears the file '{0}' is not present in the expected "
-            "directory.".format(filename))
+    addfile = _filechecks(path, filename)
 
     # Now look for references to other files in the input file if not done so
     # already
@@ -99,17 +71,7 @@ def file_parser(filename, path, files, substitutions=None):
 
         variables = {}
 
-        fil = None
-
-        # Open the file
-        try:
-
-            fil = open(os.path.join(path, addfile), "r")
-
-        except IOError:
-
-            exceptions.RequiredinputError("Can't read the file '{0}'"
-                                          .format(addfile))
+        fil = _fileopen(path, addfile)
 
         if fil:
 
@@ -231,3 +193,62 @@ def file_parser(filename, path, files, substitutions=None):
                         file_parser(newfile, newpath, files, substitutions)
 
             fil.close()
+
+
+def _filechecks(path, filename):
+
+    """
+    Check the file paths to make sure they are valid.
+    """
+
+    # Check the location of filename
+    addfile = ""
+
+    # if the filename has an absolute path but doesn't exist locally, assume
+    # it is on the remote resource
+    if os.path.isabs(filename) is True:
+
+        if os.path.isfile(filename) is False:
+
+            addfile = ""
+
+        else:
+
+            raise exceptions.RequiredinputError(
+                "It appears that the user is trying to refer to a file '{0}' "
+                "using an explicit path. Please just provide the names of "
+                "input files".format(filename))
+
+    # elif the file is in the given path
+    elif os.path.isfile(os.path.join(path, filename)) is True:
+
+        addfile = filename
+
+    # else issue a warning
+    else:
+
+        raise exceptions.RequiredinputError(
+            "It appears the file '{0}' is not present in the expected "
+            "directory.".format(filename))
+
+    return addfile
+
+
+def _fileopen(path, addfile):
+
+    """
+    Open a file and return the handle.
+    """
+
+    fil = None
+
+    try:
+
+        fil = open(os.path.join(path, addfile), "r")
+
+    except IOError:
+
+        exceptions.RequiredinputError("Can't read the file '{0}'"
+                                      .format(addfile))
+
+    return fil
