@@ -23,7 +23,7 @@ This testing module contains the tests for the main method within the
 entrypoint module.
 """
 
-import sys
+import os
 
 try:
 
@@ -39,14 +39,173 @@ import Longbow.corelibs.exceptions as exceptions
 import Longbow.corelibs.entrypoints as mains
 
 
-# def test_main_unrecognisedflag():
-# 
-#     """
-#     Check that the disconnect mode is activated.
-#     """
-# 
-#     with mock.patch.object(sys, "argv", ["longbow", "-flag1"]):
-# 
-#         with pytest.raises(exceptions.CommandlineargsError):
-# 
-#             mains.main()
+@mock.patch('Longbow.corelibs.entrypoints.longbowmain')
+@mock.patch('os.path.isfile')
+def test_main_test1(m_isfile, m_longbowmain):
+
+    """
+    Check that the longbow main method gets called, and that the parameters
+    structure is being setup, this is a rudimentary test.
+    """
+
+    m_isfile.return_value = True
+
+    args = ["longbow", "--jobname", "testjob", "--verbose", "pmemd.MPI", "-O",
+            "-i", "ex.in", "-c", "ex.min", "-p", "ex.top", "-o", "ex.out"]
+
+    with mock.patch('sys.argv', args):
+
+        mains.main()
+
+    params = m_longbowmain.call_args[0][0]
+
+    assert m_longbowmain.call_count == 1
+    assert params["debug"] is False
+    assert params["disconnect"] is False
+    assert params["executable"] == "pmemd.MPI"
+    assert params["executableargs"] == ["-O", "-i", "ex.in", "-c", "ex.min",
+                                        "-p", "ex.top", "-o", "ex.out"]
+    assert params["hosts"] == os.path.join(os.getcwd(), "hosts.conf")
+    assert params["job"] == ""
+    assert params["jobname"] == "testjob"
+    assert params["log"] == os.path.join(os.getcwd(), "log")
+    assert params["recover"] == ""
+    assert params["resource"] == ""
+    assert params["replicates"] == ""
+    assert params["verbose"] is True
+
+
+@mock.patch('Longbow.corelibs.entrypoints.longbowmain')
+@mock.patch('os.path.isfile')
+def test_main_test2(m_isfile, m_longbowmain):
+
+    """
+    Check that the longbow main method gets called, and that the parameters
+    structure is being setup, this is a rudimentary test.
+    """
+
+    m_isfile.return_value = True
+
+    args = ["longbow", "--jobname", "testjob", "--resource", "big-machine",
+            "--verbose", "pmemd.MPI", "-O", "-i", "ex.in", "-c", "ex.min",
+            "-p", "ex.top", "-o", "ex.out"]
+
+    with mock.patch('sys.argv', args):
+
+        mains.main()
+
+    params = m_longbowmain.call_args[0][0]
+
+    assert m_longbowmain.call_count == 1
+    assert params["debug"] is False
+    assert params["disconnect"] is False
+    assert params["executable"] == "pmemd.MPI"
+    assert params["executableargs"] == ["-O", "-i", "ex.in", "-c", "ex.min",
+                                        "-p", "ex.top", "-o", "ex.out"]
+    assert params["hosts"] == os.path.join(os.getcwd(), "hosts.conf")
+    assert params["job"] == ""
+    assert params["jobname"] == "testjob"
+    assert params["log"] == os.path.join(os.getcwd(), "log")
+    assert params["recover"] == ""
+    assert params["resource"] == "big-machine"
+    assert params["replicates"] == ""
+    assert params["verbose"] is True
+
+
+@mock.patch('Longbow.corelibs.entrypoints.recovery')
+@mock.patch('os.path.isfile')
+def test_main_test3(m_isfile, m_recovery):
+
+    """
+    Check that the recovery method gets called, this is a rudimentary test.
+    """
+
+    m_isfile.return_value = True
+
+    args = ["longbow", "--recover", "recovery.file", "--log", "new-log.file",
+            "--verbose"]
+
+    with mock.patch('sys.argv', args):
+
+        mains.main()
+
+    params = m_recovery.call_args[0][0]
+
+    assert m_recovery.call_count == 1
+    assert params == "recovery.file"
+
+
+@mock.patch('Longbow.corelibs.entrypoints.longbowmain')
+@mock.patch('os.path.isfile')
+def test_main_test4(m_isfile, m_longbowmain):
+
+    """
+    Test that exception handling happens properly.
+    """
+
+    m_isfile.return_value = True
+
+    args = ["longbow", "--jobname", "testjob", "--resource", "big-machine",
+            "pmemd.MPI", "-O", "-i", "ex.in", "-c", "ex.min", "-p", "ex.top",
+            "-o", "ex.out"]
+
+    m_longbowmain.side_effect = exceptions.PluginattributeError
+
+    with mock.patch('sys.argv', args):
+
+        mains.main()
+
+    params = m_longbowmain.call_args[0][0]
+
+    assert m_longbowmain.call_count == 1
+    assert params["debug"] is False
+    assert params["disconnect"] is False
+    assert params["executable"] == "pmemd.MPI"
+    assert params["executableargs"] == ["-O", "-i", "ex.in", "-c", "ex.min",
+                                        "-p", "ex.top", "-o", "ex.out"]
+    assert params["hosts"] == os.path.join(os.getcwd(), "hosts.conf")
+    assert params["job"] == ""
+    assert params["jobname"] == "testjob"
+    assert params["log"] == os.path.join(os.getcwd(), "log")
+    assert params["recover"] == ""
+    assert params["resource"] == "big-machine"
+    assert params["replicates"] == ""
+    assert params["verbose"] is False
+
+
+@mock.patch('Longbow.corelibs.entrypoints.longbowmain')
+@mock.patch('os.path.isfile')
+def test_main_test5(m_isfile, m_longbowmain):
+
+    """
+    Test that exception handling happens properly.
+    """
+
+    m_isfile.return_value = True
+
+    args = ["longbow", "--jobname", "testjob", "--resource", "big-machine",
+            "--debug", "pmemd.MPI", "-O", "-i", "ex.in", "-c", "ex.min", "-p",
+            "ex.top", "-o", "ex.out"]
+
+    m_longbowmain.side_effect = exceptions.PluginattributeError
+
+    with mock.patch('sys.argv', args):
+
+        mains.main()
+
+    params = m_longbowmain.call_args[0][0]
+
+    assert m_longbowmain.call_count == 1
+    assert params["debug"] is True
+    assert params["disconnect"] is False
+    assert params["executable"] == "pmemd.MPI"
+    assert params["executableargs"] == ["-O", "-i", "ex.in", "-c", "ex.min",
+                                        "-p", "ex.top", "-o", "ex.out"]
+    assert params["hosts"] == os.path.join(os.getcwd(), "hosts.conf")
+    assert params["job"] == ""
+    assert params["jobname"] == "testjob"
+    assert params["log"] == os.path.join(os.getcwd(), "log")
+    assert params["recover"] == ""
+    assert params["resource"] == "big-machine"
+    assert params["replicates"] == ""
+    assert params["verbose"] is False
