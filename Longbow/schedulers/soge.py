@@ -18,9 +18,7 @@
 # You should have received a copy of the GNU General Public License along with
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-This module contains the code to interact with the various flavours of
-Son of Grid Engine.
+"""A module containing the code to interact with Son of Grid Engine.
 
 delete(job)
     A method for deleting a single job.
@@ -46,11 +44,8 @@ QUERY_STRING = "env | grep -i 'sge'"
 
 
 def delete(job):
-
-    """
-    Method for deleting job.
-    """
-
+    """A Method for deleting a job."""
+    # Initialise variables.
     jobid = job["jobid"]
 
     try:
@@ -65,11 +60,7 @@ def delete(job):
 
 
 def prepare(job):
-
-    """
-    Create the SGE jobfile ready for submitting jobs.
-    """
-
+    """A method to create the SGE jobfile ready for submitting jobs."""
     # Open file for SGE script.
     sgefile = os.path.join(job["localworkdir"], "submit.soge")
     jobfile = open(sgefile, "w+")
@@ -185,16 +176,13 @@ def prepare(job):
 
 
 def status(job):
-
-    """
-    Method for querying job.
-    """
-
+    """A method for querying a job status."""
+    # Initialise variables.
     states = {
         "h": "Held",
         "qw": "Queued",
         "r": "Running"
-        }
+    }
 
     jobstate = ""
 
@@ -231,11 +219,7 @@ def status(job):
 
 
 def submit(job):
-
-    """
-    Method for submitting a job.
-    """
-
+    """A method for submitting a job."""
     # Change into the working directory and submit the job.
     cmd = ["cd " + job["destdir"] + "\n", "qsub " + job["subfile"]]
 

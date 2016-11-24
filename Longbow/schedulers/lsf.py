@@ -18,8 +18,7 @@
 # You should have received a copy of the GNU General Public License along with
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-This module contains the code to interact with the various flavours of LSF.
+"""A module containing the code to interact with LSF.
 
 delete(job)
     A method for deleting a single job.
@@ -44,11 +43,8 @@ QUERY_STRING = "env | grep -i 'lsf'"
 
 
 def delete(job):
-
-    """
-    Method for deleting job.
-    """
-
+    """A Method for deleting a job."""
+    # Initialise variables.
     jobid = job["jobid"]
 
     try:
@@ -63,11 +59,7 @@ def delete(job):
 
 
 def prepare(job):
-
-    """
-    Create the LSF jobfile ready for submitting jobs.
-    """
-
+    """A method to create the LSF jobfile ready for submitting jobs."""
     # Open file for LSF script.
     lsffile = os.path.join(job["localworkdir"], "submit.lsf")
     jobfile = open(lsffile, "w+")
@@ -169,11 +161,8 @@ def prepare(job):
 
 
 def status(job):
-
-    """
-    Method for querying job.
-    """
-
+    """A method for querying a job status."""
+    # Initialise variables.
     states = {
         "DONE": "Job Exited Properly",
         "EXIT": "Job Exited in Error",
@@ -185,7 +174,7 @@ def status(job):
         "USUSP": "Suspended",
         "WAIT": "Waiting for Start Time",
         "ZOMBI": "Zombie Job"
-        }
+    }
 
     jobstate = ""
 
@@ -222,11 +211,7 @@ def status(job):
 
 
 def submit(job):
-
-    """
-    Method for submitting job.
-    """
-
+    """A method for submitting a job."""
     # cd into the working directory and submit the job.
     cmd = ["cd " + job["destdir"] + "\n", "bsub < " + job["subfile"]]
 

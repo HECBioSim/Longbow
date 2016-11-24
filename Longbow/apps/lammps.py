@@ -123,7 +123,7 @@ def file_parser(filename, path, files, substitutions=None):
 
                             if newfile[start] == '{':
 
-                                end = newfile[start:].index('}')+start
+                                end = newfile[start:].index('}') + start
                                 var = variables[newfile[start + 1:end]]
                                 newfile = (newfile[0:start - 1] + var +
                                            newfile[end + 1:])

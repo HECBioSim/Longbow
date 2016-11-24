@@ -18,8 +18,7 @@
 # You should have received a copy of the GNU General Public License along with
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-This module contains the code to interact with the various flavours of slurm.
+"""A module containing the code to interact with slurm.
 
 delete(job)
     A method for deleting a single job.
@@ -45,11 +44,8 @@ QUERY_STRING = "which sbatch"
 
 
 def delete(job):
-
-    """
-    Method for deleting job.
-    """
-
+    """A Method for deleting a job."""
+    # Initialise variables.
     jobid = job["jobid"]
 
     try:
@@ -64,11 +60,7 @@ def delete(job):
 
 
 def prepare(job):
-
-    """
-    Create the SLURM jobfile ready for submitting jobs.
-    """
-
+    """A method to create the SLURM jobfile ready for submitting jobs."""
     # Open file for SLURM script.
     slurmfile = os.path.join(job["localworkdir"], "submit.slurm")
     jobfile = open(slurmfile, "w+")
@@ -174,11 +166,8 @@ def prepare(job):
 
 
 def status(job):
-
-    """
-    Method for querying job.
-    """
-
+    """A method for querying a job status."""
+    # Initialise variables.
     states = {
         "CA": "Cancelled",
         "CD": "Completed",
@@ -191,7 +180,7 @@ def status(job):
         "R": "Running",
         "S": "Suspended",
         "TO": "Timed out"
-        }
+    }
 
     jobstate = ""
 
@@ -228,11 +217,7 @@ def status(job):
 
 
 def submit(job):
-
-    """
-    Method for submitting job.
-    """
-
+    """A method for submitting a job."""
     # Change into the working directory and submit the job.
     cmd = ["cd " + job["destdir"] + "\n", "sbatch " + job["subfile"]]
 
