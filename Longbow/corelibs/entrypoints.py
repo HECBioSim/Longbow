@@ -20,14 +20,15 @@
 # You should have received a copy of the GNU General Public License along with
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-This module contains the Longbow application entry point and the high level
-library methods. The following gives a summary of the methods available:
+"""This module contains the Longbow entry points and supporting methods.
+
+The following gives a summary of the methods available:
 
 main()
-    This is the main entrypoint for Longbow when used as an application.
-    This method is not intended to be used by developers making use of the
-    library.
+    This method is the main entry point for Longbow launched as an application.
+    Library users should not use this method when linking Longbow at a high
+    level. Developers should be calling Longbowmain() directly with the
+    parameters dictionary already setup.
 
 longbowmain(parameters)
     This method is the upper level method of the Longbow library. Users
@@ -65,13 +66,16 @@ LOG = logging.getLogger("Longbow")
 
 
 def main():
+    """This is the main entrypoint for Longbow when used as an application.
 
-    """
-    This is the main entrypoint for Longbow when used as an application.
-    This method is not intended to be used by developers making use of the
-    library.
-    """
+    This method is the main entry point for Longbow launched as an application.
+    Library users should not use this method when linking Longbow at a high
+    level. Developers should be calling Longbowmain() directly with the
+    parameters dictionary already setup.
 
+    This method takes the information from sys.argv and processes this into a
+    dictionary format ready to fire longbowmain().
+    """
     # -------------------------------------------------------------------------
     # Some defaults and parameter initialisation
 
@@ -227,18 +231,17 @@ def main():
 
 
 def longbowmain(parameters):
+    """This method is the main entry point of the Longbow library.
 
-    """
-    This method is the main entry point of the Longbow library. This method,
-    is a good place to link against Longbow if a developer does not want to
-    link against the executable, or if low level linking is over-kill.
+    Being the top level method that makes calls on the Longbow library.
+    This is a good place to link against Longbow if a developer does not want
+    to link against the executable, or if low level linking is not needed or is
+    over-kill.
 
-    Required arguments are:
-
+    Required inputs are:
     parameters (dictionary): A dictionary containing the parameters and
                              overrides from the command-line.
     """
-
     # A failure at this level will result in jobs being killed off before
     # escalating the exception to trigger graceful exit.
 
@@ -291,9 +294,8 @@ def longbowmain(parameters):
     # in future we can attempt to recover.
     except (SystemExit, KeyboardInterrupt):
 
-        LOG.info(
-            "User interrupt detected, kill any queued or running jobs and "
-            "removed any files staged.")
+        LOG.info("User interrupt detected, kill any queued or running jobs "
+                 "and removed any files staged.")
 
         # If we are exiting at this stage then we need to kill off
         for item in jobs:
@@ -329,15 +331,17 @@ def longbowmain(parameters):
 
 
 def recovery(recoveryfile):
+    """This method is for attempting to recover a Longbow session.
 
-    """
-    This method is for attempting to recover a Longbow session. This should be
-    used in cases where jobs have been submitted and somehow Longbow failed to
-    keep running. This will try to take the recovery file, written shortly
-    after submission to recover the whole session. Jobs that are no longer in
-    the queue will be marked as finished and will be staged as normal.
-    """
+    This should be used in cases where jobs have been submitted and somehow
+    Longbow failed to keep running. It will try to take the recovery file,
+    written shortly after submission to recover the whole session. Jobs that
+    are no longer in the queue will be marked as finished and will be staged
+    as normal.
 
+    This method should also be used to recover user specified disconnected
+    sessions.
+    """
     LOG.info("Attempting to find the recovery files")
 
     longbowdir = os.path.expanduser('~/.Longbow')
@@ -366,12 +370,12 @@ def recovery(recoveryfile):
 
 
 def _commandlineproc(alllongbowargs, cmdlnargs, parameters):
+    """A method to process the command-line arguments.
 
-    """
     This method is used to process the command-line to discover any Longbow
     arguments, executables and their arguments.
     """
-
+    # Initialise variables.
     executable = ""
     longbowargs = []
     execargs = []
@@ -439,11 +443,7 @@ def _commandlineproc(alllongbowargs, cmdlnargs, parameters):
 
 
 def _downloadexamples(longbowargs):
-
-    """
-    Does user want to download the Longbow examples.
-    """
-
+    """Longbow examples downloader."""
     # Test for the examples command line flag, download files and exit if found
     if longbowargs.count("-examples") or longbowargs.count("--examples") == 1:
 
@@ -471,11 +471,7 @@ def _downloadexamples(longbowargs):
 
 
 def _hostfileproc(parameters):
-
-    """
-    This method handles the location of the host configuration file.
-    """
-
+    """This method handles the location of the host configuration file."""
     # Hosts - if a filename hasn't been provided default to hosts.conf
     if parameters["hosts"] is "":
 
@@ -513,11 +509,7 @@ def _hostfileproc(parameters):
 
 
 def _jobfileproc(parameters):
-
-    """
-    This method handles the location of the job configuration file.
-    """
-
+    """This method handles the location of the job configuration file."""
     # Job - if a job configuration file has been supplied but the path hasn't
     # look in the current working directory and then the execution directory
     # if needs be.
@@ -543,11 +535,7 @@ def _jobfileproc(parameters):
 
 
 def _messageflags(longbowargs):
-
-    """
-    Check if user has asked for service messages.
-    """
-
+    """Check if user has asked for service messages."""
     # Test for the about command line flag, print message and exit if found.
     if longbowargs.count("-about") == 1 or longbowargs.count("--about") == 1:
 
@@ -633,12 +621,11 @@ def _messageflags(longbowargs):
 
 
 def _parsecommandlineswitches(parameters, longbowargs):
+    """Command-line processor.
 
-    """
     Look through the longbow commandline args and pick out parameters of the
     form --flag [value].
     """
-
     for parameter in parameters:
 
         # Is this a flag, if it is then next parameter is the value.
@@ -677,12 +664,11 @@ def _parsecommandlineswitches(parameters, longbowargs):
 
 
 def _setuplogger(parameters):
+    """Logger setup.
 
-    """
     Configure the Longbow logger, this is for the application. Library users
     should configure their own logging.
     """
-
     # If no log file name was given then default to "log".
     if parameters["log"] is "":
 

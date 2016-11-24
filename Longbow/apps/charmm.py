@@ -205,7 +205,8 @@ def sub_dict(args):
 
     This method will be called from the hooks within the applications.py
     module. This is where the applications specific code should be placed so
-    that Longbow can handle substitutions."""
+    that Longbow can handle substitutions.
+    """
     # Initialise variables
     removelist = []
     sub = {}
