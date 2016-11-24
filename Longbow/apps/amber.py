@@ -22,7 +22,8 @@
 
 This plugin is relatively simple in the fact that adding new executables is as
 simple as modifying the EXECDATA structure below. See the documentation at
-http://www.hecbiosim.ac.uk/longbow-devdocs for more information."""
+http://www.hecbiosim.ac.uk/longbow-devdocs for more information.
+"""
 
 EXECDATA = {
     "pmemd": {

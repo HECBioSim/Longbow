@@ -18,10 +18,11 @@
 # You should have received a copy of the GNU General Public License along with
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-""" This module contains the import logic for the application plugins.
+"""This module contains the import logic for the application plugins.
 
 All code for a new plugin should be placed inside the plugin module itself
-and not here, follow the template for constructing new app plugins."""
+and not here, follow the template for constructing new app plugins.
+"""
 
 import os
 import pkgutil
