@@ -67,6 +67,7 @@ def stage_upstream(jobs):
     jobs (dictionary) - The Longbow jobs data structure, see configuration.py
                         for more information about the format of this
                         structure.
+
     """
     LOG.info("Staging files for job/s.")
 
@@ -122,6 +123,7 @@ def stage_downstream(job):
 
     job (dictionary) - A single job dictionary, this is often simply passed in
                        as a subset of the main jobs dictionary.
+
     """
     LOG.info("For job '%s' staging files downstream.", job["jobname"])
 
@@ -151,6 +153,7 @@ def cleanup(jobs):
     jobs (dictionary) - The Longbow jobs data structure, see configuration.py
                         for more information about the format of this
                         structure.
+
     """
     LOG.info("Cleaning up the work directories.")
 

@@ -55,6 +55,7 @@ def file_parser(filename, path, files, substitutions=None):
     added to the list and any files mentioned in this included file will also
     be added and searched. Substitutions is a dictionary of "@" style
     variables.
+
     """
     # Initialise variable.
     addfile = _filechecks(path, filename)

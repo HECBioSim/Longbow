@@ -102,6 +102,7 @@ def testconnections(jobs):
     jobs (dictionary) - The Longbow jobs data structure, see configuration.py
                         for more information about the format of this
                         structure.
+
     """
     LOG.info("Testing connections to all resources that are referenced in the "
              "job configurations.")
@@ -154,6 +155,7 @@ def sendtoshell(cmd):
 
     errorstate (string) - Contains the exit code that the Unix shell exits
                           with.
+
     """
     LOG.debug("Sending the following to subprocess '%s'", cmd)
 
@@ -194,6 +196,7 @@ def sendtossh(job, args):
     shellout (tuple of strings) - Contains the three strings returned from the
                                   sendtoshell() method. These are standard
                                   output, standard error and the exit code.
+
     """
     # basic ssh command.
     cmd = ["ssh", "-p " + job["port"], job["user"] + "@" + job["host"]]
@@ -271,6 +274,7 @@ def sendtorsync(job, src, dst, includemask, excludemask):
     excludemask (string) - This is a string that should specify which files
                            should be excluded from rsync transfer, this is
                            useful for not transfering large unwanted files.
+
     """
     # Initialise variables.
     include = []
@@ -365,6 +369,7 @@ def localcopy(src, dst):
 
     dst (string) - A string containing the destination absolute path to be
                    copied to.
+
     """
     LOG.debug("Copying '%s' to '%s'", src, dst)
 
@@ -434,6 +439,7 @@ def localdelete(src):
 
     src (string) - A string containing the absolute path of the file/directory
                    to be deleted.
+
     """
     LOG.debug("Deleting '%s'", src)
 
@@ -489,6 +495,7 @@ def locallist(src):
     Return parameters are:
 
     filelist (list) - A list of files within the specified directory.
+
     """
     LOG.debug("Listing the contents of '%s'", src)
 
@@ -529,6 +536,7 @@ def remotecopy(job, src, dst):
 
     dst (string) - A string containing the destination absolute path to be
                    copied to (on the host).
+
     """
     LOG.debug("Copying '%s' to '%s'", src, dst)
 
@@ -565,6 +573,7 @@ def remotedelete(job):
 
     job (dictionary) - A single job dictionary, this is often simply passed in
                        as a subset of the main jobs dictionary.
+
     """
     LOG.debug("Deleting '%s'", job["destdir"])
 
@@ -600,6 +609,7 @@ def remotelist(job):
     Returned parameters are:
 
     filelist (list) - A list of files within the specified directory.
+
     """
     LOG.debug("Listing the contents of '%s'", job["destdir"])
 
@@ -635,6 +645,7 @@ def upload(job):
 
     job (dictionary) - A single job dictionary, this is often simply passed in
                        as a subset of the main jobs dictionary.
+
     """
     # Are paths absolute.
     if os.path.isabs(job["localworkdir"]) is False and \
@@ -678,6 +689,7 @@ def download(job):
 
     job (dictionary) - A single job dictionary, this is often simply passed in
                        as a subset of the main jobs dictionary.
+
     """
     # Are paths absolute.
     if os.path.isabs(job["destdir"]) is False and job["destdir"][0] != "~":

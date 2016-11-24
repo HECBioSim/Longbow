@@ -75,6 +75,7 @@ def main():
 
     This method takes the information from sys.argv and processes this into a
     dictionary format ready to fire longbowmain().
+
     """
     # -------------------------------------------------------------------------
     # Some defaults and parameter initialisation
@@ -241,6 +242,7 @@ def longbowmain(parameters):
     Required inputs are:
     parameters (dictionary): A dictionary containing the parameters and
                              overrides from the command-line.
+
     """
     # A failure at this level will result in jobs being killed off before
     # escalating the exception to trigger graceful exit.
@@ -344,6 +346,7 @@ def recovery(recoveryfile):
 
     Required inputs are:
     recoveryfile (string): A path to the recovery file.
+
     """
     LOG.info("Attempting to find the recovery files")
 
@@ -377,6 +380,7 @@ def _commandlineproc(alllongbowargs, cmdlnargs, parameters):
 
     This method is used to process the command-line to discover any Longbow
     arguments, executables and their arguments.
+
     """
     # Initialise variables.
     executable = ""
@@ -629,6 +633,7 @@ def _parsecommandlineswitches(parameters, longbowargs):
 
     Look through the longbow commandline args and pick out parameters of the
     form --flag [value].
+
     """
     for parameter in parameters:
 
@@ -672,6 +677,7 @@ def _setuplogger(parameters):
 
     Configure the Longbow logger, this is for the application. Library users
     should configure their own logging.
+
     """
     # If no log file name was given then default to "log".
     if parameters["log"] is "":

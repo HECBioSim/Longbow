@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License along with
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-""" A module containing generic scheduling methods.
+"""A module containing generic scheduling methods.
 
 This module contains generic methods for preparing, submitting, deleting and
 monitoring jobs. The methods contained within this module are all based on
@@ -47,7 +47,6 @@ prepare(jobs)
 submit(jobs)
     A method containing the generic and boiler plate Longbow code for
     submitting a job.
-
 """
 
 import logging

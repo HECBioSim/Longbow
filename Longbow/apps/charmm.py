@@ -55,6 +55,7 @@ def file_parser(filename, path, files, substitutions=None):
     added to the list and any files mentioned in this included file will also
     be added and searched. Substitutions is a dictionary of "@" style
     variables.
+
     """
     # Initialise variables.
     addfile = _filechecks(path, filename)
@@ -206,6 +207,7 @@ def sub_dict(args):
     This method will be called from the hooks within the applications.py
     module. This is where the applications specific code should be placed so
     that Longbow can handle substitutions.
+
     """
     # Initialise variables
     removelist = []
