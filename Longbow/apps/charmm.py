@@ -48,13 +48,15 @@ EXECDATA = {
 
 
 def file_parser(filename, path, files, substitutions=None):
-    '''
-    Recursive function that will assimilate from charmm input files a list of
-    files (files) to be staged to the execution host. filename will be added
-    to the list and any files mentioned in filename will also be added and
-    searched. Substitutions is a dictionary of "@" style variables.
-    '''
+    """Method to find dependancy files for upload in a substitution aware way.
 
+    Recursive function that will assimilate from charmm input files, a list of
+    dependancy files to be staged to the remote host. The filename will be
+    added to the list and any files mentioned in this included file will also
+    be added and searched. Substitutions is a dictionary of "@" style
+    variables.
+    """
+    # Initialise variables.
     addfile = _filechecks(path, filename)
 
     # Now look for references to other files in the input file if not done so
@@ -199,13 +201,12 @@ def file_parser(filename, path, files, substitutions=None):
 
 
 def sub_dict(args):
-
     """Function to detect substitutions specified on the commandline.
 
     This method will be called from the hooks within the applications.py
     module. This is where the applications specific code should be placed so
     that Longbow can handle substitutions."""
-
+    # Initialise variables
     removelist = []
     sub = {}
 
@@ -231,13 +232,11 @@ def sub_dict(args):
 
 
 def _filechecks(path, filename):
-
     """Check the file paths to make sure they are valid."""
-
-    # Check the location of filename
+    # Initialise variables
     addfile = ""
 
-    # if the filename has an absolute path but doesn't exist locally, assume
+    # If the filename has an absolute path but doesn't exist locally, assume
     # it is on the remote resource
     if os.path.isabs(filename) is True:
 
@@ -252,12 +251,12 @@ def _filechecks(path, filename):
                 "using an explicit path. Please just provide the names of "
                 "input files".format(filename))
 
-    # elif the file is in the given path
+    # Else, if the file is in the given path
     elif os.path.isfile(os.path.join(path, filename)) is True:
 
         addfile = filename
 
-    # else issue a warning
+    # Otherwise issue a warning
     else:
 
         raise exceptions.RequiredinputError(
@@ -268,9 +267,8 @@ def _filechecks(path, filename):
 
 
 def _fileopen(path, addfile):
-
     """Open a file and return the handle."""
-
+    # Initialise variable
     fil = None
 
     try:

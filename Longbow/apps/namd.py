@@ -48,13 +48,15 @@ EXECDATA = {
 
 
 def file_parser(filename, path, files, substitutions=None):
-    '''
-    Recursive function that will assimilate from NAMD input files a list of
-    files (files) to be staged to the execution host. filename will be added
-    to the list and any files mentioned in filename will also be added and
-    searched. Substitutions is a dictionary of "$" style variables.
-    '''
+    """Method to find dependancy files for upload in a substitution aware way.
 
+    Recursive function that will assimilate from charmm input files, a list of
+    dependancy files to be staged to the remote host. The filename will be
+    added to the list and any files mentioned in this included file will also
+    be added and searched. Substitutions is a dictionary of "@" style
+    variables.
+    """
+    # Initialise variable.
     addfile = _filechecks(path, filename)
 
     # Now look for references to other files in the input file if not done so
@@ -197,10 +199,8 @@ def file_parser(filename, path, files, substitutions=None):
 
 
 def _filechecks(path, filename):
-
     """Check the file paths to make sure they are valid."""
-
-    # Check the location of filename
+    # Initialise variable.
     addfile = ""
 
     # if the filename has an absolute path but doesn't exist locally, assume
@@ -234,9 +234,8 @@ def _filechecks(path, filename):
 
 
 def _fileopen(path, addfile):
-
     """Open a file and return the handle."""
-
+    # Initialise variable.
     fil = None
 
     try:
