@@ -95,9 +95,7 @@ def test_cmdlineproc_test1():
 
 def test_cmdlineproc_test2():
 
-    """
-    Test a single dashed longbow arg
-    """
+    """Test a single dashed longbow arg."""
 
     parameters = {
         "debug": False,
@@ -126,9 +124,7 @@ def test_cmdlineproc_test2():
 
 def test_cmdlineproc_test3():
 
-    """
-    Test a double dashed longbow arg
-    """
+    """Test a double dashed longbow arg."""
 
     parameters = {
         "debug": False,
@@ -157,9 +153,7 @@ def test_cmdlineproc_test3():
 
 def test_cmdlineproc_test4():
 
-    """
-    Test multiple Longbow arguments.
-    """
+    """Test multiple Longbow arguments."""
 
     parameters = {
         "debug": False,
@@ -190,9 +184,7 @@ def test_cmdlineproc_test4():
 
 def test_cmdlineproc_test5():
 
-    """
-    Test executable with Longbow args
-    """
+    """Test executable with Longbow args."""
 
     parameters = {
         "debug": False,
@@ -223,9 +215,7 @@ def test_cmdlineproc_test5():
 
 def test_cmdlineproc_test6():
 
-    """
-    Test executable with Longbow args and executable args
-    """
+    """Test executable with Longbow args and executable args."""
 
     parameters = {
         "debug": False,
@@ -260,9 +250,7 @@ def test_cmdlineproc_test6():
 
 def test_cmdlineproc_test7():
 
-    """
-    Test unknown executable with Longbow args
-    """
+    """Test unknown executable with Longbow args."""
 
     parameters = {
         "debug": False,
@@ -364,9 +352,66 @@ def test_cmdlineproc_test9():
 
 def test_cmdlineproc_test10():
 
-    """
-    Test for bogus command-line flags.
-    """
+    """Test unknown executable with just the executable."""
+
+    parameters = {
+        "debug": False,
+        "disconnect": False,
+        "executable": "",
+        "executableargs": [],
+        "hosts": "",
+        "job": "",
+        "jobname": "",
+        "log": "",
+        "recover": "",
+        "resource": "",
+        "replicates": "",
+        "verbose": False
+    }
+
+    commandlineargs = ["test.exe"]
+
+    longbowargs = mains._commandlineproc(ALLLONGBOWARGS, commandlineargs,
+                                         parameters)
+
+    assert parameters["executable"] == "test.exe"
+    assert parameters["executableargs"] == []
+    assert longbowargs == []
+
+
+def test_cmdlineproc_test11():
+
+    """Test unknown executable without Longbow args and with exec args."""
+
+    parameters = {
+        "debug": False,
+        "disconnect": False,
+        "executable": "",
+        "executableargs": [],
+        "hosts": "",
+        "job": "",
+        "jobname": "",
+        "log": "",
+        "recover": "",
+        "resource": "",
+        "replicates": "",
+        "verbose": False
+    }
+
+    commandlineargs = ["test.exe", "-i", "input.file", "param1", "--someflag"]
+
+    longbowargs = mains._commandlineproc(ALLLONGBOWARGS, commandlineargs,
+                                         parameters)
+
+    assert parameters["executable"] == "test.exe"
+    assert parameters["executableargs"] == ["-i", "input.file", "param1",
+                                            "--someflag"]
+    assert longbowargs == []
+
+
+def test_cmdlineproc_test12():
+
+    """Test for bogus command-line flags."""
 
     parameters = {
         "debug": False,

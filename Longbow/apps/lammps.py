@@ -68,7 +68,6 @@ def file_parser(filename, path, files, substitutions=None):
     be added and searched. Substitutions is a dictionary of "@" style
     variables.
     """
-
     addfile = _filechecks(path, filename)
 
     # Now look for references to other files in the input file if not done so
@@ -217,7 +216,8 @@ def sub_dict(args):
 
     This method will be called from the hooks within the applications.py
     module. This is where the applications specific code should be placed so
-    that Longbow can handle substitutions."""
+    that Longbow can handle substitutions.
+    """
     # Initialise variables.
     removelist = []
     sub = {}

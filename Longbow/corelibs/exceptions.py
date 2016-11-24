@@ -31,11 +31,13 @@ functionality to Longbow.
 
 
 class AbsolutepathError(Exception):
+
     """Exception class for absolute path errors.
 
     Usage:
     AbsolutepathError(message, path)
     """
+
     def __init__(self, message, path):
         """Add the ability to pass the path back to the calling function."""
         # Call the base class constructor.
@@ -46,12 +48,16 @@ class AbsolutepathError(Exception):
 
 
 class DirectorynotfoundError(Exception):
+
     """Directory not found exception."""
+
     pass
 
 
 class DisconnectException(Exception):
+
     """Disconnect exception, for disconnect mode related errors."""
+
     pass
 
 # -----------------------------------------------------------------------------
@@ -59,12 +65,16 @@ class DisconnectException(Exception):
 
 
 class CommandlineargsError(Exception):
+
     """Command-line arguments exception."""
+
     pass
 
 
 class RequiredinputError(Exception):
+
     """Required input error exception."""
+
     pass
 
 # -----------------------------------------------------------------------------
@@ -72,7 +82,9 @@ class RequiredinputError(Exception):
 
 
 class ConfigurationError(Exception):
+
     """Configuration error."""
+
     pass
 
 # -----------------------------------------------------------------------------
@@ -80,7 +92,9 @@ class ConfigurationError(Exception):
 
 
 class PluginattributeError(Exception):
+
     """Missing plugin method exception."""
+
     pass
 
 
@@ -89,27 +103,37 @@ class PluginattributeError(Exception):
 
 
 class SchedulercheckError(Exception):
+
     """Scheduler checking exception."""
+
     pass
 
 
 class HandlercheckError(Exception):
+
     """Job handler checking exception."""
+
     pass
 
 
 class JobdeleteError(Exception):
+
     """Job delete exception."""
+
     pass
 
 
 class JobsubmitError(Exception):
+
     """Job submit exception."""
+
     pass
 
 
 class QueuemaxError(Exception):
+
     """Job submit exception."""
+
     pass
 
 # -----------------------------------------------------------------------------
@@ -117,11 +141,13 @@ class QueuemaxError(Exception):
 
 
 class LocalcopyError(Exception):
+
     """Copy on local machine exception.
 
     Usage:
     LocalcopyError(message, path)
     """
+
     def __init__(self, message, path):
         """Add the ability to pass the path back to the calling function."""
         # Call the base class constructor.
@@ -132,11 +158,13 @@ class LocalcopyError(Exception):
 
 
 class LocaldeleteError(Exception):
+
     """Delete on local machine exception.
 
     Usage:
     LocalcopyError(message, path)
     """
+
     def __init__(self, message, path):
         """Add the ability to pass the path back to the calling function."""
         # Call the base class constructor.
@@ -147,11 +175,13 @@ class LocaldeleteError(Exception):
 
 
 class LocallistError(Exception):
+
     """List on local machine exception.
 
     Usage:
     LocallistError(message, path)
     """
+
     def __init__(self, message, path):
         """Add the ability to pass the path back to the calling function."""
         # Call the base class constructor.
@@ -162,11 +192,13 @@ class LocallistError(Exception):
 
 
 class RemotecopyError(Exception):
+
     """Copy on remote machine exception.
 
     Usage:
     LocallistError(message, sourcepath, destinationpath)
     """
+
     def __init__(self, message, src, dst):
         """Add the ability to pass the paths back to the calling function."""
         # Call the base class constructor.
@@ -178,11 +210,13 @@ class RemotecopyError(Exception):
 
 
 class RemotedeleteError(Exception):
+
     """Delete on remote machine exception.
 
     Usage:
     RemotedeleteError(message, path)
     """
+
     def __init__(self, message, path):
         """Add the ability to pass the path back to the calling function."""
         # Call the base class constructor.
@@ -193,11 +227,13 @@ class RemotedeleteError(Exception):
 
 
 class RemotelistError(Exception):
+
     """List on remote machine exception.
 
     Usage:
     RemotelistError(message, path)
     """
+
     def __init__(self, message, path):
         """Add the ability to pass the path back to the calling function."""
         # Call the base class constructor.
@@ -208,11 +244,13 @@ class RemotelistError(Exception):
 
 
 class RsyncError(Exception):
+
     """Rsync exception.
 
     Usage:
     RemotelistError(message, (stdout, stderr, errcode))
     """
+
     def __init__(self, message, shellout):
         """Add the ability to pass the shelloutput to the calling function."""
         # Call the base class constructor.
@@ -225,11 +263,13 @@ class RsyncError(Exception):
 
 
 class SSHError(Exception):
+
     """SSH exception.
 
     Usage:
     RemotelistError(message, (stdout, stderr, errcode))
     """
+
     def __init__(self, message, shellout):
         """Add the ability to pass the shelloutput to the calling function."""
         # Call the base class constructor.
@@ -245,10 +285,14 @@ class SSHError(Exception):
 
 
 class StagingError(Exception):
+
     """Generic staging error exception."""
+
     pass
 
 
 class RemoteworkdirError(Exception):
+
     """Remote working directory related generic exception."""
+
     pass

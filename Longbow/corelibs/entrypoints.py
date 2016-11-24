@@ -66,7 +66,7 @@ LOG = logging.getLogger("Longbow")
 
 
 def main():
-    """This is the main entrypoint for Longbow when used as an application.
+    """The main entrypoint for Longbow when used as an application.
 
     This method is the main entry point for Longbow launched as an application.
     Library users should not use this method when linking Longbow at a high
@@ -231,7 +231,7 @@ def main():
 
 
 def longbowmain(parameters):
-    """This method is the main entry point of the Longbow library.
+    """The main entry point of the Longbow library.
 
     Being the top level method that makes calls on the Longbow library.
     This is a good place to link against Longbow if a developer does not want
@@ -331,7 +331,7 @@ def longbowmain(parameters):
 
 
 def recovery(recoveryfile):
-    """This method is for attempting to recover a Longbow session.
+    """A method for attempting to recover a Longbow session.
 
     This should be used in cases where jobs have been submitted and somehow
     Longbow failed to keep running. It will try to take the recovery file,
@@ -399,24 +399,25 @@ def _commandlineproc(alllongbowargs, cmdlnargs, parameters):
             # if item provided on the commandline doesn't appear to be a
             # longbow argument, then assume the first is the exec and anything
             # after it are exec args.
-            if item not in alllongbowargs:
+            previtem = cmdlnargs[index - 1].replace("-", "")
 
-                previtem = cmdlnargs[index - 1].replace("-", "")
+            # If previous item not in parameters then we have found the exec.
+            if item not in alllongbowargs and previtem not in parameters:
 
-                if previtem not in parameters:
+                longbowargs = cmdlnargs[:index]
+                executable = item
+                execargs = cmdlnargs[index + 1:]
+                break
 
-                    longbowargs = cmdlnargs[:index]
-                    executable = item
-                    execargs = cmdlnargs[index + 1:]
-                    break
+            # If previous item in parameters then check that it is a bool type
+            # flag.
+            elif (item not in alllongbowargs and previtem in parameters and
+                    isinstance(parameters[previtem], bool)):
 
-                elif(previtem in parameters and
-                        isinstance(parameters[previtem], bool)):
-
-                    longbowargs = cmdlnargs[:index]
-                    executable = item
-                    execargs = cmdlnargs[index + 1:]
-                    break
+                longbowargs = cmdlnargs[:index]
+                executable = item
+                execargs = cmdlnargs[index + 1:]
+                break
 
         # If nothing but Longbow arguments are found then assume other stuff
         # is in configuration files. This will be checked later.
@@ -471,7 +472,7 @@ def _downloadexamples(longbowargs):
 
 
 def _hostfileproc(parameters):
-    """This method handles the location of the host configuration file."""
+    """A method to handle the location of the host configuration file."""
     # Hosts - if a filename hasn't been provided default to hosts.conf
     if parameters["hosts"] is "":
 
@@ -509,7 +510,7 @@ def _hostfileproc(parameters):
 
 
 def _jobfileproc(parameters):
-    """This method handles the location of the job configuration file."""
+    """A method to handle the location of the job configuration file."""
     # Job - if a job configuration file has been supplied but the path hasn't
     # look in the current working directory and then the execution directory
     # if needs be.
