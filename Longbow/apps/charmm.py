@@ -276,9 +276,9 @@ def _fileopen(path, addfile):
 
         fil = open(os.path.join(path, addfile), "r")
 
-    except IOError:
+    except (IOError, OSError):
 
-        exceptions.RequiredinputError("Can't read the file '{0}'"
-                                      .format(addfile))
+        raise exceptions.RequiredinputError(
+            "Can't read the file '{0}'".format(addfile))
 
     return fil

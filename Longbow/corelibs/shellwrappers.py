@@ -245,7 +245,7 @@ def sendtossh(job, args):
 
 
 def sendtorsync(job, src, dst, includemask, excludemask):
-    """ A method to construct Rsync commands and hand them off to the shell.
+    """A method to construct Rsync commands and hand them off to the shell.
 
     This method constructs a string that forms an rsync command, this string is
     then handed off to the sendtoshell() method for execution.
@@ -353,7 +353,7 @@ def sendtorsync(job, src, dst, includemask, excludemask):
 
 
 def localcopy(src, dst):
-    """ A method for copying files from one local path to another.
+    """A method for copying files from one local path to another.
 
     This method is for copying a file/directory between two local paths, this
     method relies on the Python standard library to perform operations.
@@ -425,7 +425,7 @@ def localcopy(src, dst):
 
 
 def localdelete(src):
-    """ A method for deleting local files.
+    """A method for deleting local files.
 
     This method is for deleting a file/directory from the local machine, this
     method relies on the Python standard library to perform operations.
@@ -514,7 +514,7 @@ def locallist(src):
 
 
 def remotecopy(job, src, dst):
-    """ A method for copying files between paths on a remote HPC machine.
+    """A method for copying files between paths on a remote HPC machine.
 
     This method is for copying a file/directory between two paths on a remote
     host, this is done via passing a copy command to the sendtossh() method.

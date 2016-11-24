@@ -66,8 +66,8 @@ JOBFILE = os.path.join(os.path.expanduser('~/.Longbow'), "recovery-" +
 
 
 def testenv(jobs, hostconf):
+    """A method for determining the sceduler and job handler on a machine.
 
-    """
     This method makes an attempt to test the environment and determine from
     a pre-configured list what scheduler and job submission handler is present
     on the machine.
@@ -82,7 +82,6 @@ def testenv(jobs, hostconf):
                         for more information about the format of this
                         structure.
     """
-
     save = False
 
     checked = []
@@ -152,8 +151,8 @@ def testenv(jobs, hostconf):
 
 
 def delete(job):
+    """A generic method for deleting jobs.
 
-    """
     A method containing the generic and boiler plate Longbow code for deleting
     a job.
 
@@ -162,7 +161,6 @@ def delete(job):
     job (dictionary) - A single job dictionary, this is often simply passed in
                        as a subset of the main jobs dictionary.
     """
-
     scheduler = job["scheduler"]
 
     try:
@@ -185,8 +183,8 @@ def delete(job):
 
 
 def monitor(jobs):
+    """A generic method for monitoring the status of jobs.
 
-    """
     A method containing the generic and boiler plate Longbow code for
     monitoring a job, this method contains the entire structure of the loop
     that deals with monitoring jobs.
@@ -197,7 +195,6 @@ def monitor(jobs):
                         for more information about the format of this
                         structure.
     """
-
     LOG.info("Monitoring job/s, depending on the chosen logging mode Longbow"
              "might appear to be doing nothing. Please be patient!")
 
@@ -261,8 +258,8 @@ def monitor(jobs):
 
 
 def prepare(jobs):
+    """A generic method for creating job submit scripts.
 
-    """
     A method containing the generic and boiler plate Longbow code for
     constructing the submit file.
 
@@ -272,7 +269,6 @@ def prepare(jobs):
                         for more information about the format of this
                         structure.
     """
-
     LOG.info("Creating submit files for job/s.")
 
     for item in jobs:
@@ -298,8 +294,8 @@ def prepare(jobs):
 
 
 def submit(jobs):
+    """A generic method for submitting jobs.
 
-    """
     A method containing the generic and boiler plate Longbow code for
     submitting a job.
 
@@ -309,7 +305,6 @@ def submit(jobs):
                         for more information about the format of this
                         structure.
     """
-
     # Initialise some counters.
     submitted = 0
     queued = 0
@@ -413,11 +408,7 @@ def submit(jobs):
 
 
 def _testscheduler(job):
-
-    """
-    The test logic for finding out what scheduler is on the system.
-    """
-
+    """The test logic for finding out what scheduler is on the system."""
     schedulerqueries = getattr(schedulers, "QUERY")
 
     LOG.info("No environment for this host '%s' is specified - attempting to "
@@ -446,11 +437,8 @@ def _testscheduler(job):
 
 
 def _testhandler(job):
-
-    """
-    The test logic for finding out job handler is on the system.
-    """
-
+    """A method for finding out job handler is on the system."""
+    # Initialise variables.
     handlers = {
         "aprun": ["which aprun"],
         "mpirun": ["which mpirun"]
@@ -492,12 +480,8 @@ def _testhandler(job):
 
 
 def _monitorinitialise(jobs):
-
-    """
-    Setup the conditions for monitoring jobs.
-    """
-
-    # Some initial values
+    """Setup the conditions for monitoring jobs."""
+    # Initialise values.
     pollinterval = 0
     stageinterval = 0
 
@@ -537,12 +521,11 @@ def _monitorinitialise(jobs):
 
 
 def _polljobs(jobs, save):
+    """A method to poll the status of all jobs.
 
-    """
     Poll the status of all jobs that are not in error states, queued or
     finihed.
     """
-
     for job in jobs:
 
         if (jobs[job]["laststatus"] != "Finished" and
@@ -584,13 +567,12 @@ def _polljobs(jobs, save):
 
 
 def _stagejobfiles(jobs, save):
+    """A method to stage all files for each running job.
 
-    """
     Stage all files for each running job. For jobs that are finished, stage
     and remove them from the QUEUEINFO data and then change their status to
     complete. This will stop future staging
     """
-
     for job in jobs:
 
         if (jobs[job]["laststatus"] == "Running" or
@@ -610,11 +592,7 @@ def _stagejobfiles(jobs, save):
 
 
 def _checkwaitingjobs(jobs, save):
-
-    """
-    Check if any jobs marked as "Waiting Submission" can be submitted.
-    """
-
+    """Check if any jobs marked as "Waiting Submission" can be submitted."""
     for job in jobs:
 
         # Check if we can submit any further jobs.
@@ -667,11 +645,8 @@ def _checkwaitingjobs(jobs, save):
 
 
 def _checkcomplete(jobs):
-
-    """
-    Check if all the jobs are complete.
-    """
-
+    """Check if all the jobs are complete."""
+    # Initialise variables
     allfinished = False
     allcomplete = False
     complete = []

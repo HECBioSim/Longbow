@@ -18,7 +18,8 @@
 # You should have received a copy of the GNU General Public License along with
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
+"""A module containing methods for staging files to and from remote machines.
+
 The staging module provides methods for processing the transfer of files
 between the local host and the remote host job directories.
 
@@ -53,8 +54,8 @@ LOG = logging.getLogger("Longbow.corelibs.staging")
 
 
 def stage_upstream(jobs):
+    """A method for transfering a jobs files to a remote HPC machine.
 
-    """
     A method for staging files for each job to the target HPC host. The
     underlying utility behind this transfer is rsync, thus it is possible
     to supply rsync file masks to blacklist unwanted large files. By default
@@ -67,7 +68,6 @@ def stage_upstream(jobs):
                         for more information about the format of this
                         structure.
     """
-
     LOG.info("Staging files for job/s.")
 
     for item in jobs:
@@ -110,8 +110,8 @@ def stage_upstream(jobs):
 
 
 def stage_downstream(job):
+    """A method for transfering all job files back from the HPC machine.
 
-    """
     A method for staging files for each job to from target HPC host. The
     underlying utility behind this transfer is rsync, thus it is possible
     to supply rsync file masks to blacklist unwanted large files. By default
@@ -123,7 +123,6 @@ def stage_downstream(job):
     job (dictionary) - A single job dictionary, this is often simply passed in
                        as a subset of the main jobs dictionary.
     """
-
     LOG.info("For job '%s' staging files downstream.", job["jobname"])
 
     # Download the whole directory with rsync.
@@ -141,8 +140,8 @@ def stage_downstream(job):
 
 
 def cleanup(jobs):
+    """A method for cleaning up the working directory on the HPC machine.
 
-    """
     A method for cleaning up the working directory on the HPC host, this method
     will only delete job directories that are valid for the given Longbow
     instance, thus avoid data loss.
@@ -153,7 +152,6 @@ def cleanup(jobs):
                         for more information about the format of this
                         structure.
     """
-
     LOG.info("Cleaning up the work directories.")
 
     for item in jobs:
