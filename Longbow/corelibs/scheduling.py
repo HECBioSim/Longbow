@@ -18,7 +18,8 @@
 # You should have received a copy of the GNU General Public License along with
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
+""" A module containing generic scheduling methods.
+
 This module contains generic methods for preparing, submitting, deleting and
 monitoring jobs. The methods contained within this module are all based on
 generic job concepts. The specific functionality that comes from each scheduler
@@ -46,6 +47,7 @@ prepare(jobs)
 submit(jobs)
     A method containing the generic and boiler plate Longbow code for
     submitting a job.
+
 """
 
 import logging
@@ -81,6 +83,7 @@ def testenv(jobs, hostconf):
     jobs (dictionary) - The Longbow jobs data structure, see configuration.py
                         for more information about the format of this
                         structure.
+
     """
     save = False
 
@@ -160,6 +163,7 @@ def delete(job):
 
     job (dictionary) - A single job dictionary, this is often simply passed in
                        as a subset of the main jobs dictionary.
+
     """
     scheduler = job["scheduler"]
 
@@ -194,6 +198,7 @@ def monitor(jobs):
     jobs (dictionary) - The Longbow jobs data structure, see configuration.py
                         for more information about the format of this
                         structure.
+
     """
     LOG.info("Monitoring job/s, depending on the chosen logging mode Longbow"
              "might appear to be doing nothing. Please be patient!")
@@ -268,6 +273,7 @@ def prepare(jobs):
     jobs (dictionary) - The Longbow jobs data structure, see configuration.py
                         for more information about the format of this
                         structure.
+
     """
     LOG.info("Creating submit files for job/s.")
 
@@ -304,6 +310,7 @@ def submit(jobs):
     jobs (dictionary) - The Longbow jobs data structure, see configuration.py
                         for more information about the format of this
                         structure.
+
     """
     # Initialise some counters.
     submitted = 0
@@ -525,6 +532,7 @@ def _polljobs(jobs, save):
 
     Poll the status of all jobs that are not in error states, queued or
     finihed.
+
     """
     for job in jobs:
 
@@ -571,7 +579,8 @@ def _stagejobfiles(jobs, save):
 
     Stage all files for each running job. For jobs that are finished, stage
     and remove them from the QUEUEINFO data and then change their status to
-    complete. This will stop future staging
+    complete. This will stop future staging.
+
     """
     for job in jobs:
 
