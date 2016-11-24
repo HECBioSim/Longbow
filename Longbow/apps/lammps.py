@@ -18,11 +18,11 @@
 # You should have received a copy of the GNU General Public License along with
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-This is the LAMMPS plugin module. This plugin is relatively simple in the fact
-that adding new executables is as simple as modifying the EXECDATA structure
-below.
-"""
+"""This is the LAMMPS plugin module.
+
+This plugin is relatively simple in the fact that adding new executables is as
+simple as modifying the EXECDATA structure below. See the documentation at
+http://www.hecbiosim.ac.uk/longbow-devdocs for more information."""
 
 import os
 import re
@@ -34,28 +34,28 @@ EXECDATA = {
     "lmp_xc30": {
         "subexecutables": [],
         "requiredfiles": ["-i"],
-        },
+    },
     "lmp_linux": {
         "subexecutables": [],
         "requiredfiles": ["-i"],
-        },
+    },
     "lmp_gpu": {
         "subexecutables": [],
         "requiredfiles": ["-i"],
-        },
+    },
     "lmp_mpi": {
         "subexecutables": [],
         "requiredfiles": ["-i"],
-        },
+    },
     "lmp_cuda": {
         "subexecutables": [],
         "requiredfiles": ["-i"],
-        },
+    },
     "lmp": {
         "subexecutables": [],
         "requiredfiles": ["-i"],
-        }
     }
+}
 
 
 def file_parser(filename, path, files, substitutions=None):
@@ -210,9 +210,12 @@ def file_parser(filename, path, files, substitutions=None):
 
 
 def sub_dict(args):
-    '''
-    Function to detect substitutions specified on the commandline.
-    '''
+
+    """Function to detect substitutions specified on the commandline.
+
+    This method will be called from the hooks within the applications.py
+    module. This is where the applications specific code should be placed so
+    that Longbow can handle substitutions."""
 
     removelist = []
     sub = {}
@@ -235,9 +238,7 @@ def sub_dict(args):
 
 def _filechecks(path, filename):
 
-    """
-    Check the file paths to make sure they are valid.
-    """
+    """Check the file paths to make sure they are valid."""
 
     # Check the location of filename
     addfile = ""
@@ -274,9 +275,7 @@ def _filechecks(path, filename):
 
 def _fileopen(path, addfile):
 
-    """
-    Open a file and return the handle.
-    """
+    """Open a file and return the handle."""
 
     fil = None
 

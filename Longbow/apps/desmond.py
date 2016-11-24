@@ -18,15 +18,15 @@
 # You should have received a copy of the GNU General Public License along with
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-This is the DESMOND plugin module. This plugin is relatively simple in the fact
-that adding new executables is as simple as modifying the EXECDATA structure
-below.
-"""
+"""This is the DESMOND plugin module.
+
+This plugin is relatively simple in the fact that adding new executables is as
+simple as modifying the EXECDATA structure below. See the documentation at
+http://www.hecbiosim.ac.uk/longbow-devdocs for more information."""
 
 EXECDATA = {
     "desmond": {
         "subexecutables": [],
         "requiredfiles": ["--include || --restore"],
-        },
-    }
+    },
+}

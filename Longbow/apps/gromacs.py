@@ -18,11 +18,11 @@
 # You should have received a copy of the GNU General Public License along with
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-This is the GROMACS plugin module. This plugin is relatively simple in the fact
-that adding new executables is as simple as modifying the EXECDATA structure
-below.
-"""
+"""This is the GROMACS plugin module.
+
+This plugin is relatively simple in the fact that adding new executables is as
+simple as modifying the EXECDATA structure below. See the documentation at
+http://www.hecbiosim.ac.uk/longbow-devdocs for more information."""
 
 import os
 
@@ -30,37 +30,37 @@ EXECDATA = {
     "gmx": {
         "subexecutables": ["mdrun", "mdrun_mpi"],
         "requiredfiles": ["-s || -deffnm"],
-        },
+    },
     "gmx_d": {
         "subexecutables": ["mdrun", "mdrun_mpi"],
         "requiredfiles": ["-s || -deffnm"],
-        },
+    },
     "mdrun": {
         "subexecutables": [],
         "requiredfiles": ["-s || -deffnm"],
-        },
+    },
     "mdrun_d": {
         "subexecutables": [],
         "requiredfiles": ["-s || -deffnm"],
-        },
+    },
     "mdrun_mpi": {
         "subexecutables": [],
         "requiredfiles": ["-s || -deffnm"],
-        },
+    },
     "mdrun_mpi_d": {
         "subexecutables": [],
         "requiredfiles": ["-s || -deffnm"],
-        }
     }
+}
 
 
 def defaultfilename(path, item, initargs):
 
-    """
-    Method for dealing with input files that are provided by the -deffnm
-    flag. The reason this needs a special method is due to the fact that
-    users will supply the name as -deffnm test but the file name might be
-    test.tpr which would make our code miss the file from the upload list
+    """Method for processing tpr files provided by the -deffnm flag.
+
+    The reason this needs a special method is due to the fact that users will
+    supply the name as -deffnm test but the file name might be test.tpr which
+    would make our code miss the file from the upload list.
     """
 
     filename = ""
