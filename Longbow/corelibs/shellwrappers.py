@@ -18,7 +18,8 @@
 # You should have received a copy of the GNU General Public License along with
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
+"""A module containing methods for interacting with the Unix shell.
+
 This module contains methods for interacting with the Unix shell, it includes
 methods for file manipulation and directory functions. Where possible paths
 are checked to make sure they are absolute paths.
@@ -89,8 +90,8 @@ LOG = logging.getLogger("Longbow.corelibs.shellwrappers")
 
 
 def testconnections(jobs):
+    """A method to test that connections to HPC machines can be established.
 
-    """
     This method will test that connections to hosts specified in jobs can be
     established. Problems encountered at this stage could be due to either
     badly configured hosts, networking problems, or even system maintenance/
@@ -102,10 +103,8 @@ def testconnections(jobs):
                         for more information about the format of this
                         structure.
     """
-
     LOG.info("Testing connections to all resources that are referenced in the "
              "job configurations.")
-
     checked = []
 
     # Test all of the computers listed in jobs in the job configuration
@@ -136,12 +135,12 @@ def testconnections(jobs):
 
 
 def sendtoshell(cmd):
+    """A method to send assembled commands to the Unix shell.
 
-    """
     This method is responsible for handing off commands to the Unix shell, it
     makes use of the subprocess library from the Python standard library.
 
-    REquired arguments are:
+    Required arguments are:
 
     cmd (string) - A fully qualified Unix command.
 
@@ -156,7 +155,6 @@ def sendtoshell(cmd):
     errorstate (string) - Contains the exit code that the Unix shell exits
                           with.
     """
-
     LOG.debug("Sending the following to subprocess '%s'", cmd)
 
     handle = subprocess.Popen(
@@ -178,8 +176,8 @@ def sendtoshell(cmd):
 
 
 def sendtossh(job, args):
+    """A method to construct SSH commands and hands them off to the shell.
 
-    """
     This method constructs a string containing commands to be executed via SSH.
     This string is then handed off to the sendtoshell() method for execution.
 
@@ -197,7 +195,6 @@ def sendtossh(job, args):
                                   sendtoshell() method. These are standard
                                   output, standard error and the exit code.
     """
-
     # basic ssh command.
     cmd = ["ssh", "-p " + job["port"], job["user"] + "@" + job["host"]]
 
@@ -248,8 +245,8 @@ def sendtossh(job, args):
 
 
 def sendtorsync(job, src, dst, includemask, excludemask):
+    """ A method to construct Rsync commands and hand them off to the shell.
 
-    """
     This method constructs a string that forms an rsync command, this string is
     then handed off to the sendtoshell() method for execution.
 
@@ -275,7 +272,7 @@ def sendtorsync(job, src, dst, includemask, excludemask):
                            should be excluded from rsync transfer, this is
                            useful for not transfering large unwanted files.
     """
-
+    # Initialise variables.
     include = []
     exclude = []
     port = job["port"]
@@ -356,8 +353,8 @@ def sendtorsync(job, src, dst, includemask, excludemask):
 
 
 def localcopy(src, dst):
+    """ A method for copying files from one local path to another.
 
-    """
     This method is for copying a file/directory between two local paths, this
     method relies on the Python standard library to perform operations.
 
@@ -369,7 +366,6 @@ def localcopy(src, dst):
     dst (string) - A string containing the destination absolute path to be
                    copied to.
     """
-
     LOG.debug("Copying '%s' to '%s'", src, dst)
 
     # Expand tildas (if present) otherwise these will not change anything.
@@ -389,9 +385,9 @@ def localcopy(src, dst):
 
     # Is the source a file or a directory? They are dealt with slightly
     # differently.
-    if os.path.isfile(src):
+    try:
 
-        try:
+        if os.path.isfile(src):
 
             # Check if the destination exists.
             if os.path.exists(dst):
@@ -403,13 +399,7 @@ def localcopy(src, dst):
                 os.makedirs(dst)
                 shutil.copy(src, dst)
 
-        except (shutil.Error, IOError):
-
-            raise exceptions.LocalcopyError("Could not copy the file", src)
-
-    elif os.path.isdir(src):
-
-        try:
+        elif os.path.isdir(src):
 
             # Check if the destination exists.
             if os.path.exists(dst):
@@ -424,20 +414,19 @@ def localcopy(src, dst):
                 # Copy it.
                 shutil.copytree(src, dst)
 
-        except (shutil.Error, IOError):
+        else:
 
-            raise exceptions.LocalcopyError(
-                "Could not copy the directory", src)
+            raise exceptions.LocalcopyError("Could not copy file it appears "
+                                            "to not exist.", src)
 
-    else:
+    except (shutil.Error, IOError):
 
-        raise exceptions.LocalcopyError(
-            "Could not copy file it appears to not exist.", src)
+        raise exceptions.LocalcopyError("Could not copy the directory", src)
 
 
 def localdelete(src):
+    """ A method for deleting local files.
 
-    """
     This method is for deleting a file/directory from the local machine, this
     method relies on the Python standard library to perform operations.
 
@@ -446,7 +435,6 @@ def localdelete(src):
     src (string) - A string containing the absolute path of the file/directory
                    to be deleted.
     """
-
     LOG.debug("Deleting '%s'", src)
 
     # Expand tildas (if present) otherwise these will not change anything.
@@ -487,8 +475,8 @@ def localdelete(src):
 
 
 def locallist(src):
+    """A method for listing the contents of a local directory.
 
-    """
     This method is for constructing a list of items present within a given
     directory. This method relies on the Python standard library to perform
     operations.
@@ -502,7 +490,6 @@ def locallist(src):
 
     filelist (list) - A list of files within the specified directory.
     """
-
     LOG.debug("Listing the contents of '%s'", src)
 
     # Expand tildas (if present) otherwise these will not change anything.
@@ -527,8 +514,8 @@ def locallist(src):
 
 
 def remotecopy(job, src, dst):
+    """ A method for copying files between paths on a remote HPC machine.
 
-    """
     This method is for copying a file/directory between two paths on a remote
     host, this is done via passing a copy command to the sendtossh() method.
 
@@ -543,7 +530,6 @@ def remotecopy(job, src, dst):
     dst (string) - A string containing the destination absolute path to be
                    copied to (on the host).
     """
-
     LOG.debug("Copying '%s' to '%s'", src, dst)
 
     # Are paths absolute. Do we start with tildas, if so since we are going
@@ -570,8 +556,8 @@ def remotecopy(job, src, dst):
 
 
 def remotedelete(job):
+    """A method to delete a file/directory on a remote HPC machine.
 
-    """
     This method is for deleting a file/directory from a path on a remote host,
     this is done via passing a delete command to the sendtossh() method.
 
@@ -580,7 +566,6 @@ def remotedelete(job):
     job (dictionary) - A single job dictionary, this is often simply passed in
                        as a subset of the main jobs dictionary.
     """
-
     LOG.debug("Deleting '%s'", job["destdir"])
 
     # Are paths absolute.
@@ -602,8 +587,8 @@ def remotedelete(job):
 
 
 def remotelist(job):
+    """A method to list the contents of a directory on a remote HPC machine.
 
-    """
     This method is for listing the contents of a directory on a remote host,
     this is done via passing a list command to the sendtoshell() method.
 
@@ -616,7 +601,6 @@ def remotelist(job):
 
     filelist (list) - A list of files within the specified directory.
     """
-
     LOG.debug("Listing the contents of '%s'", job["destdir"])
 
     # Are paths absolute.
@@ -642,8 +626,8 @@ def remotelist(job):
 
 
 def upload(job):
+    """A method to setup the command to upload a file to a remote machine.
 
-    """
     This method is for uploading files to a remote host, this method is
     responsible for specifying the direction that the transfer takes place.
 
@@ -652,7 +636,6 @@ def upload(job):
     job (dictionary) - A single job dictionary, this is often simply passed in
                        as a subset of the main jobs dictionary.
     """
-
     # Are paths absolute.
     if os.path.isabs(job["localworkdir"]) is False and \
             job["localworkdir"][0] != "~":
@@ -686,8 +669,8 @@ def upload(job):
 
 
 def download(job):
+    """A method to setup the command to download files from a remote machine.
 
-    """
     This method is for downloading files from a remote host, this method is
     responsible for specifying the direction that the transfer takes place.
 
@@ -696,7 +679,6 @@ def download(job):
     job (dictionary) - A single job dictionary, this is often simply passed in
                        as a subset of the main jobs dictionary.
     """
-
     # Are paths absolute.
     if os.path.isabs(job["destdir"]) is False and job["destdir"][0] != "~":
 

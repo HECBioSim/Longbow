@@ -119,20 +119,20 @@ def file_parser(filename, path, files, substitutions=None):
                         # Do variable substitution
                         if '$' in newfile and len(variables.keys()) > 0:
 
-                            start = newfile.index('$')+1
+                            start = newfile.index('$') + 1
 
                             if newfile[start] == '{':
 
                                 end = newfile[start:].index('}')+start
-                                var = variables[newfile[start+1:end]]
-                                newfile = (newfile[0:start-1] + var +
-                                           newfile[end+1:])
+                                var = variables[newfile[start + 1:end]]
+                                newfile = (newfile[0:start - 1] + var +
+                                           newfile[end + 1:])
 
                             else:
 
-                                end = start+1
+                                end = start + 1
                                 var = variables[newfile[start:end]]
-                                newfile = (newfile[0:start-1] + var +
+                                newfile = (newfile[0:start - 1] + var +
                                            newfile[end:])
 
                         # deduce the location of newfile

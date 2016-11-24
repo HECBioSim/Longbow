@@ -341,6 +341,9 @@ def recovery(recoveryfile):
 
     This method should also be used to recover user specified disconnected
     sessions.
+
+    Required inputs are:
+    recoveryfile (string): A path to the recovery file.
     """
     LOG.info("Attempting to find the recovery files")
 
