@@ -33,7 +33,7 @@ def test_subdict_test1():
 
     args = ["myvar:myprot", "thingvar:mything", "<", "example.inp"]
 
-    subs = charmm.sub_dict(args)
+    subs = charmm.detectsubstitutions(args)
 
     assert isinstance(subs, dict)
     assert subs["myvar"] == "myprot"
@@ -49,7 +49,7 @@ def test_subdict_test2():
 
     args = ["myvar=myprot", "thingvar=mything", "<", "example.inp"]
 
-    subs = charmm.sub_dict(args)
+    subs = charmm.detectsubstitutions(args)
 
     assert isinstance(subs, dict)
     assert subs["myvar"] == "myprot"

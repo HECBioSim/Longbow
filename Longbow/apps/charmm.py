@@ -214,7 +214,7 @@ def _internalsubstitutions(variables, words):
 
 
 def _newfilechecks(addfile, newfile, path):
-    """A private method to check any new files"""
+    """A private method to check any new files."""
     if newfile.count("../") == 1:
 
         # If we are in a repX subdirectory, the file must be in cwd.
@@ -271,7 +271,7 @@ def _newfilechecks(addfile, newfile, path):
 
 
 def _variablesubstitutions(newfile, variables):
-    """A method to process substitutions"""
+    """A method to process substitutions."""
     # Do variable substitution.
     if '@' in newfile and len(variables.keys()) > 0:
 

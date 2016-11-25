@@ -33,7 +33,7 @@ def test_subdict_test1():
 
     args = ["-var", "myvar", "mydata", "-i", "example.in", "-l", "output"]
 
-    subs = lammps.sub_dict(args)
+    subs = lammps.detectsubstitutions(args)
 
     assert isinstance(subs, dict)
     assert subs["myvar"] == "mydata"
@@ -48,7 +48,7 @@ def test_subdict_test2():
 
     args = ["-v", "p", "myprot", "-i", "example.in", "-l", "output"]
 
-    subs = lammps.sub_dict(args)
+    subs = lammps.detectsubstitutions(args)
 
     assert isinstance(subs, dict)
     assert subs["p"] == "myprot"
