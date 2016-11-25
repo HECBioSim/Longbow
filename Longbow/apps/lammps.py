@@ -107,7 +107,7 @@ def file_parser(filename, path, files, substitutions=None):
                 # If this line is reading in an input file.
                 if words[0].lower() in keywords:
 
-                    newfile = words[1]
+                    newfile = words[-1]
 
                     # Do variable substitutons
                     newfile = _variablesubstitutions(newfile, variables)
