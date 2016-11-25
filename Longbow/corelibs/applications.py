@@ -262,7 +262,7 @@ def _proccommandlinetype1(job, app, cwd, filelist):
     # Detect command-line parameter substitutions.
     try:
 
-        substitution = getattr(apps, app.lower()).sub_dict(args)
+        substitution = getattr(apps, app.lower()).detectsubstitutions(args)
 
     except AttributeError:
 
@@ -341,7 +341,7 @@ def _proccommandlinetype2(job, app, cwd, filelist):
     # Detect command-line parameter substitutions.
     try:
 
-        substitution = getattr(apps, app.lower()).sub_dict(args)
+        substitution = getattr(apps, app.lower()).detectsubstitutions(args)
 
     except AttributeError:
 
@@ -417,7 +417,7 @@ def _proccommandlinetype3(job, app, cwd, filelist):
     # Detect command-line parameter substitutions.
     try:
 
-        substitution = getattr(apps, app.lower()).sub_dict(args)
+        substitution = getattr(apps, app.lower()).detectsubstitutions(args)
 
     except AttributeError:
 
@@ -493,7 +493,7 @@ def _proccommandlinetype4(job, app, cwd, filelist):
     # Detect command-line parameter substitutions.
     try:
 
-        substitution = getattr(apps, app.lower()).sub_dict(args)
+        substitution = getattr(apps, app.lower()).detectsubstitutions(args)
 
     except AttributeError:
 
