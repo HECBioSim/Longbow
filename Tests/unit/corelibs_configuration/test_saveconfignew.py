@@ -62,9 +62,6 @@ def test_saveconfignew_test2():
     keydiff = {
         "test3": {
             "param1": "test"
-        },
-        "test4": {
-            "param2": "1"
         }
     }
 
@@ -72,4 +69,4 @@ def test_saveconfignew_test2():
 
     assert contents == ["[test1]", "param1 = 2", "param2 = test",
                         "[test2]", "parama = f", "paramb = 12", "", "[test3]",
-                        "param1 = test", "", "[test4]", "param2 = 1"]
+                        "param1 = test"]
