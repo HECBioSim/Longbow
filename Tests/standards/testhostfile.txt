@@ -1,0 +1,18 @@
+[HPC1-shortqueue]
+queue = short
+user = test
+host = login.test.ac.uk
+remoteworkdir = /work/dir
+corespernode = 24
+account = acc200
+handler = aprun
+scheduler = pbs
+maxtime = 00:18
+
+# Comment-y goodness
+[HPC1]
+user = test
+host = login.test.ac.uk
+remoteworkdir = /work/dir2
+corespernode = 24
+account = acc300

@@ -417,43 +417,34 @@ def loadconfigs(configfile):
     # Pull out sections into list.
     for item in contents:
 
-        # Don't care about blank lines.
-        if len(item) > 0:
+        # Find section markers
+        if len(item) > 0 and item[0] == "[" and item[len(item) - 1] == "]":
 
-            try:
-                # Find section markers
-                if item[0] == "[" and item[len(item) - 1] == "]":
+            # Remove the square bracket section markers.
+            section = "".join(a for a in item if a not in "[]")
 
-                    # Remove the square bracket section markers.
-                    section = "".join(a for a in item if a not in "[]")
+            # Add to list of sections.
+            sections.append(section)
 
-                    # Add to list of sections.
-                    sections.append(section)
+            # Create a new section in the data structure.
+            params[section] = {}
 
-                    # Create a new section in the data structure.
-                    params[section] = {}
+        # Find comment markers.
+        elif len(item) > 0 and item[0] is "#":
 
-                # Find comment markers.
-                elif item[0] is "#":
+            # Ignore comments.
+            pass
 
-                    # Ignore comments.
-                    pass
+        # Anything else must be option data.
+        elif len(item) > 0 and "=" in item:
 
-                # Anything else must be option data.
-                else:
+            # Option is in the format key = param. Added regular expression so
+            # that if user writes with/without spaces then we can still extract
+            # the configuration info.
+            key, value = re.split(" = |= | =|=", item)
 
-                    # Option is in the format key = param. Added regular
-                    # expression so that if user writes with/without spaces
-                    # then we can still extract the configuration info.
-                    key, value = re.split(" = |= | =|=", item)
-
-                    # Store the keys and values in the data structure.
-                    params[section][key] = value
-
-            except NameError:
-
-                # Issue warning.
-                pass
+            # Store the keys and values in the data structure.
+            params[section][key] = value
 
     # Check if there are zero sections.
     if len(sections) is 0:
@@ -537,7 +528,7 @@ def saveconfigs(configfile, params):
     _saveconfigupdates(contents, oldparams, valuediff)
 
     # Now handle new entries. Run through each section.
-    _saveconfigsnew(contents, keydiff)
+    _saveconfignew(contents, keydiff)
 
     try:
 
@@ -603,35 +594,34 @@ def _saveconfigdiffs(params, oldparams, kdiff, vdiff):
         # Run through each parameter in this section.
         for option in params[section]:
 
-            if params[section][option] != "":
+            try:
 
-                try:
-
-                    # Check continuity between data in file and Longbow.
-                    if params[section][option] != oldparams[section][option]:
-
-                        try:
-
-                            # If parameter is changed try adding it to the diff
-                            vdiff[section][option] = params[section][option]
-
-                        except KeyError:
-
-                            # Missing section.
-                            vdiff[section] = {option: params[section][option]}
-
-                # If we get a key error then the paramater is a new one.
-                except KeyError:
+                # Check continuity between data in file and Longbow.
+                if (params[section][option] != "" and
+                        params[section][option] != oldparams[section][option]):
 
                     try:
 
-                        # Try adding to diff
-                        kdiff[section][option] = params[section][option]
+                        # If parameter is changed try adding it to the diff
+                        vdiff[section][option] = params[section][option]
 
                     except KeyError:
 
                         # Missing section.
-                        kdiff[section] = {option: params[section][option]}
+                        vdiff[section] = {option: params[section][option]}
+
+            # If we get a key error then the paramater is a new one.
+            except KeyError:
+
+                try:
+
+                    # Try adding to diff
+                    kdiff[section][option] = params[section][option]
+
+                except KeyError:
+
+                    # Missing section.
+                    kdiff[section] = {option: params[section][option]}
 
 
 def _saveconfigupdates(contents, oldparams, valuediff):
@@ -683,7 +673,7 @@ def _saveconfigupdates(contents, oldparams, valuediff):
                 str(option) + " = " + str(valuediff[section][option]))
 
 
-def _saveconfigsnew(contents, keydiff):
+def _saveconfignew(contents, keydiff):
     """A private method to calculate configuration data diffs.
 
     This method is a private method used by the saveconfigs method to add new
@@ -700,7 +690,7 @@ def _saveconfigsnew(contents, keydiff):
             try:
                 sectionendindex = contents.index(
                     [a for a in contents if "[" and "]" in a and
-                     contents.index(a) > sectionstartindex][0]) - 1
+                     contents.index(a) > sectionstartindex][0])
 
             except IndexError:
 
