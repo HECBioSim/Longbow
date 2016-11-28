@@ -22,6 +22,8 @@
 This testing module contains basic testing for the NAMD plugin.
 """
 
+import os
+
 try:
 
     from unittest import mock
@@ -29,8 +31,6 @@ try:
 except ImportError:
 
     import mock
-
-import os
 
 import Longbow.apps.namd as namd
 
@@ -85,4 +85,4 @@ def test_fileparser_test3():
 
     namd.file_parser(filename, path, files, substitutions)
 
-    assert files == ["apps_fileparsercharmm.txt", "apps_recursivetest.txt"]
+    assert files == ["apps_fileparsernamd.txt", "apps_recursivetest.txt"]

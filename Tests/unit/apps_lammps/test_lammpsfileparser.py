@@ -22,6 +22,8 @@
 This testing module contains basic testing for the LAMMPS plugin.
 """
 
+import os
+
 try:
 
     from unittest import mock
@@ -29,8 +31,6 @@ try:
 except ImportError:
 
     import mock
-
-import os
 
 import Longbow.apps.lammps as lammps
 
@@ -82,4 +82,4 @@ def test_fileparser_test3():
 
     lammps.file_parser(filename, path, files, substitutions)
 
-    assert files == ["apps_fileparsercharmm.txt", "apps_recursivetest.txt"]
+    assert files == ["apps_fileparserlammps.txt", "apps_recursivetest.txt"]
