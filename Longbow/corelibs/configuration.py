@@ -131,7 +131,7 @@ REQUIRED = {
 
 
 def processconfigs(parameters):
-    """A method for processing the raw configuration sources
+    """A method for processing the raw configuration sources.
 
     Parameters are loaded from the configuration files and sourced from the
     command-line and processed into Longbow friendly configuration structures.
@@ -530,115 +530,14 @@ def saveconfigs(configfile, params):
         contents = []
         oldparams = {}
 
-    # Run through each section in the data.
-    for section in params:
+    # Calculate the diffs.
+    _saveconfigdiffs(params, oldparams, keydiff, valuediff)
 
-        # Run through each parameter in this section.
-        for option in params[section]:
-
-            if params[section][option] != "":
-
-                try:
-
-                    # Check for continuity between data in file and that in
-                    # Longbow.
-                    if params[section][option] != oldparams[section][option]:
-
-                        try:
-
-                            # If parameter is changed try adding it to the diff
-                            valuediff[section][option] = \
-                                params[section][option]
-
-                        except KeyError:
-
-                            # If this is the first time then section won't
-                            # exist.
-                            valuediff[section] = \
-                                {option: params[section][option]}
-
-                # If we get a key error then the paramater is a new one.
-                except KeyError:
-
-                    try:
-
-                        # Try adding to diff
-                        keydiff[section][option] = params[section][option]
-
-                    except KeyError:
-
-                        # If this is the first time we will need to create the
-                        # section.
-                        keydiff[section] = {option: params[section][option]}
-
-    # Update the file metastructure with these changes.
-    # Firstly handle the updates.
-    for section in valuediff:
-
-        # Find the section start (so we know where to look)
-        sectionstartindex = contents.index("[" + section + "]")
-
-        # Find the section end.
-        try:
-
-            sectionendindex = contents.index(
-                [a for a in contents if "[" and "]" in a and
-                 contents.index(a) > sectionstartindex][0]) - 1
-
-        except IndexError:
-
-            sectionendindex = len(contents)
-
-        # Limit our search to this range for the parameter.
-        for option in valuediff[section]:
-
-            # Get the line index to edit.
-            editposition = (
-                sectionstartindex +
-                contents[sectionstartindex:sectionendindex].index(
-                    str(option) + " = " + str(oldparams[section][option])))
-
-            # Edit the entry.
-            contents[editposition] = (
-                str(option) + " = " + str(valuediff[section][option]))
+    # Update the file metastructure. Firstly handle the updates.
+    _saveconfigupdates(contents, oldparams, valuediff)
 
     # Now handle new entries. Run through each section.
-    for section in keydiff:
-
-        try:
-            # Find the section start.
-            sectionstartindex = contents.index("[" + section + "]")
-
-            # Find the section end.
-            try:
-                sectionendindex = contents.index(
-                    [a for a in contents if "[" and "]" in a and
-                     contents.index(a) > sectionstartindex][0]) - 1
-
-            except IndexError:
-
-                sectionendindex = len(contents)
-
-            # Now for each option.
-            for option in keydiff[section]:
-
-                # Insert into the list in the appropriate place.
-                contents.insert(
-                    sectionendindex,
-                    str(option) + " = " + str(keydiff[section][option]))
-
-        # Doesn't exist so it is a new section.
-        except ValueError:
-
-            # Append the section.
-            contents.extend(["", "[" + section + "]"])
-
-            # Now run through each option.
-            for option in keydiff[section]:
-
-                # And append it to the end of the list.
-                contents.append(
-                    str(option) + " = " + str(keydiff[section][option]))
+    _saveconfigsnew(contents, keydiff)
 
     try:
 
@@ -687,3 +586,143 @@ def saveini(inifile, params):
         ini.write("\n")
 
     ini.close()
+
+
+def _saveconfigdiffs(params, oldparams, kdiff, vdiff):
+    """A private method to calculate configuration data diffs.
+
+    This method is a private method used by the saveconfigs method to calculate
+    diffs between data held in the application and data held in configuration
+    files. These diffs are then used to apply changes to existing configuration
+    files during saving.
+
+    """
+    # Run through each section in the data.
+    for section in params:
+
+        # Run through each parameter in this section.
+        for option in params[section]:
+
+            if params[section][option] != "":
+
+                try:
+
+                    # Check continuity between data in file and Longbow.
+                    if params[section][option] != oldparams[section][option]:
+
+                        try:
+
+                            # If parameter is changed try adding it to the diff
+                            vdiff[section][option] = params[section][option]
+
+                        except KeyError:
+
+                            # Missing section.
+                            vdiff[section] = {option: params[section][option]}
+
+                # If we get a key error then the paramater is a new one.
+                except KeyError:
+
+                    try:
+
+                        # Try adding to diff
+                        kdiff[section][option] = params[section][option]
+
+                    except KeyError:
+
+                        # Missing section.
+                        kdiff[section] = {option: params[section][option]}
+
+
+def _saveconfigupdates(contents, oldparams, valuediff):
+    """A private method to update the file metastructure for existing params.
+
+    This method is a private method used by the saveconfigs method to update
+    parameters that already exist in the configuration file, with the new
+    values if they have changed.
+
+    """
+    for section in valuediff:
+
+        # Find the section start (so we know where to look)
+        sectionstartindex = contents.index("[" + section + "]")
+
+        # Find the section end.
+        try:
+
+            sectionendindex = contents.index(
+                [a for a in contents if "[" and "]" in a and
+                 contents.index(a) > sectionstartindex][0]) - 1
+
+        except IndexError:
+
+            sectionendindex = len(contents)
+
+        # Limit our search to this range for the parameter.
+        for option in valuediff[section]:
+
+            for item in [" = ", " =", "= ", "="]:
+
+                try:
+
+                    # Get the line index to edit.
+                    editposition = (
+                        sectionstartindex +
+                        contents[sectionstartindex:sectionendindex].index(
+                            str(option) + item +
+                            str(oldparams[section][option])))
+
+                    break
+
+                except ValueError:
+
+                    pass
+
+            # Edit the entry.
+            contents[editposition] = (
+                str(option) + " = " + str(valuediff[section][option]))
+
+
+def _saveconfigsnew(contents, keydiff):
+    """A private method to calculate configuration data diffs.
+
+    This method is a private method used by the saveconfigs method to add new
+    parameters to the configuration file, if they have been created.
+
+    """
+    for section in keydiff:
+
+        try:
+            # Find the section start.
+            sectionstartindex = contents.index("[" + section + "]")
+
+            # Find the section end.
+            try:
+                sectionendindex = contents.index(
+                    [a for a in contents if "[" and "]" in a and
+                     contents.index(a) > sectionstartindex][0]) - 1
+
+            except IndexError:
+
+                sectionendindex = len(contents)
+
+            # Now for each option.
+            for option in keydiff[section]:
+
+                # Insert into the list in the appropriate place.
+                contents.insert(
+                    sectionendindex,
+                    str(option) + " = " + str(keydiff[section][option]))
+
+        # Doesn't exist so it is a new section.
+        except ValueError:
+
+            # Append the section.
+            contents.extend(["", "[" + section + "]"])
+
+            # Now run through each option.
+            for option in keydiff[section]:
+
+                # And append it to the end of the list.
+                contents.append(
+                    str(option) + " = " + str(keydiff[section][option]))
