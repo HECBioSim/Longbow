@@ -18,7 +18,8 @@
 # You should have received a copy of the GNU General Public License along with
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
+"""A module  containing methods for dealing with configuration files.
+
 This module contains methods for loading and saving to Longbow (ini)
 configuration files in addition to methods for extracting the resultant
 information into Longbow data structures. The templates for these data
@@ -130,10 +131,10 @@ REQUIRED = {
 
 
 def processconfigs(parameters):
+    """A method for processing the raw configuration sources
 
-    """
-    Method for processing the raw configuration structures loaded from the
-    configuration files into Longbow friendly configuration structures.
+    Parameters are loaded from the configuration files and sourced from the
+    command-line and processed into Longbow friendly configuration structures.
     This is where the parameter hierarchy is applied.
 
     Required arguments are:
@@ -144,8 +145,8 @@ def processconfigs(parameters):
     Return parameters are:
 
     jobs (dictionary) A fully processed Longbow jobs data structure.
-    """
 
+    """
     # Define our main data structure.
     jobs = {}
 
@@ -336,10 +337,9 @@ def processconfigs(parameters):
 
 
 def loadconfigs(configfile):
+    """A method to load a Longbow configuration file.
 
-    """
-    Method to load an ini file. Files of this format contain the following
-    mark-up structure.
+    Files of this format contain the following mark-up structure.
 
     Sections of a file are marked using square brackets
     Section then contain option statements of the form "param = value"
@@ -388,8 +388,8 @@ def loadconfigs(configfile):
                           each heading will form a dictionary within the
                           corresponding heading section (dictionary of
                           dictionaries).
-    """
 
+    """
     LOG.info("Loading configuration information from file '%s'", configfile)
 
     sections = []
@@ -422,7 +422,7 @@ def loadconfigs(configfile):
 
             try:
                 # Find section markers
-                if item[0] == "[" and item[len(item)-1] == "]":
+                if item[0] == "[" and item[len(item) - 1] == "]":
 
                     # Remove the square bracket section markers.
                     section = "".join(a for a in item if a not in "[]")
@@ -475,10 +475,9 @@ def loadconfigs(configfile):
 
 
 def saveconfigs(configfile, params):
+    """A method for saving to a Longbow configuration file.
 
-    """
-    Method for saving to an ini file. Files of this format contain the
-    following mark-up structure.
+    Files of this format contain the following mark-up structure.
 
     Sections of a file are marked using square brackets
     Section then contain option statements of the form "param = value"
@@ -514,8 +513,8 @@ def saveconfigs(configfile, params):
 
     params (dictionary): This should contain the data structure that should
                          be saved (typically hosts or job configs structure).
-    """
 
+    """
     LOG.info("Saving configuration information to file '%s'", configfile)
 
     keydiff = {}
@@ -660,10 +659,9 @@ def saveconfigs(configfile, params):
 
 
 def saveini(inifile, params):
+    """A method for saving to a Longbow recovery file.
 
-    """
-    Method for saving to a Longbow recovery file. This method will write
-    to an inifile.
+    This method will write a simple ini formatted file.
 
     Required arguments are:
 
@@ -671,8 +669,8 @@ def saveini(inifile, params):
 
     params (dictionary): This should contain the data structure that should
                          be saved (typically hosts or jobs structure).
-    """
 
+    """
     LOG.info("Saving current state to recovery file '%s'", inifile)
 
     ini = open(inifile, "w")
