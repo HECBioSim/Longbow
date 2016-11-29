@@ -116,9 +116,6 @@ def processconfigs(parameters):
     jobs (dictionary) A fully processed Longbow jobs data structure.
 
     """
-    # Initialise.
-    jobs = {}
-
     # Try and load the host file.
     try:
 
@@ -139,8 +136,7 @@ def processconfigs(parameters):
 
             raise
 
-    # If there is no job file, then we will attempt to build a job from other
-    # sources, give the job a default name if the user didn't give one.
+    # If there is no job file, then attempt to build a job from other sources.
     else:
 
         jobdata = {}
@@ -161,66 +157,9 @@ def processconfigs(parameters):
 
             jobdata[jobname][item] = ""
 
-    # Process job/s.
-    for job in jobdata:
+    jobs = _processconfigsresource(parameters, jobdata, hostsections)
 
-        # Create a base job structure along with known defaults.
-        jobs[job] = JOBTEMPLATE.copy()
-
-        # Before we go further, check that the job has been assigned a host.
-        try:
-
-            if jobdata[job]["resource"] is "":
-
-                # Has a host been named on the command-line?
-                if parameters["resource"] is not "":
-
-                    jobs[job]["resource"] = parameters["resource"]
-
-                # Otherwise lets try and use the top host from host.conf.
-                else:
-
-                    jobs[job]["resource"] = hostsections[0]
-
-            # It should be given the job conf.
-            else:
-
-                jobs[job]["resource"] = jobdata[job]["resource"]
-
-        except KeyError:
-
-            jobs[job]["resource"] = hostsections[0]
-
-        # Validate that we have this host listed.
-        if jobs[job]["resource"] not in hostsections:
-
-            raise exceptions.CommandlineargsError(
-                "The resource '{0}' that was given in the job config file "
-                "has not been configured in the host.conf. The hosts "
-                "available are '{1}'"
-                .format(jobs[job]["resource"], hostsections))
-
-        # Process the parameters and apply priority ordering.
-        for item in jobs[job]:
-
-            # We don't need to include this as we have just dealt with it.
-            if item is not "resource":
-
-                # Command-line overrides are highest priority.
-                if item in parameters and parameters[item] is not "":
-
-                    jobs[job][item] = parameters[item]
-
-                # Job file is next highest in priority.
-                elif item in jobdata[job] and jobdata[job][item] is not "":
-
-                    jobs[job][item] = jobdata[job][item]
-
-                # Hosts file is next highest in priority.
-                elif item in hostdata[jobs[job]["resource"]] and \
-                        hostdata[jobs[job]["resource"]][item] is not "":
-
-                    jobs[job][item] = hostdata[jobs[job]["resource"]][item]
+    _processconfigsparams(jobs, parameters, jobdata, hostdata)
 
     _processconfigsvalidate(jobs)
 
@@ -518,6 +457,80 @@ def _processconfigsfinalinit(jobs):
 
         LOG.debug("Job '%s' will be run in the '%s' directory on the remote "
                   "resource.", job, jobs[job]["destdir"])
+
+
+def _processconfigsparams(jobs, parameters, jobdata, hostdata):
+    """A private method to assimilate all parameters into jobs dict."""
+    # Process the parameters and apply priority ordering.
+    for job in jobs:
+
+        for item in jobs[job]:
+
+            # This should already be dealt with.
+            if item is not "resource":
+
+                # Command-line overrides are highest priority.
+                if item in parameters and parameters[item] is not "":
+
+                    jobs[job][item] = parameters[item]
+
+                # Job file is next highest in priority.
+                elif item in jobdata[job] and jobdata[job][item] is not "":
+
+                    jobs[job][item] = jobdata[job][item]
+
+                # Hosts file is next highest in priority.
+                elif item in hostdata[jobs[job]["resource"]] and \
+                        hostdata[jobs[job]["resource"]][item] is not "":
+
+                    jobs[job][item] = hostdata[jobs[job]["resource"]][item]
+
+
+def _processconfigsresource(parameters, jobdata, hostsections):
+    """A private method to figure out which HPC each job should use."""
+    # Initialise.
+    jobs = {}
+
+    # Process resource/s for job/s.
+    for job in jobdata:
+
+        # Create a base job structure along with known defaults.
+        jobs[job] = JOBTEMPLATE.copy()
+
+        # Before we go further, check that the job has been assigned a host.
+        try:
+
+            if jobdata[job]["resource"] is "":
+
+                # Has a host been named on the command-line?
+                if parameters["resource"] is not "":
+
+                    jobs[job]["resource"] = parameters["resource"]
+
+                # Otherwise lets try and use the top host from host.conf.
+                else:
+
+                    jobs[job]["resource"] = hostsections[0]
+
+            # It should be given the job conf.
+            else:
+
+                jobs[job]["resource"] = jobdata[job]["resource"]
+
+        except KeyError:
+
+            jobs[job]["resource"] = hostsections[0]
+
+        # Validate that we have this host listed.
+        if jobs[job]["resource"] not in hostsections:
+
+            raise exceptions.ConfigurationError(
+                "The resource '{0}' that was given in the job config file "
+                "has not been configured in the host.conf. The hosts "
+                "available are '{1}'"
+                .format(jobs[job]["resource"], hostsections))
+
+    return jobs
 
 
 def _processconfigsvalidate(jobs):

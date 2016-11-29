@@ -57,8 +57,9 @@ def test_prepare_case1():
     assert job["subfile"] == "submit.pbs"
     assert job["upload-include"] == "file1, file2, submit.pbs"
     assert open("/tmp/submit.pbs", "rb").read() == open(
-        os.path.join(os.getcwd(),
-                     "Tests/standards/pbssubfile_testcase1.txt"), "rb").read()
+        os.path.join(
+            os.getcwd(),
+            "Tests/standards/pbs_submitfiles/testcase1.txt"), "rb").read()
 
 
 def test_prepare_case2():
@@ -90,8 +91,9 @@ def test_prepare_case2():
     pbs.prepare(job)
 
     assert open("/tmp/submit.pbs", "rb").read() == open(
-        os.path.join(os.getcwd(),
-                     "Tests/standards/pbssubfile_testcase2.txt"), "rb").read()
+        os.path.join(
+            os.getcwd(),
+            "Tests/standards/pbs_submitfiles/testcase2.txt"), "rb").read()
 
 
 def test_prepare_case3():
@@ -123,8 +125,9 @@ def test_prepare_case3():
     pbs.prepare(job)
 
     assert open("/tmp/submit.pbs", "rb").read() == open(
-        os.path.join(os.getcwd(),
-                     "Tests/standards/pbssubfile_testcase3.txt"), "rb").read()
+        os.path.join(
+            os.getcwd(),
+            "Tests/standards/pbs_submitfiles/testcase3.txt"), "rb").read()
 
 
 def test_prepare_case4():
@@ -157,8 +160,9 @@ def test_prepare_case4():
     pbs.prepare(job)
 
     assert open("/tmp/submit.pbs", "rb").read() == open(
-        os.path.join(os.getcwd(),
-                     "Tests/standards/pbssubfile_testcase4.txt"), "rb").read()
+        os.path.join(
+            os.getcwd(),
+            "Tests/standards/pbs_submitfiles/testcase4.txt"), "rb").read()
 
 
 def test_prepare_case5():
@@ -191,8 +195,9 @@ def test_prepare_case5():
     pbs.prepare(job)
 
     assert open("/tmp/submit.pbs", "rb").read() == open(
-        os.path.join(os.getcwd(),
-                     "Tests/standards/pbssubfile_testcase5.txt"), "rb").read()
+        os.path.join(
+            os.getcwd(),
+            "Tests/standards/pbs_submitfiles/testcase5.txt"), "rb").read()
 
 
 def test_prepare_case6():
@@ -225,8 +230,9 @@ def test_prepare_case6():
     pbs.prepare(job)
 
     assert open("/tmp/submit.pbs", "rb").read() == open(
-        os.path.join(os.getcwd(),
-                     "Tests/standards/pbssubfile_testcase6.txt"), "rb").read()
+        os.path.join(
+            os.getcwd(),
+            "Tests/standards/pbs_submitfiles/testcase6.txt"), "rb").read()
 
 
 def test_prepare_case7():
@@ -259,8 +265,9 @@ def test_prepare_case7():
     pbs.prepare(job)
 
     assert open("/tmp/submit.pbs", "rb").read() == open(
-        os.path.join(os.getcwd(),
-                     "Tests/standards/pbssubfile_testcase7.txt"), "rb").read()
+        os.path.join(
+            os.getcwd(),
+            "Tests/standards/pbs_submitfiles/testcase7.txt"), "rb").read()
 
 
 def test_prepare_case8():
@@ -293,8 +300,9 @@ def test_prepare_case8():
     pbs.prepare(job)
 
     assert open("/tmp/submit.pbs", "rb").read() == open(
-        os.path.join(os.getcwd(),
-                     "Tests/standards/pbssubfile_testcase8.txt"), "rb").read()
+        os.path.join(
+            os.getcwd(),
+            "Tests/standards/pbs_submitfiles/testcase8.txt"), "rb").read()
 
 
 def test_prepare_case9():
@@ -327,5 +335,6 @@ def test_prepare_case9():
     pbs.prepare(job)
 
     assert open("/tmp/submit.pbs", "rb").read() == open(
-        os.path.join(os.getcwd(),
-                     "Tests/standards/pbssubfile_testcase9.txt"), "rb").read()
+        os.path.join(
+            os.getcwd(),
+            "Tests/standards/pbs_submitfiles/testcase9.txt"), "rb").read()

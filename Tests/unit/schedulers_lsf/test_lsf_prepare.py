@@ -55,8 +55,9 @@ def test_prepare_case1():
     assert job["subfile"] == "submit.lsf"
     assert job["upload-include"] == "file1, file2, submit.lsf"
     assert open("/tmp/submit.lsf", "rb").read() == open(
-        os.path.join(os.getcwd(),
-                     "Tests/standards/lsfsubfile_testcase1.txt"), "rb").read()
+        os.path.join(
+            os.getcwd(),
+            "Tests/standards/lsf_submitfiles/testcase1.txt"), "rb").read()
 
 
 def test_prepare_case2():
@@ -86,8 +87,9 @@ def test_prepare_case2():
     lsf.prepare(job)
 
     assert open("/tmp/submit.lsf", "rb").read() == open(
-        os.path.join(os.getcwd(),
-                     "Tests/standards/lsfsubfile_testcase2.txt"), "rb").read()
+        os.path.join(
+            os.getcwd(),
+            "Tests/standards/lsf_submitfiles/testcase2.txt"), "rb").read()
 
 
 def test_prepare_case3():
@@ -117,8 +119,9 @@ def test_prepare_case3():
     lsf.prepare(job)
 
     assert open("/tmp/submit.lsf", "rb").read() == open(
-        os.path.join(os.getcwd(),
-                     "Tests/standards/lsfsubfile_testcase3.txt"), "rb").read()
+        os.path.join(
+            os.getcwd(),
+            "Tests/standards/lsf_submitfiles/testcase3.txt"), "rb").read()
 
 
 def test_prepare_case4():
@@ -149,8 +152,9 @@ def test_prepare_case4():
     lsf.prepare(job)
 
     assert open("/tmp/submit.lsf", "rb").read() == open(
-        os.path.join(os.getcwd(),
-                     "Tests/standards/lsfsubfile_testcase4.txt"), "rb").read()
+        os.path.join(
+            os.getcwd(),
+            "Tests/standards/lsf_submitfiles/testcase4.txt"), "rb").read()
 
 
 def test_prepare_case5():
@@ -181,8 +185,9 @@ def test_prepare_case5():
     lsf.prepare(job)
 
     assert open("/tmp/submit.lsf", "rb").read() == open(
-        os.path.join(os.getcwd(),
-                     "Tests/standards/lsfsubfile_testcase5.txt"), "rb").read()
+        os.path.join(
+            os.getcwd(),
+            "Tests/standards/lsf_submitfiles/testcase5.txt"), "rb").read()
 
 
 def test_prepare_case6():
@@ -213,8 +218,9 @@ def test_prepare_case6():
     lsf.prepare(job)
 
     assert open("/tmp/submit.lsf", "rb").read() == open(
-        os.path.join(os.getcwd(),
-                     "Tests/standards/lsfsubfile_testcase6.txt"), "rb").read()
+        os.path.join(
+            os.getcwd(),
+            "Tests/standards/lsf_submitfiles/testcase6.txt"), "rb").read()
 
 
 def test_prepare_case7():
@@ -245,8 +251,9 @@ def test_prepare_case7():
     lsf.prepare(job)
 
     assert open("/tmp/submit.lsf", "rb").read() == open(
-        os.path.join(os.getcwd(),
-                     "Tests/standards/lsfsubfile_testcase7.txt"), "rb").read()
+        os.path.join(
+            os.getcwd(),
+            "Tests/standards/lsf_submitfiles/testcase7.txt"), "rb").read()
 
 
 def test_prepare_case8():
@@ -277,5 +284,6 @@ def test_prepare_case8():
     lsf.prepare(job)
 
     assert open("/tmp/submit.lsf", "rb").read() == open(
-        os.path.join(os.getcwd(),
-                     "Tests/standards/lsfsubfile_testcase8.txt"), "rb").read()
+        os.path.join(
+            os.getcwd(),
+            "Tests/standards/lsf_submitfiles/testcase8.txt"), "rb").read()

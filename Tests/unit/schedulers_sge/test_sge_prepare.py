@@ -59,8 +59,9 @@ def test_prepare_case1():
     assert job["subfile"] == "submit.sge"
     assert job["upload-include"] == "file1, file2, submit.sge"
     assert open("/tmp/submit.sge", "rb").read() == open(
-        os.path.join(os.getcwd(),
-                     "Tests/standards/sgesubfile_testcase1.txt"), "rb").read()
+        os.path.join(
+            os.getcwd(),
+            "Tests/standards/sge_submitfiles/testcase1.txt"), "rb").read()
 
 
 def test_prepare_case2():
@@ -94,8 +95,9 @@ def test_prepare_case2():
     sge.prepare(job)
 
     assert open("/tmp/submit.sge", "rb").read() == open(
-        os.path.join(os.getcwd(),
-                     "Tests/standards/sgesubfile_testcase2.txt"), "rb").read()
+        os.path.join(
+            os.getcwd(),
+            "Tests/standards/sge_submitfiles/testcase2.txt"), "rb").read()
 
 
 def test_prepare_case3():
@@ -130,8 +132,9 @@ def test_prepare_case3():
     sge.prepare(job)
 
     assert open("/tmp/submit.sge", "rb").read() == open(
-        os.path.join(os.getcwd(),
-                     "Tests/standards/sgesubfile_testcase3.txt"), "rb").read()
+        os.path.join(
+            os.getcwd(),
+            "Tests/standards/sge_submitfiles/testcase3.txt"), "rb").read()
 
 
 def test_prepare_case4():
@@ -166,8 +169,9 @@ def test_prepare_case4():
     sge.prepare(job)
 
     assert open("/tmp/submit.sge", "rb").read() == open(
-        os.path.join(os.getcwd(),
-                     "Tests/standards/sgesubfile_testcase4.txt"), "rb").read()
+        os.path.join(
+            os.getcwd(),
+            "Tests/standards/sge_submitfiles/testcase4.txt"), "rb").read()
 
 
 def test_prepare_case5():
@@ -202,8 +206,9 @@ def test_prepare_case5():
     sge.prepare(job)
 
     assert open("/tmp/submit.sge", "rb").read() == open(
-        os.path.join(os.getcwd(),
-                     "Tests/standards/sgesubfile_testcase5.txt"), "rb").read()
+        os.path.join(
+            os.getcwd(),
+            "Tests/standards/sge_submitfiles/testcase5.txt"), "rb").read()
 
 
 def test_prepare_case6():
@@ -238,8 +243,9 @@ def test_prepare_case6():
     sge.prepare(job)
 
     assert open("/tmp/submit.sge", "rb").read() == open(
-        os.path.join(os.getcwd(),
-                     "Tests/standards/sgesubfile_testcase6.txt"), "rb").read()
+        os.path.join(
+            os.getcwd(),
+            "Tests/standards/sge_submitfiles/testcase6.txt"), "rb").read()
 
 
 def test_prepare_case7():
@@ -274,5 +280,6 @@ def test_prepare_case7():
     sge.prepare(job)
 
     assert open("/tmp/submit.sge", "rb").read() == open(
-        os.path.join(os.getcwd(),
-                     "Tests/standards/sgesubfile_testcase7.txt"), "rb").read()
+        os.path.join(
+            os.getcwd(),
+            "Tests/standards/sge_submitfiles/testcase7.txt"), "rb").read()
