@@ -18,7 +18,8 @@
 # You should have received a copy of the GNU General Public License along with
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
+"""A module containing methods for processing application command-lines.
+
 The applications module contains methods for processing the aspect of jobs
 which relate to external applications (such as an MD package). The following
 methods can be found within this module:
@@ -48,8 +49,8 @@ LOG = logging.getLogger("Longbow.corelibs.applications")
 
 
 def testapp(jobs):
+    """A method to test that executables and their modules are launchable.
 
-    """
     This method will make an attempt to check that the application executables
     required to run a job/s is present on the specified host/s. This method is
     capable of using the module system.
@@ -59,8 +60,8 @@ def testapp(jobs):
     jobs (dictionary) - The Longbow jobs data structure, see configuration.py
                         for more information about the format of this
                         structure.
-    """
 
+    """
     checked = {}
 
     LOG.info("Testing the executables defined for each job.")
@@ -112,8 +113,8 @@ def testapp(jobs):
 
 
 def processjobs(jobs):
+    """A method to process the application portion of the command-line.
 
-    """
     This method will process information that is given as an intended target to
     be passed on to the executable at run time. It will check that required
     parameters (provided the respective plug-in is configured correctly) have
@@ -125,8 +126,8 @@ def processjobs(jobs):
     jobs (dictionary) - The Longbow jobs data structure, see configuration.py
                         for more information about the format of this
                         structure.
-    """
 
+    """
     LOG.info("Processing job/s and detecting files that require upload.")
 
     # Get dictionary of executables and their required flags from plug-ins.
@@ -246,14 +247,7 @@ def processjobs(jobs):
 
 
 def _proccommandlinetype1(job, app, cwd, filelist):
-
-    """
-    Processor for applications that have the command-line type:
-
-    exec < input.file
-    exec < input.file > output.file
-    """
-
+    """Processor forcommand-line type 'exec < input.file > output.file'."""
     foundflags = []
     args = list(job["executableargs"])
     initargs = list(job["executableargs"])
@@ -326,13 +320,7 @@ def _proccommandlinetype1(job, app, cwd, filelist):
 
 
 def _proccommandlinetype2(job, app, cwd, filelist):
-
-    """
-    Processor for applications that have the command-line type:
-
-    exec --input file1 -file file2 -parameter1 --parameter2
-    """
-
+    """Processor for command-line type 'exec --input file1 -file file2'."""
     foundflags = []
     args = list(job["executableargs"])
     initargs = list(job["executableargs"])
@@ -402,13 +390,7 @@ def _proccommandlinetype2(job, app, cwd, filelist):
 
 
 def _proccommandlinetype3(job, app, cwd, filelist):
-
-    """
-    Processor for applications that have the command-line type:
-
-    exec subexec --file1 file1 -file2 file2 -parameter1 --parameter2
-    """
-
+    """Processor command-line type 'exec subexec --file1 v1 -file2 p2'."""
     foundflags = []
     args = list(job["executableargs"])
     initargs = list(job["executableargs"])
@@ -478,13 +460,7 @@ def _proccommandlinetype3(job, app, cwd, filelist):
 
 
 def _proccommandlinetype4(job, app, cwd, filelist):
-
-    """
-    Processor for applications that have the command-line type:
-
-    exec input.file
-    """
-
+    """Processor for command-line type 'exec input.file'."""
     foundflags = []
     args = list(job["executableargs"])
     initargs = list(job["executableargs"])
@@ -557,11 +533,7 @@ def _proccommandlinetype4(job, app, cwd, filelist):
 
 
 def _procsinglejob(app, arg, cwd):
-
-    """
-    Processor for replicate jobs.
-    """
-
+    """Processor for single jobs."""
     fileitem = ""
 
     if os.path.isfile(os.path.join(cwd, arg)):
@@ -585,11 +557,7 @@ def _procsinglejob(app, arg, cwd):
 
 
 def _procreplicatejobs(app, arg, cwd, initargs, rep):
-
-    """
-    Processor for replicate jobs.
-    """
-
+    """Processor for replicate jobs."""
     tmpitem = ""
 
     # We should check that the replicate directory structure exists.
