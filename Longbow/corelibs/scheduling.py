@@ -18,7 +18,8 @@
 # You should have received a copy of the GNU General Public License along with
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
+"""A module containing generic scheduling methods.
+
 This module contains generic methods for preparing, submitting, deleting and
 monitoring jobs. The methods contained within this module are all based on
 generic job concepts. The specific functionality that comes from each scheduler
@@ -56,7 +57,7 @@ import Longbow.corelibs.configuration as configuration
 import Longbow.corelibs.exceptions as exceptions
 import Longbow.corelibs.shellwrappers as shellwrappers
 import Longbow.corelibs.staging as staging
-import Longbow.plugins.schedulers as schedulers
+import Longbow.schedulers as schedulers
 
 
 LOG = logging.getLogger("Longbow.corelibs.scheduling")
@@ -66,8 +67,8 @@ JOBFILE = os.path.join(os.path.expanduser('~/.Longbow'), "recovery-" +
 
 
 def testenv(jobs, hostconf):
+    """A method for determining the sceduler and job handler on a machine.
 
-    """
     This method makes an attempt to test the environment and determine from
     a pre-configured list what scheduler and job submission handler is present
     on the machine.
@@ -81,8 +82,8 @@ def testenv(jobs, hostconf):
     jobs (dictionary) - The Longbow jobs data structure, see configuration.py
                         for more information about the format of this
                         structure.
-    """
 
+    """
     save = False
 
     checked = []
@@ -152,8 +153,8 @@ def testenv(jobs, hostconf):
 
 
 def delete(job):
+    """A generic method for deleting jobs.
 
-    """
     A method containing the generic and boiler plate Longbow code for deleting
     a job.
 
@@ -161,8 +162,8 @@ def delete(job):
 
     job (dictionary) - A single job dictionary, this is often simply passed in
                        as a subset of the main jobs dictionary.
-    """
 
+    """
     scheduler = job["scheduler"]
 
     try:
@@ -185,8 +186,8 @@ def delete(job):
 
 
 def monitor(jobs):
+    """A generic method for monitoring the status of jobs.
 
-    """
     A method containing the generic and boiler plate Longbow code for
     monitoring a job, this method contains the entire structure of the loop
     that deals with monitoring jobs.
@@ -196,20 +197,22 @@ def monitor(jobs):
     jobs (dictionary) - The Longbow jobs data structure, see configuration.py
                         for more information about the format of this
                         structure.
-    """
 
+    """
     LOG.info("Monitoring job/s, depending on the chosen logging mode Longbow"
              "might appear to be doing nothing. Please be patient!")
 
-    allfinished, stageinterval, pollinterval = _monitorinitialise(jobs)
+    stageinterval, pollinterval = _monitorinitialise(jobs)
 
+    allcomplete = False
+    allfinished = False
     lastpolltime = 0
     laststagetime = 0
     saverecoveryfile = True
     recoveryfileerror = False
 
     # Loop until all jobs are done.
-    while allfinished is False:
+    while allcomplete is False:
 
         now = time.time()
 
@@ -221,8 +224,8 @@ def monitor(jobs):
             saverecoveryfile = _checkwaitingjobs(jobs, saverecoveryfile)
 
         # Check if we should be staging.
-        if (int(now - laststagetime) > int(stageinterval) and
-                int(stageinterval) != 0):
+        if ((int(now - laststagetime) > int(stageinterval) and
+                int(stageinterval) != 0) or allfinished is True):
 
             laststagetime = int(now)
             saverecoveryfile = _stagejobfiles(jobs, saverecoveryfile)
@@ -253,14 +256,14 @@ def monitor(jobs):
                 LOG.warning("Could not write recovery file, possibly due to "
                             "permissions on the ~/.Longbow directory.")
 
-        allfinished = _checkfinished(jobs)
+        allfinished, allcomplete = _checkcomplete(jobs)
 
     LOG.info("All jobs are complete.")
 
 
 def prepare(jobs):
+    """A generic method for creating job submit scripts.
 
-    """
     A method containing the generic and boiler plate Longbow code for
     constructing the submit file.
 
@@ -269,8 +272,8 @@ def prepare(jobs):
     jobs (dictionary) - The Longbow jobs data structure, see configuration.py
                         for more information about the format of this
                         structure.
-    """
 
+    """
     LOG.info("Creating submit files for job/s.")
 
     for item in jobs:
@@ -296,8 +299,8 @@ def prepare(jobs):
 
 
 def submit(jobs):
+    """A generic method for submitting jobs.
 
-    """
     A method containing the generic and boiler plate Longbow code for
     submitting a job.
 
@@ -306,8 +309,8 @@ def submit(jobs):
     jobs (dictionary) - The Longbow jobs data structure, see configuration.py
                         for more information about the format of this
                         structure.
-    """
 
+    """
     # Initialise some counters.
     submitted = 0
     queued = 0
@@ -411,11 +414,7 @@ def submit(jobs):
 
 
 def _testscheduler(job):
-
-    """
-    The test logic for finding out what scheduler is on the system.
-    """
-
+    """The test logic for finding out what scheduler is on the system."""
     schedulerqueries = getattr(schedulers, "QUERY")
 
     LOG.info("No environment for this host '%s' is specified - attempting to "
@@ -444,11 +443,8 @@ def _testscheduler(job):
 
 
 def _testhandler(job):
-
-    """
-    The test logic for finding out job handler is on the system.
-    """
-
+    """A method for finding out job handler is on the system."""
+    # Initialise variables.
     handlers = {
         "aprun": ["which aprun"],
         "mpirun": ["which mpirun"]
@@ -490,13 +486,8 @@ def _testhandler(job):
 
 
 def _monitorinitialise(jobs):
-
-    """
-    Setup the conditions for monitoring jobs.
-    """
-
-    # Some initial values
-    allfinished = False
+    """Setup the conditions for monitoring jobs."""
+    # Initialise values.
     pollinterval = 0
     stageinterval = 0
 
@@ -532,16 +523,16 @@ def _monitorinitialise(jobs):
 
         pollinterval = 300
 
-    return allfinished, stageinterval, pollinterval
+    return stageinterval, pollinterval
 
 
 def _polljobs(jobs, save):
+    """A method to poll the status of all jobs.
 
-    """
     Poll the status of all jobs that are not in error states, queued or
     finihed.
-    """
 
+    """
     for job in jobs:
 
         if (jobs[job]["laststatus"] != "Finished" and
@@ -583,23 +574,23 @@ def _polljobs(jobs, save):
 
 
 def _stagejobfiles(jobs, save):
+    """A method to stage all files for each running job.
 
-    """
     Stage all files for each running job. For jobs that are finished, stage
     and remove them from the QUEUEINFO data and then change their status to
-    complete. This will stop future staging
-    """
+    complete. This will stop future staging.
 
+    """
     for job in jobs:
 
         if (jobs[job]["laststatus"] == "Running" or
                 jobs[job]["laststatus"] == "Subjob(s) running"):
 
-            staging.stage_downstream(job)
+            staging.stage_downstream(jobs[job])
 
         if jobs[job]["laststatus"] == "Finished":
 
-            staging.stage_downstream(job)
+            staging.stage_downstream(jobs[job])
 
             jobs[job]["laststatus"] = "Complete"
 
@@ -609,11 +600,7 @@ def _stagejobfiles(jobs, save):
 
 
 def _checkwaitingjobs(jobs, save):
-
-    """
-    Check if any jobs marked as "Waiting Submission" can be submitted.
-    """
-
+    """Check if any jobs marked as "Waiting Submission" can be submitted."""
     for job in jobs:
 
         # Check if we can submit any further jobs.
@@ -665,25 +652,30 @@ def _checkwaitingjobs(jobs, save):
     return save
 
 
-def _checkfinished(jobs):
-
-    """
-    Check if all the jobs are finished.
-    """
-
+def _checkcomplete(jobs):
+    """Check if all the jobs are complete."""
+    # Initialise variables
     allfinished = False
+    allcomplete = False
+    complete = []
+    finished = []
 
-    # Find out if all jobs are completed.
     for job in jobs:
 
-        # If a single job has a flag not associated with being done then
-        # carry on.
-        if (jobs[job]["laststatus"] != "Complete" and
-                jobs[job]["laststatus"] != "Submit Error"):
+        if jobs[job]["laststatus"] != "Submit Error":
 
-            allfinished = False
-            break
+            complete.append(jobs[job]["laststatus"])
+
+            if jobs[job]["laststatus"] != "Complete":
+
+                finished.append(jobs[job]["laststatus"])
+
+    if all(state == "Complete" for state in complete) and len(complete) != 0:
+
+        allcomplete = True
+
+    if all(state == "Finished" for state in finished) and len(finished) != 0:
 
         allfinished = True
 
-    return allfinished
+    return allfinished, allcomplete

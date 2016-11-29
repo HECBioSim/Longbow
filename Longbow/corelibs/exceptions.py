@@ -18,11 +18,12 @@
 # You should have received a copy of the GNU General Public License along with
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
+"""This module contains exception class definitions for Longbow.
+
 This module contains the 'custom' exception classes for the Longbow core
 library. These exceptions are best used in methods that replace/override those
-of the core library, such that a developer can make use of the error handling
-framework more organically.
+of the standard library, such that a error messages have more specific
+functionality to Longbow.
 """
 
 # -----------------------------------------------------------------------------
@@ -31,14 +32,14 @@ framework more organically.
 
 class AbsolutepathError(Exception):
 
-    """
-    Exception class for absolute path errors, usage
+    """Exception class for absolute path errors.
 
+    Usage:
     AbsolutepathError(message, path)
     """
 
     def __init__(self, message, path):
-
+        """Add the ability to pass the path back to the calling function."""
         # Call the base class constructor.
         super(AbsolutepathError, self).__init__(message)
 
@@ -48,20 +49,14 @@ class AbsolutepathError(Exception):
 
 class DirectorynotfoundError(Exception):
 
-    """
-    Directory not found exception, to provide informative exceptions
-    of why a method has failed when directory cannot be found.
-    """
+    """Directory not found exception."""
 
     pass
 
 
 class DisconnectException(Exception):
 
-    """
-    Directory not found exception, to provide informative exceptions
-    of why a method has failed when directory cannot be found.
-    """
+    """Disconnect exception, for disconnect mode related errors."""
 
     pass
 
@@ -71,26 +66,16 @@ class DisconnectException(Exception):
 
 class CommandlineargsError(Exception):
 
-    """
-    Command-line arguments error.
-    """
+    """Command-line arguments exception."""
 
-    def __init__(self, message):
-
-        # Call the base class constructor.
-        super(CommandlineargsError, self).__init__(message)
+    pass
 
 
 class RequiredinputError(Exception):
 
-    """
-    Required input error exception.
-    """
+    """Required input error exception."""
 
-    def __init__(self, message):
-
-        # Call the base class constructor.
-        super(RequiredinputError, self).__init__(message)
+    pass
 
 # -----------------------------------------------------------------------------
 # Exceptions for configuration.py
@@ -98,9 +83,7 @@ class RequiredinputError(Exception):
 
 class ConfigurationError(Exception):
 
-    """
-    Configuration error.
-    """
+    """Configuration error."""
 
     pass
 
@@ -110,9 +93,7 @@ class ConfigurationError(Exception):
 
 class PluginattributeError(Exception):
 
-    """
-    Missing plugin method exception.
-    """
+    """Missing plugin method exception."""
 
     pass
 
@@ -123,45 +104,35 @@ class PluginattributeError(Exception):
 
 class SchedulercheckError(Exception):
 
-    """
-    Scheduler checking exception.
-    """
+    """Scheduler checking exception."""
 
     pass
 
 
 class HandlercheckError(Exception):
 
-    """
-    Job handler checking exception.
-    """
+    """Job handler checking exception."""
 
     pass
 
 
 class JobdeleteError(Exception):
 
-    """
-    Job delete exception.
-    """
+    """Job delete exception."""
 
     pass
 
 
 class JobsubmitError(Exception):
 
-    """
-    Job submit exception.
-    """
+    """Job submit exception."""
 
     pass
 
 
 class QueuemaxError(Exception):
 
-    """
-    Job submit exception.
-    """
+    """Job submit exception."""
 
     pass
 
@@ -171,12 +142,14 @@ class QueuemaxError(Exception):
 
 class LocalcopyError(Exception):
 
-    """
-    Copy on local machine exception.
+    """Copy on local machine exception.
+
+    Usage:
+    LocalcopyError(message, path)
     """
 
     def __init__(self, message, path):
-
+        """Add the ability to pass the path back to the calling function."""
         # Call the base class constructor.
         super(LocalcopyError, self).__init__(message)
 
@@ -186,12 +159,14 @@ class LocalcopyError(Exception):
 
 class LocaldeleteError(Exception):
 
-    """
-    Delete on local machine exception.
+    """Delete on local machine exception.
+
+    Usage:
+    LocalcopyError(message, path)
     """
 
     def __init__(self, message, path):
-
+        """Add the ability to pass the path back to the calling function."""
         # Call the base class constructor.
         super(LocaldeleteError, self).__init__(message)
 
@@ -201,12 +176,14 @@ class LocaldeleteError(Exception):
 
 class LocallistError(Exception):
 
-    """
-    List on local machine exception.
+    """List on local machine exception.
+
+    Usage:
+    LocallistError(message, path)
     """
 
     def __init__(self, message, path):
-
+        """Add the ability to pass the path back to the calling function."""
         # Call the base class constructor.
         super(LocallistError, self).__init__(message)
 
@@ -214,29 +191,16 @@ class LocallistError(Exception):
         self.path = path
 
 
-class ProtocolError(Exception):
-
-    """
-    Unknown protocol exception.
-    """
-
-    def __init__(self, message, protocol):
-
-        # Call the base class constructor.
-        super(ProtocolError, self).__init__(message)
-
-        # Bind the standard outputs.
-        self.path = protocol
-
-
 class RemotecopyError(Exception):
 
-    """
-    Copy on remote machine exception.
+    """Copy on remote machine exception.
+
+    Usage:
+    LocallistError(message, sourcepath, destinationpath)
     """
 
     def __init__(self, message, src, dst):
-
+        """Add the ability to pass the paths back to the calling function."""
         # Call the base class constructor.
         super(RemotecopyError, self).__init__(message)
 
@@ -247,12 +211,14 @@ class RemotecopyError(Exception):
 
 class RemotedeleteError(Exception):
 
-    """
-    Delete on remote machine exception.
+    """Delete on remote machine exception.
+
+    Usage:
+    RemotedeleteError(message, path)
     """
 
     def __init__(self, message, path):
-
+        """Add the ability to pass the path back to the calling function."""
         # Call the base class constructor.
         super(RemotedeleteError, self).__init__(message)
 
@@ -262,12 +228,14 @@ class RemotedeleteError(Exception):
 
 class RemotelistError(Exception):
 
-    """
-    List on remote machine exception.
+    """List on remote machine exception.
+
+    Usage:
+    RemotelistError(message, path)
     """
 
     def __init__(self, message, path):
-
+        """Add the ability to pass the path back to the calling function."""
         # Call the base class constructor.
         super(RemotelistError, self).__init__(message)
 
@@ -277,12 +245,14 @@ class RemotelistError(Exception):
 
 class RsyncError(Exception):
 
-    """
-    Rsync exception.
+    """Rsync exception.
+
+    Usage:
+    RemotelistError(message, (stdout, stderr, errcode))
     """
 
     def __init__(self, message, shellout):
-
+        """Add the ability to pass the shelloutput to the calling function."""
         # Call the base class constructor.
         super(RsyncError, self).__init__(message)
 
@@ -294,12 +264,14 @@ class RsyncError(Exception):
 
 class SSHError(Exception):
 
-    """
-    SSH exception
+    """SSH exception.
+
+    Usage:
+    RemotelistError(message, (stdout, stderr, errcode))
     """
 
     def __init__(self, message, shellout):
-
+        """Add the ability to pass the shelloutput to the calling function."""
         # Call the base class constructor.
         super(SSHError, self).__init__(message)
 
@@ -314,17 +286,13 @@ class SSHError(Exception):
 
 class StagingError(Exception):
 
-    """
-    Generic staging error exception
-    """
+    """Generic staging error exception."""
 
     pass
 
 
 class RemoteworkdirError(Exception):
 
-    """
-    Exception issued when destdir is the same path as remoteworkdir
-    """
+    """Remote working directory related generic exception."""
 
     pass
