@@ -31,10 +31,6 @@ JOBTEMPLATE
     The template of the job data structure. The Longbow API will assume
     that variables listed here are to be found in this structure.
 
-REQUIRED
-    A dictionary to mark parameters that are required to be initialised during
-    configuration and their error messages for cases when missing.
-
 The following methods can be found:
 
 processjobs(parameters)
@@ -102,33 +98,6 @@ JOBTEMPLATE = {
     "upload-include": ""
 }
 
-REQUIRED = {
-    "executable": "An executable has not been specified on the command-line "
-                  "or in a configuration file.",
-    "executableargs": "Command-line arguments could not be detected properly "
-                      "on the command-line or in a configuration file. If "
-                      "your application requires input of the form "
-                      "'executable < input_file' then make sure that you put "
-                      "the '<' in quotation marks.",
-    "host": "The parameter 'host' has not been set in your configuration "
-            "file, the most natural place is to set this in your hosts.conf, "
-            "the path is normally what you would supply to SSH (the part "
-            "after the '@').",
-    "user": "The parameter 'user' has not been set in your configuration "
-            "file, the most natural place is to set this in your hosts.conf, "
-            "the user is the same as what you would normally supply to SSH "
-            "(the part before the '@').",
-    "remoteworkdir": "The parameter 'remoteworkdir' has not been set in your "
-                     "configuration file, the most natural place to set this "
-                     "is in the host.conf if your working directory never "
-                     "changes, or in the job.conf if you are changing this on "
-                     "a per job basis.",
-    "replicates": "The parameter 'replicates' is required to be set, this "
-                  "parameter has an internal default for when not specified "
-                  "so something may have gone wrong when specifying a value "
-                  "for it in the configuration file."
-}
-
 
 def processconfigs(parameters):
     """A method for processing the raw configuration sources.
@@ -147,13 +116,8 @@ def processconfigs(parameters):
     jobs (dictionary) A fully processed Longbow jobs data structure.
 
     """
-    # Define our main data structure.
+    # Initialise.
     jobs = {}
-
-    # Define a dictionary of module defaults based on the plug-in names and
-    # executables.
-    modules = getattr(apps, "PLUGINEXECS")
-    modules[""] = ""
 
     # Try and load the host file.
     try:
@@ -175,14 +139,12 @@ def processconfigs(parameters):
 
             raise
 
-    # If there is no file then the job structure will be built up from things
-    # we know. In this case we would only ever have 1 job.
+    # If there is no job file, then we will attempt to build a job from other
+    # sources, give the job a default name if the user didn't give one.
     else:
 
         jobdata = {}
 
-        # Did the user supply a jobname on the command line, if not default
-        # it.
         if parameters["jobname"] is not "":
 
             jobname = parameters["jobname"]
@@ -191,47 +153,36 @@ def processconfigs(parameters):
 
             jobname = "LongbowJob"
 
-        # There will only be one job so create an job structure from the
-        # template.
+        # Create an job structure from the template.
         jobdata[jobname] = JOBTEMPLATE.copy()
 
-        # It is important that this one is empty so not to accidentally
-        # interfere with prioritisation in the next step (saves on duplicating
-        # data structures just to have one empty and one with default values).
+        # Empty values so that priority ordering is easier (important!).
         for item in jobdata[jobname]:
 
             jobdata[jobname][item] = ""
 
-    # Process the basic job configuration.
+    # Process job/s.
     for job in jobdata:
 
         # Create a base job structure along with known defaults.
         jobs[job] = JOBTEMPLATE.copy()
 
-        # Before we go further lets check that the job has been assigned a
-        # host. This is important for copying the correct information from the
-        # hosts.conf.
-
-        # If user has not indicated which resource to use or didn't use a
-        # job.conf then check other sources.
+        # Before we go further, check that the job has been assigned a host.
         try:
 
             if jobdata[job]["resource"] is "":
 
-                # Since at this point we only have command-line as higher
-                # priority.
+                # Has a host been named on the command-line?
                 if parameters["resource"] is not "":
 
                     jobs[job]["resource"] = parameters["resource"]
 
-                # Otherwise lets try and use the top host in the list from
-                # host.conf. This should never be an empty list since the
-                # parser would provide an error on load.
+                # Otherwise lets try and use the top host from host.conf.
                 else:
 
                     jobs[job]["resource"] = hostsections[0]
 
-            # Just copy it over.
+            # It should be given the job conf.
             else:
 
                 jobs[job]["resource"] = jobdata[job]["resource"]
@@ -243,15 +194,13 @@ def processconfigs(parameters):
         # Validate that we have this host listed.
         if jobs[job]["resource"] not in hostsections:
 
-            # If not tell the user.
             raise exceptions.CommandlineargsError(
                 "The resource '{0}' that was given in the job config file "
                 "has not been configured in the host.conf. The hosts "
                 "available are '{1}'"
                 .format(jobs[job]["resource"], hostsections))
 
-        # Now we can go ahead and process the all the parameters and apply
-        # priority ordering.
+        # Process the parameters and apply priority ordering.
         for item in jobs[job]:
 
             # We don't need to include this as we have just dealt with it.
@@ -260,78 +209,22 @@ def processconfigs(parameters):
                 # Command-line overrides are highest priority.
                 if item in parameters and parameters[item] is not "":
 
-                    # Store it.
                     jobs[job][item] = parameters[item]
 
                 # Job file is next highest in priority.
                 elif item in jobdata[job] and jobdata[job][item] is not "":
 
-                    # Store it.
                     jobs[job][item] = jobdata[job][item]
 
                 # Hosts file is next highest in priority.
                 elif item in hostdata[jobs[job]["resource"]] and \
                         hostdata[jobs[job]["resource"]][item] is not "":
 
-                    # Store it.
                     jobs[job][item] = hostdata[jobs[job]["resource"]][item]
 
-    # Check parameters that are required for running jobs are provided.
-    # Here we will only do validation on hosts that are referenced in jobs,
-    # this should cut down on annoyances to the user.
-    for job in jobs:
+    _processconfigsvalidate(jobs)
 
-        # Validate required parameters have been set.
-        for validationitem in REQUIRED:
-
-            # If no value has been set.
-            if jobs[job][validationitem] is "":
-
-                # Throw an exception.
-                raise exceptions.ConfigurationError(REQUIRED[validationitem])
-
-    # Some final initialisation.
-    for job in jobs:
-
-        # This is just for logging messages.
-        jobs[job]["jobname"] = job
-
-        # If the local working directory has not been set, then default to cwd
-        if jobs[job]["localworkdir"] is "":
-
-            jobs[job]["localworkdir"] = os.getcwd()
-
-        # Fix for python 3 where basestring is now str.
-        try:
-
-            # If the exec arguments are in string form, split to list.
-            if isinstance(jobs[job]["executableargs"], basestring):
-
-                jobs[job]["executableargs"] = (
-                    jobs[job]["executableargs"].split())
-
-        except NameError:
-
-            # If the exec arguments are in string form, split to list.
-            if isinstance(jobs[job]["executableargs"], str):
-
-                jobs[job]["executableargs"] = (
-                    jobs[job]["executableargs"].split())
-
-        # If modules hasn't been set then try and use a default.
-        if jobs[job]["modules"] is "":
-
-            jobs[job]["modules"] = modules[jobs[job]["executable"]]
-
-        # Give each job a unique remote base path by adding a random hash to
-        # jobname.
-        destdir = job + ''.join(["%s" % randint(0, 9) for _ in range(0, 5)])
-
-        jobs[job]["destdir"] = os.path.join(jobs[job]["remoteworkdir"],
-                                            destdir)
-
-        LOG.debug("Job '%s' will be run in the '%s' directory on the remote "
-                  "resource.", job, jobs[job]["destdir"])
+    _processconfigsfinalinit(jobs)
 
     return jobs
 
@@ -577,6 +470,94 @@ def saveini(inifile, params):
         ini.write("\n")
 
     ini.close()
+
+
+def _processconfigsfinalinit(jobs):
+    """A private method to perform some last bits of initialisation."""
+    # Initialisation.
+    modules = getattr(apps, "PLUGINEXECS")
+    modules[""] = ""
+
+    for job in jobs:
+
+        # This is just for logging messages.
+        jobs[job]["jobname"] = job
+
+        # If the local working directory has not been set, then default to cwd
+        if jobs[job]["localworkdir"] is "":
+
+            jobs[job]["localworkdir"] = os.getcwd()
+
+        # Fix for python 3 where basestring is now str.
+        try:
+
+            # If the exec arguments are in string form, split to list.
+            if isinstance(jobs[job]["executableargs"], basestring):
+
+                jobs[job]["executableargs"] = (
+                    jobs[job]["executableargs"].split())
+
+        except NameError:
+
+            # If the exec arguments are in string form, split to list.
+            if isinstance(jobs[job]["executableargs"], str):
+
+                jobs[job]["executableargs"] = (
+                    jobs[job]["executableargs"].split())
+
+        # If modules hasn't been set then try and use a default.
+        if jobs[job]["modules"] is "":
+
+            jobs[job]["modules"] = modules[jobs[job]["executable"]]
+
+        # Give each job a unique base path by adding a random hash to jobname.
+        destdir = job + ''.join(["%s" % randint(0, 9) for _ in range(0, 5)])
+
+        jobs[job]["destdir"] = os.path.join(jobs[job]["remoteworkdir"],
+                                            destdir)
+
+        LOG.debug("Job '%s' will be run in the '%s' directory on the remote "
+                  "resource.", job, jobs[job]["destdir"])
+
+
+def _processconfigsvalidate(jobs):
+    """A private method to perform validation."""
+    # Initialise required messages for flags.
+    required = {
+        "executable": "An executable has not been specified on the "
+                      "command-line or in a configuration file.",
+        "executableargs": "Command-line arguments could not be detected "
+                          "properly on the command-line or in a configuration "
+                          "file. If your application requires input of the"
+                          "form 'executable < input_file' then make sure that "
+                          "you put the '<' in quotation marks.",
+        "host": "The parameter 'host' has not been set in your configuration "
+                "file, the most natural place is to set this in your "
+                "hosts.conf, the path is normally what you would supply to "
+                "SSH (the part after the '@').",
+        "user": "The parameter 'user' has not been set in your configuration "
+                "file, the most natural place is to set this in your "
+                "hosts.conf, the user is the same as what you would normally "
+                "supply to SSH (the part before the '@').",
+        "remoteworkdir": "The parameter 'remoteworkdir' has not been set in "
+                         "your configuration file, the most natural place to "
+                         "set this is in the host.conf if your working "
+                         "directory never changes, or in the job.conf if you "
+                         "are changing this on a per job basis.",
+        "replicates": "The parameter 'replicates' is required to be set, this "
+                      "parameter has an internal default for when not "
+                      "specified so something may have gone wrong when "
+                      "specifying a value for it in the configuration file."
+    }
+    # Check parameters that are required for running jobs are provided.
+    for job in jobs:
+
+        # Validate required parameters have been set.
+        for validationitem in required:
+
+            if jobs[job][validationitem] is "":
+
+                raise exceptions.ConfigurationError(required[validationitem])
 
 
 def _saveconfigdiffs(params, oldparams, kdiff, vdiff):
