@@ -66,44 +66,43 @@ def testapp(jobs):
 
     LOG.info("Testing the executables defined for each job.")
 
-    for item in jobs:
-
-        job = jobs[item]
-        resource = job["resource"]
-        executable = job["executable"]
+    for job in jobs:
 
         # If we haven't checked this resource then it is likely not in the dict
-        if resource not in checked:
+        if jobs[job]["resource"] not in checked:
 
-            checked[resource] = []
+            checked[jobs[job]["resource"]] = []
 
         # Now check if we have tested this exec already.
-        if executable not in checked[resource]:
+        if (jobs[job]["executable"] not in checked[jobs[job]["resource"]] and
+                (jobs[job]["nochecks"] is False or
+                 jobs[job]["nochecks"] == "false")):
 
             # If not then add it to the list now.
-            checked[resource].extend([executable])
+            checked[jobs[job]["resource"]].extend([jobs[job]["executable"]])
 
-            LOG.info("Checking executable '%s' on '%s'", executable, resource)
+            LOG.info("Checking executable '%s' on '%s'",
+                     jobs[job]["executable"], jobs[job]["resource"])
 
             cmd = []
 
-            if job["modules"] is "":
+            if jobs[job]["modules"] is "":
 
                 LOG.debug("Checking without modules.")
 
             else:
                 LOG.debug("Checking with modules.")
 
-                for module in job["modules"].split(","):
+                for module in jobs[job]["modules"].split(","):
 
                     module = module.replace(" ", "")
                     cmd.extend(["module load " + module + "\n"])
 
-            cmd.extend(["which " + executable])
+            cmd.extend(["which " + jobs[job]["executable"]])
 
             try:
 
-                shellwrappers.sendtossh(job, cmd)
+                shellwrappers.sendtossh(jobs[job], cmd)
                 LOG.info("Executable check - passed.")
 
             except exceptions.SSHError:
