@@ -129,24 +129,17 @@ def processjobs(jobs):
     """
     LOG.info("Processing job/s and detecting files that require upload.")
 
-    # Get dictionary of executables and their required flags from plug-ins.
-    appplugins = getattr(apps, "PLUGINEXECS")
-
     # Process each job.
     for job in jobs:
 
-        app = appplugins[jobs[job]["executable"]]
-        args = jobs[job]["executableargs"]
-        execdata = getattr(
-            apps, app.lower()).EXECDATA[jobs[job]["executable"]]
         filelist = []
 
         LOG.debug("Command-line arguments for job '%s' are '%s'",
-                  job, " ".join(args))
+                  job, " ".join(jobs[job]["executableargs"]))
 
         # Check for any files that are located outside the work directory or
         # absolute paths.
-        for arg in args:
+        for arg in jobs[job]["executableargs"]:
 
             if arg.count(os.path.pardir) > 0 or os.path.isabs(arg):
 
@@ -173,57 +166,9 @@ def processjobs(jobs):
                 "The local job directory '{0}' cannot be found for job '{1}'"
                 .format(cwd, job))
 
-        # Determine the command-line type and call the processor method.
-        # Start with command-lines of the type exec < input.file.
-        if args[0] is "<":
+        filelist, foundflags = _proccommandline(jobs[job], cwd, filelist)
 
-            # Command-line type exec < input.file
-            filelist, foundflags = _proccommandlinetype1(jobs[job], app, cwd,
-                                                         filelist)
-
-        elif "-" in args[0]:
-
-            # Command-line type exec -i file -c file
-            filelist, foundflags = _proccommandlinetype2(jobs[job], app, cwd,
-                                                         filelist)
-
-        elif "-" not in args[0] and "-" in args[1]:
-
-            # Command-line type exec subexec -i file -c file
-            filelist, foundflags = _proccommandlinetype3(jobs[job], app, cwd,
-                                                         filelist)
-
-        else:
-
-            # Command-line type exec input.file
-            filelist, foundflags = _proccommandlinetype4(jobs[job], app, cwd,
-                                                         filelist)
-
-        # Final check for if any required flags are missing.
-        flags = list(set(execdata["requiredfiles"]) - set(foundflags))
-
-        # If there are any missing still then tell the user.
-        if len(flags) > 0:
-
-            # Firstly is this due to it being an either type flag?
-            for flag in flags:
-
-                if "||" in flag:
-
-                    tmpflags = flag.split(" || ")
-                    tmpflag = list(set(tmpflags).intersection(set(foundflags)))
-
-                    if len(tmpflag) > 0:
-
-                        flags.remove(flag)
-
-        # If there are any missing still then tell the user.
-        if len(flags) > 0:
-
-            raise exceptions.RequiredinputError(
-                "In job '{0}' there are missing flags on the command line "
-                "'{1}'. See user documentation for plug-in '{2}'"
-                .format(job, flags, app))
+        _flagvalidator(jobs[job], foundflags)
 
         # Setup the rysnc upload masks.
         if jobs[job]["upload-include"] != "":
@@ -245,9 +190,97 @@ def processjobs(jobs):
     LOG.info("Processing jobs - complete.")
 
 
-def _proccommandlinetype1(job, app, cwd, filelist):
-    """Processor forcommand-line type 'exec < input.file > output.file'."""
+def _flagvalidator(job, foundflags):
+    """Validate that required command-line flags are provided."""
+    # Initialisation.
+    appplugins = getattr(apps, "PLUGINEXECS")
+    app = appplugins[job["executable"]]
+    execdata = getattr(apps, app.lower()).EXECDATA[job["executable"]]
+
+    # Final check for if any required flags are missing.
+    flags = list(set(execdata["requiredfiles"]) - set(foundflags))
+
+    # If there are any missing still then tell the user.
+    if len(flags) > 0:
+
+        # Firstly is this due to it being an either type flag?
+        for flag in flags:
+
+            if "||" in flag:
+
+                tmpflags = flag.split(" || ")
+                tmpflag = list(set(tmpflags).intersection(set(foundflags)))
+
+                if len(tmpflag) > 0:
+
+                    flags.remove(flag)
+
+    # If there are any missing still then tell the user.
+    if len(flags) > 0:
+
+        raise exceptions.RequiredinputError(
+            "In job '{0}' there are missing flags on the command line '{1}'. "
+            "See user documentation for plug-in '{2}'"
+            .format(job["jobname"], flags, app))
+
+
+def _proccommandline(job, cwd, filelist):
+    """Command-line processor.
+
+    This method selects which type of command-line we have.
+
+    """
+    # Initialisation.
+    args = job["executableargs"]
+    appplugins = getattr(apps, "PLUGINEXECS")
+    app = appplugins[job["executable"]]
     foundflags = []
+
+    try:
+
+        # Determine the command-line type and call the processor method. Start
+        # with command-lines of the type exec < input.file.
+        if args[0] == "<":
+
+            # Command-line type exec < input.file
+            filelist, foundflags = _proccommandlinetype1(
+                job, app, cwd, filelist, foundflags)
+
+        elif len(args) == 1 and args[0] != "<":
+
+            # Command-line type exec input.file
+            filelist, foundflags = _proccommandlinetype4(
+                job, app, cwd, filelist, foundflags)
+
+        elif "-" in args[0]:
+
+            # Command-line type exec -i file -c file
+            filelist, foundflags = _proccommandlinetype2(
+                job, app, cwd, filelist, foundflags)
+
+        elif "-" not in args[0] and "-" in args[1]:
+
+            # Command-line type exec subexec -i file -c file
+            filelist, foundflags = _proccommandlinetype3(
+                job, app, cwd, filelist, foundflags)
+
+        else:
+
+            raise ValueError
+
+    except (IndexError, ValueError):
+
+        raise exceptions.RequiredinputError(
+            "In job '{0}', the command-line arguments for the application "
+            "could not be understood. Check the documentation for more "
+            "information on how to format command-lines."
+            .format(job["jobname"]))
+
+    return filelist, foundflags
+
+
+def _proccommandlinetype1(job, app, cwd, filelist, foundflags):
+    """Processor forcommand-line type 'exec < input.file > output.file'."""
     args = list(job["executableargs"])
     initargs = list(job["executableargs"])
     substitution = {}
@@ -318,9 +351,8 @@ def _proccommandlinetype1(job, app, cwd, filelist):
     return filelist, foundflags
 
 
-def _proccommandlinetype2(job, app, cwd, filelist):
+def _proccommandlinetype2(job, app, cwd, filelist, foundflags):
     """Processor for command-line type 'exec --input file1 -file file2'."""
-    foundflags = []
     args = list(job["executableargs"])
     initargs = list(job["executableargs"])
     substitution = {}
@@ -388,9 +420,8 @@ def _proccommandlinetype2(job, app, cwd, filelist):
     return filelist, foundflags
 
 
-def _proccommandlinetype3(job, app, cwd, filelist):
+def _proccommandlinetype3(job, app, cwd, filelist, foundflags):
     """Processor command-line type 'exec subexec --file1 v1 -file2 p2'."""
-    foundflags = []
     args = list(job["executableargs"])
     initargs = list(job["executableargs"])
     substitution = {}
@@ -458,9 +489,8 @@ def _proccommandlinetype3(job, app, cwd, filelist):
     return filelist, foundflags
 
 
-def _proccommandlinetype4(job, app, cwd, filelist):
+def _proccommandlinetype4(job, app, cwd, filelist, foundflags):
     """Processor for command-line type 'exec input.file'."""
-    foundflags = []
     args = list(job["executableargs"])
     initargs = list(job["executableargs"])
     substitution = {}
