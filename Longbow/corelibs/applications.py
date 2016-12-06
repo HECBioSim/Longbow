@@ -317,7 +317,7 @@ def _proccommandlinetype2(job, filelist, foundflags, substitution):
 
         # If we have a flag (starting with '-') and it is in the list of
         # required flags.
-        if arg[0] is "-":
+        if arg[0] == "-":
 
             # Mark the flag as found
             foundflags.append(arg)
@@ -339,7 +339,7 @@ def _proccommandlinetype3(job, filelist, foundflags, substitution):
 
         # If we have a flag (starting with '-') and it is in the list of
         # required flags.
-        if arg[0] is "-":
+        if arg[0] == "-":
 
             # Mark the flag as found
             foundflags.append(arg)
