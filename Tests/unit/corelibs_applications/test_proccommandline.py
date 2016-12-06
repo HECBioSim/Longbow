@@ -53,7 +53,7 @@ def test_proccommandline_test1(m_proc1, m_proc2, m_proc3, m_proc4):
 
     m_proc1.return_value = ([], [])
 
-    apps._proccommandline(job, "path", [])
+    apps._proccommandline(job, [])
 
     assert m_proc1.call_count == 1
     assert m_proc2.call_count == 0
@@ -78,7 +78,7 @@ def test_proccommandline_test2(m_proc1, m_proc2, m_proc3, m_proc4):
 
     m_proc2.return_value = ([], [])
 
-    apps._proccommandline(job, "path", [])
+    apps._proccommandline(job, [])
 
     assert m_proc1.call_count == 0
     assert m_proc2.call_count == 1
@@ -103,7 +103,7 @@ def test_proccommandline_test3(m_proc1, m_proc2, m_proc3, m_proc4):
 
     m_proc3.return_value = ([], [])
 
-    apps._proccommandline(job, "path", [])
+    apps._proccommandline(job, [])
 
     assert m_proc1.call_count == 0
     assert m_proc2.call_count == 0
@@ -128,7 +128,7 @@ def test_proccommandline_test4(m_proc1, m_proc2, m_proc3, m_proc4):
 
     m_proc4.return_value = ([], [])
 
-    apps._proccommandline(job, "path", [])
+    apps._proccommandline(job, [])
 
     assert m_proc1.call_count == 0
     assert m_proc2.call_count == 0
@@ -150,4 +150,4 @@ def test_proccommandline_except():
 
     with pytest.raises(exceptions.RequiredinputError):
 
-        apps._proccommandline(job, "path", [])
+        apps._proccommandline(job, [])
