@@ -164,8 +164,7 @@ def processjobs(jobs):
                 .format(jobs[job]["localworkdir"], job))
 
         # Process the command-line.
-        filelist, foundflags = _proccommandline(
-            jobs[job], filelist)
+        foundflags = _proccommandline(jobs[job], filelist)
 
         # Validate if all required flags are present.
         _flagvalidator(jobs[job], foundflags)
@@ -253,26 +252,22 @@ def _proccommandline(job, filelist):
         if args[0] == "<":
 
             # Command-line type exec < input.file
-            filelist, foundflags = _proccommandlinetype1(
-                job, filelist, foundflags, substitution)
+            _proccommandlinetype1(job, filelist, foundflags, substitution)
 
         elif len(args) == 1 and args[0] != "<":
 
             # Command-line type exec input.file
-            filelist, foundflags = _proccommandlinetype4(
-                job, filelist, foundflags, substitution)
+            _proccommandlinetype4(job, filelist, foundflags, substitution)
 
         elif "-" in args[0]:
 
             # Command-line type exec -i file -c file
-            filelist, foundflags = _proccommandlinetype2(
-                job, filelist, foundflags, substitution)
+            _proccommandlinetype2(job, filelist, foundflags, substitution)
 
         elif "-" not in args[0] and "-" in args[1]:
 
             # Command-line type exec subexec -i file -c file
-            filelist, foundflags = _proccommandlinetype3(
-                job, filelist, foundflags, substitution)
+            _proccommandlinetype3(job, filelist, foundflags, substitution)
 
         else:
 
@@ -286,7 +281,7 @@ def _proccommandline(job, filelist):
             "information on how to format command-lines."
             .format(job["jobname"]))
 
-    return filelist, foundflags
+    return foundflags
 
 
 def _proccommandlinetype1(job, filelist, foundflags, substitution):
@@ -311,8 +306,6 @@ def _proccommandlinetype1(job, filelist, foundflags, substitution):
             "your command line is of the form longbow [longbow args] "
             "executable '<' [executable args]".format(job["jobname"]))
 
-    return filelist, foundflags
-
 
 def _proccommandlinetype2(job, filelist, foundflags, substitution):
     """Processor for command-line type 'exec --input file1 -file file2'."""
@@ -335,8 +328,6 @@ def _proccommandlinetype2(job, filelist, foundflags, substitution):
             # Process files and parameters.
             _procfiles(job, arg, initargs, filelist, substitution)
 
-    return filelist, foundflags
-
 
 def _proccommandlinetype3(job, filelist, foundflags, substitution):
     """Processor command-line type 'exec subexec --file1 v1 -file2 p2'."""
@@ -358,8 +349,6 @@ def _proccommandlinetype3(job, filelist, foundflags, substitution):
 
             # Process files and parameters.
             _procfiles(job, arg, initargs, filelist, substitution)
-
-    return filelist, foundflags
 
 
 def _proccommandlinetype4(job, filelist, foundflags, substitution):
@@ -384,8 +373,6 @@ def _proccommandlinetype4(job, filelist, foundflags, substitution):
             "In job '{0}' it appears that the input file is missing, check "
             "your command line is of the form: longbow [longbow args] "
             "executable '<' [executable args]".format(job["jobname"]))
-
-    return filelist, foundflags
 
 
 def _procfiles(job, arg, initargs, filelist, substitution):
@@ -412,7 +399,7 @@ def _procfiles(job, arg, initargs, filelist, substitution):
 
                 filelist.append("rep" + str(rep))
 
-            fileitem, initargs = _procfilesreplicatejobs(
+            fileitem = _procfilesreplicatejobs(
                 app, arg, job["localworkdir"], initargs, rep)
 
             job["executableargs"] = initargs
@@ -512,4 +499,4 @@ def _procfilesreplicatejobs(app, arg, cwd, initargs, rep):
 
                 pass
 
-    return fileitem, initargs
+    return fileitem

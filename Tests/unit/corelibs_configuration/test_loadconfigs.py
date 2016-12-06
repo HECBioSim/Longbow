@@ -35,7 +35,7 @@ def test_loadconfigs_test1():
     Test that loadconfigs can parse a configuration file.
     """
 
-    conffile = os.path.join(os.getcwd(), "Tests/standards/testhostfile.txt")
+    conffile = os.path.join(os.getcwd(), "Tests/standards/simplehostfile.txt")
 
     contents, sections, params = conf.loadconfigs(conffile)
 
