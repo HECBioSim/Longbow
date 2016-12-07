@@ -21,3 +21,36 @@
 """
 This testing module contains the tests for the applications module methods.
 """
+
+import os
+import Longbow.corelibs.applications as apps
+
+
+def test_procfilessingle_test1():
+
+    """
+    Test that blank string is returned on none file.
+    """
+
+    app = "amber"
+    arg = "test.file"
+    cwd = os.path.join(os.getcwd(), "Tests/standards")
+
+    fileitem = apps._procfilessinglejob(app, arg, cwd)
+
+    assert fileitem == ""
+
+
+def test_procfilessingle_test2():
+
+    """
+    Test that blank string is returned on none file.
+    """
+
+    app = "amber"
+    arg = "simplefile.txt"
+    cwd = os.path.join(os.getcwd(), "Tests/standards")
+
+    fileitem = apps._procfilessinglejob(app, arg, cwd)
+
+    assert fileitem == "simplefile.txt"

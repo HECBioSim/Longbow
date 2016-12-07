@@ -61,7 +61,7 @@ def test_prepare_case1():
     assert open("/tmp/submit.soge", "rb").read() == open(
         os.path.join(
             os.getcwd(),
-            "Tests/standards/soge_submitfiles/testcase1.txt"), "rb").read()
+            "Tests/standards/soge_submitfiles/case1.txt"), "rb").read()
 
 
 def test_prepare_case2():
@@ -97,7 +97,7 @@ def test_prepare_case2():
     assert open("/tmp/submit.soge", "rb").read() == open(
         os.path.join(
             os.getcwd(),
-            "Tests/standards/soge_submitfiles/testcase2.txt"), "rb").read()
+            "Tests/standards/soge_submitfiles/case2.txt"), "rb").read()
 
 
 def test_prepare_case3():
@@ -134,7 +134,7 @@ def test_prepare_case3():
     assert open("/tmp/submit.soge", "rb").read() == open(
         os.path.join(
             os.getcwd(),
-            "Tests/standards/soge_submitfiles/testcase3.txt"), "rb").read()
+            "Tests/standards/soge_submitfiles/case3.txt"), "rb").read()
 
 
 def test_prepare_case4():
@@ -171,7 +171,7 @@ def test_prepare_case4():
     assert open("/tmp/submit.soge", "rb").read() == open(
         os.path.join(
             os.getcwd(),
-            "Tests/standards/soge_submitfiles/testcase4.txt"), "rb").read()
+            "Tests/standards/soge_submitfiles/case4.txt"), "rb").read()
 
 
 def test_prepare_case5():
@@ -208,7 +208,7 @@ def test_prepare_case5():
     assert open("/tmp/submit.soge", "rb").read() == open(
         os.path.join(
             os.getcwd(),
-            "Tests/standards/soge_submitfiles/testcase5.txt"), "rb").read()
+            "Tests/standards/soge_submitfiles/case5.txt"), "rb").read()
 
 
 def test_prepare_case6():
@@ -245,7 +245,7 @@ def test_prepare_case6():
     assert open("/tmp/submit.soge", "rb").read() == open(
         os.path.join(
             os.getcwd(),
-            "Tests/standards/soge_submitfiles/testcase6.txt"), "rb").read()
+            "Tests/standards/soge_submitfiles/case6.txt"), "rb").read()
 
 
 def test_prepare_case7():
@@ -282,4 +282,4 @@ def test_prepare_case7():
     assert open("/tmp/submit.soge", "rb").read() == open(
         os.path.join(
             os.getcwd(),
-            "Tests/standards/soge_submitfiles/testcase7.txt"), "rb").read()
+            "Tests/standards/soge_submitfiles/case7.txt"), "rb").read()

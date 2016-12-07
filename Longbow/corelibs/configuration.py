@@ -83,6 +83,7 @@ JOBTEMPLATE = {
     "modules": "",
     "maxtime": "24:00",
     "memory": "",
+    "nochecks": False,
     "scripts": "",
     "staging-frequency": "300",
     "sge-peflag": "mpi",
