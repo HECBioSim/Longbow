@@ -127,7 +127,6 @@ def processjobs(jobs):
                         structure.
 
     """
-
     LOG.info("Processing job/s and detecting files that require upload.")
 
     # Process each job.
@@ -233,8 +232,8 @@ def _flagvalidator(job, foundflags):
     if len(flags) > 0:
 
         raise exceptions.RequiredinputError(
-            "In job '{0}' there are missing flags on the command line '{1}'. "
-            "See user documentation for plug-in '{2}'"
+            "In job '{0}' either there is a flag and/or file missing on the "
+            "command line '{1}'. See user documentation for plug-in '{2}'"
             .format(job["jobname"], flags, app))
 
 
@@ -327,6 +326,15 @@ def _procfiles(job, arg, initargs, filelist, substitution):
 
         # If we have a valid file
         if os.path.isfile(os.path.join(job["localworkdir"], fileitem)):
+
+            # Mark files as found.
+            try:
+
+                foundflags.append(initargs[initargs.index(fileitem) - 1])
+
+            except IndexError:
+
+                foundflags.append("<")
 
             # Search input file for any file dependencies.
             try:
