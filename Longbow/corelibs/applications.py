@@ -446,6 +446,7 @@ def _procfilessinglejob(app, arg, cwd):
 
 def _procfilesreplicatejobs(app, arg, cwd, initargs, rep):
     """Processor for replicate jobs."""
+    fileitem = ""
     tmpitem = ""
 
     # We should check that the replicate directory structure exists.
@@ -476,7 +477,7 @@ def _procfilesreplicatejobs(app, arg, cwd, initargs, rep):
         try:
 
             tmpitem, _ = getattr(apps, app.lower()).defaultfilename(
-                cwd, os.path.join("rep" + str(rep) + arg), "")
+                cwd, os.path.join("rep" + str(rep), arg), "")
 
         except AttributeError:
 
