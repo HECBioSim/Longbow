@@ -38,7 +38,7 @@ import Longbow.corelibs.applications as apps
 import Longbow.corelibs.exceptions as exceptions
 
 
-def _proccommandline(job, filelist):
+def _proccommandline(job, filelist, _):
 
     """Quick method to mock functionality"""
     for index, arg in enumerate(job["executableargs"]):
@@ -56,7 +56,8 @@ def test_processjobs_abspath():
 
     jobs = {
         "jobone": {
-            "executableargs": ["-flag", "/path/to/file"]
+            "executableargs": ["-flag", "/path/to/file"],
+            "executable": "pmemd.MPI"
         }
     }
 
@@ -73,7 +74,8 @@ def test_processjobs_pardir():
 
     jobs = {
         "jobone": {
-            "executableargs": ["-flag", "../../file"]
+            "executableargs": ["-flag", "../../file"],
+            "executable": "pmemd.MPI"
         }
     }
 

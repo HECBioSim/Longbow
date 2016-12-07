@@ -127,12 +127,16 @@ def processjobs(jobs):
                         structure.
 
     """
+
     LOG.info("Processing job/s and detecting files that require upload.")
 
     # Process each job.
     for job in jobs:
 
         filelist = []
+        appplugins = getattr(apps, "PLUGINEXECS")
+        app = appplugins[jobs[job]["executable"]]
+        substitution = {}
 
         LOG.debug("Command-line arguments for job '%s' are '%s'",
                   job, " ".join(jobs[job]["executableargs"]))
@@ -163,8 +167,19 @@ def processjobs(jobs):
                 "The local job directory '{0}' cannot be found for job '{1}'"
                 .format(jobs[job]["localworkdir"], job))
 
+        # Detect command-line parameter substitutions.
+        try:
+
+            substitution = getattr(
+                apps, app.lower()).detectsubstitutions(
+                    list(job["executableargs"]))
+
+        except AttributeError:
+
+            pass
+
         # Process the command-line.
-        foundflags = _proccommandline(jobs[job], filelist)
+        foundflags = _proccommandline(jobs[job], filelist, substitution)
 
         # Validate if all required flags are present.
         _flagvalidator(jobs[job], foundflags)
@@ -223,7 +238,7 @@ def _flagvalidator(job, foundflags):
             .format(job["jobname"], flags, app))
 
 
-def _proccommandline(job, filelist):
+def _proccommandline(job, filelist, substitution):
     """Command-line processor.
 
     This method selects which type of command-line we have.
@@ -231,19 +246,7 @@ def _proccommandline(job, filelist):
     """
     # Initialisation.
     args = list(job["executableargs"])
-    appplugins = getattr(apps, "PLUGINEXECS")
-    app = appplugins[job["executable"]]
     initargs = list(job["executableargs"])
-    substitution = {}
-
-    # Detect command-line parameter substitutions.
-    try:
-
-        substitution = getattr(apps, app.lower()).detectsubstitutions(args)
-
-    except AttributeError:
-
-        pass
 
     try:
 
