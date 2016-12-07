@@ -22,23 +22,124 @@
 This testing module contains the tests for the applications module methods.
 """
 
-try:
-
-    from unittest import mock
-
-except ImportError:
-
-    import mock
-
-import pytest
-
 import Longbow.corelibs.applications as apps
-import Longbow.corelibs.exceptions as ex
 
 
-def test_procfiles_test1():
+def test_procfiles_amber():
 
     """
+    Test to make sure that the file and flag is picked up for an amber-like
+    command-line.
     """
 
-    
+    arg = "coords"
+    filelist = []
+    job = {
+        "executable": "pmemd.MPI",
+        "replicates": "1",
+        "localworkdir": "Tests/standards/jobs/single",
+        "executableargs": ["-i", "input", "-c", "coords", "-p", "topol"]
+    }
+    initargs = ["-i", "input", "-c", "coords", "-p", "topol"]
+    substitution = {}
+
+    foundflags = apps._procfiles(job, arg, initargs, filelist, substitution)
+
+    assert foundflags == ["-c"]
+    assert filelist == ["coords"]
+
+
+def test_procfiles_charmm():
+
+    """
+    Test to make sure that the file and flag is picked up for an charmm-like
+    command-line.
+    """
+
+    arg = "topol"
+    filelist = []
+    job = {
+        "executable": "charmm",
+        "replicates": "1",
+        "localworkdir": "Tests/standards/jobs/single",
+        "executableargs": ["<", "topol"]
+    }
+    initargs = ["<", "topol"]
+    substitution = {}
+
+    foundflags = apps._procfiles(job, arg, initargs, filelist, substitution)
+
+    assert foundflags == ["<"]
+    assert filelist == ["topol"]
+
+
+def test_procfiles_gromacs():
+
+    """
+    Test to make sure that the file and flag is picked up for an gromacs-like
+    command-line.
+    """
+
+    arg = "test"
+    filelist = []
+    job = {
+        "executable": "mdrun_mpi",
+        "replicates": "1",
+        "localworkdir": "Tests/standards/jobs/single",
+        "executableargs": ["-deffnm", "test"]
+    }
+    initargs = ["-deffnm", "test"]
+    substitution = {}
+
+    foundflags = apps._procfiles(job, arg, initargs, filelist, substitution)
+
+    assert foundflags == ["-deffnm"]
+    assert filelist == ["test.tpr"]
+
+
+def test_procfiles_namd():
+
+    """
+    Test to make sure that the file and flag is picked up for an namd-like
+    command-line.
+    """
+
+    arg = "input"
+    filelist = []
+    job = {
+        "executable": "namd2",
+        "replicates": "1",
+        "localworkdir": "Tests/standards/jobs/single",
+        "executableargs": ["input"]
+    }
+    initargs = ["input"]
+    substitution = {}
+
+    foundflags = apps._procfiles(job, arg, initargs, filelist, substitution)
+
+    assert foundflags == ["<"]
+    assert filelist == ["input"]
+
+
+def test_procfiles_reps():
+
+    """
+    Test for replicate variant.
+    """
+
+    arg = "coords"
+    filelist = []
+    job = {
+        "executable": "pmemd.MPI",
+        "replicates": "3",
+        "localworkdir": "Tests/standards/jobs/replicate",
+        "executableargs": ["-i", "input", "-c", "coords", "-p", "topol"]
+    }
+    initargs = ["-i", "input", "-c", "coords", "-p", "topol"]
+    substitution = {}
+
+    foundflags = apps._procfiles(job, arg, initargs, filelist, substitution)
+
+    assert foundflags == ["-c"]
+    assert filelist == ["rep1", "rep1/coords", "rep2", "rep2/coords", "rep3",
+                        "rep3/coords"]

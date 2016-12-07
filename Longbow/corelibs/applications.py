@@ -328,11 +328,13 @@ def _procfiles(job, arg, initargs, filelist, substitution):
         if os.path.isfile(os.path.join(job["localworkdir"], fileitem)):
 
             # Mark files as found.
-            try:
+            if (len(initargs) > 1 and initargs[initargs.index(arg) - 1] not in
+                    foundflags):
 
-                foundflags.append(initargs[initargs.index(fileitem) - 1])
+                foundflags.append(initargs[initargs.index(arg) - 1])
 
-            except IndexError:
+            elif(len(initargs) == 1 and initargs[initargs.index(arg) - 1] not
+                    in foundflags):
 
                 foundflags.append("<")
 
