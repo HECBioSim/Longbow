@@ -36,11 +36,8 @@ import Longbow.corelibs.applications as apps
 import Longbow.corelibs.exceptions as exceptions
 
 
-@mock.patch('Longbow.corelibs.applications._proccommandlinetype4')
-@mock.patch('Longbow.corelibs.applications._proccommandlinetype3')
-@mock.patch('Longbow.corelibs.applications._proccommandlinetype2')
-@mock.patch('Longbow.corelibs.applications._proccommandlinetype1')
-def test_proccommandline_test1(m_proc1, m_proc2, m_proc3, m_proc4):
+@mock.patch('Longbow.corelibs.applications._procfiles')
+def test_proccommandline_test1(m_procfiles):
 
     """
     Test that the correct method is selected based on the command-line.
@@ -51,21 +48,14 @@ def test_proccommandline_test1(m_proc1, m_proc2, m_proc3, m_proc4):
         "executableargs": ["<", "input.file"]
     }
 
-    m_proc1.return_value = ([], [])
-
     apps._proccommandline(job, [])
 
-    assert m_proc1.call_count == 1
-    assert m_proc2.call_count == 0
-    assert m_proc3.call_count == 0
-    assert m_proc4.call_count == 0
+    assert m_procfiles.call_count == 1
+    assert m_procfiles.call_args[0][1] == "input.file"
 
 
-@mock.patch('Longbow.corelibs.applications._proccommandlinetype4')
-@mock.patch('Longbow.corelibs.applications._proccommandlinetype3')
-@mock.patch('Longbow.corelibs.applications._proccommandlinetype2')
-@mock.patch('Longbow.corelibs.applications._proccommandlinetype1')
-def test_proccommandline_test2(m_proc1, m_proc2, m_proc3, m_proc4):
+@mock.patch('Longbow.corelibs.applications._procfiles')
+def test_proccommandline_test2(m_procfiles):
 
     """
     Test that the correct method is selected based on the command-line.
@@ -76,21 +66,14 @@ def test_proccommandline_test2(m_proc1, m_proc2, m_proc3, m_proc4):
         "executableargs": ["-c", "file", "-i", "file", "-p", "file"]
     }
 
-    m_proc2.return_value = ([], [])
-
     apps._proccommandline(job, [])
 
-    assert m_proc1.call_count == 0
-    assert m_proc2.call_count == 1
-    assert m_proc3.call_count == 0
-    assert m_proc4.call_count == 0
+    assert m_procfiles.call_count == 6
+    assert m_procfiles.call_args[0][1] == "file"
 
 
-@mock.patch('Longbow.corelibs.applications._proccommandlinetype4')
-@mock.patch('Longbow.corelibs.applications._proccommandlinetype3')
-@mock.patch('Longbow.corelibs.applications._proccommandlinetype2')
-@mock.patch('Longbow.corelibs.applications._proccommandlinetype1')
-def test_proccommandline_test3(m_proc1, m_proc2, m_proc3, m_proc4):
+@mock.patch('Longbow.corelibs.applications._procfiles')
+def test_proccommandline_test3(m_procfiles):
 
     """
     Test that the correct method is selected based on the command-line.
@@ -98,24 +81,17 @@ def test_proccommandline_test3(m_proc1, m_proc2, m_proc3, m_proc4):
 
     job = {
         "executable": "gmx",
-        "executableargs": ["mdrun_mpi", "-deffnm"]
+        "executableargs": ["mdrun_mpi", "-deffnm", "filename"]
     }
-
-    m_proc3.return_value = ([], [])
 
     apps._proccommandline(job, [])
 
-    assert m_proc1.call_count == 0
-    assert m_proc2.call_count == 0
-    assert m_proc3.call_count == 1
-    assert m_proc4.call_count == 0
+    assert m_procfiles.call_count == 2
+    assert m_procfiles.call_args[0][1] == "filename"
 
 
-@mock.patch('Longbow.corelibs.applications._proccommandlinetype4')
-@mock.patch('Longbow.corelibs.applications._proccommandlinetype3')
-@mock.patch('Longbow.corelibs.applications._proccommandlinetype2')
-@mock.patch('Longbow.corelibs.applications._proccommandlinetype1')
-def test_proccommandline_test4(m_proc1, m_proc2, m_proc3, m_proc4):
+@mock.patch('Longbow.corelibs.applications._procfiles')
+def test_proccommandline_test4(m_procfiles):
 
     """
     Test that the correct method is selected based on the command-line.
@@ -126,14 +102,10 @@ def test_proccommandline_test4(m_proc1, m_proc2, m_proc3, m_proc4):
         "executableargs": ["input.file"]
     }
 
-    m_proc4.return_value = ([], [])
+    foundflags = apps._proccommandline(job, [])
 
-    apps._proccommandline(job, [])
-
-    assert m_proc1.call_count == 0
-    assert m_proc2.call_count == 0
-    assert m_proc3.call_count == 0
-    assert m_proc4.call_count == 1
+    assert m_procfiles.call_count == 1
+    assert m_procfiles.call_args[0][1] == "input.file"
 
 
 def test_proccommandline_except():

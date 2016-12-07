@@ -230,10 +230,10 @@ def _proccommandline(job, filelist):
 
     """
     # Initialisation.
-    args = job["executableargs"]
+    args = list(job["executableargs"])
     appplugins = getattr(apps, "PLUGINEXECS")
     app = appplugins[job["executable"]]
-    foundflags = []
+    initargs = list(job["executableargs"])
     substitution = {}
 
     # Detect command-line parameter substitutions.
@@ -249,25 +249,33 @@ def _proccommandline(job, filelist):
 
         # Determine the command-line type and call the processor method. Start
         # with command-lines of the type exec < input.file.
-        if args[0] == "<":
+        if args[0] == "<" and len(args) > 1:
 
             # Command-line type exec < input.file
-            _proccommandlinetype1(job, filelist, foundflags, substitution)
+            foundflags = _procfiles(job, args[1], initargs, filelist,
+                                    substitution)
 
         elif len(args) == 1 and args[0] != "<":
 
             # Command-line type exec input.file
-            _proccommandlinetype4(job, filelist, foundflags, substitution)
+            foundflags = _procfiles(job, args[0], initargs, filelist,
+                                    substitution)
 
         elif "-" in args[0]:
 
-            # Command-line type exec -i file -c file
-            _proccommandlinetype2(job, filelist, foundflags, substitution)
+            for arg in args:
+
+                # Command-line type exec -i file -c file
+                foundflags = _procfiles(job, arg, initargs, filelist,
+                                        substitution)
 
         elif "-" not in args[0] and "-" in args[1]:
 
-            # Command-line type exec subexec -i file -c file
-            _proccommandlinetype3(job, filelist, foundflags, substitution)
+            for arg in args[1:]:
+
+                # Command-line type exec subexec -i file -c file
+                foundflags = _procfiles(job, arg, initargs, filelist,
+                                        substitution)
 
         else:
 
@@ -284,102 +292,12 @@ def _proccommandline(job, filelist):
     return foundflags
 
 
-def _proccommandlinetype1(job, filelist, foundflags, substitution):
-    """Processor forcommand-line type 'exec < input.file > output.file'."""
-    args = list(job["executableargs"])
-    initargs = list(job["executableargs"])
-
-    # Check the length of the command line.
-    if len(args) > 1:
-
-        # Mark the flag as found
-        foundflags.append("<")
-
-        # Process files and parameters.
-        _procfiles(job, args[1], initargs, filelist, substitution)
-
-    # Looks like the command line is too short to contain the input file.
-    else:
-
-        raise exceptions.RequiredinputError(
-            "In job '{0}' it appears that the input file is missing, check "
-            "your command line is of the form longbow [longbow args] "
-            "executable '<' [executable args]".format(job["jobname"]))
-
-
-def _proccommandlinetype2(job, filelist, foundflags, substitution):
-    """Processor for command-line type 'exec --input file1 -file file2'."""
-    args = list(job["executableargs"])
-    initargs = list(job["executableargs"])
-
-    # Run through each one.
-    for arg in args:
-
-        # If we have a flag (starting with '-') and it is in the list of
-        # required flags.
-        if arg[0] == "-":
-
-            # Mark the flag as found
-            foundflags.append(arg)
-
-        # Otherwise it could just be a file or a parameter.
-        else:
-
-            # Process files and parameters.
-            _procfiles(job, arg, initargs, filelist, substitution)
-
-
-def _proccommandlinetype3(job, filelist, foundflags, substitution):
-    """Processor command-line type 'exec subexec --file1 v1 -file2 p2'."""
-    args = list(job["executableargs"])
-    initargs = list(job["executableargs"])
-
-    # Run through each one.
-    for arg in args[1:]:
-
-        # If we have a flag (starting with '-') and it is in the list of
-        # required flags.
-        if arg[0] == "-":
-
-            # Mark the flag as found
-            foundflags.append(arg)
-
-        # Otherwise it could just be a file or a parameter.
-        else:
-
-            # Process files and parameters.
-            _procfiles(job, arg, initargs, filelist, substitution)
-
-
-def _proccommandlinetype4(job, filelist, foundflags, substitution):
-    """Processor for command-line type 'exec input.file'."""
-    args = list(job["executableargs"])
-    initargs = list(job["executableargs"])
-
-    # Lets make sure that we actually have something to load.
-    if len(args) > 0:
-
-        # Mark the flag as found
-        foundflags.append("<")
-
-        # Process files and parameters.
-        _procfiles(job, args[0], initargs, filelist, substitution)
-
-    # Looks like the command-line is too short to contain the input file so
-    # raise an exception.
-    else:
-
-        raise exceptions.RequiredinputError(
-            "In job '{0}' it appears that the input file is missing, check "
-            "your command line is of the form: longbow [longbow args] "
-            "executable '<' [executable args]".format(job["jobname"]))
-
-
 def _procfiles(job, arg, initargs, filelist, substitution):
     """Processor for finding flags and files."""
     # Initialisation.
     appplugins = getattr(apps, "PLUGINEXECS")
     app = appplugins[job["executable"]]
+    foundflags = []
 
     # Check for as many files as there are replicates (default of 1).
     for rep in range(1, int(job["replicates"]) + 1):
@@ -418,6 +336,8 @@ def _procfiles(job, arg, initargs, filelist, substitution):
                 if fileitem not in filelist:
 
                     filelist.append(fileitem)
+
+    return foundflags
 
 
 def _procfilessinglejob(app, arg, cwd):
