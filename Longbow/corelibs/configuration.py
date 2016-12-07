@@ -18,7 +18,8 @@
 # You should have received a copy of the GNU General Public License along with
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
+"""A module  containing methods for dealing with configuration files.
+
 This module contains methods for loading and saving to Longbow (ini)
 configuration files in addition to methods for extracting the resultant
 information into Longbow data structures. The templates for these data
@@ -29,10 +30,6 @@ The following data structures can be found:
 JOBTEMPLATE
     The template of the job data structure. The Longbow API will assume
     that variables listed here are to be found in this structure.
-
-REQUIRED
-    A dictionary to mark parameters that are required to be initialised during
-    configuration and their error messages for cases when missing.
 
 The following methods can be found:
 
@@ -61,17 +58,8 @@ import re
 import os
 from random import randint
 
-# Depending on how Longbow is installed/utilised the import will be slightly
-# different, this should handle both cases.
-try:
-
-    import corelibs.exceptions as exceptions
-    import plugins.apps as apps
-
-except ImportError:
-
-    import Longbow.corelibs.exceptions as exceptions
-    import Longbow.plugins.apps as apps
+import Longbow.corelibs.exceptions as exceptions
+import Longbow.apps as apps
 
 
 LOG = logging.getLogger("Longbow.corelibs.configuration")
@@ -95,7 +83,9 @@ JOBTEMPLATE = {
     "modules": "",
     "maxtime": "24:00",
     "memory": "",
+    "nochecks": False,
     "scripts": "",
+    "staging-frequency": "300",
     "sge-peflag": "mpi",
     "sge-peoverride": "false",
     "port": "22",
@@ -109,39 +99,12 @@ JOBTEMPLATE = {
     "upload-include": ""
 }
 
-REQUIRED = {
-    "executable": "An executable has not been specified on the command-line "
-                  "or in a configuration file.",
-    "executableargs": "Command-line arguments could not be detected properly "
-                      "on the command-line or in a configuration file. If "
-                      "your application requires input of the form "
-                      "'executable < input_file' then make sure that you put "
-                      "the '<' in quotation marks.",
-    "host": "The parameter 'host' has not been set in your configuration "
-            "file, the most natural place is to set this in your hosts.conf, "
-            "the path is normally what you would supply to SSH (the part "
-            "after the '@').",
-    "user": "The parameter 'user' has not been set in your configuration "
-            "file, the most natural place is to set this in your hosts.conf, "
-            "the user is the same as what you would normally supply to SSH "
-            "(the part before the '@').",
-    "remoteworkdir": "The parameter 'remoteworkdir' has not been set in your "
-                     "configuration file, the most natural place to set this "
-                     "is in the host.conf if your working directory never "
-                     "changes, or in the job.conf if you are changing this on "
-                     "a per job basis.",
-    "replicates": "The parameter 'replicates' is required to be set, this "
-                  "parameter has an internal default for when not specified "
-                  "so something may have gone wrong when specifying a value "
-                  "for it in the configuration file."
-}
-
 
 def processconfigs(parameters):
+    """A method for processing the raw configuration sources.
 
-    """
-    Method for processing the raw configuration structures loaded from the
-    configuration files into Longbow friendly configuration structures.
+    Parameters are loaded from the configuration files and sourced from the
+    command-line and processed into Longbow friendly configuration structures.
     This is where the parameter hierarchy is applied.
 
     Required arguments are:
@@ -152,16 +115,8 @@ def processconfigs(parameters):
     Return parameters are:
 
     jobs (dictionary) A fully processed Longbow jobs data structure.
+
     """
-
-    # Define our main data structure.
-    jobs = {}
-
-    # Define a dictionary of module defaults based on the plug-in names and
-    # executables.
-    modules = getattr(apps, "PLUGINEXECS")
-    modules[""] = ""
-
     # Try and load the host file.
     try:
 
@@ -182,14 +137,11 @@ def processconfigs(parameters):
 
             raise
 
-    # If there is no file then the job structure will be built up from things
-    # we know. In this case we would only ever have 1 job.
+    # If there is no job file, then attempt to build a job from other sources.
     else:
 
         jobdata = {}
 
-        # Did the user supply a jobname on the command line, if not default
-        # it.
         if parameters["jobname"] is not "":
 
             jobname = parameters["jobname"]
@@ -198,156 +150,29 @@ def processconfigs(parameters):
 
             jobname = "LongbowJob"
 
-        # There will only be one job so create an job structure from the
-        # template.
+        # Create an job structure from the template.
         jobdata[jobname] = JOBTEMPLATE.copy()
 
-        # It is important that this one is empty so not to accidentally
-        # interfere with prioritisation in the next step (saves on duplicating
-        # data structures just to have one empty and one with default values).
+        # Empty values so that priority ordering is easier (important!).
         for item in jobdata[jobname]:
 
             jobdata[jobname][item] = ""
 
-    # Process the basic job configuration.
-    for job in jobdata:
+    jobs = _processconfigsresource(parameters, jobdata, hostsections)
 
-        # Create a base job structure along with known defaults.
-        jobs[job] = JOBTEMPLATE.copy()
+    _processconfigsparams(jobs, parameters, jobdata, hostdata)
 
-        # Before we go further lets check that the job has been assigned a
-        # host. This is important for copying the correct information from the
-        # hosts.conf.
+    _processconfigsvalidate(jobs)
 
-        # If user has not indicated which resource to use or didn't use a
-        # job.conf then check other sources.
-        try:
-
-            if jobdata[job]["resource"] is "":
-
-                # Since at this point we only have command-line as higher
-                # priority.
-                if parameters["resource"] is not "":
-
-                    jobs[job]["resource"] = parameters["resource"]
-
-                # Otherwise lets try and use the top host in the list from
-                # host.conf. This should never be an empty list since the
-                # parser would provide an error on load.
-                else:
-
-                    jobs[job]["resource"] = hostsections[0]
-
-            # Just copy it over.
-            else:
-
-                jobs[job]["resource"] = jobdata[job]["resource"]
-
-        except KeyError:
-
-            jobs[job]["resource"] = hostsections[0]
-
-        # Validate that we have this host listed.
-        if jobs[job]["resource"] not in hostsections:
-
-            # If not tell the user.
-            raise exceptions.CommandlineargsError(
-                "The resource '{0}' that was given in the job config file "
-                "has not been configured in the host.conf. The hosts "
-                "available are '{1}'"
-                .format(jobs[job]["resource"], hostsections))
-
-        # Now we can go ahead and process the all the parameters and apply
-        # priority ordering.
-        for item in jobs[job]:
-
-            # We don't need to include this as we have just dealt with it.
-            if item is not "resource":
-
-                # Command-line overrides are highest priority.
-                if item in parameters and parameters[item] is not "":
-
-                    # Store it.
-                    jobs[job][item] = parameters[item]
-
-                # Job file is next highest in priority.
-                elif item in jobdata[job] and jobdata[job][item] is not "":
-
-                    # Store it.
-                    jobs[job][item] = jobdata[job][item]
-
-                # Hosts file is next highest in priority.
-                elif item in hostdata[jobs[job]["resource"]] and \
-                        hostdata[jobs[job]["resource"]][item] is not "":
-
-                    # Store it.
-                    jobs[job][item] = hostdata[jobs[job]["resource"]][item]
-
-    # Check parameters that are required for running jobs are provided.
-    # Here we will only do validation on hosts that are referenced in jobs,
-    # this should cut down on annoyances to the user.
-    for job in jobs:
-
-        # Validate required parameters have been set.
-        for validationitem in REQUIRED:
-
-            # If no value has been set.
-            if jobs[job][validationitem] is "":
-
-                # Throw an exception.
-                raise exceptions.ConfigurationError(REQUIRED[validationitem])
-
-    # Some final initialisation.
-    for job in jobs:
-
-        # This is just for logging messages.
-        jobs[job]["jobname"] = job
-
-        # If the local working directory has not been set, then default to cwd
-        if jobs[job]["localworkdir"] is "":
-
-            jobs[job]["localworkdir"] = os.getcwd()
-
-        # Fix for python 3 where basestring is now str.
-        try:
-
-            # If the exec arguments are in string form, split to list.
-            if isinstance(jobs[job]["executableargs"], basestring):
-
-                jobs[job]["executableargs"] = (
-                    jobs[job]["executableargs"].split())
-
-        except NameError:
-
-            # If the exec arguments are in string form, split to list.
-            if isinstance(jobs[job]["executableargs"], str):
-
-                jobs[job]["executableargs"] = (
-                    jobs[job]["executableargs"].split())
-
-        # If modules hasn't been set then try and use a default.
-        if jobs[job]["modules"] is "":
-
-            jobs[job]["modules"] = modules[jobs[job]["executable"]]
-
-        # Give each job a unique remote base path by adding a random hash to
-        # jobname.
-        destdir = job + ''.join(["%s" % randint(0, 9) for _ in range(0, 5)])
-
-        jobs[job]["destdir"] = os.path.join(jobs[job]["remoteworkdir"],
-                                            destdir)
-
-        LOG.debug("Job '%s' will be run in the '%s' directory on the remote "
-                  "resource.", job, jobs[job]["destdir"])
+    _processconfigsfinalinit(jobs)
 
     return jobs
 
 
 def loadconfigs(configfile):
+    """A method to load a Longbow configuration file.
 
-    """
-    Method to load an ini file. Files of this format contain the following
-    mark-up structure.
+    Files of this format contain the following mark-up structure.
 
     Sections of a file are marked using square brackets
     Section then contain option statements of the form "param = value"
@@ -396,8 +221,8 @@ def loadconfigs(configfile):
                           each heading will form a dictionary within the
                           corresponding heading section (dictionary of
                           dictionaries).
-    """
 
+    """
     LOG.info("Loading configuration information from file '%s'", configfile)
 
     sections = []
@@ -425,43 +250,34 @@ def loadconfigs(configfile):
     # Pull out sections into list.
     for item in contents:
 
-        # Don't care about blank lines.
-        if len(item) > 0:
+        # Find section markers
+        if len(item) > 0 and item[0] == "[" and item[len(item) - 1] == "]":
 
-            try:
-                # Find section markers
-                if item[0] == "[" and item[len(item)-1] == "]":
+            # Remove the square bracket section markers.
+            section = "".join(a for a in item if a not in "[]")
 
-                    # Remove the square bracket section markers.
-                    section = "".join(a for a in item if a not in "[]")
+            # Add to list of sections.
+            sections.append(section)
 
-                    # Add to list of sections.
-                    sections.append(section)
+            # Create a new section in the data structure.
+            params[section] = {}
 
-                    # Create a new section in the data structure.
-                    params[section] = {}
+        # Find comment markers.
+        elif len(item) > 0 and item[0] is "#":
 
-                # Find comment markers.
-                elif item[0] is "#":
+            # Ignore comments.
+            pass
 
-                    # Ignore comments.
-                    pass
+        # Anything else must be option data.
+        elif len(item) > 0 and "=" in item:
 
-                # Anything else must be option data.
-                else:
+            # Option is in the format key = param. Added regular expression so
+            # that if user writes with/without spaces then we can still extract
+            # the configuration info.
+            key, value = re.split(" = |= | =|=", item)
 
-                    # Option is in the format key = param. Added regular
-                    # expression so that if user writes with/without spaces
-                    # then we can still extract the configuration info.
-                    key, value = re.split(" = |= | =|=", item)
-
-                    # Store the keys and values in the data structure.
-                    params[section][key] = value
-
-            except NameError:
-
-                # Issue warning.
-                pass
+            # Store the keys and values in the data structure.
+            params[section][key] = value
 
     # Check if there are zero sections.
     if len(sections) is 0:
@@ -483,10 +299,9 @@ def loadconfigs(configfile):
 
 
 def saveconfigs(configfile, params):
+    """A method for saving to a Longbow configuration file.
 
-    """
-    Method for saving to an ini file. Files of this format contain the
-    following mark-up structure.
+    Files of this format contain the following mark-up structure.
 
     Sections of a file are marked using square brackets
     Section then contain option statements of the form "param = value"
@@ -522,8 +337,8 @@ def saveconfigs(configfile, params):
 
     params (dictionary): This should contain the data structure that should
                          be saved (typically hosts or job configs structure).
-    """
 
+    """
     LOG.info("Saving configuration information to file '%s'", configfile)
 
     keydiff = {}
@@ -539,49 +354,279 @@ def saveconfigs(configfile, params):
         contents = []
         oldparams = {}
 
+    # Calculate the diffs.
+    _saveconfigdiffs(params, oldparams, keydiff, valuediff)
+
+    # Update the file metastructure. Firstly handle the updates.
+    _saveconfigupdates(contents, oldparams, valuediff)
+
+    # Now handle new entries. Run through each section.
+    _saveconfignew(contents, keydiff)
+
+    try:
+
+        # Open file for writing.
+        tmp = open(configfile, "w")
+
+        # Write it all out.
+        for item in contents:
+            tmp.write(item + "\n")
+
+        # Close file.
+        tmp.close()
+
+    except IOError:
+
+        raise exceptions.ConfigurationError(
+            "Error saving to '{0}'".format(configfile))
+
+
+def saveini(inifile, params):
+    """A method for saving to a Longbow recovery file.
+
+    This method will write a simple ini formatted file.
+
+    Required arguments are:
+
+    configfile (string): This should be an absolute path to a revovery file.
+
+    params (dictionary): This should contain the data structure that should
+                         be saved (typically hosts or jobs structure).
+
+    """
+    LOG.info("Saving current state to recovery file '%s'", inifile)
+
+    ini = open(inifile, "w")
+
+    for section in params:
+
+        ini.write("[" + str(section) + "]\n")
+
+        for option in params[section]:
+
+            ini.write(str(option) + " = " + str(params[section][option]) +
+                      "\n")
+
+        ini.write("\n")
+
+    ini.close()
+
+
+def _processconfigsfinalinit(jobs):
+    """A private method to perform some last bits of initialisation."""
+    # Initialisation.
+    modules = getattr(apps, "PLUGINEXECS")
+    modules[""] = ""
+
+    for job in jobs:
+
+        # This is just for logging messages.
+        jobs[job]["jobname"] = job
+
+        # If the local working directory has not been set, then default to cwd
+        if jobs[job]["localworkdir"] is "":
+
+            jobs[job]["localworkdir"] = os.getcwd()
+
+        # Fix for python 3 where basestring is now str.
+        try:
+
+            # If the exec arguments are in string form, split to list.
+            if isinstance(jobs[job]["executableargs"], basestring):
+
+                jobs[job]["executableargs"] = (
+                    jobs[job]["executableargs"].split())
+
+        except NameError:
+
+            # If the exec arguments are in string form, split to list.
+            if isinstance(jobs[job]["executableargs"], str):
+
+                jobs[job]["executableargs"] = (
+                    jobs[job]["executableargs"].split())
+
+        # If modules hasn't been set then try and use a default.
+        if jobs[job]["modules"] is "":
+
+            jobs[job]["modules"] = modules[jobs[job]["executable"]]
+
+        # Give each job a unique base path by adding a random hash to jobname.
+        destdir = job + ''.join(["%s" % randint(0, 9) for _ in range(0, 5)])
+
+        jobs[job]["destdir"] = os.path.join(jobs[job]["remoteworkdir"],
+                                            destdir)
+
+        LOG.debug("Job '%s' will be run in the '%s' directory on the remote "
+                  "resource.", job, jobs[job]["destdir"])
+
+
+def _processconfigsparams(jobs, parameters, jobdata, hostdata):
+    """A private method to assimilate all parameters into jobs dict."""
+    # Process the parameters and apply priority ordering.
+    for job in jobs:
+
+        for item in jobs[job]:
+
+            # This should already be dealt with.
+            if item is not "resource":
+
+                # Command-line overrides are highest priority.
+                if item in parameters and parameters[item] is not "":
+
+                    jobs[job][item] = parameters[item]
+
+                # Job file is next highest in priority.
+                elif item in jobdata[job] and jobdata[job][item] is not "":
+
+                    jobs[job][item] = jobdata[job][item]
+
+                # Hosts file is next highest in priority.
+                elif item in hostdata[jobs[job]["resource"]] and \
+                        hostdata[jobs[job]["resource"]][item] is not "":
+
+                    jobs[job][item] = hostdata[jobs[job]["resource"]][item]
+
+
+def _processconfigsresource(parameters, jobdata, hostsections):
+    """A private method to figure out which HPC each job should use."""
+    # Initialise.
+    jobs = {}
+
+    # Process resource/s for job/s.
+    for job in jobdata:
+
+        # Create a base job structure along with known defaults.
+        jobs[job] = JOBTEMPLATE.copy()
+
+        # Before we go further, check that the job has been assigned a host.
+        try:
+
+            if jobdata[job]["resource"] is "":
+
+                # Has a host been named on the command-line?
+                if parameters["resource"] is not "":
+
+                    jobs[job]["resource"] = parameters["resource"]
+
+                # Otherwise lets try and use the top host from host.conf.
+                else:
+
+                    jobs[job]["resource"] = hostsections[0]
+
+            # It should be given the job conf.
+            else:
+
+                jobs[job]["resource"] = jobdata[job]["resource"]
+
+        except KeyError:
+
+            jobs[job]["resource"] = hostsections[0]
+
+        # Validate that we have this host listed.
+        if jobs[job]["resource"] not in hostsections:
+
+            raise exceptions.ConfigurationError(
+                "The resource '{0}' that was given in the job config file "
+                "has not been configured in the host.conf. The hosts "
+                "available are '{1}'"
+                .format(jobs[job]["resource"], hostsections))
+
+    return jobs
+
+
+def _processconfigsvalidate(jobs):
+    """A private method to perform validation."""
+    # Initialise required messages for flags.
+    required = {
+        "executable": "An executable has not been specified on the "
+                      "command-line or in a configuration file.",
+        "executableargs": "Command-line arguments could not be detected "
+                          "properly on the command-line or in a configuration "
+                          "file. If your application requires input of the"
+                          "form 'executable < input_file' then make sure that "
+                          "you put the '<' in quotation marks.",
+        "host": "The parameter 'host' has not been set in your configuration "
+                "file, the most natural place is to set this in your "
+                "hosts.conf, the path is normally what you would supply to "
+                "SSH (the part after the '@').",
+        "user": "The parameter 'user' has not been set in your configuration "
+                "file, the most natural place is to set this in your "
+                "hosts.conf, the user is the same as what you would normally "
+                "supply to SSH (the part before the '@').",
+        "remoteworkdir": "The parameter 'remoteworkdir' has not been set in "
+                         "your configuration file, the most natural place to "
+                         "set this is in the host.conf if your working "
+                         "directory never changes, or in the job.conf if you "
+                         "are changing this on a per job basis.",
+        "replicates": "The parameter 'replicates' is required to be set, this "
+                      "parameter has an internal default for when not "
+                      "specified so something may have gone wrong when "
+                      "specifying a value for it in the configuration file."
+    }
+    # Check parameters that are required for running jobs are provided.
+    for job in jobs:
+
+        # Validate required parameters have been set.
+        for validationitem in required:
+
+            if jobs[job][validationitem] is "":
+
+                raise exceptions.ConfigurationError(required[validationitem])
+
+
+def _saveconfigdiffs(params, oldparams, kdiff, vdiff):
+    """A private method to calculate configuration data diffs.
+
+    This method is a private method used by the saveconfigs method to calculate
+    diffs between data held in the application and data held in configuration
+    files. These diffs are then used to apply changes to existing configuration
+    files during saving.
+
+    """
     # Run through each section in the data.
     for section in params:
 
         # Run through each parameter in this section.
         for option in params[section]:
 
-            if params[section][option] != "":
+            try:
 
-                try:
-
-                    # Check for continuity between data in file and that in
-                    # Longbow.
-                    if params[section][option] != oldparams[section][option]:
-
-                        try:
-
-                            # If parameter is changed try adding it to the diff
-                            valuediff[section][option] = \
-                                params[section][option]
-
-                        except KeyError:
-
-                            # If this is the first time then section won't
-                            # exist.
-                            valuediff[section] = \
-                                {option: params[section][option]}
-
-                # If we get a key error then the paramater is a new one.
-                except KeyError:
+                # Check continuity between data in file and Longbow.
+                if (params[section][option] != "" and
+                        params[section][option] != oldparams[section][option]):
 
                     try:
 
-                        # Try adding to diff
-                        keydiff[section][option] = params[section][option]
+                        # If parameter is changed try adding it to the diff
+                        vdiff[section][option] = params[section][option]
 
                     except KeyError:
 
-                        # If this is the first time we will need to create the
-                        # section.
-                        keydiff[section] = {option: params[section][option]}
+                        # Missing section.
+                        vdiff[section] = {option: params[section][option]}
 
-    # Update the file metastructure with these changes.
-    # Firstly handle the updates.
+            # If we get a key error then the paramater is a new one.
+            except KeyError:
+
+                try:
+
+                    # Try adding to diff
+                    kdiff[section][option] = params[section][option]
+
+                except KeyError:
+
+                    # Missing section.
+                    kdiff[section] = {option: params[section][option]}
+
+
+def _saveconfigupdates(contents, oldparams, valuediff):
+    """A private method to update the file metastructure for existing params.
+
+    This method is a private method used by the saveconfigs method to update
+    parameters that already exist in the configuration file, with the new
+    values if they have changed.
+
+    """
     for section in valuediff:
 
         # Find the section start (so we know where to look)
@@ -601,17 +646,35 @@ def saveconfigs(configfile, params):
         # Limit our search to this range for the parameter.
         for option in valuediff[section]:
 
-            # Get the line index to edit.
-            editposition = (
-                sectionstartindex +
-                contents[sectionstartindex:sectionendindex].index(
-                    str(option) + " = " + str(oldparams[section][option])))
+            for item in [" = ", " =", "= ", "="]:
+
+                try:
+
+                    # Get the line index to edit.
+                    editposition = (
+                        sectionstartindex +
+                        contents[sectionstartindex:sectionendindex].index(
+                            str(option) + item +
+                            str(oldparams[section][option])))
+
+                    break
+
+                except ValueError:
+
+                    pass
 
             # Edit the entry.
             contents[editposition] = (
                 str(option) + " = " + str(valuediff[section][option]))
 
-    # Now handle new entries. Run through each section.
+
+def _saveconfignew(contents, keydiff):
+    """A private method to calculate configuration data diffs.
+
+    This method is a private method used by the saveconfigs method to add new
+    parameters to the configuration file, if they have been created.
+
+    """
     for section in keydiff:
 
         try:
@@ -622,7 +685,7 @@ def saveconfigs(configfile, params):
             try:
                 sectionendindex = contents.index(
                     [a for a in contents if "[" and "]" in a and
-                     contents.index(a) > sectionstartindex][0]) - 1
+                     contents.index(a) > sectionstartindex][0])
 
             except IndexError:
 
@@ -648,52 +711,3 @@ def saveconfigs(configfile, params):
                 # And append it to the end of the list.
                 contents.append(
                     str(option) + " = " + str(keydiff[section][option]))
-
-    try:
-
-        # Open file for writing.
-        tmp = open(configfile, "w")
-
-        # Write it all out.
-        for item in contents:
-            tmp.write(item + "\n")
-
-        # Close file.
-        tmp.close()
-
-    except IOError:
-
-        raise exceptions.ConfigurationError(
-            "Error saving to '{0}'".format(configfile))
-
-
-def saveini(inifile, params):
-
-    """
-    Method for saving to a Longbow recovery file. This method will write
-    to an inifile.
-
-    Required arguments are:
-
-    configfile (string): This should be an absolute path to a revovery file.
-
-    params (dictionary): This should contain the data structure that should
-                         be saved (typically hosts or jobs structure).
-    """
-
-    LOG.info("Saving current state to recovery file '%s'", inifile)
-
-    ini = open(inifile, "w")
-
-    for section in params:
-
-        ini.write("[" + str(section) + "]\n")
-
-        for option in params[section]:
-
-            ini.write(str(option) + " = " + str(params[section][option]) +
-                      "\n")
-
-        ini.write("\n")
-
-    ini.close()

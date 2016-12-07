@@ -1,0 +1,8 @@
+#!/bin/bash --login
+#$ -cwd -V
+#$ -N testjob
+#$ -q debug
+#$ -l h_rt=24:00:00
+module load amber
+
+mpiexec pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out

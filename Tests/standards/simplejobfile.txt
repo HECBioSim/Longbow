@@ -1,0 +1,41 @@
+[amber]
+executable = pmemd.MPI
+resource = HPC1-shortqueue
+maxtime = 00:10
+frequency = 60
+modules = amber
+executableargs = -i example.in -c example.rst -p example.top -o example.out
+
+[gromacs_s]
+executable = mdrun_mpi
+resource = HPC1-shortqueue
+maxtime = 00:10
+frequency = 60
+modules = gromacs
+executableargs = -deffnm example
+
+[gromacs_d]
+executable = mdrun_mpi_d
+resource = HPC1-shortqueue
+maxtime = 00:10
+cores = 72
+frequency = 60
+modules = gromacs
+executableargs = -deffnm example
+
+[namd]
+executable = namd2
+resource = HPC1
+maxtime = 00:10
+frequency = 60
+modules = namd
+executableargs = example.in > example.out
+
+[lammps]
+executable = lmp_xc30
+resource = HPC1
+maxtime = 00:10
+cores = 48
+frequency = 60
+modules = lammps/lammps-9Dec14
+executableargs = -i example.in -sf opt

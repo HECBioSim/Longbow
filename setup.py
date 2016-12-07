@@ -43,7 +43,7 @@ else:
 
 # Setup
 setup(name='Longbow',
-      version='1.3.2',
+      version='1.4.0',
       description='Biomolecular simulation remote job submission tool.',
       long_description=open('README.rst').read(),
       author='James T Gebbie-Rayet, Gareth B Shannon',
@@ -66,15 +66,16 @@ setup(name='Longbow',
                    'Operating System :: POSIX',
                    'Operating System :: Unix'
                    ],
-      packages=['Longbow', 'Longbow.plugins', 'Longbow.plugins.schedulers',
-                  'Longbow.plugins.apps', 'Longbow.corelibs'],
+      packages=['Longbow', 'Longbow.schedulers', 'Longbow.apps',
+                'Longbow.corelibs'],
       scripts=['Longbow/longbow'],
       )
 
 # Try and create the .Longbow directory and a basic hosts.conf
 try:
 
-    print('Checking if Longbow needs to create the ~/.Longbow directory...')
+    print("Checking if to see if the '~/.Longbow' directory already exists, "
+          "if it does not then it will be created.")
 
     # Setting up the .Longbow directory.
     if not os.path.isdir(os.path.expanduser('~/.Longbow')):
@@ -102,7 +103,8 @@ try:
 
     else:
 
-        print('Directory already exists - skipping.')
+        print("Directory already exists at '~/.Longbow, Longbow is skipping "
+              "creating a new one.")
 
 
 except IOError:

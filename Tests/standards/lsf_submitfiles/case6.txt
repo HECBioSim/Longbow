@@ -1,0 +1,11 @@
+#!/bin/bash --login
+#BSUB -J testjob
+#BSUB -q debug
+#BSUB -B
+#BSUB -u test.email@server.com
+#BSUB -W 24:00
+#BSUB -n 24
+
+module load amber
+
+mpirun -lsf pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out

@@ -18,7 +18,8 @@
 # You should have received a copy of the GNU General Public License along with
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
+"""A module containing generic scheduling methods.
+
 This module contains generic methods for preparing, submitting, deleting and
 monitoring jobs. The methods contained within this module are all based on
 generic job concepts. The specific functionality that comes from each scheduler
@@ -52,23 +53,11 @@ import logging
 import time
 import os
 
-# Depending on how longbow is installed/utilised the import will be slightly
-# different, this should handle both cases.
-try:
-
-    import corelibs.configuration as configuration
-    import corelibs.exceptions as exceptions
-    import corelibs.shellwrappers as shellwrappers
-    import corelibs.staging as staging
-    import plugins.schedulers as schedulers
-
-except ImportError:
-
-    import Longbow.corelibs.configuration as configuration
-    import Longbow.corelibs.exceptions as exceptions
-    import Longbow.corelibs.shellwrappers as shellwrappers
-    import Longbow.corelibs.staging as staging
-    import Longbow.plugins.schedulers as schedulers
+import Longbow.corelibs.configuration as configuration
+import Longbow.corelibs.exceptions as exceptions
+import Longbow.corelibs.shellwrappers as shellwrappers
+import Longbow.corelibs.staging as staging
+import Longbow.schedulers as schedulers
 
 
 LOG = logging.getLogger("Longbow.corelibs.scheduling")
@@ -78,8 +67,8 @@ JOBFILE = os.path.join(os.path.expanduser('~/.Longbow'), "recovery-" +
 
 
 def testenv(jobs, hostconf):
+    """A method for determining the sceduler and job handler on a machine.
 
-    """
     This method makes an attempt to test the environment and determine from
     a pre-configured list what scheduler and job submission handler is present
     on the machine.
@@ -93,15 +82,8 @@ def testenv(jobs, hostconf):
     jobs (dictionary) - The Longbow jobs data structure, see configuration.py
                         for more information about the format of this
                         structure.
+
     """
-
-    schedulerqueries = getattr(schedulers, "QUERY")
-
-    handlers = {
-        "aprun": ["which aprun"],
-        "mpirun": ["which mpirun"]
-    }
-
     save = False
 
     checked = []
@@ -111,120 +93,58 @@ def testenv(jobs, hostconf):
     for item in jobs:
 
         job = jobs[item]
-        resource = job["resource"]
 
         # If we have not checked this host already
-        if resource not in checked:
+        if job["resource"] not in checked:
 
             # Make sure we don't check the same thing again.
-            checked.extend([resource])
+            checked.extend([job["resource"]])
 
             # If we don't have the resource defined then define it.
-            if resource not in saveparams:
+            if job["resource"] not in saveparams:
 
-                saveparams[resource] = {}
+                saveparams[job["resource"]] = {}
 
             # If we have no scheduler defined by the user then find it.
             if job["scheduler"] is "":
 
-                LOG.info("No environment for this host '%s' is specified - "
-                         "attempting to determine it!", resource)
-
-                # Go through the schedulers we are supporting.
-                for param in schedulerqueries:
-
-                    try:
-
-                        shellwrappers.sendtossh(job, schedulerqueries[param])
-
-                        job["scheduler"] = param
-                        saveparams[resource]["scheduler"] = param
-
-                        LOG.info("The environment on this host is '%s'", param)
-                        break
-
-                    except exceptions.SSHError:
-
-                        LOG.debug("Environment is not '%s'", param)
-
-                if job["scheduler"] is "":
-
-                    raise exceptions.SchedulercheckError(
-                        "Could not find the job scheduling system.")
-
-                # If we changed anything then mark for saving.
+                _testscheduler(job)
+                saveparams[job["resource"]]["scheduler"] = job["scheduler"]
                 save = True
 
             else:
 
                 LOG.info("The environment on host '%s' is '%s'",
-                         resource, job["scheduler"])
+                         job["resource"], job["scheduler"])
 
             # If we have no job handler defined by the user then find it.
             if job["handler"] is "":
 
-                LOG.info("No queue handler was specified for host '%s' - "
-                         "attempting to find it", resource)
-
-                # Go through the handlers and find out which is there.
-                # Load modules first as this is necessary for some remote
-                # resources
-                cmdmod = []
-
-                for module in job["modules"].split(","):
-
-                    module = module.replace(" ", "")
-                    cmdmod.extend(["module load " + module + "\n"])
-
-                for param in handlers:
-
-                    try:
-
-                        cmd = cmdmod[:]
-                        cmd.extend(handlers[param])
-                        shellwrappers.sendtossh(job, cmd)
-
-                        job["handler"] = param
-                        saveparams[resource]["handler"] = param
-
-                        LOG.info("The batch queue handler is '%s'", param)
-
-                        break
-
-                    except exceptions.SSHError:
-
-                        LOG.debug("The batch queue handler is not '%s'",
-                                  param)
-
-                if job["handler"] is "":
-
-                    raise exceptions.HandlercheckError(
-                        "Could not find the batch queue handler.")
-
-                # If we changed anything then mark for saving.
+                _testhandler(job)
+                saveparams[job["resource"]]["handler"] = job["handler"]
                 save = True
 
             else:
 
                 LOG.info("The handler on host '%s' is '%s'",
-                         resource, job["handler"])
+                         job["resource"], job["handler"])
 
         # If resource has been checked.
         else:
 
             # Then we should have a look if the resource for this job has been
             # altered.
-            if resource in saveparams:
+            if job["resource"] in saveparams:
 
                 # Then check if scheduler has been added.
-                if "scheduler" in saveparams[resource]:
+                if "scheduler" in saveparams[job["resource"]]:
 
-                    job["scheduler"] = saveparams[resource]["scheduler"]
+                    job["scheduler"] = saveparams[job["resource"]]["scheduler"]
 
                 # Then check if handler has been added.
-                if "handler" in saveparams[resource]:
+                if "handler" in saveparams[job["resource"]]:
 
-                    job["handler"] = saveparams[resource]["handler"]
+                    job["handler"] = saveparams[job["resource"]]["handler"]
 
     # Do we have anything to change in the host file.
     if save is True:
@@ -233,8 +153,8 @@ def testenv(jobs, hostconf):
 
 
 def delete(job):
+    """A generic method for deleting jobs.
 
-    """
     A method containing the generic and boiler plate Longbow code for deleting
     a job.
 
@@ -242,8 +162,8 @@ def delete(job):
 
     job (dictionary) - A single job dictionary, this is often simply passed in
                        as a subset of the main jobs dictionary.
-    """
 
+    """
     scheduler = job["scheduler"]
 
     try:
@@ -266,8 +186,8 @@ def delete(job):
 
 
 def monitor(jobs):
+    """A generic method for monitoring the status of jobs.
 
-    """
     A method containing the generic and boiler plate Longbow code for
     monitoring a job, this method contains the entire structure of the loop
     that deals with monitoring jobs.
@@ -277,194 +197,73 @@ def monitor(jobs):
     jobs (dictionary) - The Longbow jobs data structure, see configuration.py
                         for more information about the format of this
                         structure.
+
     """
+    LOG.info("Monitoring job/s, depending on the chosen logging mode Longbow"
+             "might appear to be doing nothing. Please be patient!")
 
-    LOG.info("Monitoring job/s")
+    stageinterval, pollinterval = _monitorinitialise(jobs)
 
-    # Some initial values
+    allcomplete = False
     allfinished = False
-    interval = 0
-
-    # Find out which job has been set the highest polling frequency and use
-    # that.
-    for item in jobs:
-
-        job = jobs[item]
-
-        # If we came from recovery mode then rebuild the queueinfo structure.
-        if job["resource"] not in QUEUEINFO:
-
-            QUEUEINFO[job["resource"]] = {"queue-slots": job["queue-slots"],
-                                          "queue-max": job["queue-max"]}
-
-        # Don't initialise if already set (submission errors are passed here)
-        if "laststatus" not in job:
-            job["laststatus"] = ""
-
-        if interval < int(job["frequency"]):
-
-            interval = int(job["frequency"])
+    lastpolltime = 0
+    laststagetime = 0
+    saverecoveryfile = True
+    recoveryfileerror = False
 
     # Loop until all jobs are done.
-    while allfinished is False:
+    while allcomplete is False:
 
-        for item in jobs:
+        now = time.time()
 
-            job = jobs[item]
-            scheduler = job["scheduler"]
+        # Check if we should be polling.
+        if int(now - lastpolltime) > int(pollinterval):
 
-            if (job["laststatus"] != "Finished" and
-                    job["laststatus"] != "Submit Error" and
-                    job["laststatus"] != "Waiting Submission"):
+            lastpolltime = int(now)
+            saverecoveryfile = _polljobs(jobs, saverecoveryfile)
+            saverecoveryfile = _checkwaitingjobs(jobs, saverecoveryfile)
 
-                # Get the job status.
-                try:
+        # Check if we should be staging.
+        if ((int(now - laststagetime) > int(stageinterval) and
+                int(stageinterval) != 0) or allfinished is True):
 
-                    status = getattr(schedulers, scheduler.lower()).status(job)
-
-                except AttributeError:
-
-                    raise exceptions.PluginattributeError(
-                        "status method cannot be found in plugin '{0}'"
-                        .format(scheduler))
-
-                # If the last status is different then change the flag (stops
-                # logfile getting flooded!)
-                if job["laststatus"] != status:
-
-                    job["laststatus"] = status
-
-                    LOG.info("Status of job '%s' with id '%s' is '%s'",
-                             item, job["jobid"], status)
-
-                    # Save out the recovery files.
-                    if os.path.isdir(os.path.expanduser('~/.Longbow')):
-
-                        try:
-
-                            configuration.saveini(JOBFILE, jobs)
-
-                        except (OSError, IOError):
-
-                            LOG.warning(
-                                "Could not write recovery file, possibly due "
-                                "to permissions on the ~/.Longbow directory.")
-
-                # If the job is not finished and we set the polling frequency
-                # higher than 0 (off) then stage files.
-                if (job["laststatus"] == "Running" or
-                        job["laststatus"] == "Subjob(s) running" and
-                        interval is not 0):
-
-                    staging.stage_downstream(job)
-
-                # If job is done wait 60 seconds then transfer files (this is
-                # to stop users having to wait till all jobs end to grab last
-                # bit of staged files.)
-                if job["laststatus"] == "Finished":
-
-                    QUEUEINFO[job["resource"]]["queue-slots"] = \
-                        str(int(QUEUEINFO[job["resource"]]["queue-slots"]) - 1)
-
-                    LOG.info("Job '%s' is finishing, staging will begin in "
-                             "60 seconds", item)
-
-                    time.sleep(60.0)
-
-                    staging.stage_downstream(job)
-
-            # Check if we can submit any further jobs.
-            if job["laststatus"] == "Waiting Submission":
-
-                # If we have less occupied slots than the queue-max then we
-                # can submit.
-                if int(QUEUEINFO[job["resource"]]["queue-slots"]) < \
-                   int(QUEUEINFO[job["resource"]]["queue-max"]):
-
-                    # Try and submit this job.
-                    try:
-
-                        getattr(schedulers, scheduler.lower()).submit(job)
-
-                        job["laststatus"] = "Queued"
-
-                        LOG.info("Job '%s' submitted with id '%s'",
-                                 item, job["jobid"])
-
-                        # Increment the queue counter by one (used to count
-                        # the slots).
-                        QUEUEINFO[job["resource"]]["queue-slots"] = str(
-                            int(QUEUEINFO[job["resource"]]["queue-slots"]) + 1)
-
-                    # Submit method can't be found.
-                    except AttributeError:
-
-                        raise exceptions.PluginattributeError(
-                            "submit method cannot be found in plugin '{0}'"
-                            .format(scheduler))
-
-                    # Some sort of error in submitting the job.
-                    except exceptions.JobsubmitError as err:
-
-                        LOG.error(err)
-
-                        job["laststatus"] = "Submit Error"
-
-                    # This time if a queue error is raised it might be due to
-                    # other constraints such as resource limits on the queue.
-                    except exceptions.QueuemaxError:
-
-                        LOG.error("Job is still failing to submit, which "
-                                  "could indicate problems with resource "
-                                  "limits for this particular queue - marking "
-                                  "this as in error state")
-
-                        job["laststatus"] = "Submit Error"
-
-        # If the polling interval is set at zero then staging will be disabled
-        # however continue to poll jobs but do it on a low frequency. Staging
-        # will however still occur once the job is finished.
-        if interval is 0:
-
-            # Default to 5 minute intervals
-            time.sleep(300.0)
+            laststagetime = int(now)
+            saverecoveryfile = _stagejobfiles(jobs, saverecoveryfile)
 
         # Update the queue info settings to each job just in case something
         # happens requiring user to use recovery.
-        for item in jobs:
+        for job in jobs:
 
-            job = jobs[item]
+            jobs[job]["queue-slots"] = \
+                QUEUEINFO[jobs[job]["resource"]]["queue-slots"]
+            jobs[job]["queue-max"] = \
+                QUEUEINFO[jobs[job]["resource"]]["queue-max"]
 
-            job["queue-slots"] = QUEUEINFO[job["resource"]]["queue-slots"]
-            job["queue-max"] = QUEUEINFO[job["resource"]]["queue-max"]
+        # Save out the recovery files.
+        if (os.path.isdir(os.path.expanduser('~/.Longbow')) and
+                saverecoveryfile is True and recoveryfileerror is False):
 
-        # Find out if all jobs are completed.
-        for item in jobs:
+            saverecoveryfile = False
 
-            job = jobs[item]
+            try:
 
-            # If a single job has a flag not associated with being done then
-            # carry on.
-            if job["laststatus"] != "Finished" and \
-               job["laststatus"] != "Submit Error":
+                configuration.saveini(JOBFILE, jobs)
 
-                allfinished = False
-                break
+            except (OSError, IOError):
 
-            allfinished = True
+                recoveryfileerror = True
 
-        # If we still have jobs running then wait here for desired time before
-        # looping again.
-        if allfinished is False:
+                LOG.warning("Could not write recovery file, possibly due to "
+                            "permissions on the ~/.Longbow directory.")
 
-            time.sleep(float(interval))
+        allfinished, allcomplete = _checkcomplete(jobs)
 
     LOG.info("All jobs are complete.")
 
 
 def prepare(jobs):
+    """A generic method for creating job submit scripts.
 
-    """
     A method containing the generic and boiler plate Longbow code for
     constructing the submit file.
 
@@ -473,8 +272,8 @@ def prepare(jobs):
     jobs (dictionary) - The Longbow jobs data structure, see configuration.py
                         for more information about the format of this
                         structure.
-    """
 
+    """
     LOG.info("Creating submit files for job/s.")
 
     for item in jobs:
@@ -500,8 +299,8 @@ def prepare(jobs):
 
 
 def submit(jobs):
+    """A generic method for submitting jobs.
 
-    """
     A method containing the generic and boiler plate Longbow code for
     submitting a job.
 
@@ -510,8 +309,8 @@ def submit(jobs):
     jobs (dictionary) - The Longbow jobs data structure, see configuration.py
                         for more information about the format of this
                         structure.
-    """
 
+    """
     # Initialise some counters.
     submitted = 0
     queued = 0
@@ -600,7 +399,7 @@ def submit(jobs):
 
         try:
 
-            LOG.info("recovery file will be placed at path '%s'", JOBFILE)
+            LOG.info("Recovery file will be placed at path '%s'", JOBFILE)
 
             configuration.saveini(JOBFILE, jobs)
 
@@ -612,3 +411,271 @@ def submit(jobs):
 
     LOG.info("%s Submitted, %s Held due to queue limits and %s Failed.",
              submitted, queued, error)
+
+
+def _testscheduler(job):
+    """The test logic for finding out what scheduler is on the system."""
+    schedulerqueries = getattr(schedulers, "QUERY")
+
+    LOG.info("No environment for this host '%s' is specified - attempting to "
+             "determine it!", job["resource"])
+
+    # Go through the schedulers we are supporting.
+    for param in schedulerqueries:
+
+        try:
+
+            shellwrappers.sendtossh(job, schedulerqueries[param])
+
+            job["scheduler"] = param
+
+            LOG.info("The environment on this host is '%s'", param)
+            break
+
+        except exceptions.SSHError:
+
+            LOG.debug("Environment is not '%s'", param)
+
+    if job["scheduler"] is "":
+
+        raise exceptions.SchedulercheckError("Could not find the job "
+                                             "scheduling system.")
+
+
+def _testhandler(job):
+    """A method for finding out job handler is on the system."""
+    # Initialise variables.
+    handlers = {
+        "aprun": ["which aprun"],
+        "mpirun": ["which mpirun"]
+    }
+
+    LOG.info("No queue handler was specified for host '%s' - attempting to "
+             "find it", job["resource"])
+
+    modules = []
+
+    # Go through the handlers and find out which is there. Load modules first
+    # as this is necessary for some remote resources
+    for module in job["modules"].split(","):
+
+        module = module.replace(" ", "")
+        modules.extend(["module load " + module + "\n"])
+
+    for param in handlers:
+
+        try:
+
+            cmd = modules[:]
+            cmd.extend(handlers[param])
+            shellwrappers.sendtossh(job, cmd)
+
+            job["handler"] = param
+
+            LOG.info("The batch queue handler is '%s'", param)
+            break
+
+        except exceptions.SSHError:
+
+            LOG.debug("The batch queue handler is not '%s'", param)
+
+    if job["handler"] is "":
+
+        raise exceptions.HandlercheckError("Could not find the batch queue "
+                                           "handler.")
+
+
+def _monitorinitialise(jobs):
+    """Setup the conditions for monitoring jobs."""
+    # Initialise values.
+    pollinterval = 0
+    stageinterval = 0
+
+    # Sort out some defaults.
+    for job in jobs:
+
+        # If we came from recovery mode then rebuild the queueinfo structure.
+        if jobs[job]["resource"] not in QUEUEINFO:
+
+            QUEUEINFO[jobs[job]["resource"]] = {
+                "queue-slots": jobs[job]["queue-slots"],
+                "queue-max": jobs[job]["queue-max"]
+            }
+
+        # This should always be present.
+        if "laststatus" not in job:
+
+            jobs[job]["laststatus"] = ""
+
+        # Set the file transfer interval.
+        if stageinterval < int(jobs[job]["staging-frequency"]):
+
+            stageinterval = int(jobs[job]["staging-frequency"])
+
+        # Attempt to grab a polling frequency that might have been set
+        if pollinterval < int(jobs[job]["frequency"]):
+
+            pollinterval = int(jobs[job]["frequency"])
+
+    # If somehow the polling interval parameter is still zero, reduce the
+    # polling to once every 5 minutes.
+    if pollinterval is 0:
+
+        pollinterval = 300
+
+    return stageinterval, pollinterval
+
+
+def _polljobs(jobs, save):
+    """A method to poll the status of all jobs.
+
+    Poll the status of all jobs that are not in error states, queued or
+    finihed.
+
+    """
+    for job in jobs:
+
+        if (jobs[job]["laststatus"] != "Finished" and
+                jobs[job]["laststatus"] != "Complete" and
+                jobs[job]["laststatus"] != "Submit Error" and
+                jobs[job]["laststatus"] != "Waiting Submission"):
+
+            # Get the job status.
+            try:
+
+                status = getattr(
+                    schedulers, jobs[job]["scheduler"].lower()).status(
+                        jobs[job])
+
+            except AttributeError:
+
+                raise exceptions.PluginattributeError(
+                    "Status method cannot be"
+                    "found in plugin '{0}'".format(jobs[job]["scheduler"]))
+
+            # If the last status is different then change the flag (stops
+            # logfile getting flooded!)
+            if jobs[job]["laststatus"] != status:
+
+                jobs[job]["laststatus"] = status
+
+                save = True
+
+                if status == "Finished":
+
+                    resource = jobs[job]["resource"]
+                    QUEUEINFO[resource]["queue-slots"] = \
+                        str(int(QUEUEINFO[resource]["queue-slots"]) - 1)
+
+                LOG.info("Status of job '%s' with id '%s' is '%s'", job,
+                         jobs[job]["jobid"], status)
+
+    return save
+
+
+def _stagejobfiles(jobs, save):
+    """A method to stage all files for each running job.
+
+    Stage all files for each running job. For jobs that are finished, stage
+    and remove them from the QUEUEINFO data and then change their status to
+    complete. This will stop future staging.
+
+    """
+    for job in jobs:
+
+        if (jobs[job]["laststatus"] == "Running" or
+                jobs[job]["laststatus"] == "Subjob(s) running"):
+
+            staging.stage_downstream(jobs[job])
+
+        if jobs[job]["laststatus"] == "Finished":
+
+            staging.stage_downstream(jobs[job])
+
+            jobs[job]["laststatus"] = "Complete"
+
+            save = True
+
+    return save
+
+
+def _checkwaitingjobs(jobs, save):
+    """Check if any jobs marked as "Waiting Submission" can be submitted."""
+    for job in jobs:
+
+        # Check if we can submit any further jobs.
+        if (jobs[job]["laststatus"] == "Waiting Submission" and
+                int(QUEUEINFO[jobs[job]["resource"]]["queue-slots"]) <
+                int(QUEUEINFO[jobs[job]["resource"]]["queue-max"])):
+
+            # Try and submit this job.
+            try:
+
+                getattr(schedulers,
+                        jobs[job]["scheduler"].lower()).submit(jobs[job])
+
+                jobs[job]["laststatus"] = "Queued"
+
+                LOG.info("Job '%s' submitted with id '%s'", job,
+                         jobs[job]["jobid"])
+
+                # Increment the queue counter by one (used to count the slots).
+                QUEUEINFO[jobs[job]["resource"]]["queue-slots"] = str(
+                    int(QUEUEINFO[jobs[job]["resource"]]["queue-slots"]) + 1)
+
+                save = True
+
+            except AttributeError:
+
+                # Submit method can't be found.
+                raise exceptions.PluginattributeError(
+                    "Submit method cannot be found in plugin '{0}'"
+                    .format(jobs[job]["scheduler"]))
+
+            # Some sort of error in submitting the job.
+            except exceptions.JobsubmitError as err:
+
+                LOG.error(err)
+
+                jobs[job]["laststatus"] = "Submit Error"
+
+            # This time if a queue error is raised it might be due to other
+            # constraints such as resource limits on the queue.
+            except exceptions.QueuemaxError:
+
+                LOG.error("Job is still failing to submit, which could "
+                          "indicate problems with resource limits for this "
+                          "particular queue - marking this as in error state")
+
+                jobs[job]["laststatus"] = "Submit Error"
+
+    return save
+
+
+def _checkcomplete(jobs):
+    """Check if all the jobs are complete."""
+    # Initialise variables
+    allfinished = False
+    allcomplete = False
+    complete = []
+    finished = []
+
+    for job in jobs:
+
+        if jobs[job]["laststatus"] != "Submit Error":
+
+            complete.append(jobs[job]["laststatus"])
+
+            if jobs[job]["laststatus"] != "Complete":
+
+                finished.append(jobs[job]["laststatus"])
+
+    if all(state == "Complete" for state in complete) and len(complete) != 0:
+
+        allcomplete = True
+
+    if all(state == "Finished" for state in finished) and len(finished) != 0:
+
+        allfinished = True
+
+    return allfinished, allcomplete

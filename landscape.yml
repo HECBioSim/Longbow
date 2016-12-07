@@ -1,0 +1,6 @@
+doc-warnings: true
+test-warnings: false
+strictness: veryhigh
+python-targets:
+  - 2
+  - 3
