@@ -262,7 +262,9 @@ def longbowmain(parameters):
 
     # Test that for the applications listed in the job configuration
     # file are available and that the executable is present.
-    applications.testapp(jobs)
+    if parameters["nochecks"] is True:
+
+        applications.testapp(jobs)
 
     # Process the jobs command line arguments and find files for
     # staging.

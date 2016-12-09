@@ -74,9 +74,7 @@ def testapp(jobs):
             checked[jobs[job]["resource"]] = []
 
         # Now check if we have tested this exec already.
-        if (jobs[job]["executable"] not in checked[jobs[job]["resource"]] and
-                (jobs[job]["nochecks"] is False or
-                 jobs[job]["nochecks"] == "false")):
+        if (jobs[job]["executable"] not in checked[jobs[job]["resource"]]):
 
             # If not then add it to the list now.
             checked[jobs[job]["resource"]].extend([jobs[job]["executable"]])

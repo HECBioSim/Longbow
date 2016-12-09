@@ -503,7 +503,7 @@ def _monitorinitialise(jobs):
             }
 
         # This should always be present.
-        if "laststatus" not in job:
+        if "laststatus" not in jobs[job]:
 
             jobs[job]["laststatus"] = ""
 

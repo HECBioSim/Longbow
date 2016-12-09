@@ -204,12 +204,16 @@ def status(job):
 
             line = line.split()
 
-            if job["jobid"] in line[0]:
+            if len(line) > 0 and job["jobid"] in line[0]:
 
                 jobstate = states[line[4]]
                 break
 
     except (IndexError, KeyError):
+
+        jobstate = "Finished"
+
+        if jobstate == "":
 
         jobstate = "Finished"
 
