@@ -199,7 +199,7 @@ def monitor(jobs):
                         structure.
 
     """
-    LOG.info("Monitoring job/s, depending on the chosen logging mode Longbow"
+    LOG.info("Monitoring job/s. Depending on the chosen logging mode, Longbow "
              "might appear to be doing nothing. Please be patient!")
 
     stageinterval, pollinterval = _monitorinitialise(jobs)
