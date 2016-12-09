@@ -213,7 +213,7 @@ def status(job):
 
         jobstate = "Finished"
 
-        if jobstate == "":
+    if jobstate == "":
 
         jobstate = "Finished"
 
