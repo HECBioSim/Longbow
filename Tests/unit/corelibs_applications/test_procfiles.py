@@ -34,16 +34,16 @@ def test_procfiles_amber():
 
     arg = "coords"
     filelist = []
+    foundflags = []
     job = {
         "executable": "pmemd.MPI",
         "replicates": "1",
         "localworkdir": "Tests/standards/jobs/single",
         "executableargs": ["-i", "input", "-c", "coords", "-p", "topol"]
     }
-    initargs = ["-i", "input", "-c", "coords", "-p", "topol"]
     substitution = {}
 
-    foundflags = apps._procfiles(job, arg, initargs, filelist, substitution)
+    foundflags = apps._procfiles(job, arg, filelist, foundflags, substitution)
 
     assert foundflags == ["-c"]
     assert filelist == ["coords"]
@@ -58,16 +58,16 @@ def test_procfiles_charmm():
 
     arg = "topol"
     filelist = []
+    foundflags = []
     job = {
         "executable": "charmm",
         "replicates": "1",
         "localworkdir": "Tests/standards/jobs/single",
         "executableargs": ["<", "topol"]
     }
-    initargs = ["<", "topol"]
     substitution = {}
 
-    foundflags = apps._procfiles(job, arg, initargs, filelist, substitution)
+    foundflags = apps._procfiles(job, arg, filelist, foundflags, substitution)
 
     assert foundflags == ["<"]
     assert filelist == ["topol"]
@@ -82,16 +82,16 @@ def test_procfiles_gromacs():
 
     arg = "test"
     filelist = []
+    foundflags = []
     job = {
         "executable": "mdrun_mpi",
         "replicates": "1",
         "localworkdir": "Tests/standards/jobs/single",
         "executableargs": ["-deffnm", "test"]
     }
-    initargs = ["-deffnm", "test"]
     substitution = {}
 
-    foundflags = apps._procfiles(job, arg, initargs, filelist, substitution)
+    foundflags = apps._procfiles(job, arg, filelist, foundflags, substitution)
 
     assert foundflags == ["-deffnm"]
     assert filelist == ["test.tpr"]
@@ -106,16 +106,16 @@ def test_procfiles_namd():
 
     arg = "input"
     filelist = []
+    foundflags = []
     job = {
         "executable": "namd2",
         "replicates": "1",
         "localworkdir": "Tests/standards/jobs/single",
         "executableargs": ["input"]
     }
-    initargs = ["input"]
     substitution = {}
 
-    foundflags = apps._procfiles(job, arg, initargs, filelist, substitution)
+    foundflags = apps._procfiles(job, arg, filelist, foundflags, substitution)
 
     assert foundflags == ["<"]
     assert filelist == ["input"]
@@ -129,16 +129,16 @@ def test_procfiles_reps():
 
     arg = "coords"
     filelist = []
+    foundflags = []
     job = {
         "executable": "pmemd.MPI",
         "replicates": "3",
         "localworkdir": "Tests/standards/jobs/replicate",
         "executableargs": ["-i", "input", "-c", "coords", "-p", "topol"]
     }
-    initargs = ["-i", "input", "-c", "coords", "-p", "topol"]
     substitution = {}
 
-    foundflags = apps._procfiles(job, arg, initargs, filelist, substitution)
+    foundflags = apps._procfiles(job, arg, filelist, foundflags, substitution)
 
     assert foundflags == ["-c"]
     assert filelist == ["rep1", "rep1/coords", "rep2", "rep2/coords", "rep3",

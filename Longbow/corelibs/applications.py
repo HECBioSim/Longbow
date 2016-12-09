@@ -135,6 +135,7 @@ def processjobs(jobs):
         filelist = []
         appplugins = getattr(apps, "PLUGINEXECS")
         app = appplugins[jobs[job]["executable"]]
+        foundflags = []
         substitution = {}
 
         LOG.debug("Command-line arguments for job '%s' are '%s'",
@@ -178,7 +179,8 @@ def processjobs(jobs):
             pass
 
         # Process the command-line.
-        foundflags = _proccommandline(jobs[job], filelist, substitution)
+        foundflags = _proccommandline(jobs[job], filelist, foundflags,
+                                      substitution)
 
         # Validate if all required flags are present.
         _flagvalidator(jobs[job], foundflags)
@@ -237,7 +239,7 @@ def _flagvalidator(job, foundflags):
             .format(job["jobname"], flags, app))
 
 
-def _proccommandline(job, filelist, substitution):
+def _proccommandline(job, filelist, foundflags, substitution):
     """Command-line processor.
 
     This method selects which type of command-line we have.
@@ -245,7 +247,6 @@ def _proccommandline(job, filelist, substitution):
     """
     # Initialisation.
     args = list(job["executableargs"])
-    initargs = list(job["executableargs"])
 
     try:
 
@@ -254,13 +255,13 @@ def _proccommandline(job, filelist, substitution):
         if args[0] == "<" and len(args) > 1:
 
             # Command-line type exec < input.file
-            foundflags = _procfiles(job, args[1], initargs, filelist,
+            foundflags = _procfiles(job, args[1], filelist, foundflags,
                                     substitution)
 
         elif len(args) == 1 and args[0] != "<":
 
             # Command-line type exec input.file
-            foundflags = _procfiles(job, args[0], initargs, filelist,
+            foundflags = _procfiles(job, args[0], filelist, foundflags,
                                     substitution)
 
         elif "-" in args[0]:
@@ -268,7 +269,7 @@ def _proccommandline(job, filelist, substitution):
             for arg in args:
 
                 # Command-line type exec -i file -c file
-                foundflags = _procfiles(job, arg, initargs, filelist,
+                foundflags = _procfiles(job, arg, filelist, foundflags,
                                         substitution)
 
         elif "-" not in args[0] and "-" in args[1]:
@@ -276,7 +277,7 @@ def _proccommandline(job, filelist, substitution):
             for arg in args[1:]:
 
                 # Command-line type exec subexec -i file -c file
-                foundflags = _procfiles(job, arg, initargs, filelist,
+                foundflags = _procfiles(job, arg, filelist, foundflags,
                                         substitution)
 
         else:
@@ -294,12 +295,12 @@ def _proccommandline(job, filelist, substitution):
     return foundflags
 
 
-def _procfiles(job, arg, initargs, filelist, substitution):
+def _procfiles(job, arg, filelist, foundflags, substitution):
     """Processor for finding flags and files."""
     # Initialisation.
     appplugins = getattr(apps, "PLUGINEXECS")
     app = appplugins[job["executable"]]
-    foundflags = []
+    initargs = list(job["executableargs"])
 
     # Check for as many files as there are replicates (default of 1).
     for rep in range(1, int(job["replicates"]) + 1):
