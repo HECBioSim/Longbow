@@ -237,20 +237,14 @@ def status(job):
     # PBS will return a table, so split lines into a list.
     stdout = shellout[0].split("\n")
 
-    try:
+    for line in stdout:
 
-        for line in stdout:
+        line = line.split()
 
-            line = line.split()
+        if len(line) > 0 and job["jobid"] in line[0]:
 
-            if len(line) > 0 and job["jobid"] in line[0]:
-
-                jobstate = states[line[9]]
-                break
-
-    except (IndexError, KeyError):
-
-        jobstate = "Finished"
+            jobstate = states[line[9]]
+            break
 
     if jobstate == "":
 
