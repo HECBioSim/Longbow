@@ -38,7 +38,7 @@ def test_checkcomplete_single1():
         }
     }
 
-    finished, complete = scheduling._checkcomplete(jobs)
+    complete, finished = scheduling._checkcomplete(jobs)
 
     assert finished is False
     assert complete is False
@@ -56,7 +56,7 @@ def test_checkcomplete_single2():
         }
     }
 
-    finished, complete = scheduling._checkcomplete(jobs)
+    complete, finished = scheduling._checkcomplete(jobs)
 
     assert finished is True
     assert complete is False
@@ -74,7 +74,7 @@ def test_checkcomplete_single3():
         }
     }
 
-    finished, complete = scheduling._checkcomplete(jobs)
+    complete, finished = scheduling._checkcomplete(jobs)
 
     assert finished is False
     assert complete is True
@@ -98,7 +98,7 @@ def test_checkcomplete_multi1():
         }
     }
 
-    finished, complete = scheduling._checkcomplete(jobs)
+    complete, finished = scheduling._checkcomplete(jobs)
 
     assert finished is False
     assert complete is False
@@ -122,7 +122,7 @@ def test_checkcomplete_multi2():
         }
     }
 
-    finished, complete = scheduling._checkcomplete(jobs)
+    complete, finished = scheduling._checkcomplete(jobs)
 
     assert finished is True
     assert complete is False
@@ -146,7 +146,55 @@ def test_checkcomplete_multi3():
         }
     }
 
-    finished, complete = scheduling._checkcomplete(jobs)
+    complete, finished = scheduling._checkcomplete(jobs)
+
+    assert finished is False
+    assert complete is True
+
+
+def test_checkcomplete_multi4():
+
+    """
+    Check that submit error is ignored.
+    """
+
+    jobs = {
+        "jobone": {
+            "laststatus": "Submit Error"
+        },
+        "jobtwo": {
+            "laststatus": "Complete"
+        },
+        "jobthree": {
+            "laststatus": "Complete"
+        }
+    }
+
+    complete, finished = scheduling._checkcomplete(jobs)
+
+    assert finished is False
+    assert complete is True
+
+
+def test_checkcomplete_multi5():
+
+    """
+    Check that submit error is ignored.
+    """
+
+    jobs = {
+        "jobone": {
+            "laststatus": "Submit Error"
+        },
+        "jobtwo": {
+            "laststatus": "Submit Error"
+        },
+        "jobthree": {
+            "laststatus": "Submit Error"
+        }
+    }
+
+    complete, finished = scheduling._checkcomplete(jobs)
 
     assert finished is False
     assert complete is True
