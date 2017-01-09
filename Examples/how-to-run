@@ -26,7 +26,7 @@ LongbowExamples/ReplicateJob
 In this directory, users can learn how to submit replicas by executing the below 
 command on a desktop:
 
-longbow --verbose -replicates 5 namd2 example.in
+longbow --verbose --replicates 5 namd2 example.in
 
 ################################################################################
 LongbowExamples/MultipleJobs
