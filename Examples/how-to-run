@@ -6,19 +6,19 @@ and learn how to submit a simple longbow job from their desktop using the below
 commands:
 
 LongbowExamples/QuickStart/Amber
-longbow -verbose pmemd.MPI -O -i example.in -c example.min -p example.top -o example.out
+longbow --verbose pmemd.MPI -O -i example.in -c example.min -p example.top -o example.out
 
 LongbowExamples/QuickStart/CHARMM
-longbow -verbose charmm -i example.inp ">" example.out
+longbow --verbose charmm -i example.inp ">" example.out
 
 LongbowExamples/QuickStart/Gromacs
-longbow -verbose mdrun -s example.tpr -deffnm output 
+longbow --verbose mdrun -s example.tpr -deffnm output 
 
 LongbowExamples/QuickStart/LAMMPS
-longbow -verbose lmp_xc30 -i example.in -l output
+longbow --verbose lmp_xc30 -i example.in -l output
 
 LongbowExamples/QuickStart/NAMD
-longbow -verbose namd2 example.in ">" example.out
+longbow --verbose namd2 example.in ">" example.out
 
 ################################################################################
 LongbowExamples/ReplicateJob
@@ -26,7 +26,7 @@ LongbowExamples/ReplicateJob
 In this directory, users can learn how to submit replicas by executing the below 
 command on a desktop:
 
-longbow -verbose -replicates 5 namd2 example.in
+longbow --verbose -replicates 5 namd2 example.in
 
 ################################################################################
 LongbowExamples/MultipleJobs
@@ -37,7 +37,7 @@ In this directory, users can learn how to submit multiple jobs to multiple
 resources (HPC's). Edit /multi/job.conf to specify resources with entries in 
 ~/.Longbow/hosts.conf and submit on your desktop using the below command:
 
-longbow -job job.conf -verbose
+longbow --job job.conf -verbose
 
 LongbowExamples/MultipleJobs/MultipleJobsDifferentApplications
 
@@ -45,7 +45,7 @@ In this directory, users can learn how to submit multiple jobs that each use a
 different molecular dynamics package. Just execute the following command on a 
 desktop:
 
-longbow -job job.conf -verbose
+longbow --job job.conf -verbose
 
 ################################################################################
 LongbowExamples/CondorSubmission
