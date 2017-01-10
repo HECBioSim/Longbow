@@ -170,7 +170,7 @@ def processjobs(jobs):
 
             substitution = getattr(
                 apps, app.lower()).detectsubstitutions(
-                    list(job["executableargs"]))
+                    list(jobs[job]["executableargs"]))
 
         except AttributeError:
 
