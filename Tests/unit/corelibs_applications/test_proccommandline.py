@@ -108,6 +108,24 @@ def test_proccommandline_test4(m_procfiles):
     assert m_procfiles.call_args[0][1] == "input.file"
 
 
+@mock.patch('Longbow.corelibs.applications._procfiles')
+def test_proccommandline_test5(m_procfiles):
+
+    """
+    Test that the correct method is selected based on the command-line.
+    """
+
+    job = {
+        "executable": "namd",
+        "executableargs": ["input.file", ">", "output.file"]
+    }
+
+    apps._proccommandline(job, [], [], {})
+
+    assert m_procfiles.call_count == 1
+    assert m_procfiles.call_args[0][1] == "input.file"
+
+
 def test_proccommandline_except():
 
     """
