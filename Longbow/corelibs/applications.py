@@ -237,6 +237,33 @@ def _flagvalidator(job, foundflags):
             .format(job["jobname"], flags, app))
 
 
+def _markfoundfiles(arg, initargs, foundflags):
+    """Method to mark file flags as found."""
+    try:
+
+        pos = initargs.index(arg) - 1
+
+    except ValueError:
+
+        pos = initargs.index("../" + arg) - 1
+
+    # In cases where there is a single input file as the first parameter. This
+    # should cover cases such as:
+    # exec input.file
+    # exec input.file > output.file
+    if arg == initargs[0]:
+
+        foundflags.append("<")
+
+    # All other cases should pretty much be formats like:
+    # exec -flag file -flag file -flag file
+    elif len(initargs) > 1 and initargs[pos] not in foundflags:
+
+        foundflags.append(initargs[pos])
+
+    return foundflags
+
+
 def _proccommandline(job, filelist, foundflags, substitution):
     """Command-line processor.
 
@@ -304,15 +331,7 @@ def _procfiles(job, arg, filelist, foundflags, substitution):
         # If we have a valid file
         if os.path.isfile(os.path.join(job["localworkdir"], fileitem)):
 
-            if arg == initargs[0]:
-
-                foundflags.append("<")
-
-            # Mark files as found.
-            elif (len(initargs) > 1 and initargs[initargs.index(arg) - 1] not
-                    in foundflags):
-
-                foundflags.append(initargs[initargs.index(arg) - 1])
+            _markfoundfiles(arg, initargs, foundflags)
 
             # Search input file for any file dependencies.
             try:
