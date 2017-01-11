@@ -90,7 +90,7 @@ def main():
         "debug": False,
         "disconnect": False,
         "executable": "",
-        "executableargs": [],
+        "executableargs": "",
         "hosts": "",
         "job": "",
         "jobname": "",
@@ -450,7 +450,7 @@ def _commandlineproc(alllongbowargs, cmdlnargs, parameters):
                 "Recognised arguments are: {1}".format(item, allowedargs))
 
     parameters["executable"] = executable
-    parameters["executableargs"] = execargs
+    parameters["executableargs"] = " ".join(execargs)
 
     return longbowargs
 

@@ -104,7 +104,7 @@ def test_processconfigsparams_test1():
         "debug": False,
         "disconnect": False,
         "executable": "test.exec",
-        "executableargs": [],
+        "executableargs": "",
         "hosts": "",
         "job": "",
         "jobname": "",
@@ -221,7 +221,7 @@ def test_processconfigsparams_test2():
         "debug": False,
         "disconnect": False,
         "executable": "",
-        "executableargs": [],
+        "executableargs": "",
         "hosts": "",
         "job": "",
         "jobname": "",
@@ -246,17 +246,23 @@ def test_processconfigsparams_test2():
 
     jobdata = {
         "jobone": {
-            "executable": "job1.exec"
+            "executable": "job1.exec",
+            "executableargs": "-i example.in -c example.rst -p example.top"
         },
         "jobtwo": {
-            "executable": "job2.exec"
+            "executable": "job2.exec",
+            "executableargs": "-i example.in -c example.rst -p example.top"
         }
     }
 
     conf._processconfigsparams(jobs, parameters, jobdata, hostdata)
 
     assert jobs["jobone"]["executable"] == "job1.exec"
+    assert jobs["jobone"]["executableargs"] == \
+        "-i example.in -c example.rst -p example.top"
     assert jobs["jobtwo"]["executable"] == "job2.exec"
+    assert jobs["jobtwo"]["executableargs"] == \
+        "-i example.in -c example.rst -p example.top"
 
 
 def test_processconfigsparams_test3():
@@ -338,7 +344,7 @@ def test_processconfigsparams_test3():
         "debug": False,
         "disconnect": False,
         "executable": "",
-        "executableargs": [],
+        "executableargs": "",
         "hosts": "",
         "job": "",
         "jobname": "",

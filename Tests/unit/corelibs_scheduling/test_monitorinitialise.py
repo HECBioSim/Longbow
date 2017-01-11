@@ -38,14 +38,14 @@ def test_monitorinitialise_test1():
             "queue-max": "0",
             "queue-slots": "0",
             "staging-frequency": "0",
-            "frequency": "0"
+            "polling-frequency": "0"
         },
         "jobtwo": {
             "resource": "test-machine",
             "queue-max": "0",
             "queue-slots": "0",
             "staging-frequency": "0",
-            "frequency": "0"
+            "polling-frequency": "0"
         }
     }
 
@@ -67,14 +67,14 @@ def test_monitorinitialise_test2():
             "queue-max": "0",
             "queue-slots": "0",
             "staging-frequency": "100",
-            "frequency": "400"
+            "polling-frequency": "400"
         },
         "jobtwo": {
             "resource": "test-machine3",
             "queue-max": "0",
             "queue-slots": "0",
             "staging-frequency": "0",
-            "frequency": "0"
+            "polling-frequency": "0"
         }
     }
 
