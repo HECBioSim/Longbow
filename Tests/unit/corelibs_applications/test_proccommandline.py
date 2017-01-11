@@ -68,7 +68,7 @@ def test_proccommandline_test2(m_procfiles):
 
     apps._proccommandline(job, [], [], {})
 
-    assert m_procfiles.call_count == 6
+    assert m_procfiles.call_count == 3
     assert m_procfiles.call_args[0][1] == "file"
 
 
@@ -86,7 +86,7 @@ def test_proccommandline_test3(m_procfiles):
 
     apps._proccommandline(job, [], [], {})
 
-    assert m_procfiles.call_count == 2
+    assert m_procfiles.call_count == 1
     assert m_procfiles.call_args[0][1] == "filename"
 
 
@@ -116,14 +116,14 @@ def test_proccommandline_test5(m_procfiles):
     """
 
     job = {
-        "executable": "namd",
+        "executable": "namd2",
         "executableargs": ["input.file", ">", "output.file"]
     }
 
     apps._proccommandline(job, [], [], {})
 
-    assert m_procfiles.call_count == 1
-    assert m_procfiles.call_args[0][1] == "input.file"
+    assert m_procfiles.call_count == 2
+    assert m_procfiles.call_args[0][1] == "output.file"
 
 
 def test_proccommandline_except():

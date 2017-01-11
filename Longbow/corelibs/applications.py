@@ -244,46 +244,21 @@ def _proccommandline(job, filelist, foundflags, substitution):
 
     """
     # Initialisation.
+    appplugins = getattr(apps, "PLUGINEXECS")
+    app = appplugins[job["executable"]]
     args = list(job["executableargs"])
+    subexecs = getattr(
+        apps, app.lower()).EXECDATA[job["executable"]]["subexecutables"]
 
     try:
 
-        # Determine the command-line type and call the processor method. Start
-        # with command-lines of the type exec < input.file.
-        # Command-line type: exec input.file
-        if len(args) == 1 and args[0] != "<":
+        for arg in args:
 
-            foundflags = _procfiles(job, args[0], filelist, foundflags,
-                                    substitution)
-
-        # Command-line type: exec input.file > output.file
-        elif len(args) == 3 and args[1] == ">":
-
-            foundflags = _procfiles(job, args[0], filelist, foundflags,
-                                    substitution)
-
-        # Command-line type: exec < input.file
-        elif len(args) > 1 and args[0] == "<":
-
-            foundflags = _procfiles(job, args[1], filelist, foundflags,
-                                    substitution)
-
-        # Command-line type exec -i file -c file
-        elif "-" in args[0] or "-" in args[1]:
-
-            # Sub executables.
-            if "-" not in args[0]:
-
-                args = args[1:]
-
-            for arg in args:
+            if (arg != "<" and arg != ">" and arg[0] != "-" and
+                    arg not in subexecs):
 
                 foundflags = _procfiles(job, arg, filelist, foundflags,
                                         substitution)
-
-        else:
-
-            raise ValueError
 
     except (IndexError, ValueError):
 
@@ -329,16 +304,15 @@ def _procfiles(job, arg, filelist, foundflags, substitution):
         # If we have a valid file
         if os.path.isfile(os.path.join(job["localworkdir"], fileitem)):
 
-            # Mark files as found.
-            if (len(initargs) > 1 and initargs[initargs.index(arg) - 1] not in
-                    foundflags):
-
-                foundflags.append(initargs[initargs.index(arg) - 1])
-
-            elif(len(initargs) == 1 and initargs[initargs.index(arg) - 1] not
-                    in foundflags):
+            if arg == initargs[0]:
 
                 foundflags.append("<")
+
+            # Mark files as found.
+            elif (len(initargs) > 1 and initargs[initargs.index(arg) - 1] not
+                    in foundflags):
+
+                foundflags.append(initargs[initargs.index(arg) - 1])
 
             # Search input file for any file dependencies.
             try:

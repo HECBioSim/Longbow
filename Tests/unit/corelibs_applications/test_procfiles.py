@@ -97,7 +97,7 @@ def test_procfiles_gromacs():
     assert filelist == ["test.tpr"]
 
 
-def test_procfiles_namd():
+def test_procfiles_namd1():
 
     """
     Test to make sure that the file and flag is picked up for an namd-like
@@ -112,6 +112,30 @@ def test_procfiles_namd():
         "replicates": "1",
         "localworkdir": "Tests/standards/jobs/single",
         "executableargs": ["input"]
+    }
+    substitution = {}
+
+    foundflags = apps._procfiles(job, arg, filelist, foundflags, substitution)
+
+    assert foundflags == ["<"]
+    assert filelist == ["input"]
+
+
+def test_procfiles_namd2():
+
+    """
+    Test to make sure that the file and flag is picked up for an namd-like
+    command-line.
+    """
+
+    arg = "input"
+    filelist = []
+    foundflags = []
+    job = {
+        "executable": "namd2",
+        "replicates": "1",
+        "localworkdir": "Tests/standards/jobs/single",
+        "executableargs": ["input", ">", "output"]
     }
     substitution = {}
 
