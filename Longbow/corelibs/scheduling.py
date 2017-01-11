@@ -527,9 +527,9 @@ def _monitorinitialise(jobs):
             stageinterval = int(jobs[job]["staging-frequency"])
 
         # Attempt to grab a polling frequency that might have been set
-        if pollinterval < int(jobs[job]["frequency"]):
+        if pollinterval < int(jobs[job]["polling-frequency"]):
 
-            pollinterval = int(jobs[job]["frequency"])
+            pollinterval = int(jobs[job]["polling-frequency"])
 
     # If somehow the polling interval parameter is still zero, reduce the
     # polling to once every 5 minutes.
