@@ -145,7 +145,7 @@ def test_procfiles_namd2():
     assert filelist == ["input"]
 
 
-def test_procfiles_reps():
+def test_procfiles_reps1():
 
     """
     Test for replicate variant.
@@ -167,3 +167,26 @@ def test_procfiles_reps():
     assert foundflags == ["-c"]
     assert filelist == ["rep1", "rep1/coords", "rep2", "rep2/coords", "rep3",
                         "rep3/coords"]
+
+
+def test_procfiles_reps2():
+
+    """
+    Test for replicate variant with global.
+    """
+
+    arg = "topol"
+    filelist = []
+    foundflags = []
+    job = {
+        "executable": "pmemd.MPI",
+        "replicates": "3",
+        "localworkdir": "Tests/standards/jobs/replicate",
+        "executableargs": ["-i", "input", "-c", "coords", "-p", "topol"]
+    }
+    substitution = {}
+
+    foundflags = apps._procfiles(job, arg, filelist, foundflags, substitution)
+
+    assert foundflags == ["-p"]
+    assert filelist == ["rep1", "topol", "rep2", "rep3"]
