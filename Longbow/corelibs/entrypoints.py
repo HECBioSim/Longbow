@@ -90,7 +90,7 @@ def main():
         "debug": False,
         "disconnect": False,
         "executable": "",
-        "executableargs": [],
+        "executableargs": "",
         "hosts": "",
         "job": "",
         "jobname": "",
@@ -262,7 +262,9 @@ def longbowmain(parameters):
 
     # Test that for the applications listed in the job configuration
     # file are available and that the executable is present.
-    applications.testapp(jobs)
+    if parameters["nochecks"] is False:
+
+        applications.testapp(jobs)
 
     # Process the jobs command line arguments and find files for
     # staging.
@@ -448,7 +450,7 @@ def _commandlineproc(alllongbowargs, cmdlnargs, parameters):
                 "Recognised arguments are: {1}".format(item, allowedargs))
 
     parameters["executable"] = executable
-    parameters["executableargs"] = execargs
+    parameters["executableargs"] = " ".join(execargs)
 
     return longbowargs
 

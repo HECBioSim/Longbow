@@ -198,20 +198,18 @@ def status(job):
     stdout = shellout[0].split("\n")
 
     # Look up the job state and convert it to Longbow terminology.
-    try:
+    # Now match the jobid against the list of jobs, extract the line and
+    # split it into a list
+    for line in stdout:
 
-        # Now match the jobid against the list of jobs, extract the line and
-        # split it into a list
-        for line in stdout:
+        line = line.split()
 
-            line = line.split()
+        if len(line) > 0 and job["jobid"] in line[0]:
 
-            if job["jobid"] in line[0]:
+            jobstate = states[line[4]]
+            break
 
-                jobstate = states[line[4]]
-                break
-
-    except (IndexError, KeyError):
+    if jobstate == "":
 
         jobstate = "Finished"
 

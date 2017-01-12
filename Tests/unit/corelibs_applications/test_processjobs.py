@@ -38,7 +38,7 @@ import Longbow.corelibs.applications as apps
 import Longbow.corelibs.exceptions as exceptions
 
 
-def _proccommandline(job, filelist, _):
+def _proccommandline(job, filelist, foundfile, _):
 
     """Quick method to mock functionality"""
     for index, arg in enumerate(job["executableargs"]):
@@ -47,7 +47,7 @@ def _proccommandline(job, filelist, _):
 
             filelist.append(job["executableargs"][index + 1])
 
-    return []
+    return foundfile
 
 
 def test_processjobs_abspath():

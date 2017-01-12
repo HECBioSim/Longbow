@@ -61,8 +61,8 @@ def test_main_test1(m_isfile, m_longbowmain):
     assert params["debug"] is False
     assert params["disconnect"] is False
     assert params["executable"] == "pmemd.MPI"
-    assert params["executableargs"] == ["-O", "-i", "ex.in", "-c", "ex.min",
-                                        "-p", "ex.top", "-o", "ex.out"]
+    assert params["executableargs"] == \
+        "-O -i ex.in -c ex.min -p ex.top -o ex.out"
     assert params["hosts"] == os.path.join(os.getcwd(), "hosts.conf")
     assert params["job"] == ""
     assert params["jobname"] == "testjob"
@@ -98,8 +98,8 @@ def test_main_test2(m_isfile, m_longbowmain):
     assert params["debug"] is False
     assert params["disconnect"] is False
     assert params["executable"] == "pmemd.MPI"
-    assert params["executableargs"] == ["-O", "-i", "ex.in", "-c", "ex.min",
-                                        "-p", "ex.top", "-o", "ex.out"]
+    assert params["executableargs"] == \
+        "-O -i ex.in -c ex.min -p ex.top -o ex.out"
     assert params["hosts"] == os.path.join(os.getcwd(), "hosts.conf")
     assert params["job"] == ""
     assert params["jobname"] == "testjob"
@@ -159,8 +159,8 @@ def test_main_test4(m_isfile, m_longbowmain):
     assert params["debug"] is False
     assert params["disconnect"] is False
     assert params["executable"] == "pmemd.MPI"
-    assert params["executableargs"] == ["-O", "-i", "ex.in", "-c", "ex.min",
-                                        "-p", "ex.top", "-o", "ex.out"]
+    assert params["executableargs"] == \
+        "-O -i ex.in -c ex.min -p ex.top -o ex.out"
     assert params["hosts"] == os.path.join(os.getcwd(), "hosts.conf")
     assert params["job"] == ""
     assert params["jobname"] == "testjob"
@@ -197,8 +197,8 @@ def test_main_test5(m_isfile, m_longbowmain):
     assert params["debug"] is True
     assert params["disconnect"] is False
     assert params["executable"] == "pmemd.MPI"
-    assert params["executableargs"] == ["-O", "-i", "ex.in", "-c", "ex.min",
-                                        "-p", "ex.top", "-o", "ex.out"]
+    assert params["executableargs"] == \
+        "-O -i ex.in -c ex.min -p ex.top -o ex.out"
     assert params["hosts"] == os.path.join(os.getcwd(), "hosts.conf")
     assert params["job"] == ""
     assert params["jobname"] == "testjob"

@@ -76,24 +76,23 @@ JOBTEMPLATE = {
     "email-flags": "",
     "executable": "",
     "executableargs": "",
-    "frequency": "300",
     "handler": "",
     "host": "",
     "localworkdir": "",
     "modules": "",
     "maxtime": "24:00",
     "memory": "",
-    "nochecks": False,
-    "scripts": "",
-    "staging-frequency": "300",
-    "sge-peflag": "mpi",
-    "sge-peoverride": "false",
+    "polling-frequency": "300",
     "port": "22",
     "queue": "",
     "remoteworkdir": "",
     "resource": "",
     "replicates": "1",
     "scheduler": "",
+    "scripts": "",
+    "staging-frequency": "300",
+    "sge-peflag": "mpi",
+    "sge-peoverride": "false",
     "user": "",
     "upload-exclude": "",
     "upload-include": ""
@@ -428,22 +427,7 @@ def _processconfigsfinalinit(jobs):
 
             jobs[job]["localworkdir"] = os.getcwd()
 
-        # Fix for python 3 where basestring is now str.
-        try:
-
-            # If the exec arguments are in string form, split to list.
-            if isinstance(jobs[job]["executableargs"], basestring):
-
-                jobs[job]["executableargs"] = (
-                    jobs[job]["executableargs"].split())
-
-        except NameError:
-
-            # If the exec arguments are in string form, split to list.
-            if isinstance(jobs[job]["executableargs"], str):
-
-                jobs[job]["executableargs"] = (
-                    jobs[job]["executableargs"].split())
+        jobs[job]["executableargs"] = jobs[job]["executableargs"].split()
 
         # If modules hasn't been set then try and use a default.
         if jobs[job]["modules"] is "":
@@ -468,7 +452,7 @@ def _processconfigsparams(jobs, parameters, jobdata, hostdata):
         for item in jobs[job]:
 
             # This should already be dealt with.
-            if item is not "resource":
+            if item != "resource":
 
                 # Command-line overrides are highest priority.
                 if item in parameters and parameters[item] is not "":

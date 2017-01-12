@@ -37,58 +37,6 @@ import Longbow.corelibs.exceptions as ex
 
 
 @mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
-def test_testapp_nochecks1(m_sendtossh):
-
-    """
-    Test that if nochecks is set that no executable checks happen (check
-    boolean).
-    """
-
-    jobs = {
-        "jobone": {
-            "resource": "res1",
-            "executable": "exec1",
-            "nochecks": True
-        },
-        "jobtwo": {
-            "resource": "res2",
-            "executable": "exec2",
-            "nochecks": True
-        }
-    }
-
-    apps.testapp(jobs)
-
-    assert m_sendtossh.call_count == 0
-
-
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
-def test_testapp_nochecks2(m_sendtossh):
-
-    """
-    Test that if nochecks is set that no executable checks happen (check
-    string).
-    """
-
-    jobs = {
-        "jobone": {
-            "resource": "res1",
-            "executable": "exec1",
-            "nochecks": "true"
-        },
-        "jobtwo": {
-            "resource": "res2",
-            "executable": "exec2",
-            "nochecks": "true"
-        }
-    }
-
-    apps.testapp(jobs)
-
-    assert m_sendtossh.call_count == 0
-
-
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
 def test_testapp_exectest(m_sendtossh):
 
     """

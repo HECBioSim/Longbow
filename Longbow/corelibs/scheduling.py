@@ -199,7 +199,7 @@ def monitor(jobs):
                         structure.
 
     """
-    LOG.info("Monitoring job/s, depending on the chosen logging mode Longbow"
+    LOG.info("Monitoring job/s. Depending on the chosen logging mode, Longbow "
              "might appear to be doing nothing. Please be patient!")
 
     stageinterval, pollinterval = _monitorinitialise(jobs)
@@ -256,9 +256,23 @@ def monitor(jobs):
                 LOG.warning("Could not write recovery file, possibly due to "
                             "permissions on the ~/.Longbow directory.")
 
-        allfinished, allcomplete = _checkcomplete(jobs)
+        allcomplete, allfinished = _checkcomplete(jobs)
 
-    LOG.info("All jobs are complete.")
+    complete = 0
+    error = 0
+
+    for job in jobs:
+
+        if jobs[job]["laststatus"] == "Submit Error":
+
+            error = error + 1
+
+        else:
+
+            complete = complete + 1
+
+    LOG.info("Session complete - %s jobs ran - %s jobs encountered submission "
+             "errors.", complete, error)
 
 
 def prepare(jobs):
@@ -503,7 +517,7 @@ def _monitorinitialise(jobs):
             }
 
         # This should always be present.
-        if "laststatus" not in job:
+        if "laststatus" not in jobs[job]:
 
             jobs[job]["laststatus"] = ""
 
@@ -513,9 +527,9 @@ def _monitorinitialise(jobs):
             stageinterval = int(jobs[job]["staging-frequency"])
 
         # Attempt to grab a polling frequency that might have been set
-        if pollinterval < int(jobs[job]["frequency"]):
+        if pollinterval < int(jobs[job]["polling-frequency"]):
 
-            pollinterval = int(jobs[job]["frequency"])
+            pollinterval = int(jobs[job]["polling-frequency"])
 
     # If somehow the polling interval parameter is still zero, reduce the
     # polling to once every 5 minutes.
@@ -584,17 +598,16 @@ def _stagejobfiles(jobs, save):
     for job in jobs:
 
         if (jobs[job]["laststatus"] == "Running" or
-                jobs[job]["laststatus"] == "Subjob(s) running"):
+                jobs[job]["laststatus"] == "Subjob(s) running" or
+                jobs[job]["laststatus"] == "Finished"):
 
             staging.stage_downstream(jobs[job])
 
-        if jobs[job]["laststatus"] == "Finished":
+            if jobs[job]["laststatus"] == "Finished":
 
-            staging.stage_downstream(jobs[job])
+                jobs[job]["laststatus"] = "Complete"
 
-            jobs[job]["laststatus"] = "Complete"
-
-            save = True
+                save = True
 
     return save
 
@@ -655,9 +668,10 @@ def _checkwaitingjobs(jobs, save):
 def _checkcomplete(jobs):
     """Check if all the jobs are complete."""
     # Initialise variables
-    allfinished = False
     allcomplete = False
+    allfinished = False
     complete = []
+    error = []
     finished = []
 
     for job in jobs:
@@ -666,11 +680,20 @@ def _checkcomplete(jobs):
 
             complete.append(jobs[job]["laststatus"])
 
-            if jobs[job]["laststatus"] != "Complete":
+        if (jobs[job]["laststatus"] != "Submit Error" and
+                jobs[job]["laststatus"] != "Complete"):
 
-                finished.append(jobs[job]["laststatus"])
+            finished.append(jobs[job]["laststatus"])
+
+        if jobs[job]["laststatus"] == "Submit Error":
+
+            error.append(jobs[job]["laststatus"])
 
     if all(state == "Complete" for state in complete) and len(complete) != 0:
+
+        allcomplete = True
+
+    if len(error) == len(jobs):
 
         allcomplete = True
 
@@ -678,4 +701,4 @@ def _checkcomplete(jobs):
 
         allfinished = True
 
-    return allfinished, allcomplete
+    return allcomplete, allfinished

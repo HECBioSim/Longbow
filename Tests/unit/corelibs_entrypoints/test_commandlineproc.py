@@ -72,7 +72,7 @@ def test_cmdlineproc_test1():
         "debug": False,
         "disconnect": False,
         "executable": "",
-        "executableargs": [],
+        "executableargs": "",
         "hosts": "",
         "job": "",
         "jobname": "",
@@ -89,7 +89,7 @@ def test_cmdlineproc_test1():
                                          parameters)
 
     assert parameters["executable"] == ""
-    assert parameters["executableargs"] == []
+    assert parameters["executableargs"] == ""
     assert longbowargs == []
 
 
@@ -101,7 +101,7 @@ def test_cmdlineproc_test2():
         "debug": False,
         "disconnect": False,
         "executable": "",
-        "executableargs": [],
+        "executableargs": "",
         "hosts": "",
         "job": "",
         "jobname": "",
@@ -118,7 +118,7 @@ def test_cmdlineproc_test2():
                                          parameters)
 
     assert parameters["executable"] == ""
-    assert parameters["executableargs"] == []
+    assert parameters["executableargs"] == ""
     assert longbowargs == ["-about"]
 
 
@@ -130,7 +130,7 @@ def test_cmdlineproc_test3():
         "debug": False,
         "disconnect": False,
         "executable": "",
-        "executableargs": [],
+        "executableargs": "",
         "hosts": "",
         "job": "",
         "jobname": "",
@@ -147,7 +147,7 @@ def test_cmdlineproc_test3():
                                          parameters)
 
     assert parameters["executable"] == ""
-    assert parameters["executableargs"] == []
+    assert parameters["executableargs"] == ""
     assert longbowargs == ["--about"]
 
 
@@ -159,7 +159,7 @@ def test_cmdlineproc_test4():
         "debug": False,
         "disconnect": False,
         "executable": "",
-        "executableargs": [],
+        "executableargs": "",
         "hosts": "",
         "job": "",
         "jobname": "",
@@ -177,7 +177,7 @@ def test_cmdlineproc_test4():
                                          parameters)
 
     assert parameters["executable"] == ""
-    assert parameters["executableargs"] == []
+    assert parameters["executableargs"] == ""
     assert longbowargs == ["--hosts", "hosts.file", "--jobname", "test",
                            "--replicates", "1000", "--disconnect"]
 
@@ -190,7 +190,7 @@ def test_cmdlineproc_test5():
         "debug": False,
         "disconnect": False,
         "executable": "",
-        "executableargs": [],
+        "executableargs": "",
         "hosts": "",
         "job": "",
         "jobname": "",
@@ -208,7 +208,7 @@ def test_cmdlineproc_test5():
                                          parameters)
 
     assert parameters["executable"] == "pmemd.MPI"
-    assert parameters["executableargs"] == []
+    assert parameters["executableargs"] == ""
     assert longbowargs == ["--hosts", "hosts.file", "--jobname", "test",
                            "--replicates", "1000", "--disconnect"]
 
@@ -221,7 +221,7 @@ def test_cmdlineproc_test6():
         "debug": False,
         "disconnect": False,
         "executable": "",
-        "executableargs": [],
+        "executableargs": "",
         "hosts": "",
         "job": "",
         "jobname": "",
@@ -241,9 +241,8 @@ def test_cmdlineproc_test6():
                                          parameters)
 
     assert parameters["executable"] == "pmemd.MPI"
-    assert parameters["executableargs"] == ["-O", "-i", "ex.in", "-c",
-                                            "ex.min", "-p", "ex.top",
-                                            "-o", "ex.out"]
+    assert parameters["executableargs"] == \
+        "-O -i ex.in -c ex.min -p ex.top -o ex.out"
     assert longbowargs == ["--hosts", "hosts.file", "--jobname", "test",
                            "--replicates", "1000", "--disconnect"]
 
@@ -256,7 +255,7 @@ def test_cmdlineproc_test7():
         "debug": False,
         "disconnect": False,
         "executable": "",
-        "executableargs": [],
+        "executableargs": "",
         "hosts": "",
         "job": "",
         "jobname": "",
@@ -274,7 +273,7 @@ def test_cmdlineproc_test7():
                                          parameters)
 
     assert parameters["executable"] == "test.exe"
-    assert parameters["executableargs"] == []
+    assert parameters["executableargs"] == ""
     assert longbowargs == ["--hosts", "hosts.file", "--jobname", "test",
                            "--replicates", "1000", "--disconnect"]
 
@@ -289,7 +288,7 @@ def test_cmdlineproc_test8():
         "debug": False,
         "disconnect": False,
         "executable": "",
-        "executableargs": [],
+        "executableargs": "",
         "hosts": "",
         "job": "",
         "jobname": "",
@@ -308,8 +307,7 @@ def test_cmdlineproc_test8():
                                          parameters)
 
     assert parameters["executable"] == "test.exe"
-    assert parameters["executableargs"] == ["-i", "input.file", "param1",
-                                            "--someflag"]
+    assert parameters["executableargs"] == "-i input.file param1 --someflag"
     assert longbowargs == ["--hosts", "hosts.file", "--jobname", "test",
                            "--replicates", "1000", "--disconnect"]
 
@@ -325,7 +323,7 @@ def test_cmdlineproc_test9():
         "debug": False,
         "disconnect": False,
         "executable": "",
-        "executableargs": [],
+        "executableargs": "",
         "hosts": "",
         "job": "",
         "jobname": "",
@@ -344,8 +342,7 @@ def test_cmdlineproc_test9():
                                          parameters)
 
     assert parameters["executable"] == "test.exe"
-    assert parameters["executableargs"] == ["-i", "input.file", "param1",
-                                            "--someflag"]
+    assert parameters["executableargs"] == "-i input.file param1 --someflag"
     assert longbowargs == ["--hosts", "hosts.file", "--jobname", "test",
                            "--disconnect", "--replicates", "1000"]
 
@@ -358,7 +355,7 @@ def test_cmdlineproc_test10():
         "debug": False,
         "disconnect": False,
         "executable": "",
-        "executableargs": [],
+        "executableargs": "",
         "hosts": "",
         "job": "",
         "jobname": "",
@@ -375,7 +372,7 @@ def test_cmdlineproc_test10():
                                          parameters)
 
     assert parameters["executable"] == "test.exe"
-    assert parameters["executableargs"] == []
+    assert parameters["executableargs"] == ""
     assert longbowargs == []
 
 
@@ -387,7 +384,7 @@ def test_cmdlineproc_test11():
         "debug": False,
         "disconnect": False,
         "executable": "",
-        "executableargs": [],
+        "executableargs": "",
         "hosts": "",
         "job": "",
         "jobname": "",
@@ -404,8 +401,7 @@ def test_cmdlineproc_test11():
                                          parameters)
 
     assert parameters["executable"] == "test.exe"
-    assert parameters["executableargs"] == ["-i", "input.file", "param1",
-                                            "--someflag"]
+    assert parameters["executableargs"] == "-i input.file param1 --someflag"
     assert longbowargs == []
 
 
@@ -417,7 +413,7 @@ def test_cmdlineproc_test12():
         "debug": False,
         "disconnect": False,
         "executable": "",
-        "executableargs": [],
+        "executableargs": "",
         "hosts": "",
         "job": "",
         "jobname": "",

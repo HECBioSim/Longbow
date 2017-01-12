@@ -53,7 +53,8 @@ def test_longbowmain_disconnect(m_procconf, m_testcon, m_testenv, m_testapp,
 
     params = {
         "hosts": "some/file",
-        "disconnect": True
+        "disconnect": True,
+        "nochecks": False
         }
 
     mains.longbowmain(params)
@@ -79,9 +80,9 @@ def test_longbowmain_disconnect(m_procconf, m_testcon, m_testenv, m_testapp,
 @mock.patch('Longbow.corelibs.scheduling.testenv')
 @mock.patch('Longbow.corelibs.shellwrappers.testconnections')
 @mock.patch('Longbow.corelibs.configuration.processconfigs')
-def test_longbowmain_testcalls(m_procconf, m_testcon, m_testenv, m_testapp,
-                               m_procjob, m_schedprep, m_stagup, m_sub, m_mon,
-                               m_clean):
+def test_longbowmain_testcalls1(m_procconf, m_testcon, m_testenv, m_testapp,
+                                m_procjob, m_schedprep, m_stagup, m_sub, m_mon,
+                                m_clean):
 
     """
     Check that the correct function calls are made.
@@ -89,7 +90,8 @@ def test_longbowmain_testcalls(m_procconf, m_testcon, m_testenv, m_testapp,
 
     params = {
         "hosts": "some/file",
-        "disconnect": False
+        "disconnect": False,
+        "nochecks": False
         }
 
     mains.longbowmain(params)
@@ -98,6 +100,44 @@ def test_longbowmain_testcalls(m_procconf, m_testcon, m_testenv, m_testapp,
     assert m_testcon.call_count == 1
     assert m_testenv.call_count == 1
     assert m_testapp.call_count == 1
+    assert m_procjob.call_count == 1
+    assert m_schedprep.call_count == 1
+    assert m_stagup.call_count == 1
+    assert m_sub.call_count == 1
+    assert m_mon.call_count == 1
+    assert m_clean.call_count == 1
+
+
+@mock.patch('Longbow.corelibs.staging.cleanup')
+@mock.patch('Longbow.corelibs.scheduling.monitor')
+@mock.patch('Longbow.corelibs.scheduling.submit')
+@mock.patch('Longbow.corelibs.staging.stage_upstream')
+@mock.patch('Longbow.corelibs.scheduling.prepare')
+@mock.patch('Longbow.corelibs.applications.processjobs')
+@mock.patch('Longbow.corelibs.applications.testapp')
+@mock.patch('Longbow.corelibs.scheduling.testenv')
+@mock.patch('Longbow.corelibs.shellwrappers.testconnections')
+@mock.patch('Longbow.corelibs.configuration.processconfigs')
+def test_longbowmain_testcalls2(m_procconf, m_testcon, m_testenv, m_testapp,
+                                m_procjob, m_schedprep, m_stagup, m_sub, m_mon,
+                                m_clean):
+
+    """
+    Check that the correct function calls are made.
+    """
+
+    params = {
+        "hosts": "some/file",
+        "disconnect": False,
+        "nochecks": True
+        }
+
+    mains.longbowmain(params)
+
+    assert m_procconf.call_count == 1
+    assert m_testcon.call_count == 1
+    assert m_testenv.call_count == 1
+    assert m_testapp.call_count == 0
     assert m_procjob.call_count == 1
     assert m_schedprep.call_count == 1
     assert m_stagup.call_count == 1
@@ -128,7 +168,8 @@ def test_longbowmain_killrunning(m_procconf, m_testcon, m_testenv, m_testapp,
 
     params = {
         "hosts": "some/file",
-        "disconnect": False
+        "disconnect": False,
+        "nochecks": False
         }
 
     m_procconf.return_value = {
@@ -180,7 +221,8 @@ def test_longbowmain_killcomplete(m_procconf, m_testcon, m_testenv, m_testapp,
 
     params = {
         "hosts": "some/file",
-        "disconnect": False
+        "disconnect": False,
+        "nochecks": False
         }
 
     m_procconf.return_value = {
