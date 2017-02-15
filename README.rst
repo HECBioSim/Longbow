@@ -4,12 +4,12 @@
   :target: https://pypi.python.org/pypi/Longbow
 .. image:: https://img.shields.io/pypi/status/Longbow.svg
   :target: https://pypi.python.org/pypi/Longbow
-.. image:: https://travis-ci.org/HECBioSim/Longbow.svg?branch=master
+.. image:: https://travis-ci.org/HECBioSim/Longbow.svg?branch=development
   :target: https://travis-ci.org/HECBioSim/Longbow
-.. image:: https://coveralls.io/repos/github/HECBioSim/Longbow/badge.svg?branch=master
-  :target: https://coveralls.io/github/HECBioSim/Longbow?branch=master
-.. image:: https://landscape.io/github/HECBioSim/Longbow/master/landscape.svg?style=flat
-  :target: https://landscape.io/github/HECBioSim/Longbow/master
+.. image:: https://coveralls.io/repos/github/HECBioSim/Longbow/badge.svg?branch=development
+  :target: https://coveralls.io/github/HECBioSim/Longbow?branch=development
+.. image:: https://landscape.io/github/HECBioSim/Longbow/development/landscape.svg?style=flat
+  :target: https://landscape.io/github/HECBioSim/Longbow/development
   :alt: Code Health
 
 
