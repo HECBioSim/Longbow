@@ -2,6 +2,8 @@
   :target: https://pypi.python.org/pypi/Longbow/
 .. image:: https://img.shields.io/pypi/pyversions/Longbow.svg
   :target: https://pypi.python.org/pypi/Longbow
+.. image:: https://img.shields.io/pypi/status/Longbow.svg
+  :target: https://pypi.python.org/pypi/Longbow
 .. image:: https://travis-ci.org/HECBioSim/Longbow.svg?branch=development
   :target: https://travis-ci.org/HECBioSim/Longbow
 .. image:: https://coveralls.io/repos/github/HECBioSim/Longbow/badge.svg?branch=development
