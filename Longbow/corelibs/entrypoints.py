@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # Longbow is Copyright (C) of James T Gebbie-Rayet and Gareth B Shannon 2015.
 #
 # This file is part of the Longbow software which was developed as part of the
