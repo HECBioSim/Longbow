@@ -52,7 +52,7 @@ def test_setuplogger_debug():
 
     _setuplogger(parameters)
 
-    log = logging.getLogger("Longbow")
+    log = logging.getLogger("longbow")
     log.debug("debug1")
     log.info("info1")
 
@@ -87,7 +87,7 @@ def test_setuplogger_verbose():
 
     _setuplogger(parameters)
 
-    log = logging.getLogger("Longbow")
+    log = logging.getLogger("longbow")
     log.debug("debug1")
     log.info("info1")
 
