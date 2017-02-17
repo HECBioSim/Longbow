@@ -31,7 +31,7 @@ except ImportError:
 
     import mock
 
-from longbow.corelibs.entrypoints import longbowmain
+from longbow.corelibs.entrypoints import longbow
 
 
 @mock.patch('longbow.corelibs.staging.cleanup')
@@ -57,7 +57,7 @@ def test_longbowmain_disconnect(m_procconf, m_testcon, m_testenv, m_testapp,
         "nochecks": False
         }
 
-    longbowmain(params)
+    longbow(params)
 
     assert m_procconf.call_count == 1
     assert m_testcon.call_count == 1
@@ -94,7 +94,7 @@ def test_longbowmain_testcalls1(m_procconf, m_testcon, m_testenv, m_testapp,
         "nochecks": False
         }
 
-    longbowmain(params)
+    longbow(params)
 
     assert m_procconf.call_count == 1
     assert m_testcon.call_count == 1
@@ -132,7 +132,7 @@ def test_longbowmain_testcalls2(m_procconf, m_testcon, m_testenv, m_testapp,
         "nochecks": True
         }
 
-    longbowmain(params)
+    longbow(params)
 
     assert m_procconf.call_count == 1
     assert m_testcon.call_count == 1
@@ -183,7 +183,7 @@ def test_longbowmain_killrunning(m_procconf, m_testcon, m_testenv, m_testapp,
 
     m_mon.side_effect = KeyboardInterrupt
 
-    longbowmain(params)
+    longbow(params)
 
     assert m_procconf.call_count == 1
     assert m_testcon.call_count == 1
@@ -236,7 +236,7 @@ def test_longbowmain_killcomplete(m_procconf, m_testcon, m_testenv, m_testapp,
 
     m_mon.side_effect = KeyboardInterrupt
 
-    longbowmain(params)
+    longbow(params)
 
     assert m_procconf.call_count == 1
     assert m_testcon.call_count == 1
