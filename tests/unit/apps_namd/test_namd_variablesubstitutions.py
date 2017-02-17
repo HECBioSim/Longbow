@@ -22,7 +22,7 @@
 This testing module contains basic testing for the NAMD plugin.
 """
 
-import Longbow.apps.namd as namd
+from longbow.apps.namd import _variablesubstitutions
 
 
 def test_varsubstitutions_test1():
@@ -34,7 +34,7 @@ def test_varsubstitutions_test1():
     newfile = ""
     variables = {}
 
-    namd._variablesubstitutions(newfile, variables)
+    _variablesubstitutions(newfile, variables)
 
     assert newfile == ""
 
@@ -48,6 +48,6 @@ def test_varsubstitutions_test2():
     newfile = "$myvar.xsc"
     variables = {"myvar": "myprot"}
 
-    newfile = namd._variablesubstitutions(newfile, variables)
+    newfile = _variablesubstitutions(newfile, variables)
 
     assert newfile == "myprot.xsc"

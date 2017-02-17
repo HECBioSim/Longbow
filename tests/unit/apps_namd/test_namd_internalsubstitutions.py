@@ -22,7 +22,7 @@
 This testing module contains basic testing for the NAMD plugin.
 """
 
-import Longbow.apps.namd as namd
+from Longbow.apps.namd import _internalsubstitutions
 
 
 def test_intsubstitutions_test1():
@@ -34,7 +34,7 @@ def test_intsubstitutions_test1():
     variables = {}
     words = ["set", "file1", "=", "file2"]
 
-    namd._internalsubstitutions(variables, words)
+    _internalsubstitutions(variables, words)
 
     assert variables["file1"] == "file2"
 
@@ -48,6 +48,6 @@ def test_intsubstitutions_test2():
     variables = {}
     words = ["set", "file1", "file2"]
 
-    namd._internalsubstitutions(variables, words)
+    _internalsubstitutions(variables, words)
 
     assert variables["file1"] == "file2"

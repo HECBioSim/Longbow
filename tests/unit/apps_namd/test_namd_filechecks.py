@@ -32,8 +32,8 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.apps.namd as namd
+import longbow.corelibs.exceptions as exceptions
+from longbow.apps.namd import _filechecks
 
 
 @mock.patch('os.path.isfile')
@@ -51,7 +51,7 @@ def test_filechecks1(m_isfile):
 
     with pytest.raises(exceptions.RequiredinputError):
 
-        namd._filechecks(path, filename)
+        _filechecks(path, filename)
 
 
 @mock.patch('os.path.isfile')
@@ -66,7 +66,7 @@ def test_filechecks2(m_isfile):
     path = "/test/path"
     filename = "file"
 
-    addfile = namd._filechecks(path, filename)
+    addfile = _filechecks(path, filename)
 
     assert addfile == "file"
 
@@ -86,7 +86,7 @@ def test_filechecks3(m_isfile):
 
     with pytest.raises(exceptions.RequiredinputError):
 
-        namd._filechecks(path, filename)
+        _filechecks(path, filename)
 
 
 @mock.patch('os.path.isfile')
@@ -101,6 +101,6 @@ def test_filechecks4(m_isfile):
     path = "/test/path"
     filename = "/some/file/path/to/file"
 
-    addfile = namd._filechecks(path, filename)
+    addfile = _filechecks(path, filename)
 
     assert addfile == ""

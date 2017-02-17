@@ -30,7 +30,7 @@ except ImportError:
 
     import mock
 
-import Longbow.apps.gromacs as gromacs
+from longbow.apps.gromacs import defaultfilename
 
 
 @mock.patch('os.path.isfile')
@@ -46,7 +46,7 @@ def test_defaultfilename1(m_isfile):
 
     m_isfile.return_value = True
 
-    filename, initargs = gromacs.defaultfilename(path, item, initargs)
+    filename, initargs = defaultfilename(path, item, initargs)
 
     assert filename == "test.tpr"
     assert initargs == ['-s', '../test.tpr', '-deffnm', 'test']
@@ -65,7 +65,7 @@ def test_defaultfilename2(m_isfile):
 
     m_isfile.return_value = False
 
-    filename, initargs = gromacs.defaultfilename(path, item, initargs)
+    filename, initargs = defaultfilename(path, item, initargs)
 
     assert filename == ""
     assert initargs == ["-deffnm", "test"]
@@ -84,7 +84,7 @@ def test_defaultfilename3(m_isfile):
 
     m_isfile.return_value = False
 
-    filename, initargs = gromacs.defaultfilename(path, item, initargs)
+    filename, initargs = defaultfilename(path, item, initargs)
 
     assert filename == ""
     assert initargs == ["-s", "test"]

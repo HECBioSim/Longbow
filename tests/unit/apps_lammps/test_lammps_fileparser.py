@@ -32,10 +32,10 @@ except ImportError:
 
     import mock
 
-import Longbow.apps.lammps as lammps
+from longbow.apps.lammps import file_parser
 
 
-@mock.patch('Longbow.apps.lammps._filechecks')
+@mock.patch('longbow.apps.lammps._filechecks')
 def test_fileparser_test1(m_check):
 
     """
@@ -49,10 +49,10 @@ def test_fileparser_test1(m_check):
 
     m_check.return_value = "testfile"
 
-    lammps.file_parser(filename, path, files, substitutions)
+    file_parser(filename, path, files, substitutions)
 
 
-@mock.patch('Longbow.apps.lammps._internalsubstitutions')
+@mock.patch('longbow.apps.lammps._internalsubstitutions')
 def test_fileparser_test2(m_subs):
 
     """
@@ -64,7 +64,7 @@ def test_fileparser_test2(m_subs):
     files = ["anotherfile"]
     substitutions = {}
 
-    lammps.file_parser(filename, path, files, substitutions)
+    file_parser(filename, path, files, substitutions)
 
     assert m_subs.call_count == 0
 
@@ -80,6 +80,6 @@ def test_fileparser_test3():
     files = []
     substitutions = {}
 
-    lammps.file_parser(filename, path, files, substitutions)
+    file_parser(filename, path, files, substitutions)
 
     assert files == ["apps_fileparserlammps.txt", "apps_recursivetest.txt"]

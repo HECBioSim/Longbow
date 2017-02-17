@@ -23,8 +23,8 @@ This testing module contains basic testing for the NAMD plugin.
 """
 
 import pytest
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.apps.namd as namd
+import longbow.corelibs.exceptions as exceptions
+from longbow.apps.namd import _newfilechecks
 
 
 def test_newfilechecks_test1():
@@ -37,7 +37,7 @@ def test_newfilechecks_test1():
     newfile = ""
     path = ""
 
-    namd._newfilechecks(addfile, newfile, path)
+    _newfilechecks(addfile, newfile, path)
 
 
 def test_newfilechecks_test2():
@@ -51,7 +51,7 @@ def test_newfilechecks_test2():
     newfile = "../test2.file"
     path = "path"
 
-    newfile = namd._newfilechecks(addfile, newfile, path)
+    newfile = _newfilechecks(addfile, newfile, path)
 
     assert newfile == "test2.file"
 
@@ -69,7 +69,8 @@ def test_newfilechecks_test3():
 
     with pytest.raises(exceptions.RequiredinputError):
 
-        namd._newfilechecks(addfile, newfile, path)
+        _newfilechecks(addfile, newfile, path)
+
 
 def test_newfilechecks_test4():
 
@@ -84,7 +85,7 @@ def test_newfilechecks_test4():
 
     with pytest.raises(exceptions.RequiredinputError):
 
-        namd._newfilechecks(addfile, newfile, path)
+        _newfilechecks(addfile, newfile, path)
 
 
 def test_newfilechecks_test5():
@@ -98,7 +99,7 @@ def test_newfilechecks_test5():
     newfile = "test2.file"
     path = "path"
 
-    newfile = namd._newfilechecks(addfile, newfile, path)
+    newfile = _newfilechecks(addfile, newfile, path)
 
     assert newfile == "rep1/test2.file"
 
@@ -115,7 +116,7 @@ def test_newfilechecks_test6():
     newfile = "test2.file"
     path = "path"
 
-    newfile = namd._newfilechecks(addfile, newfile, path)
+    newfile = _newfilechecks(addfile, newfile, path)
 
     assert newfile == "somepath/rep1/test2.file"
 
@@ -133,7 +134,7 @@ def test_newfilechecks_test7():
 
     with pytest.raises(exceptions.RequiredinputError):
 
-        namd._newfilechecks(addfile, newfile, path)
+        _newfilechecks(addfile, newfile, path)
 
 
 def test_newfilechecks_test8():
@@ -146,6 +147,6 @@ def test_newfilechecks_test8():
     newfile = "rep2/test2.file"
     path = "path"
 
-    newfile = namd._newfilechecks(addfile, newfile, path)
+    newfile = _newfilechecks(addfile, newfile, path)
 
     assert newfile == "rep2/test2.file"

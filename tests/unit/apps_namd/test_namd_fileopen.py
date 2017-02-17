@@ -25,8 +25,8 @@ This testing module contains basic testing for the NAMD plugin.
 import os
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.apps.namd as namd
+import longbow.corelibs.exceptions as exceptions
+from longbow.apps.namd import _fileopen
 
 
 def test_fileopen_test1():
@@ -36,7 +36,7 @@ def test_fileopen_test1():
     addfile = "simplefile.txt"
     path = os.path.join(os.getcwd(), "Tests/standards/")
 
-    filehandle = namd._fileopen(path, addfile)
+    filehandle = _fileopen(path, addfile)
 
     assert filehandle.readline() == "test"
 
@@ -50,4 +50,4 @@ def test_fileopen_test2():
 
     with pytest.raises(exceptions.RequiredinputError):
 
-        namd._fileopen(path, addfile)
+        _fileopen(path, addfile)

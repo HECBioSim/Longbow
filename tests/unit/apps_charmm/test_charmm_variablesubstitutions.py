@@ -22,7 +22,7 @@
 This testing module contains basic testing for the CHARMM plugin.
 """
 
-import Longbow.apps.charmm as charmm
+from longbow.apps.charmm import _variablesubstitutions
 
 
 def test_varsubstitutions_test1():
@@ -34,7 +34,7 @@ def test_varsubstitutions_test1():
     newfile = ""
     variables = {}
 
-    charmm._variablesubstitutions(newfile, variables)
+    _variablesubstitutions(newfile, variables)
 
     assert newfile == ""
 
@@ -48,6 +48,6 @@ def test_varsubstitutions_test2():
     newfile = "@myvar.pdb"
     variables = {"myvar": "myprot"}
 
-    newfile = charmm._variablesubstitutions(newfile, variables)
+    newfile = _variablesubstitutions(newfile, variables)
 
     assert newfile == "myprot.pdb"

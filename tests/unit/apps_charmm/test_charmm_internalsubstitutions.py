@@ -22,7 +22,7 @@
 This testing module contains basic testing for the CHARMM plugin.
 """
 
-import Longbow.apps.charmm as charmm
+from longbow.apps.charmm import _internalsubstitutions
 
 
 def test_intsubstitutions_test1():
@@ -34,7 +34,7 @@ def test_intsubstitutions_test1():
     variables = {}
     words = ["set", "file1", "=", "file2"]
 
-    charmm._internalsubstitutions(variables, words)
+    _internalsubstitutions(variables, words)
 
     assert variables["file1"] == "file2"
 
@@ -48,6 +48,6 @@ def test_intsubstitutions_test2():
     variables = {}
     words = ["set", "file1", "file2"]
 
-    charmm._internalsubstitutions(variables, words)
+    _internalsubstitutions(variables, words)
 
     assert variables["file1"] == "file2"

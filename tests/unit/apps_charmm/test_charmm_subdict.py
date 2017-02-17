@@ -22,7 +22,7 @@
 This testing module contains basic testing for the CHARMM plugin.
 """
 
-import Longbow.apps.charmm as charmm
+from longbow.apps.charmm import detectsubstitutions
 
 
 def test_subdict_test1():
@@ -33,7 +33,7 @@ def test_subdict_test1():
 
     args = ["myvar:myprot", "thingvar:mything", "<", "example.inp"]
 
-    subs = charmm.detectsubstitutions(args)
+    subs = detectsubstitutions(args)
 
     assert isinstance(subs, dict)
     assert subs["myvar"] == "myprot"
@@ -49,7 +49,7 @@ def test_subdict_test2():
 
     args = ["myvar=myprot", "thingvar=mything", "<", "example.inp"]
 
-    subs = charmm.detectsubstitutions(args)
+    subs = detectsubstitutions(args)
 
     assert isinstance(subs, dict)
     assert subs["myvar"] == "myprot"

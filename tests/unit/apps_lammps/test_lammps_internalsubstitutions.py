@@ -22,7 +22,7 @@
 This testing module contains basic testing for the LAMMPS plugin.
 """
 
-import Longbow.apps.lammps as lammps
+from longbow.apps.lammps import _internalsubstitutions
 
 
 def test_intsubstitutions_test1():
@@ -34,6 +34,6 @@ def test_intsubstitutions_test1():
     variables = {}
     words = ["variable", "file1", "equal", "file2"]
 
-    lammps._internalsubstitutions(variables, words)
+    _internalsubstitutions(variables, words)
 
     assert variables["file1"] == "file2"

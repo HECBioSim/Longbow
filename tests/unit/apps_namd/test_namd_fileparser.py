@@ -32,11 +32,11 @@ except ImportError:
 
     import mock
 
-import Longbow.apps.namd as namd
+from longbow.apps.namd import file_parser
 
 
-@mock.patch('Longbow.apps.namd._fileopen')
-@mock.patch('Longbow.apps.namd._filechecks')
+@mock.patch('longbow.apps.namd._fileopen')
+@mock.patch('longbow.apps.namd._filechecks')
 def test_fileparser_test1(m_check, m_file):
 
     """
@@ -50,12 +50,12 @@ def test_fileparser_test1(m_check, m_file):
 
     m_check.return_value = "testfile"
 
-    namd.file_parser(filename, path, files, substitutions)
+    file_parser(filename, path, files, substitutions)
 
     assert m_file.call_count == 0
 
 
-@mock.patch('Longbow.apps.namd._internalsubstitutions')
+@mock.patch('longbow.apps.namd._internalsubstitutions')
 def test_fileparser_test2(m_subs):
 
     """
@@ -67,7 +67,7 @@ def test_fileparser_test2(m_subs):
     files = ["anotherfile"]
     substitutions = {}
 
-    namd.file_parser(filename, path, files, substitutions)
+    file_parser(filename, path, files, substitutions)
 
     assert m_subs.call_count == 0
 
@@ -83,6 +83,6 @@ def test_fileparser_test3():
     files = []
     substitutions = {}
 
-    namd.file_parser(filename, path, files, substitutions)
+    file_parser(filename, path, files, substitutions)
 
     assert files == ["apps_fileparsernamd.txt", "apps_recursivetest.txt"]

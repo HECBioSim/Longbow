@@ -22,7 +22,7 @@
 This testing module contains basic testing for the LAMMPS plugin.
 """
 
-import Longbow.apps.lammps as lammps
+from longbow.apps.lammps import detectsubstitutions
 
 
 def test_subdict_test1():
@@ -33,7 +33,7 @@ def test_subdict_test1():
 
     args = ["-var", "myvar", "mydata", "-i", "example.in", "-l", "output"]
 
-    subs = lammps.detectsubstitutions(args)
+    subs = detectsubstitutions(args)
 
     assert isinstance(subs, dict)
     assert subs["myvar"] == "mydata"
@@ -48,7 +48,7 @@ def test_subdict_test2():
 
     args = ["-v", "p", "myprot", "-i", "example.in", "-l", "output"]
 
-    subs = lammps.detectsubstitutions(args)
+    subs = detectsubstitutions(args)
 
     assert isinstance(subs, dict)
     assert subs["p"] == "myprot"

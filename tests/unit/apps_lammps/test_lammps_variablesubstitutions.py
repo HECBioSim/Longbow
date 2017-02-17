@@ -22,7 +22,7 @@
 This testing module contains basic testing for the LAMMPS plugin.
 """
 
-import Longbow.apps.lammps as lammps
+from longbow.apps.lammps import _variablesubstitutions
 
 
 def test_varsubstitutions_test1():
@@ -34,7 +34,7 @@ def test_varsubstitutions_test1():
     newfile = ""
     variables = {}
 
-    lammps._variablesubstitutions(newfile, variables)
+    _variablesubstitutions(newfile, variables)
 
     assert newfile == ""
 
@@ -48,7 +48,7 @@ def test_varsubstitutions_test2():
     newfile = "${myvar}.data"
     variables = {"myvar": "mydata"}
 
-    newfile = lammps._variablesubstitutions(newfile, variables)
+    newfile = _variablesubstitutions(newfile, variables)
 
     assert newfile == "mydata.data"
 
@@ -62,6 +62,6 @@ def test_varsubstitutions_test3():
     newfile = "$p.pdb"
     variables = {"p": "myprot"}
 
-    newfile = lammps._variablesubstitutions(newfile, variables)
+    newfile = _variablesubstitutions(newfile, variables)
 
     assert newfile == "myprot.pdb"

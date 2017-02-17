@@ -22,7 +22,7 @@
 This testing module contains basic testing for the AMBER plugin.
 """
 
-import Longbow.apps.amber as amber
+from longbow.apps.amber import EXECDATA
 
 
 def test_basic1():
@@ -31,9 +31,7 @@ def test_basic1():
     Test that the data structure is a dictionary.
     """
 
-    execdata = amber.EXECDATA
-
-    assert isinstance(execdata, dict)
+    assert isinstance(EXECDATA, dict)
 
 
 def test_basic2():
@@ -42,9 +40,7 @@ def test_basic2():
     Test that the data structure has values.
     """
 
-    execdata = amber.EXECDATA
-
-    assert len(execdata) > 0
+    assert len(EXECDATA) > 0
 
 
 def test_basic3():
@@ -53,10 +49,8 @@ def test_basic3():
     Test that the data structure has minimum parameters.
     """
 
-    execdata = amber.EXECDATA
+    for param in EXECDATA:
 
-    for param in execdata:
-
-        assert isinstance(execdata[param], dict)
-        assert "subexecutables" in execdata[param]
-        assert "requiredfiles" in execdata[param]
+        assert isinstance(EXECDATA[param], dict)
+        assert "subexecutables" in EXECDATA[param]
+        assert "requiredfiles" in EXECDATA[param]
