@@ -24,7 +24,7 @@
 This module contains the Longbow application entry point.
 """
 
-from Longbow.corelibs.entrypoints import main
+import longbow
 
 if __name__ == "__main__":
 
@@ -58,4 +58,4 @@ if __name__ == "__main__":
     information on how to setup and run jobs using Longbow.
     """
 
-    main()
+    longbow.launcher()

@@ -63,7 +63,7 @@ LONGBOWVERSION = "1.4.0"
 LOG = logging.getLogger("longbow")
 
 
-def main():
+def launcher():
     """The main entrypoint for Longbow when used as an application.
 
     This method is the main entry point for Longbow launched as an application.
@@ -207,7 +207,7 @@ def main():
 
             LOG.info("Initialisation complete.")
 
-            longbowmain(parameters)
+            longbow(parameters)
 
         else:
 
@@ -232,7 +232,7 @@ def main():
                  "powerful biomolecular simulation software tools.")
 
 
-def longbowmain(parameters):
+def longbow(parameters):
     """The main entry point of the Longbow library.
 
     Being the top level method that makes calls on the Longbow library.
