@@ -32,11 +32,11 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.schedulers.slurm as slurm
+import longbow.corelibs.exceptions as exceptions
+from longbow.schedulers.slurm import submit
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_submit_jobid1(mock_ssh):
 
     """
@@ -50,12 +50,12 @@ def test_submit_jobid1(mock_ssh):
 
     mock_ssh.return_value = ("Submitted batch job 5346", "", 0)
 
-    slurm.submit(job)
+    submit(job)
 
     assert job["jobid"] == "5346"
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_submit_jobid2(mock_ssh):
 
     """
@@ -71,10 +71,10 @@ def test_submit_jobid2(mock_ssh):
 
     with pytest.raises(exceptions.JobsubmitError):
 
-        slurm.submit(job)
+        submit(job)
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_submit_except1(mock_ssh):
 
     """
@@ -94,10 +94,10 @@ def test_submit_except1(mock_ssh):
 
     with pytest.raises(exceptions.QueuemaxError):
 
-        slurm.submit(job)
+        submit(job)
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_submit_except2(mock_ssh):
 
     """
@@ -114,4 +114,4 @@ def test_submit_except2(mock_ssh):
 
     with pytest.raises(exceptions.JobsubmitError):
 
-        slurm.submit(job)
+        submit(job)

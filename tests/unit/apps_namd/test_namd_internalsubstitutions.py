@@ -22,7 +22,7 @@
 This testing module contains basic testing for the NAMD plugin.
 """
 
-from Longbow.apps.namd import _internalsubstitutions
+from longbow.apps.namd import _internalsubstitutions
 
 
 def test_intsubstitutions_test1():

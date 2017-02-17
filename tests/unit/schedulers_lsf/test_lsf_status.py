@@ -32,8 +32,8 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.schedulers.lsf as lsf
+import longbow.corelibs.exceptions as exceptions
+from longbow.schedulers.lsf import status
 
 out = ("953580  scarf45 DONE  scarf      scarf.rl.ac             3t3b_sym   Feb 26 13:26\n"
        "953601  scarf45 EXIT  scarf      scarf.rl.ac             3t3b_asym  Feb 26 13:27\n"
@@ -47,7 +47,7 @@ out = ("953580  scarf45 DONE  scarf      scarf.rl.ac             3t3b_sym   Feb 
        "953717  scarf45 ZOMBI scarf      scarf.rl.ac             2t4b       Feb 26 14:40\n")
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_status_state1(mock_ssh):
 
     """
@@ -61,12 +61,12 @@ def test_status_state1(mock_ssh):
 
     mock_ssh.return_value = (out, "", 0)
 
-    output = lsf.status(job)
+    output = status(job)
 
     assert output == "Job Exited Properly"
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_status_state2(mock_ssh):
 
     """
@@ -80,12 +80,12 @@ def test_status_state2(mock_ssh):
 
     mock_ssh.return_value = (out, "", 0)
 
-    output = lsf.status(job)
+    output = status(job)
 
     assert output == "Job Exited in Error"
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_status_state3(mock_ssh):
 
     """
@@ -99,12 +99,12 @@ def test_status_state3(mock_ssh):
 
     mock_ssh.return_value = (out, "", 0)
 
-    output = lsf.status(job)
+    output = status(job)
 
     assert output == "Queued"
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_status_state4(mock_ssh):
 
     """
@@ -118,12 +118,12 @@ def test_status_state4(mock_ssh):
 
     mock_ssh.return_value = (out, "", 0)
 
-    output = lsf.status(job)
+    output = status(job)
 
     assert output == "Suspended"
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_status_state5(mock_ssh):
 
     """
@@ -137,12 +137,12 @@ def test_status_state5(mock_ssh):
 
     mock_ssh.return_value = (out, "", 0)
 
-    output = lsf.status(job)
+    output = status(job)
 
     assert output == "Running"
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_status_state6(mock_ssh):
 
     """
@@ -156,12 +156,12 @@ def test_status_state6(mock_ssh):
 
     mock_ssh.return_value = (out, "", 0)
 
-    output = lsf.status(job)
+    output = status(job)
 
     assert output == "Suspended"
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_status_state7(mock_ssh):
 
     """
@@ -175,12 +175,12 @@ def test_status_state7(mock_ssh):
 
     mock_ssh.return_value = (out, "", 0)
 
-    output = lsf.status(job)
+    output = status(job)
 
     assert output == "Unknown Status"
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_status_state8(mock_ssh):
 
     """
@@ -194,12 +194,12 @@ def test_status_state8(mock_ssh):
 
     mock_ssh.return_value = (out, "", 0)
 
-    output = lsf.status(job)
+    output = status(job)
 
     assert output == "Suspended"
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_status_state9(mock_ssh):
 
     """
@@ -213,12 +213,12 @@ def test_status_state9(mock_ssh):
 
     mock_ssh.return_value = (out, "", 0)
 
-    output = lsf.status(job)
+    output = status(job)
 
     assert output == ("Waiting for Start Time")
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_status_state10(mock_ssh):
 
     """
@@ -232,12 +232,12 @@ def test_status_state10(mock_ssh):
 
     mock_ssh.return_value = (out, "", 0)
 
-    output = lsf.status(job)
+    output = status(job)
 
     assert output == "Zombie Job"
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_status_state11(mock_ssh):
 
     """
@@ -251,12 +251,12 @@ def test_status_state11(mock_ssh):
 
     mock_ssh.return_value = ("", "", 0)
 
-    output = lsf.status(job)
+    output = status(job)
 
     assert output == "Finished"
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_status_except1(mock_ssh):
 
     """
@@ -272,4 +272,4 @@ def test_status_except1(mock_ssh):
 
     with pytest.raises(exceptions.SSHError):
 
-        lsf.status(job)
+        status(job)

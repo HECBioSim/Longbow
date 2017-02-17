@@ -23,7 +23,7 @@ This test module contains tests for the slurm scheduler plugin.
 """
 
 import os
-import Longbow.schedulers.slurm as slurm
+from longbow.schedulers.slurm import prepare
 
 
 def test_prepare_case1():
@@ -54,7 +54,7 @@ def test_prepare_case1():
         "upload-include": "file1, file2"
     }
 
-    slurm.prepare(job)
+    prepare(job)
 
     assert job["subfile"] == "submit.slurm"
     assert job["upload-include"] == "file1, file2, submit.slurm"
@@ -92,7 +92,7 @@ def test_prepare_case2():
         "upload-include": "file1, file2"
     }
 
-    slurm.prepare(job)
+    prepare(job)
 
     assert open("/tmp/submit.slurm", "rb").read() == open(
         os.path.join(
@@ -129,7 +129,7 @@ def test_prepare_case3():
         "upload-include": "file1, file2"
     }
 
-    slurm.prepare(job)
+    prepare(job)
 
     assert open("/tmp/submit.slurm", "rb").read() == open(
         os.path.join(
@@ -166,7 +166,7 @@ def test_prepare_case4():
         "upload-include": "file1, file2"
     }
 
-    slurm.prepare(job)
+    prepare(job)
 
     assert open("/tmp/submit.slurm", "rb").read() == open(
         os.path.join(
@@ -203,7 +203,7 @@ def test_prepare_case5():
         "upload-include": "file1, file2"
     }
 
-    slurm.prepare(job)
+    prepare(job)
 
     assert open("/tmp/submit.slurm", "rb").read() == open(
         os.path.join(
@@ -240,7 +240,7 @@ def test_prepare_case6():
         "upload-include": "file1, file2"
     }
 
-    slurm.prepare(job)
+    prepare(job)
 
     assert open("/tmp/submit.slurm", "rb").read() == open(
         os.path.join(

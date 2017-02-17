@@ -32,8 +32,8 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.schedulers.sge as sge
+import longbow.corelibs.exceptions as exceptions
+from longbow.schedulers.sge import status
 
 out = ("job-ID  prior name       user         state submit/start at     queue      master  ja-task-ID\n"
        "---------------------------------------------------------------------------------------------\n"
@@ -42,7 +42,7 @@ out = ("job-ID  prior name       user         state submit/start at     queue   
        "     22     0 sleep.sh   sysadm1      r      12/23/2003 23:22:09 frontend-0 MASTER           \n")
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_status_state1(mock_ssh):
 
     """
@@ -56,12 +56,12 @@ def test_status_state1(mock_ssh):
 
     mock_ssh.return_value = (out, "", 0)
 
-    output = sge.status(job)
+    output = status(job)
 
     assert output == "Queued"
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_status_state2(mock_ssh):
 
     """
@@ -75,12 +75,12 @@ def test_status_state2(mock_ssh):
 
     mock_ssh.return_value = (out, "", 0)
 
-    output = sge.status(job)
+    output = status(job)
 
     assert output == "Held"
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_status_state3(mock_ssh):
 
     """
@@ -94,12 +94,12 @@ def test_status_state3(mock_ssh):
 
     mock_ssh.return_value = (out, "", 0)
 
-    output = sge.status(job)
+    output = status(job)
 
     assert output == "Running"
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_status_state4(mock_ssh):
 
     """
@@ -113,12 +113,12 @@ def test_status_state4(mock_ssh):
 
     mock_ssh.return_value = ("", "", 0)
 
-    output = sge.status(job)
+    output = status(job)
 
     assert output == "Finished"
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_status_except1(mock_ssh):
 
     """
@@ -134,4 +134,4 @@ def test_status_except1(mock_ssh):
 
     with pytest.raises(exceptions.SSHError):
 
-        sge.status(job)
+        status(job)

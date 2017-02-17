@@ -23,7 +23,7 @@ This test module contains tests for the LSF scheduler plugin.
 """
 
 import os
-import Longbow.schedulers.lsf as lsf
+from longbow.schedulers.lsf import prepare
 
 
 def test_prepare_case1():
@@ -50,7 +50,7 @@ def test_prepare_case1():
         "upload-include": "file1, file2"
     }
 
-    lsf.prepare(job)
+    prepare(job)
 
     assert job["subfile"] == "submit.lsf"
     assert job["upload-include"] == "file1, file2, submit.lsf"
@@ -84,7 +84,7 @@ def test_prepare_case2():
         "upload-include": "file1, file2"
     }
 
-    lsf.prepare(job)
+    prepare(job)
 
     assert open("/tmp/submit.lsf", "rb").read() == open(
         os.path.join(
@@ -116,7 +116,7 @@ def test_prepare_case3():
         "upload-include": "file1, file2"
     }
 
-    lsf.prepare(job)
+    prepare(job)
 
     assert open("/tmp/submit.lsf", "rb").read() == open(
         os.path.join(
@@ -149,7 +149,7 @@ def test_prepare_case4():
         "upload-include": "file1, file2"
     }
 
-    lsf.prepare(job)
+    prepare(job)
 
     assert open("/tmp/submit.lsf", "rb").read() == open(
         os.path.join(
@@ -182,7 +182,7 @@ def test_prepare_case5():
         "upload-include": "file1, file2"
     }
 
-    lsf.prepare(job)
+    prepare(job)
 
     assert open("/tmp/submit.lsf", "rb").read() == open(
         os.path.join(
@@ -215,7 +215,7 @@ def test_prepare_case6():
         "upload-include": "file1, file2"
     }
 
-    lsf.prepare(job)
+    prepare(job)
 
     assert open("/tmp/submit.lsf", "rb").read() == open(
         os.path.join(
@@ -248,7 +248,7 @@ def test_prepare_case7():
         "upload-include": "file1, file2"
     }
 
-    lsf.prepare(job)
+    prepare(job)
 
     assert open("/tmp/submit.lsf", "rb").read() == open(
         os.path.join(
@@ -281,7 +281,7 @@ def test_prepare_case8():
         "upload-include": "file1, file2"
     }
 
-    lsf.prepare(job)
+    prepare(job)
 
     assert open("/tmp/submit.lsf", "rb").read() == open(
         os.path.join(

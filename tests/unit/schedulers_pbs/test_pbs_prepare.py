@@ -23,7 +23,7 @@ This test module contains tests for the PBS scheduler plugin.
 """
 
 import os
-import Longbow.schedulers.pbs as pbs
+from longbow.schedulers.pbs import prepare
 
 
 def test_prepare_case1():
@@ -52,7 +52,7 @@ def test_prepare_case1():
         "upload-include": "file1, file2"
     }
 
-    pbs.prepare(job)
+    prepare(job)
 
     assert job["subfile"] == "submit.pbs"
     assert job["upload-include"] == "file1, file2, submit.pbs"
@@ -88,7 +88,7 @@ def test_prepare_case2():
         "upload-include": "file1, file2"
     }
 
-    pbs.prepare(job)
+    prepare(job)
 
     assert open("/tmp/submit.pbs", "rb").read() == open(
         os.path.join(
@@ -122,7 +122,7 @@ def test_prepare_case3():
         "upload-include": "file1, file2"
     }
 
-    pbs.prepare(job)
+    prepare(job)
 
     assert open("/tmp/submit.pbs", "rb").read() == open(
         os.path.join(
@@ -157,7 +157,7 @@ def test_prepare_case4():
         "upload-include": "file1, file2"
     }
 
-    pbs.prepare(job)
+    prepare(job)
 
     assert open("/tmp/submit.pbs", "rb").read() == open(
         os.path.join(
@@ -192,7 +192,7 @@ def test_prepare_case5():
         "upload-include": "file1, file2"
     }
 
-    pbs.prepare(job)
+    prepare(job)
 
     assert open("/tmp/submit.pbs", "rb").read() == open(
         os.path.join(
@@ -227,7 +227,7 @@ def test_prepare_case6():
         "upload-include": "file1, file2"
     }
 
-    pbs.prepare(job)
+    prepare(job)
 
     assert open("/tmp/submit.pbs", "rb").read() == open(
         os.path.join(
@@ -262,7 +262,7 @@ def test_prepare_case7():
         "upload-include": "file1, file2"
     }
 
-    pbs.prepare(job)
+    prepare(job)
 
     assert open("/tmp/submit.pbs", "rb").read() == open(
         os.path.join(
@@ -297,7 +297,7 @@ def test_prepare_case8():
         "upload-include": "file1, file2"
     }
 
-    pbs.prepare(job)
+    prepare(job)
 
     assert open("/tmp/submit.pbs", "rb").read() == open(
         os.path.join(
@@ -332,7 +332,7 @@ def test_prepare_case9():
         "upload-include": "file1, file2"
     }
 
-    pbs.prepare(job)
+    prepare(job)
 
     assert open("/tmp/submit.pbs", "rb").read() == open(
         os.path.join(

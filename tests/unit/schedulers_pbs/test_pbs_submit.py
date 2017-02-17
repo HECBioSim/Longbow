@@ -32,11 +32,11 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.schedulers.pbs as pbs
+import longbow.corelibs.exceptions as exceptions
+from longbow.schedulers.pbs import submit
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_submit_jobid1(mock_ssh):
 
     """
@@ -50,12 +50,12 @@ def test_submit_jobid1(mock_ssh):
 
     mock_ssh.return_value = ("submitted with id 12345.sdb", "", 0)
 
-    pbs.submit(job)
+    submit(job)
 
     assert job["jobid"] == "12345"
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_submit_jobid2(mock_ssh):
 
     """
@@ -71,10 +71,10 @@ def test_submit_jobid2(mock_ssh):
 
     with pytest.raises(exceptions.JobsubmitError):
 
-        pbs.submit(job)
+        submit(job)
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_submit_except1(mock_ssh):
 
     """
@@ -92,10 +92,10 @@ def test_submit_except1(mock_ssh):
 
     with pytest.raises(exceptions.QueuemaxError):
 
-        pbs.submit(job)
+        submit(job)
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_submit_except2(mock_ssh):
 
     """
@@ -113,10 +113,10 @@ def test_submit_except2(mock_ssh):
 
     with pytest.raises(exceptions.JobsubmitError):
 
-        pbs.submit(job)
+        submit(job)
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_submit_except3(mock_ssh):
 
     """
@@ -134,10 +134,10 @@ def test_submit_except3(mock_ssh):
 
     with pytest.raises(exceptions.JobsubmitError):
 
-        pbs.submit(job)
+        submit(job)
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_submit_except4(mock_ssh):
 
     """
@@ -155,10 +155,10 @@ def test_submit_except4(mock_ssh):
 
     with pytest.raises(exceptions.JobsubmitError):
 
-        pbs.submit(job)
+        submit(job)
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_submit_except5(mock_ssh):
 
     """
@@ -176,10 +176,10 @@ def test_submit_except5(mock_ssh):
 
     with pytest.raises(exceptions.JobsubmitError):
 
-        pbs.submit(job)
+        submit(job)
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_submit_except6(mock_ssh):
 
     """
@@ -197,10 +197,10 @@ def test_submit_except6(mock_ssh):
 
     with pytest.raises(exceptions.JobsubmitError):
 
-        pbs.submit(job)
+        submit(job)
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_submit_except7(mock_ssh):
 
     """
@@ -218,10 +218,10 @@ def test_submit_except7(mock_ssh):
 
     with pytest.raises(exceptions.JobsubmitError):
 
-        pbs.submit(job)
+        submit(job)
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_submit_except8(mock_ssh):
 
     """
@@ -238,4 +238,4 @@ def test_submit_except8(mock_ssh):
 
     with pytest.raises(exceptions.JobsubmitError):
 
-        pbs.submit(job)
+        submit(job)

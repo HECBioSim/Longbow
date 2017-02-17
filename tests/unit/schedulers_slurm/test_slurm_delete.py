@@ -32,11 +32,11 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.schedulers.slurm as slurm
+import longbow.corelibs.exceptions as exceptions
+from longbow.schedulers.slurm import delete
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_delete_test1(mock_ssh):
 
     """
@@ -50,7 +50,7 @@ def test_delete_test1(mock_ssh):
 
     mock_ssh.return_value = ("Success", "", 0)
 
-    output = slurm.delete(job)
+    output = delete(job)
 
     args = mock_ssh.call_args[0][1]
 
@@ -58,7 +58,7 @@ def test_delete_test1(mock_ssh):
     assert " ".join(args) == "scancel 12345"
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_delete_except1(mock_ssh):
 
     """
@@ -75,4 +75,4 @@ def test_delete_except1(mock_ssh):
 
     with pytest.raises(exceptions.JobdeleteError):
 
-        slurm.delete(job)
+        delete(job)
