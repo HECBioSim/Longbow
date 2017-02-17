@@ -23,7 +23,7 @@ This testing module contains the tests for the applications module methods.
 """
 
 import os
-import Longbow.corelibs.applications as apps
+from longbow.corelibs.applications import _procfilessinglejob
 
 
 def test_procfilessingle_test1():
@@ -36,7 +36,7 @@ def test_procfilessingle_test1():
     arg = "test.file"
     cwd = os.path.join(os.getcwd(), "Tests/standards")
 
-    fileitem = apps._procfilessinglejob(app, arg, cwd)
+    fileitem = _procfilessinglejob(app, arg, cwd)
 
     assert fileitem == ""
 
@@ -51,6 +51,6 @@ def test_procfilessingle_test2():
     arg = "simplefile.txt"
     cwd = os.path.join(os.getcwd(), "Tests/standards")
 
-    fileitem = apps._procfilessinglejob(app, arg, cwd)
+    fileitem = _procfilessinglejob(app, arg, cwd)
 
     assert fileitem == "simplefile.txt"

@@ -22,7 +22,7 @@
 This testing module contains the tests for the configuration module methods.
 """
 
-import Longbow.corelibs.configuration as conf
+from longbow.corelibs.configuration import _saveconfigupdates
 
 
 def test_saveconfigupdates_test1():
@@ -58,7 +58,7 @@ def test_saveconfigupdates_test1():
         }
     }
 
-    conf._saveconfigupdates(contents, oldparams, valuediff)
+    _saveconfigupdates(contents, oldparams, valuediff)
 
     assert contents == ["[test1]", "param1 = 1", "param2 = test",
                         "param3 = true", "[test2]", "parama = f",
@@ -97,7 +97,7 @@ def test_saveconfigupdates_test2():
         }
     }
 
-    conf._saveconfigupdates(contents, oldparams, valuediff)
+    _saveconfigupdates(contents, oldparams, valuediff)
 
     assert contents == ["[test1]", "param1 = 1", "param2=test", "param3=true",
                         "[test2]", "parama=f", "paramb = 1293",

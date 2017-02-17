@@ -25,8 +25,8 @@ This testing module contains the tests for the configuration module methods.
 import os
 import pytest
 
-import Longbow.corelibs.configuration as conf
-import Longbow.corelibs.exceptions as ex
+from longbow.corelibs.configuration import loadconfigs
+import longbow.corelibs.exceptions as ex
 
 
 def test_loadconfigs_test1():
@@ -37,7 +37,7 @@ def test_loadconfigs_test1():
 
     conffile = os.path.join(os.getcwd(), "Tests/standards/simplehostfile.txt")
 
-    contents, sections, params = conf.loadconfigs(conffile)
+    contents, sections, params = loadconfigs(conffile)
 
     assert contents == ["[HPC1-shortqueue]", "queue = short", "user = test",
                         "host = login.test.ac.uk", "remoteworkdir = /work/dir",
@@ -75,7 +75,7 @@ def test_loadconfigs_test2():
 
     with pytest.raises(ex.ConfigurationError):
 
-        conf.loadconfigs("/tmp/sometestfile")
+        loadconfigs("/tmp/sometestfile")
 
 
 def test_loadconfigs_test3():
@@ -86,8 +86,8 @@ def test_loadconfigs_test3():
 
     with pytest.raises(ex.ConfigurationError):
 
-        conf.loadconfigs(os.path.join(os.getcwd(),
-                                      "Tests/standards/simplefile.txt"))
+        loadconfigs(os.path.join(
+            os.getcwd(), "Tests/standards/simplefile.txt"))
 
 
 def test_loadconfigs_test4():
@@ -98,5 +98,5 @@ def test_loadconfigs_test4():
 
     with pytest.raises(ex.ConfigurationError):
 
-        conf.loadconfigs(os.path.join(
+        loadconfigs(os.path.join(
             os.getcwd(), "Tests/standards/configjustsections.txt"))

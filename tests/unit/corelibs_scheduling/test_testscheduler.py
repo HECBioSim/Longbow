@@ -33,11 +33,11 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.scheduling as scheduling
+import longbow.corelibs.exceptions as exceptions
+from longbow.corelibs.scheduling import _testscheduler
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_testscheduler_detection1(mock_ssh):
 
     """
@@ -54,12 +54,12 @@ def test_testscheduler_detection1(mock_ssh):
 
     mock_ssh.return_value = None
 
-    scheduling._testscheduler(job)
+    _testscheduler(job)
 
     assert job["scheduler"] in ["lsf", "pbs", "sge", "soge", "slurm"]
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_testscheduler_detection2(mock_ssh):
 
     """
@@ -76,12 +76,12 @@ def test_testscheduler_detection2(mock_ssh):
 
     mock_ssh.side_effect = [exceptions.SSHError("SSH Error", "Error"), None]
 
-    scheduling._testscheduler(job)
+    _testscheduler(job)
 
     assert job["scheduler"] in ["lsf", "pbs", "sge", "soge", "slurm"]
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_testscheduler_except(mock_ssh):
 
     """
@@ -99,4 +99,4 @@ def test_testscheduler_except(mock_ssh):
 
     with pytest.raises(exceptions.SchedulercheckError):
 
-        scheduling._testscheduler(job)
+        _testscheduler(job)

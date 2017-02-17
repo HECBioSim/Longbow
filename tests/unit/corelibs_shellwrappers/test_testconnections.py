@@ -33,11 +33,11 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.shellwrappers as shellwrappers
+import longbow.corelibs.exceptions as exceptions
+from longbow.corelibs.shellwrappers import testconnections
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_testconnections_single(mock_sendtossh):
 
     """
@@ -50,12 +50,12 @@ def test_testconnections_single(mock_sendtossh):
         }
     }
 
-    shellwrappers.testconnections(jobs)
+    testconnections(jobs)
 
     assert mock_sendtossh.call_count == 1, "sendtossh should be called once"
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_testconnections_multiple(mock_sendtossh):
 
     """
@@ -74,12 +74,12 @@ def test_testconnections_multiple(mock_sendtossh):
         }
     }
 
-    shellwrappers.testconnections(jobs)
+    testconnections(jobs)
 
     assert mock_sendtossh.call_count == 2, "sendtossh should be called twice"
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_testconnections_sshexcept(mock_sendtossh):
 
     """
@@ -103,4 +103,4 @@ def test_testconnections_sshexcept(mock_sendtossh):
 
     with pytest.raises(exceptions.SSHError):
 
-        shellwrappers.testconnections(jobs)
+        testconnections(jobs)

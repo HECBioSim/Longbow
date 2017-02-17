@@ -34,8 +34,8 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.applications as apps
-import Longbow.corelibs.exceptions as exceptions
+from longbow.corelibs.applications import processjobs
+import longbow.corelibs.exceptions as exceptions
 
 
 def _proccommandline(job, filelist, foundfile, _):
@@ -63,7 +63,7 @@ def test_processjobs_abspath():
 
     with pytest.raises(exceptions.RequiredinputError):
 
-        apps.processjobs(jobs)
+        processjobs(jobs)
 
 
 def test_processjobs_pardir():
@@ -81,11 +81,11 @@ def test_processjobs_pardir():
 
     with pytest.raises(exceptions.RequiredinputError):
 
-        apps.processjobs(jobs)
+        processjobs(jobs)
 
 
-@mock.patch('Longbow.corelibs.applications._proccommandline')
-@mock.patch('Longbow.corelibs.applications._flagvalidator')
+@mock.patch('longbow.corelibs.applications._proccommandline')
+@mock.patch('longbow.corelibs.applications._flagvalidator')
 def test_processjobs_singlejob(m_validator, m_proccommandline):
 
     """Test for single job, make sure parameters are all set correctly."""
@@ -105,7 +105,7 @@ def test_processjobs_singlejob(m_validator, m_proccommandline):
 
     m_validator.return_value = None
 
-    apps.processjobs(jobs)
+    processjobs(jobs)
 
     assert jobs["jobone"]["upload-exclude"] == "*"
     assert jobs["jobone"]["localworkdir"] == os.path.join(
@@ -115,8 +115,8 @@ def test_processjobs_singlejob(m_validator, m_proccommandline):
     assert jobs["jobone"]["upload-include"] == "input, coords, topol"
 
 
-@mock.patch('Longbow.corelibs.applications._proccommandline')
-@mock.patch('Longbow.corelibs.applications._flagvalidator')
+@mock.patch('longbow.corelibs.applications._proccommandline')
+@mock.patch('longbow.corelibs.applications._flagvalidator')
 def test_processjobs_multijob(m_validator, m_proccommandline):
 
     """Test for multi job, make sure parameters are all set correctly."""
@@ -144,7 +144,7 @@ def test_processjobs_multijob(m_validator, m_proccommandline):
 
     m_validator.return_value = None
 
-    apps.processjobs(jobs)
+    processjobs(jobs)
 
     assert jobs["jobone"]["upload-exclude"] == "*"
     assert jobs["jobone"]["localworkdir"] == os.path.join(
@@ -178,11 +178,11 @@ def test_processjobs_direxcept():
 
     with pytest.raises(exceptions.DirectorynotfoundError):
 
-        apps.processjobs(jobs)
+        processjobs(jobs)
 
 
-@mock.patch('Longbow.corelibs.applications._proccommandline')
-@mock.patch('Longbow.corelibs.applications._flagvalidator')
+@mock.patch('longbow.corelibs.applications._proccommandline')
+@mock.patch('longbow.corelibs.applications._flagvalidator')
 def test_processjobs_include(m_validator, m_proccommandline):
 
     """Test that if user has provided upload-includes that they don't get
@@ -204,7 +204,7 @@ def test_processjobs_include(m_validator, m_proccommandline):
 
     m_validator.return_value = None
 
-    apps.processjobs(jobs)
+    processjobs(jobs)
 
     assert jobs["jobone"]["upload-include"] == \
         "test.file, input, coords, topol"

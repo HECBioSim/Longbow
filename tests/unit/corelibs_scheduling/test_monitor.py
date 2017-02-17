@@ -33,8 +33,8 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.scheduling as scheduling
+import longbow.corelibs.exceptions as exceptions
+from longbow.corelibs.scheduling import monitor, QUEUEINFO
 
 
 def jobstatus(jobs, _):
@@ -54,9 +54,9 @@ def jobstatus(jobs, _):
             jobs[job]["laststatus"] = "Finished"
 
 
-@mock.patch('Longbow.corelibs.scheduling._checkwaitingjobs')
-@mock.patch('Longbow.corelibs.scheduling._polljobs')
-@mock.patch('Longbow.corelibs.scheduling._monitorinitialise')
+@mock.patch('longbow.corelibs.scheduling._checkwaitingjobs')
+@mock.patch('longbow.corelibs.scheduling._polljobs')
+@mock.patch('longbow.corelibs.scheduling._monitorinitialise')
 def test_monitor_testpollfrequency(mock_init, mock_poll, mock_wait):
 
     """
@@ -73,9 +73,9 @@ def test_monitor_testpollfrequency(mock_init, mock_poll, mock_wait):
             "laststatus": "Running"
         }
     }
-    scheduling.QUEUEINFO["hpc1"] = {}
-    scheduling.QUEUEINFO["hpc1"]["queue-slots"] = "1"
-    scheduling.QUEUEINFO["hpc1"]["queue-max"] = "2"
+    QUEUEINFO["hpc1"] = {}
+    QUEUEINFO["hpc1"]["queue-slots"] = "1"
+    QUEUEINFO["hpc1"]["queue-max"] = "2"
 
     mock_init.return_value = 0, 2
     mock_poll.return_value = False
@@ -86,7 +86,7 @@ def test_monitor_testpollfrequency(mock_init, mock_poll, mock_wait):
 
     with pytest.raises(exceptions.PluginattributeError):
 
-        scheduling.monitor(jobs)
+        monitor(jobs)
 
     end = time.time()
 
@@ -94,10 +94,10 @@ def test_monitor_testpollfrequency(mock_init, mock_poll, mock_wait):
     assert int(end - start) > 1
 
 
-@mock.patch('Longbow.corelibs.scheduling._stagejobfiles')
-@mock.patch('Longbow.corelibs.scheduling._checkwaitingjobs')
-@mock.patch('Longbow.corelibs.scheduling._polljobs')
-@mock.patch('Longbow.corelibs.scheduling._monitorinitialise')
+@mock.patch('longbow.corelibs.scheduling._stagejobfiles')
+@mock.patch('longbow.corelibs.scheduling._checkwaitingjobs')
+@mock.patch('longbow.corelibs.scheduling._polljobs')
+@mock.patch('longbow.corelibs.scheduling._monitorinitialise')
 def test_monitor_teststagefreq(mock_init, mock_poll, mock_wait, mock_down):
 
     """
@@ -114,9 +114,9 @@ def test_monitor_teststagefreq(mock_init, mock_poll, mock_wait, mock_down):
             "laststatus": "Running"
         }
     }
-    scheduling.QUEUEINFO["hpc1"] = {}
-    scheduling.QUEUEINFO["hpc1"]["queue-slots"] = "1"
-    scheduling.QUEUEINFO["hpc1"]["queue-max"] = "2"
+    QUEUEINFO["hpc1"] = {}
+    QUEUEINFO["hpc1"]["queue-slots"] = "1"
+    QUEUEINFO["hpc1"]["queue-max"] = "2"
 
     mock_init.return_value = 1, 1
     mock_poll.return_value = False
@@ -128,7 +128,7 @@ def test_monitor_teststagefreq(mock_init, mock_poll, mock_wait, mock_down):
 
     with pytest.raises(exceptions.PluginattributeError):
 
-        scheduling.monitor(jobs)
+        monitor(jobs)
 
     end = time.time()
 
@@ -137,11 +137,11 @@ def test_monitor_teststagefreq(mock_init, mock_poll, mock_wait, mock_down):
     assert int(end - start) > 2
 
 
-@mock.patch('Longbow.corelibs.configuration.saveini')
-@mock.patch('Longbow.corelibs.staging.stage_downstream')
-@mock.patch('Longbow.corelibs.scheduling._checkwaitingjobs')
-@mock.patch('Longbow.corelibs.scheduling._polljobs')
-@mock.patch('Longbow.corelibs.scheduling._monitorinitialise')
+@mock.patch('longbow.corelibs.configuration.saveini')
+@mock.patch('longbow.corelibs.staging.stage_downstream')
+@mock.patch('longbow.corelibs.scheduling._checkwaitingjobs')
+@mock.patch('longbow.corelibs.scheduling._polljobs')
+@mock.patch('longbow.corelibs.scheduling._monitorinitialise')
 def test_monitor_complete1(mock_init, mock_poll, mock_wait, mock_down,
                            mock_save):
 
@@ -170,9 +170,9 @@ def test_monitor_complete1(mock_init, mock_poll, mock_wait, mock_down,
         }
     }
 
-    scheduling.QUEUEINFO["hpc1"] = {}
-    scheduling.QUEUEINFO["hpc1"]["queue-slots"] = "1"
-    scheduling.QUEUEINFO["hpc1"]["queue-max"] = "2"
+    QUEUEINFO["hpc1"] = {}
+    QUEUEINFO["hpc1"]["queue-slots"] = "1"
+    QUEUEINFO["hpc1"]["queue-max"] = "2"
 
     mock_init.return_value = 0, 1
     mock_poll.return_value = False
@@ -180,7 +180,7 @@ def test_monitor_complete1(mock_init, mock_poll, mock_wait, mock_down,
     mock_down.return_value = None
     mock_save.return_value = None
 
-    scheduling.monitor(jobs)
+    monitor(jobs)
 
     assert jobs["jobone"]["laststatus"] == "Complete"
     assert jobs["jobtwo"]["laststatus"] == "Complete"
@@ -188,11 +188,11 @@ def test_monitor_complete1(mock_init, mock_poll, mock_wait, mock_down,
     assert mock_down.call_count == 1
 
 
-@mock.patch('Longbow.corelibs.configuration.saveini')
-@mock.patch('Longbow.corelibs.staging.stage_downstream')
-@mock.patch('Longbow.corelibs.scheduling._checkwaitingjobs')
-@mock.patch('Longbow.corelibs.scheduling._polljobs')
-@mock.patch('Longbow.corelibs.scheduling._monitorinitialise')
+@mock.patch('longbow.corelibs.configuration.saveini')
+@mock.patch('longbow.corelibs.staging.stage_downstream')
+@mock.patch('longbow.corelibs.scheduling._checkwaitingjobs')
+@mock.patch('longbow.corelibs.scheduling._polljobs')
+@mock.patch('longbow.corelibs.scheduling._monitorinitialise')
 def test_monitor_complete2(mock_init, mock_poll, mock_wait, mock_down,
                            mock_save):
 
@@ -233,9 +233,9 @@ def test_monitor_complete2(mock_init, mock_poll, mock_wait, mock_down,
         }
     }
 
-    scheduling.QUEUEINFO["hpc1"] = {}
-    scheduling.QUEUEINFO["hpc1"]["queue-slots"] = "1"
-    scheduling.QUEUEINFO["hpc1"]["queue-max"] = "2"
+    QUEUEINFO["hpc1"] = {}
+    QUEUEINFO["hpc1"]["queue-slots"] = "1"
+    QUEUEINFO["hpc1"]["queue-max"] = "2"
 
     mock_init.return_value = 0, 1
     mock_poll.return_value = False
@@ -244,7 +244,7 @@ def test_monitor_complete2(mock_init, mock_poll, mock_wait, mock_down,
     mock_down.return_value = None
     mock_save.return_value = None
 
-    scheduling.monitor(jobs)
+    monitor(jobs)
 
     assert jobs["jobone"]["laststatus"] == "Complete"
     assert jobs["jobtwo"]["laststatus"] == "Complete"
@@ -255,11 +255,11 @@ def test_monitor_complete2(mock_init, mock_poll, mock_wait, mock_down,
     assert mock_save.call_count == 1
 
 
-@mock.patch('Longbow.corelibs.configuration.saveini')
-@mock.patch('Longbow.corelibs.staging.stage_downstream')
-@mock.patch('Longbow.corelibs.scheduling._checkwaitingjobs')
-@mock.patch('Longbow.corelibs.scheduling._polljobs')
-@mock.patch('Longbow.corelibs.scheduling._monitorinitialise')
+@mock.patch('longbow.corelibs.configuration.saveini')
+@mock.patch('longbow.corelibs.staging.stage_downstream')
+@mock.patch('longbow.corelibs.scheduling._checkwaitingjobs')
+@mock.patch('longbow.corelibs.scheduling._polljobs')
+@mock.patch('longbow.corelibs.scheduling._monitorinitialise')
 def test_monitor_run1(mock_init, mock_poll, mock_wait, mock_down,
                       mock_save):
 
@@ -300,9 +300,9 @@ def test_monitor_run1(mock_init, mock_poll, mock_wait, mock_down,
         }
     }
 
-    scheduling.QUEUEINFO["hpc1"] = {}
-    scheduling.QUEUEINFO["hpc1"]["queue-slots"] = "1"
-    scheduling.QUEUEINFO["hpc1"]["queue-max"] = "2"
+    QUEUEINFO["hpc1"] = {}
+    QUEUEINFO["hpc1"]["queue-slots"] = "1"
+    QUEUEINFO["hpc1"]["queue-max"] = "2"
 
     mock_init.return_value = 0, 1
     mock_poll.return_value = False
@@ -311,7 +311,7 @@ def test_monitor_run1(mock_init, mock_poll, mock_wait, mock_down,
     mock_down.return_value = None
     mock_save.return_value = None
 
-    scheduling.monitor(jobs)
+    monitor(jobs)
 
     assert jobs["jobone"]["laststatus"] == "Complete"
     assert jobs["jobtwo"]["laststatus"] == "Complete"
@@ -322,11 +322,11 @@ def test_monitor_run1(mock_init, mock_poll, mock_wait, mock_down,
     assert mock_save.call_count == 1
 
 
-@mock.patch('Longbow.corelibs.configuration.saveini')
-@mock.patch('Longbow.corelibs.staging.stage_downstream')
-@mock.patch('Longbow.corelibs.scheduling._checkwaitingjobs')
-@mock.patch('Longbow.corelibs.scheduling._polljobs')
-@mock.patch('Longbow.corelibs.scheduling._monitorinitialise')
+@mock.patch('longbow.corelibs.configuration.saveini')
+@mock.patch('longbow.corelibs.staging.stage_downstream')
+@mock.patch('longbow.corelibs.scheduling._checkwaitingjobs')
+@mock.patch('longbow.corelibs.scheduling._polljobs')
+@mock.patch('longbow.corelibs.scheduling._monitorinitialise')
 def test_monitor_except(mock_init, mock_poll, mock_wait, mock_down,
                         mock_save):
 
@@ -355,9 +355,9 @@ def test_monitor_except(mock_init, mock_poll, mock_wait, mock_down,
             "laststatus": "Submit Error"
         }
     }
-    scheduling.QUEUEINFO["hpc1"] = {}
-    scheduling.QUEUEINFO["hpc1"]["queue-slots"] = "1"
-    scheduling.QUEUEINFO["hpc1"]["queue-max"] = "2"
+    QUEUEINFO["hpc1"] = {}
+    QUEUEINFO["hpc1"]["queue-slots"] = "1"
+    QUEUEINFO["hpc1"]["queue-max"] = "2"
 
     mock_init.return_value = 0, 1
     mock_poll.return_value = False
@@ -365,7 +365,7 @@ def test_monitor_except(mock_init, mock_poll, mock_wait, mock_down,
     mock_save.side_effect = IOError
     mock_wait.return_value = False
 
-    scheduling.monitor(jobs)
+    monitor(jobs)
 
     assert jobs["jobone"]["laststatus"] == "Complete"
     assert mock_save.call_count == 1

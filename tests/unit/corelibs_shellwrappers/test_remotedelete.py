@@ -33,8 +33,8 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.shellwrappers as shellwrappers
+import longbow.corelibs.exceptions as exceptions
+from longbow.corelibs.shellwrappers import remotedelete
 
 
 def test_remotedelete_srcpath():
@@ -52,10 +52,10 @@ def test_remotedelete_srcpath():
 
     with pytest.raises(exceptions.AbsolutepathError):
 
-        shellwrappers.remotedelete(job)
+        remotedelete(job)
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_remotedelete_formattest(mock_sendtossh):
 
     """
@@ -70,7 +70,7 @@ def test_remotedelete_formattest(mock_sendtossh):
         "destdir": "~/source/directory/path"
     }
 
-    shellwrappers.remotedelete(job)
+    remotedelete(job)
 
     callargs = mock_sendtossh.call_args[0][1]
     testargs = "rm -r ~/source/directory/path"
@@ -78,7 +78,7 @@ def test_remotedelete_formattest(mock_sendtossh):
     assert " ".join(callargs) == testargs
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_remotedelete_exceptiontest(mock_sendtossh):
 
     """
@@ -96,4 +96,4 @@ def test_remotedelete_exceptiontest(mock_sendtossh):
 
     with pytest.raises(exceptions.RemotedeleteError):
 
-        shellwrappers.remotedelete(job)
+        remotedelete(job)

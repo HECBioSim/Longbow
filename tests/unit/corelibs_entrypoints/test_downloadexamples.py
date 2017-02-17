@@ -19,8 +19,8 @@
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This testing module contains the tests for the downloadexamples method within the
-entrypoint module.
+This testing module contains the tests for the downloadexamples method within
+the entrypoint module.
 """
 
 import os
@@ -36,7 +36,7 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.entrypoints as mains
+from longbow.corelibs.entrypoints import _downloadexamples
 
 
 @mock.patch('subprocess.call')
@@ -51,7 +51,7 @@ def test_downloadexamples_wget(mock_output, mock_call):
 
     with pytest.raises(SystemExit):
 
-        mains._downloadexamples(longbowargs)
+        _downloadexamples(longbowargs)
 
     assert mock_output.call_args[0][0] == \
         ['wget', 'http://www.hecbiosim.ac.uk/downloads/send/2-software/' +
@@ -74,7 +74,7 @@ def test_downloadexamples_curl(mock_output, mock_call):
 
     with pytest.raises(SystemExit):
 
-        mains._downloadexamples(longbowargs)
+        _downloadexamples(longbowargs)
 
     assert mock_call.call_args_list[0][0][0] == \
         ["curl", "-L", "http://www.hecbiosim.ac.uk/downloads/send/" +

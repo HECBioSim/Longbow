@@ -33,11 +33,11 @@ except ImportError:
 
     import mock
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.entrypoints as mains
+import longbow.corelibs.exceptions as exceptions
+from longbow.corelibs.entrypoints import main
 
 
-@mock.patch('Longbow.corelibs.entrypoints.longbowmain')
+@mock.patch('longbow.corelibs.entrypoints.longbowmain')
 @mock.patch('os.path.isfile')
 def test_main_test1(m_isfile, m_longbowmain):
 
@@ -53,7 +53,7 @@ def test_main_test1(m_isfile, m_longbowmain):
 
     with mock.patch('sys.argv', args):
 
-        mains.main()
+        main()
 
     params = m_longbowmain.call_args[0][0]
 
@@ -73,7 +73,7 @@ def test_main_test1(m_isfile, m_longbowmain):
     assert params["verbose"] is True
 
 
-@mock.patch('Longbow.corelibs.entrypoints.longbowmain')
+@mock.patch('longbow.corelibs.entrypoints.longbowmain')
 @mock.patch('os.path.isfile')
 def test_main_test2(m_isfile, m_longbowmain):
 
@@ -90,7 +90,7 @@ def test_main_test2(m_isfile, m_longbowmain):
 
     with mock.patch('sys.argv', args):
 
-        mains.main()
+        main()
 
     params = m_longbowmain.call_args[0][0]
 
@@ -110,7 +110,7 @@ def test_main_test2(m_isfile, m_longbowmain):
     assert params["verbose"] is True
 
 
-@mock.patch('Longbow.corelibs.entrypoints.recovery')
+@mock.patch('longbow.corelibs.entrypoints.recovery')
 @mock.patch('os.path.isfile')
 def test_main_test3(m_isfile, m_recovery):
 
@@ -125,7 +125,7 @@ def test_main_test3(m_isfile, m_recovery):
 
     with mock.patch('sys.argv', args):
 
-        mains.main()
+        main()
 
     params = m_recovery.call_args[0][0]
 
@@ -133,7 +133,7 @@ def test_main_test3(m_isfile, m_recovery):
     assert params == "recovery.file"
 
 
-@mock.patch('Longbow.corelibs.entrypoints.longbowmain')
+@mock.patch('longbow.corelibs.entrypoints.longbowmain')
 @mock.patch('os.path.isfile')
 def test_main_test4(m_isfile, m_longbowmain):
 
@@ -151,7 +151,7 @@ def test_main_test4(m_isfile, m_longbowmain):
 
     with mock.patch('sys.argv', args):
 
-        mains.main()
+        main()
 
     params = m_longbowmain.call_args[0][0]
 
@@ -171,7 +171,7 @@ def test_main_test4(m_isfile, m_longbowmain):
     assert params["verbose"] is False
 
 
-@mock.patch('Longbow.corelibs.entrypoints.longbowmain')
+@mock.patch('longbow.corelibs.entrypoints.longbowmain')
 @mock.patch('os.path.isfile')
 def test_main_test5(m_isfile, m_longbowmain):
 
@@ -189,7 +189,7 @@ def test_main_test5(m_isfile, m_longbowmain):
 
     with mock.patch('sys.argv', args):
 
-        mains.main()
+        main()
 
     params = m_longbowmain.call_args[0][0]
 
@@ -209,8 +209,8 @@ def test_main_test5(m_isfile, m_longbowmain):
     assert params["verbose"] is False
 
 
-@mock.patch('Longbow.corelibs.entrypoints.recovery')
-@mock.patch('Longbow.corelibs.entrypoints.longbowmain')
+@mock.patch('longbow.corelibs.entrypoints.recovery')
+@mock.patch('longbow.corelibs.entrypoints.longbowmain')
 @mock.patch('os.path.isfile')
 def test_main_test6(m_isfile, m_longbowmain, m_recovery):
 
@@ -225,7 +225,7 @@ def test_main_test6(m_isfile, m_longbowmain, m_recovery):
 
     with mock.patch('sys.argv', args):
 
-        mains.main()
+        main()
 
     assert m_longbowmain.call_count == 0
     assert m_recovery.call_count == 0

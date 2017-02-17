@@ -33,8 +33,8 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.scheduling as scheduling
+import longbow.corelibs.exceptions as exceptions
+from longbow.corelibs.scheduling import _checkwaitingjobs, QUEUEINFO
 
 
 def addjobid(job):
@@ -46,7 +46,7 @@ def addjobid(job):
     job["jobid"] = "123456"
 
 
-@mock.patch('Longbow.schedulers.lsf.submit')
+@mock.patch('longbow.schedulers.lsf.submit')
 def test_checkwaitingjobs_none(mock_submit):
 
     """
@@ -65,12 +65,12 @@ def test_checkwaitingjobs_none(mock_submit):
         }
     }
 
-    scheduling._checkwaitingjobs(jobs, False)
+    _checkwaitingjobs(jobs, False)
 
     assert mock_submit.call_count == 0, "Should not be trying to submit"
 
 
-@mock.patch('Longbow.schedulers.lsf.submit')
+@mock.patch('longbow.schedulers.lsf.submit')
 def test_checkwaitingjobs_one(mock_submit):
 
     """
@@ -97,17 +97,17 @@ def test_checkwaitingjobs_one(mock_submit):
     }
 
     mock_submit.side_effect = addjobid
-    scheduling.QUEUEINFO["test-machine"] = {}
-    scheduling.QUEUEINFO["test-machine"]["queue-slots"] = 1
-    scheduling.QUEUEINFO["test-machine"]["queue-max"] = 2
+    QUEUEINFO["test-machine"] = {}
+    QUEUEINFO["test-machine"]["queue-slots"] = 1
+    QUEUEINFO["test-machine"]["queue-max"] = 2
 
-    scheduling._checkwaitingjobs(jobs, False)
+    _checkwaitingjobs(jobs, False)
 
     assert mock_submit.call_count == 1, "Should be submitting one job"
-    assert scheduling.QUEUEINFO["test-machine"]["queue-slots"] == "2"
+    assert QUEUEINFO["test-machine"]["queue-slots"] == "2"
 
 
-@mock.patch('Longbow.schedulers.lsf.submit')
+@mock.patch('longbow.schedulers.lsf.submit')
 def test_checkwaitingjobs_two(mock_submit):
 
     """
@@ -134,16 +134,16 @@ def test_checkwaitingjobs_two(mock_submit):
     }
 
     mock_submit.side_effect = addjobid
-    scheduling.QUEUEINFO["test-machine"]["queue-slots"] = 1
-    scheduling.QUEUEINFO["test-machine"]["queue-max"] = 8
+    QUEUEINFO["test-machine"]["queue-slots"] = 1
+    QUEUEINFO["test-machine"]["queue-max"] = 8
 
-    scheduling._checkwaitingjobs(jobs, False)
+    _checkwaitingjobs(jobs, False)
 
     assert mock_submit.call_count == 2, "Should be submitting two jobs"
-    assert scheduling.QUEUEINFO["test-machine"]["queue-slots"] == "3"
+    assert QUEUEINFO["test-machine"]["queue-slots"] == "3"
 
 
-@mock.patch('Longbow.schedulers.lsf.submit')
+@mock.patch('longbow.schedulers.lsf.submit')
 def test_checkwaitingjobs_except1(mock_submit):
 
     """
@@ -169,15 +169,15 @@ def test_checkwaitingjobs_except1(mock_submit):
     }
 
     mock_submit.side_effect = AttributeError
-    scheduling.QUEUEINFO["test-machine"]["queue-slots"] = 1
-    scheduling.QUEUEINFO["test-machine"]["queue-max"] = 8
+    QUEUEINFO["test-machine"]["queue-slots"] = 1
+    QUEUEINFO["test-machine"]["queue-max"] = 8
 
     with pytest.raises(exceptions.PluginattributeError):
 
-        scheduling._checkwaitingjobs(jobs, False)
+        _checkwaitingjobs(jobs, False)
 
 
-@mock.patch('Longbow.schedulers.lsf.submit')
+@mock.patch('longbow.schedulers.lsf.submit')
 def test_checkwaitingjobs_except2(mock_submit):
 
     """
@@ -204,17 +204,17 @@ def test_checkwaitingjobs_except2(mock_submit):
     }
 
     mock_submit.side_effect = exceptions.JobsubmitError
-    scheduling.QUEUEINFO["test-machine"]["queue-slots"] = 1
-    scheduling.QUEUEINFO["test-machine"]["queue-max"] = 8
+    QUEUEINFO["test-machine"]["queue-slots"] = 1
+    QUEUEINFO["test-machine"]["queue-max"] = 8
 
-    scheduling._checkwaitingjobs(jobs, False)
+    _checkwaitingjobs(jobs, False)
 
     assert jobs["jobone"]["laststatus"] == "Running"
     assert jobs["jobtwo"]["laststatus"] == "Submit Error"
     assert jobs["jobthree"]["laststatus"] == "Submit Error"
 
 
-@mock.patch('Longbow.schedulers.lsf.submit')
+@mock.patch('longbow.schedulers.lsf.submit')
 def test_checkwaitingjobs_except3(mock_submit):
 
     """
@@ -241,10 +241,10 @@ def test_checkwaitingjobs_except3(mock_submit):
     }
 
     mock_submit.side_effect = exceptions.QueuemaxError
-    scheduling.QUEUEINFO["test-machine"]["queue-slots"] = "1"
-    scheduling.QUEUEINFO["test-machine"]["queue-max"] = "8"
+    QUEUEINFO["test-machine"]["queue-slots"] = "1"
+    QUEUEINFO["test-machine"]["queue-max"] = "8"
 
-    scheduling._checkwaitingjobs(jobs, False)
+    _checkwaitingjobs(jobs, False)
 
     assert jobs["jobone"]["laststatus"] == "Running"
     assert jobs["jobtwo"]["laststatus"] == "Submit Error"

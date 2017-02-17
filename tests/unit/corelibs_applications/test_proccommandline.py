@@ -32,11 +32,11 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.applications as apps
-import Longbow.corelibs.exceptions as exceptions
+from longbow.corelibs.applications import _proccommandline
+import longbow.corelibs.exceptions as exceptions
 
 
-@mock.patch('Longbow.corelibs.applications._procfiles')
+@mock.patch('longbow.corelibs.applications._procfiles')
 def test_proccommandline_test1(m_procfiles):
 
     """
@@ -48,13 +48,13 @@ def test_proccommandline_test1(m_procfiles):
         "executableargs": ["<", "input.file"]
     }
 
-    apps._proccommandline(job, [], [], {})
+    _proccommandline(job, [], [], {})
 
     assert m_procfiles.call_count == 1
     assert m_procfiles.call_args[0][1] == "input.file"
 
 
-@mock.patch('Longbow.corelibs.applications._procfiles')
+@mock.patch('longbow.corelibs.applications._procfiles')
 def test_proccommandline_test2(m_procfiles):
 
     """
@@ -66,13 +66,13 @@ def test_proccommandline_test2(m_procfiles):
         "executableargs": ["-c", "file", "-i", "file", "-p", "file"]
     }
 
-    apps._proccommandline(job, [], [], {})
+    _proccommandline(job, [], [], {})
 
     assert m_procfiles.call_count == 3
     assert m_procfiles.call_args[0][1] == "file"
 
 
-@mock.patch('Longbow.corelibs.applications._procfiles')
+@mock.patch('longbow.corelibs.applications._procfiles')
 def test_proccommandline_test3(m_procfiles):
 
     """
@@ -84,13 +84,13 @@ def test_proccommandline_test3(m_procfiles):
         "executableargs": ["mdrun_mpi", "-deffnm", "filename"]
     }
 
-    apps._proccommandline(job, [], [], {})
+    _proccommandline(job, [], [], {})
 
     assert m_procfiles.call_count == 1
     assert m_procfiles.call_args[0][1] == "filename"
 
 
-@mock.patch('Longbow.corelibs.applications._procfiles')
+@mock.patch('longbow.corelibs.applications._procfiles')
 def test_proccommandline_test4(m_procfiles):
 
     """
@@ -102,13 +102,13 @@ def test_proccommandline_test4(m_procfiles):
         "executableargs": ["input.file"]
     }
 
-    apps._proccommandline(job, [], [], {})
+    _proccommandline(job, [], [], {})
 
     assert m_procfiles.call_count == 1
     assert m_procfiles.call_args[0][1] == "input.file"
 
 
-@mock.patch('Longbow.corelibs.applications._procfiles')
+@mock.patch('longbow.corelibs.applications._procfiles')
 def test_proccommandline_test5(m_procfiles):
 
     """
@@ -120,7 +120,7 @@ def test_proccommandline_test5(m_procfiles):
         "executableargs": ["input.file", ">", "output.file"]
     }
 
-    apps._proccommandline(job, [], [], {})
+    _proccommandline(job, [], [], {})
 
     assert m_procfiles.call_count == 2
     assert m_procfiles.call_args[0][1] == "output.file"
@@ -140,4 +140,4 @@ def test_proccommandline_except():
 
     with pytest.raises(exceptions.RequiredinputError):
 
-        apps._proccommandline(job, [], [], {})
+        _proccommandline(job, [], [], {})

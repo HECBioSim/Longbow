@@ -25,7 +25,7 @@ entrypoint module.
 
 import logging
 
-import Longbow.corelibs.entrypoints as mains
+from longbow.corelibs.entrypoints import _setuplogger
 
 
 def test_setuplogger_testdebug():
@@ -50,7 +50,7 @@ def test_setuplogger_testdebug():
         "verbose": False
     }
 
-    mains._setuplogger(parameters)
+    _setuplogger(parameters)
 
     log = logging.getLogger("Longbow")
     log.debug("debug1")
@@ -85,7 +85,7 @@ def test_setuplogger_testverbose():
         "verbose": True
     }
 
-    mains._setuplogger(parameters)
+    _setuplogger(parameters)
 
     log = logging.getLogger("Longbow")
     log.debug("debug1")

@@ -33,12 +33,12 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.staging as staging
+import longbow.corelibs.exceptions as exceptions
+from longbow.corelibs.staging import stage_upstream
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.upload')
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.upload')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_stage_upstream_singlejob(mock_ssh, mock_upload):
 
     """
@@ -52,7 +52,7 @@ def test_stage_upstream_singlejob(mock_ssh, mock_upload):
             }
     }
 
-    staging.stage_upstream(jobs)
+    stage_upstream(jobs)
 
     assert mock_ssh.call_count == 1, \
         "There is only one job, this should only be called once"
@@ -60,8 +60,8 @@ def test_stage_upstream_singlejob(mock_ssh, mock_upload):
         "There is only one job, this should only be called once"
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.upload')
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.upload')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_stage_upstream_multijobs(mock_ssh, mock_upload):
 
     """
@@ -87,7 +87,7 @@ def test_stage_upstream_multijobs(mock_ssh, mock_upload):
             }
     }
 
-    staging.stage_upstream(jobs)
+    stage_upstream(jobs)
 
     assert mock_ssh.call_count == 4, \
         "There is only one job, this should only be called once"
@@ -95,7 +95,7 @@ def test_stage_upstream_multijobs(mock_ssh, mock_upload):
         "There is only one job, this should only be called once"
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_stage_upstream_sshexcept(mock_ssh):
 
     """
@@ -113,11 +113,11 @@ def test_stage_upstream_sshexcept(mock_ssh):
 
     with pytest.raises(exceptions.SSHError):
 
-        staging.stage_upstream(jobs)
+        stage_upstream(jobs)
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.upload')
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.upload')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_stage_upstream_rsyncexcept(mock_ssh, mock_upload):
 
     """
@@ -137,11 +137,11 @@ def test_stage_upstream_rsyncexcept(mock_ssh, mock_upload):
 
     with pytest.raises(exceptions.StagingError):
 
-        staging.stage_upstream(jobs)
+        stage_upstream(jobs)
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.upload')
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.upload')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_stage_upstream_params(mock_ssh, mock_upload):
 
     """
@@ -156,7 +156,7 @@ def test_stage_upstream_params(mock_ssh, mock_upload):
             }
     }
 
-    staging.stage_upstream(jobs)
+    stage_upstream(jobs)
 
     uploadarg1 = mock_upload.call_args[0][0]
     ssharg1 = mock_ssh.call_args[0][0]

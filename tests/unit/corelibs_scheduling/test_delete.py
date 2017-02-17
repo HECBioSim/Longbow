@@ -33,11 +33,11 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.scheduling as scheduling
+import longbow.corelibs.exceptions as exceptions
+from longbow.corelibs.scheduling import delete
 
 
-@mock.patch('Longbow.schedulers.lsf.delete')
+@mock.patch('longbow.schedulers.lsf.delete')
 def test_delete_single(mock_delete):
 
     """
@@ -51,13 +51,13 @@ def test_delete_single(mock_delete):
         "jobid": "test456"
     }
 
-    scheduling.delete(job)
+    delete(job)
 
     assert mock_delete.call_count == 1, \
         "For a single job this method should only be called once"
 
 
-@mock.patch('Longbow.schedulers.lsf.delete')
+@mock.patch('longbow.schedulers.lsf.delete')
 def test_delete_attrexcept(mock_delete):
 
     """
@@ -75,10 +75,10 @@ def test_delete_attrexcept(mock_delete):
 
     with pytest.raises(exceptions.PluginattributeError):
 
-        scheduling.delete(job)
+        delete(job)
 
 
-@mock.patch('Longbow.schedulers.lsf.delete')
+@mock.patch('longbow.schedulers.lsf.delete')
 def test_delete_deleteexcept(mock_delete):
 
     """
@@ -94,4 +94,4 @@ def test_delete_deleteexcept(mock_delete):
 
     mock_delete.side_effect = exceptions.JobdeleteError("Delete Error")
 
-    scheduling.delete(job)
+    delete(job)

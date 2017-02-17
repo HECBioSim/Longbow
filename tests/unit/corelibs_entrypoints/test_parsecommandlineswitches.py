@@ -25,8 +25,8 @@ within the entrypoint module.
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.entrypoints as mains
+import longbow.corelibs.exceptions as exceptions
+from longbow.corelibs.entrypoints import _parsecommandlineswitches
 
 
 def test_parsecmdlineswitches_test1():
@@ -52,7 +52,7 @@ def test_parsecmdlineswitches_test1():
 
     longbowargs = []
 
-    mains._parsecommandlineswitches(parameters, longbowargs)
+    _parsecommandlineswitches(parameters, longbowargs)
 
     assert parameters["debug"] is False
     assert parameters["disconnect"] is False
@@ -65,7 +65,7 @@ def test_parsecmdlineswitches_test1():
     assert parameters["recover"] == ""
     assert parameters["resource"] == ""
     assert parameters["replicates"] == ""
-    assert parameters["verbose"] == False
+    assert parameters["verbose"] is False
     assert len(parameters) == 12
 
 
@@ -96,7 +96,7 @@ def test_parsecmdlineswitches_test2():
                    "-replicates", "5", "--disconnect", "--verbose",
                    "--recover", "recfile"]
 
-    mains._parsecommandlineswitches(parameters, longbowargs)
+    _parsecommandlineswitches(parameters, longbowargs)
 
     assert parameters["debug"] is False
     assert parameters["disconnect"] is True
@@ -140,7 +140,7 @@ def test_parsecmdlineswitches_test3():
 
     with pytest.raises(exceptions.CommandlineargsError):
 
-        mains._parsecommandlineswitches(parameters, longbowargs)
+        _parsecommandlineswitches(parameters, longbowargs)
 
 
 def test_parsecmdlineswitches_test4():
@@ -170,7 +170,7 @@ def test_parsecmdlineswitches_test4():
 
     with pytest.raises(exceptions.CommandlineargsError):
 
-        mains._parsecommandlineswitches(parameters, longbowargs)
+        _parsecommandlineswitches(parameters, longbowargs)
 
 
 def test_parsecmdlineswitches_test5():
@@ -199,7 +199,7 @@ def test_parsecmdlineswitches_test5():
                    "-replicates", "5", "--disconnect", "--verbose",
                    "--recover", "recfile"]
 
-    mains._parsecommandlineswitches(parameters, longbowargs)
+    _parsecommandlineswitches(parameters, longbowargs)
 
     assert parameters["debug"] is False
     assert parameters["disconnect"] is True

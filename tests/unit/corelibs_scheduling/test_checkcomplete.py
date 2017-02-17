@@ -23,7 +23,7 @@ This testing module contains the tests for the _checkcomplete method within
 the scheduling module.
 """
 
-import Longbow.corelibs.scheduling as scheduling
+from longbow.corelibs.scheduling import _checkcomplete
 
 
 def test_checkcomplete_single1():
@@ -38,7 +38,7 @@ def test_checkcomplete_single1():
         }
     }
 
-    complete, finished = scheduling._checkcomplete(jobs)
+    complete, finished = _checkcomplete(jobs)
 
     assert finished is False
     assert complete is False
@@ -56,7 +56,7 @@ def test_checkcomplete_single2():
         }
     }
 
-    complete, finished = scheduling._checkcomplete(jobs)
+    complete, finished = _checkcomplete(jobs)
 
     assert finished is True
     assert complete is False
@@ -74,7 +74,7 @@ def test_checkcomplete_single3():
         }
     }
 
-    complete, finished = scheduling._checkcomplete(jobs)
+    complete, finished = _checkcomplete(jobs)
 
     assert finished is False
     assert complete is True
@@ -98,7 +98,7 @@ def test_checkcomplete_multi1():
         }
     }
 
-    complete, finished = scheduling._checkcomplete(jobs)
+    complete, finished = _checkcomplete(jobs)
 
     assert finished is False
     assert complete is False
@@ -122,7 +122,7 @@ def test_checkcomplete_multi2():
         }
     }
 
-    complete, finished = scheduling._checkcomplete(jobs)
+    complete, finished = _checkcomplete(jobs)
 
     assert finished is True
     assert complete is False
@@ -146,7 +146,7 @@ def test_checkcomplete_multi3():
         }
     }
 
-    complete, finished = scheduling._checkcomplete(jobs)
+    complete, finished = _checkcomplete(jobs)
 
     assert finished is False
     assert complete is True
@@ -170,7 +170,7 @@ def test_checkcomplete_multi4():
         }
     }
 
-    complete, finished = scheduling._checkcomplete(jobs)
+    complete, finished = _checkcomplete(jobs)
 
     assert finished is False
     assert complete is True
@@ -194,7 +194,7 @@ def test_checkcomplete_multi5():
         }
     }
 
-    complete, finished = scheduling._checkcomplete(jobs)
+    complete, finished = _checkcomplete(jobs)
 
     assert finished is False
     assert complete is True

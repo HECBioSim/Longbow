@@ -32,7 +32,7 @@ except ImportError:
 
     import mock
 
-import Longbow.corelibs.applications as apps
+from longbow.corelibs.applications import _procfilesreplicatejobs
 
 
 def test_procfilesreplicatejobs_t1():
@@ -47,7 +47,7 @@ def test_procfilesreplicatejobs_t1():
     initargs = ["-i", "input", "-c", "coords", "-p", "topol"]
     rep = 1
 
-    fileitem = apps._procfilesreplicatejobs(app, arg, cwd, initargs, rep)
+    fileitem = _procfilesreplicatejobs(app, arg, cwd, initargs, rep)
 
     assert fileitem == "rep1/input"
     assert initargs[1] == "input"
@@ -65,7 +65,7 @@ def test_procfilesreplicatejobs_t2():
     initargs = ["-i", "input", "-c", "coords", "-p", "topol"]
     rep = 1
 
-    fileitem = apps._procfilesreplicatejobs(app, arg, cwd, initargs, rep)
+    fileitem = _procfilesreplicatejobs(app, arg, cwd, initargs, rep)
 
     assert fileitem == "topol"
     assert initargs[5] == "../topol"
@@ -83,7 +83,7 @@ def test_procfilesreplicatejobs_t3():
     initargs = ["-i", "input", "-c", "coords", "-p", "topol"]
     rep = 1
 
-    fileitem = apps._procfilesreplicatejobs(app, arg, cwd, initargs, rep)
+    fileitem = _procfilesreplicatejobs(app, arg, cwd, initargs, rep)
 
     assert fileitem == ""
 
@@ -100,7 +100,7 @@ def test_procfilesreplicatejobs_t4():
     initargs = ["-deffnm", "test"]
     rep = 2
 
-    fileitem = apps._procfilesreplicatejobs(app, arg, cwd, initargs, rep)
+    fileitem = _procfilesreplicatejobs(app, arg, cwd, initargs, rep)
 
     assert fileitem == "rep2/test.tpr"
 
@@ -118,7 +118,7 @@ def test_procfilesreplicatejobs_t5(m_mkdir):
     initargs = ["-deffnm", "test"]
     rep = 4
 
-    fileitem = apps._procfilesreplicatejobs(app, arg, cwd, initargs, rep)
+    fileitem = _procfilesreplicatejobs(app, arg, cwd, initargs, rep)
 
     assert m_mkdir.call_count == 1
     assert fileitem == ""

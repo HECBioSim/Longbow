@@ -22,7 +22,7 @@
 This testing module contains the tests for the applications module methods.
 """
 
-import Longbow.corelibs.applications as apps
+from longbow.corelibs.applications import _procfiles
 
 
 def test_procfiles_amber():
@@ -43,7 +43,7 @@ def test_procfiles_amber():
     }
     substitution = {}
 
-    foundflags = apps._procfiles(job, arg, filelist, foundflags, substitution)
+    foundflags = _procfiles(job, arg, filelist, foundflags, substitution)
 
     assert foundflags == ["-c"]
     assert filelist == ["coords"]
@@ -67,7 +67,7 @@ def test_procfiles_charmm():
     }
     substitution = {}
 
-    foundflags = apps._procfiles(job, arg, filelist, foundflags, substitution)
+    foundflags = _procfiles(job, arg, filelist, foundflags, substitution)
 
     assert foundflags == ["<"]
     assert filelist == ["topol"]
@@ -91,7 +91,7 @@ def test_procfiles_gromacs():
     }
     substitution = {}
 
-    foundflags = apps._procfiles(job, arg, filelist, foundflags, substitution)
+    foundflags = _procfiles(job, arg, filelist, foundflags, substitution)
 
     assert foundflags == ["-deffnm"]
     assert filelist == ["test.tpr"]
@@ -115,7 +115,7 @@ def test_procfiles_namd1():
     }
     substitution = {}
 
-    foundflags = apps._procfiles(job, arg, filelist, foundflags, substitution)
+    foundflags = _procfiles(job, arg, filelist, foundflags, substitution)
 
     assert foundflags == ["<"]
     assert filelist == ["input"]
@@ -139,7 +139,7 @@ def test_procfiles_namd2():
     }
     substitution = {}
 
-    foundflags = apps._procfiles(job, arg, filelist, foundflags, substitution)
+    foundflags = _procfiles(job, arg, filelist, foundflags, substitution)
 
     assert foundflags == ["<"]
     assert filelist == ["input"]
@@ -162,7 +162,7 @@ def test_procfiles_reps1():
     }
     substitution = {}
 
-    foundflags = apps._procfiles(job, arg, filelist, foundflags, substitution)
+    foundflags = _procfiles(job, arg, filelist, foundflags, substitution)
 
     assert foundflags == ["-c"]
     assert filelist == ["rep1", "rep1/coords", "rep2", "rep2/coords", "rep3",
@@ -186,7 +186,7 @@ def test_procfiles_reps2():
     }
     substitution = {}
 
-    foundflags = apps._procfiles(job, arg, filelist, foundflags, substitution)
+    foundflags = _procfiles(job, arg, filelist, foundflags, substitution)
 
     assert foundflags == ["-p"]
     assert filelist == ["rep1", "topol", "rep2", "rep3"]

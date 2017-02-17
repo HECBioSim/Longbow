@@ -35,8 +35,8 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.entrypoints as mains
+import longbow.corelibs.exceptions as exceptions
+from longbow.corelibs.entrypoints import _jobfileproc
 
 
 @mock.patch("os.path.isfile")
@@ -63,7 +63,7 @@ def test_jobfileproc_test1(m_isfile):
 
     m_isfile.side_effect = [True]
 
-    mains._jobfileproc(parameters)
+    _jobfileproc(parameters)
 
     assert parameters["job"] == os.path.join(os.getcwd(), "job.conf")
 
@@ -94,4 +94,4 @@ def test_hostfileproc_test2(m_isfile):
 
     with pytest.raises(exceptions.RequiredinputError):
 
-        mains._jobfileproc(parameters)
+        _jobfileproc(parameters)

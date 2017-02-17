@@ -35,8 +35,8 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.entrypoints as mains
+import longbow.corelibs.exceptions as exceptions
+from longbow.corelibs.entrypoints import _hostfileproc
 
 
 @mock.patch("os.path.isfile")
@@ -63,7 +63,7 @@ def test_hostfileproc_test1(m_isfile):
 
     m_isfile.side_effect = [True, False]
 
-    mains._hostfileproc(parameters)
+    _hostfileproc(parameters)
 
     assert parameters["hosts"] == os.path.join(os.getcwd(), "hosts.conf")
 
@@ -92,7 +92,7 @@ def test_hostfileproc_test2(m_isfile):
 
     m_isfile.side_effect = [False, True]
 
-    mains._hostfileproc(parameters)
+    _hostfileproc(parameters)
 
     assert parameters["hosts"] == \
         os.path.join(os.path.expanduser("~/.Longbow"), "hosts.conf")
@@ -124,4 +124,4 @@ def test_hostfileproc_test3(m_isfile):
 
     with pytest.raises(exceptions.RequiredinputError):
 
-        mains._hostfileproc(parameters)
+        _hostfileproc(parameters)

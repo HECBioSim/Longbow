@@ -33,8 +33,8 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.shellwrappers as shellwrappers
+import longbow.corelibs.exceptions as exceptions
+from longbow.corelibs.shellwrappers import locallist
 
 
 def test_locallist_srcpathcheck():
@@ -47,7 +47,7 @@ def test_locallist_srcpathcheck():
 
     with pytest.raises(exceptions.AbsolutepathError):
 
-        shellwrappers.locallist(src)
+        locallist(src)
 
 
 @mock.patch('os.listdir')
@@ -63,7 +63,7 @@ def test_locallist_returncheck(mock_exists, mock_listdir):
     mock_exists.return_value = True
     mock_listdir.return_value = ["item1", "item2"]
 
-    output = shellwrappers.locallist(src)
+    output = locallist(src)
 
     assert output[0] == "item1"
     assert output[1] == "item2"
@@ -82,4 +82,4 @@ def test_locallist_exceptiontest(mock_exists):
 
     with pytest.raises(exceptions.LocallistError):
 
-        shellwrappers.locallist(src)
+        locallist(src)

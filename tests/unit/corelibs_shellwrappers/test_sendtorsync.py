@@ -33,12 +33,12 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.shellwrappers as shellwrappers
+import longbow.corelibs.exceptions as exceptions
+from longbow.corelibs.shellwrappers import sendtorsync
 
 
 @mock.patch('time.sleep')
-@mock.patch('Longbow.corelibs.shellwrappers.sendtoshell')
+@mock.patch('longbow.corelibs.shellwrappers.sendtoshell')
 def test_sendtorsync_retries(mock_sendtoshell, mock_time):
 
     """
@@ -60,12 +60,12 @@ def test_sendtorsync_retries(mock_sendtoshell, mock_time):
 
     with pytest.raises(exceptions.RsyncError):
 
-        shellwrappers.sendtorsync(job, "src", "dst", "", "")
+        sendtorsync(job, "src", "dst", "", "")
 
     assert mock_sendtoshell.call_count == 3, "This method should retry 3 times"
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtoshell')
+@mock.patch('longbow.corelibs.shellwrappers.sendtoshell')
 def test_sendtorsync_rsyncformat1(mock_sendtoshell):
 
     """
@@ -82,7 +82,7 @@ def test_sendtorsync_rsyncformat1(mock_sendtoshell):
     # Set the return values of sendtoshell.
     mock_sendtoshell.return_value = "Output message", "Error message", 0
 
-    shellwrappers.sendtorsync(job, "src", "dst", "", "")
+    sendtorsync(job, "src", "dst", "", "")
 
     callargs = mock_sendtoshell.call_args[0][0]
     testargs = "rsync -azP -e ssh -p 22 src dst"
@@ -90,7 +90,7 @@ def test_sendtorsync_rsyncformat1(mock_sendtoshell):
     assert " ".join(callargs) == testargs
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtoshell')
+@mock.patch('longbow.corelibs.shellwrappers.sendtoshell')
 def test_sendtorsync_rsyncformat2(mock_sendtoshell):
 
     """
@@ -108,7 +108,7 @@ def test_sendtorsync_rsyncformat2(mock_sendtoshell):
     # Set the return values of sendtoshell.
     mock_sendtoshell.return_value = "Output message", "Error message", 0
 
-    shellwrappers.sendtorsync(job, "src", "dst", "", "exfile")
+    sendtorsync(job, "src", "dst", "", "exfile")
 
     callargs = mock_sendtoshell.call_args[0][0]
     testargs = "rsync -azP --exclude exfile -e ssh -p 22 src dst"
@@ -116,7 +116,7 @@ def test_sendtorsync_rsyncformat2(mock_sendtoshell):
     assert " ".join(callargs) == testargs
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtoshell')
+@mock.patch('longbow.corelibs.shellwrappers.sendtoshell')
 def test_sendtorsync_rsyncformat3(mock_sendtoshell):
 
     """
@@ -134,7 +134,7 @@ def test_sendtorsync_rsyncformat3(mock_sendtoshell):
     # Set the return values of sendtoshell.
     mock_sendtoshell.return_value = "Output message", "Error message", 0
 
-    shellwrappers.sendtorsync(job, "src", "dst", "", "exfile1, exfile2")
+    sendtorsync(job, "src", "dst", "", "exfile1, exfile2")
 
     callargs = mock_sendtoshell.call_args[0][0]
     testargs = ("rsync -azP --exclude exfile1 --exclude exfile2 -e ssh -p 22 "
@@ -143,7 +143,7 @@ def test_sendtorsync_rsyncformat3(mock_sendtoshell):
     assert " ".join(callargs) == testargs
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtoshell')
+@mock.patch('longbow.corelibs.shellwrappers.sendtoshell')
 def test_sendtorsync_rsyncformat4(mock_sendtoshell):
 
     """
@@ -161,7 +161,7 @@ def test_sendtorsync_rsyncformat4(mock_sendtoshell):
     # Set the return values of sendtoshell.
     mock_sendtoshell.return_value = "Output message", "Error message", 0
 
-    shellwrappers.sendtorsync(job, "src", "dst", "incfile", "exfile1, exfile2")
+    sendtorsync(job, "src", "dst", "incfile", "exfile1, exfile2")
 
     callargs = mock_sendtoshell.call_args[0][0]
     testargs = ("rsync -azP --include incfile --exclude exfile1 --exclude "

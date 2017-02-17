@@ -25,8 +25,8 @@ the entrypoint module.
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.entrypoints as mains
+import longbow.corelibs.exceptions as exceptions
+from longbow.corelibs.entrypoints import _commandlineproc
 
 ALLLONGBOWARGS = [
     "-about",
@@ -85,8 +85,7 @@ def test_cmdlineproc_test1():
 
     commandlineargs = []
 
-    longbowargs = mains._commandlineproc(ALLLONGBOWARGS, commandlineargs,
-                                         parameters)
+    longbowargs = _commandlineproc(ALLLONGBOWARGS, commandlineargs, parameters)
 
     assert parameters["executable"] == ""
     assert parameters["executableargs"] == ""
@@ -114,8 +113,7 @@ def test_cmdlineproc_test2():
 
     commandlineargs = ["-about"]
 
-    longbowargs = mains._commandlineproc(ALLLONGBOWARGS, commandlineargs,
-                                         parameters)
+    longbowargs = _commandlineproc(ALLLONGBOWARGS, commandlineargs, parameters)
 
     assert parameters["executable"] == ""
     assert parameters["executableargs"] == ""
@@ -143,8 +141,7 @@ def test_cmdlineproc_test3():
 
     commandlineargs = ["--about"]
 
-    longbowargs = mains._commandlineproc(ALLLONGBOWARGS, commandlineargs,
-                                         parameters)
+    longbowargs = _commandlineproc(ALLLONGBOWARGS, commandlineargs, parameters)
 
     assert parameters["executable"] == ""
     assert parameters["executableargs"] == ""
@@ -173,8 +170,7 @@ def test_cmdlineproc_test4():
     commandlineargs = ["--hosts", "hosts.file", "--jobname", "test",
                        "--replicates", "1000", "--disconnect"]
 
-    longbowargs = mains._commandlineproc(ALLLONGBOWARGS, commandlineargs,
-                                         parameters)
+    longbowargs = _commandlineproc(ALLLONGBOWARGS, commandlineargs, parameters)
 
     assert parameters["executable"] == ""
     assert parameters["executableargs"] == ""
@@ -204,8 +200,7 @@ def test_cmdlineproc_test5():
     commandlineargs = ["--hosts", "hosts.file", "--jobname", "test",
                        "--replicates", "1000", "--disconnect", "pmemd.MPI"]
 
-    longbowargs = mains._commandlineproc(ALLLONGBOWARGS, commandlineargs,
-                                         parameters)
+    longbowargs = _commandlineproc(ALLLONGBOWARGS, commandlineargs, parameters)
 
     assert parameters["executable"] == "pmemd.MPI"
     assert parameters["executableargs"] == ""
@@ -237,8 +232,7 @@ def test_cmdlineproc_test6():
                        "-O", "-i", "ex.in", "-c", "ex.min", "-p", "ex.top",
                        "-o", "ex.out"]
 
-    longbowargs = mains._commandlineproc(ALLLONGBOWARGS, commandlineargs,
-                                         parameters)
+    longbowargs = _commandlineproc(ALLLONGBOWARGS, commandlineargs, parameters)
 
     assert parameters["executable"] == "pmemd.MPI"
     assert parameters["executableargs"] == \
@@ -269,8 +263,7 @@ def test_cmdlineproc_test7():
     commandlineargs = ["--hosts", "hosts.file", "--jobname", "test",
                        "--replicates", "1000", "--disconnect", "test.exe"]
 
-    longbowargs = mains._commandlineproc(ALLLONGBOWARGS, commandlineargs,
-                                         parameters)
+    longbowargs = _commandlineproc(ALLLONGBOWARGS, commandlineargs, parameters)
 
     assert parameters["executable"] == "test.exe"
     assert parameters["executableargs"] == ""
@@ -303,8 +296,7 @@ def test_cmdlineproc_test8():
                        "--replicates", "1000", "--disconnect", "test.exe",
                        "-i", "input.file", "param1", "--someflag"]
 
-    longbowargs = mains._commandlineproc(ALLLONGBOWARGS, commandlineargs,
-                                         parameters)
+    longbowargs = _commandlineproc(ALLLONGBOWARGS, commandlineargs, parameters)
 
     assert parameters["executable"] == "test.exe"
     assert parameters["executableargs"] == "-i input.file param1 --someflag"
@@ -338,8 +330,7 @@ def test_cmdlineproc_test9():
                        "--disconnect", "--replicates", "1000", "test.exe",
                        "-i", "input.file", "param1", "--someflag"]
 
-    longbowargs = mains._commandlineproc(ALLLONGBOWARGS, commandlineargs,
-                                         parameters)
+    longbowargs = _commandlineproc(ALLLONGBOWARGS, commandlineargs, parameters)
 
     assert parameters["executable"] == "test.exe"
     assert parameters["executableargs"] == "-i input.file param1 --someflag"
@@ -368,8 +359,7 @@ def test_cmdlineproc_test10():
 
     commandlineargs = ["test.exe"]
 
-    longbowargs = mains._commandlineproc(ALLLONGBOWARGS, commandlineargs,
-                                         parameters)
+    longbowargs = _commandlineproc(ALLLONGBOWARGS, commandlineargs, parameters)
 
     assert parameters["executable"] == "test.exe"
     assert parameters["executableargs"] == ""
@@ -397,8 +387,7 @@ def test_cmdlineproc_test11():
 
     commandlineargs = ["test.exe", "-i", "input.file", "param1", "--someflag"]
 
-    longbowargs = mains._commandlineproc(ALLLONGBOWARGS, commandlineargs,
-                                         parameters)
+    longbowargs = _commandlineproc(ALLLONGBOWARGS, commandlineargs, parameters)
 
     assert parameters["executable"] == "test.exe"
     assert parameters["executableargs"] == "-i input.file param1 --someflag"
@@ -431,5 +420,4 @@ def test_cmdlineproc_test12():
 
     with pytest.raises(exceptions.CommandlineargsError):
 
-        mains._commandlineproc(ALLLONGBOWARGS, commandlineargs,
-                               parameters)
+        _commandlineproc(ALLLONGBOWARGS, commandlineargs, parameters)

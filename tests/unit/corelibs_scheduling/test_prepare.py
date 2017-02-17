@@ -33,11 +33,11 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.scheduling as scheduling
+import longbow.corelibs.exceptions as exceptions
+from longbow.corelibs.scheduling import prepare
 
 
-@mock.patch('Longbow.schedulers.lsf.prepare')
+@mock.patch('longbow.schedulers.lsf.prepare')
 def test_prepare_single(mock_prepare):
 
     """
@@ -52,13 +52,13 @@ def test_prepare_single(mock_prepare):
         }
     }
 
-    scheduling.prepare(jobs)
+    prepare(jobs)
 
     assert mock_prepare.call_count == 1, \
         "For a single job this method should only be called once"
 
 
-@mock.patch('Longbow.schedulers.lsf.prepare')
+@mock.patch('longbow.schedulers.lsf.prepare')
 def test_prepare_multiple(mock_prepare):
 
     """
@@ -84,13 +84,13 @@ def test_prepare_multiple(mock_prepare):
         }
     }
 
-    scheduling.prepare(jobs)
+    prepare(jobs)
 
     assert mock_prepare.call_count == 3, \
         "For a multi job this method should be called once for each job"
 
 
-@mock.patch('Longbow.schedulers.lsf.prepare')
+@mock.patch('longbow.schedulers.lsf.prepare')
 def test_prepare_attrexcept(mock_prepare):
 
     """
@@ -109,4 +109,4 @@ def test_prepare_attrexcept(mock_prepare):
 
     with pytest.raises(exceptions.PluginattributeError):
 
-        scheduling.prepare(jobs)
+        prepare(jobs)

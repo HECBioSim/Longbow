@@ -24,8 +24,8 @@ This testing module contains the tests for the applications module methods.
 
 import pytest
 
-import Longbow.corelibs.applications as apps
-import Longbow.corelibs.exceptions as ex
+from longbow.corelibs.applications import _flagvalidator
+import longbow.corelibs.exceptions as ex
 
 
 def test_flagvalidator_pass():
@@ -38,7 +38,7 @@ def test_flagvalidator_pass():
         "executable": "pmemd.MPI"
     }
 
-    apps._flagvalidator(job, foundflags)
+    _flagvalidator(job, foundflags)
 
 
 def test_flagvalidator_fail():
@@ -54,7 +54,7 @@ def test_flagvalidator_fail():
 
     with pytest.raises(ex.RequiredinputError):
 
-        apps._flagvalidator(job, foundflags)
+        _flagvalidator(job, foundflags)
 
 
 def test_flagvalidator_ortest():
@@ -67,4 +67,4 @@ def test_flagvalidator_ortest():
         "executable": "mdrun"
     }
 
-    apps._flagvalidator(job, foundflags)
+    _flagvalidator(job, foundflags)

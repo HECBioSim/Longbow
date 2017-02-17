@@ -33,11 +33,11 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.staging as staging
+import longbow.corelibs.exceptions as exceptions
+from longbow.corelibs.staging import stage_downstream
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.download')
+@mock.patch('longbow.corelibs.shellwrappers.download')
 def test_stage_downstream_except(mock_download):
 
     """
@@ -54,10 +54,10 @@ def test_stage_downstream_except(mock_download):
 
     with pytest.raises(exceptions.StagingError):
 
-        staging.stage_downstream(job)
+        stage_downstream(job)
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.download')
+@mock.patch('longbow.corelibs.shellwrappers.download')
 def test_stage_downstream_params(mock_download):
 
     """
@@ -70,7 +70,7 @@ def test_stage_downstream_params(mock_download):
         "localworkdir": "/path/to/local/dir"
     }
 
-    staging.stage_downstream(job)
+    stage_downstream(job)
 
     downloadarg1 = mock_download.call_args[0][0]
 

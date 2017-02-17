@@ -33,8 +33,8 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.shellwrappers as shellwrappers
+import longbow.corelibs.exceptions as exceptions
+from longbow.corelibs.shellwrappers import remotecopy
 
 
 def test_remotecopy_srcpathcheck():
@@ -54,7 +54,7 @@ def test_remotecopy_srcpathcheck():
 
     with pytest.raises(exceptions.AbsolutepathError):
 
-        shellwrappers.remotecopy(job, src, dst)
+        remotecopy(job, src, dst)
 
 
 def test_remotecopy_dstpathcheck():
@@ -74,10 +74,10 @@ def test_remotecopy_dstpathcheck():
 
     with pytest.raises(exceptions.AbsolutepathError):
 
-        shellwrappers.remotecopy(job, src, dst)
+        remotecopy(job, src, dst)
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_remotecopy_formattest(mock_sendtossh):
 
     """
@@ -94,7 +94,7 @@ def test_remotecopy_formattest(mock_sendtossh):
     src = "~/source/directory/path"
     dst = "~/destination/directory/path"
 
-    shellwrappers.remotecopy(job, src, dst)
+    remotecopy(job, src, dst)
 
     callargs = mock_sendtossh.call_args[0][1]
     testargs = "cp -r ~/source/directory/path ~/destination/directory/path"
@@ -102,7 +102,7 @@ def test_remotecopy_formattest(mock_sendtossh):
     assert " ".join(callargs) == testargs
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_remotecopy_exceptiontest(mock_sendtossh):
 
     """
@@ -122,4 +122,4 @@ def test_remotecopy_exceptiontest(mock_sendtossh):
 
     with pytest.raises(exceptions.RemotecopyError):
 
-        shellwrappers.remotecopy(job, src, dst)
+        remotecopy(job, src, dst)

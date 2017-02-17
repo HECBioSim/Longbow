@@ -33,8 +33,8 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.shellwrappers as shellwrappers
+import longbow.corelibs.exceptions as exceptions
+from longbow.corelibs.shellwrappers import upload
 
 
 def test_upload_srcpath():
@@ -53,7 +53,7 @@ def test_upload_srcpath():
 
     with pytest.raises(exceptions.AbsolutepathError):
 
-        shellwrappers.upload(job)
+        upload(job)
 
 
 def test_upload_dstpath():
@@ -73,10 +73,10 @@ def test_upload_dstpath():
 
     with pytest.raises(exceptions.AbsolutepathError):
 
-        shellwrappers.upload(job)
+        upload(job)
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtorsync')
+@mock.patch('longbow.corelibs.shellwrappers.sendtorsync')
 def test_upload_pathslash(mock_sendtorsync):
 
     """
@@ -94,14 +94,14 @@ def test_upload_pathslash(mock_sendtorsync):
         "upload-exclude": ""
     }
 
-    shellwrappers.upload(job)
+    upload(job)
 
     callargs = mock_sendtorsync.call_args[0][1]
 
     assert callargs.endswith("/")
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtorsync')
+@mock.patch('longbow.corelibs.shellwrappers.sendtorsync')
 def test_upload_pathformat(mock_sendtorsync):
 
     """
@@ -118,7 +118,7 @@ def test_upload_pathformat(mock_sendtorsync):
         "upload-exclude": ""
     }
 
-    shellwrappers.upload(job)
+    upload(job)
 
     callargs = mock_sendtorsync.call_args[0][2]
     testargs = job["user"] + "@" + job["host"] + ":" + job["destdir"]
@@ -126,7 +126,7 @@ def test_upload_pathformat(mock_sendtorsync):
     assert callargs == testargs
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtorsync')
+@mock.patch('longbow.corelibs.shellwrappers.sendtorsync')
 def test_upload_exceptiontest(mock_sendtorsync):
 
     """
@@ -148,4 +148,4 @@ def test_upload_exceptiontest(mock_sendtorsync):
 
     with pytest.raises(exceptions.RsyncError):
 
-        shellwrappers.upload(job)
+        upload(job)

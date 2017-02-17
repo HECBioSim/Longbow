@@ -24,8 +24,8 @@ This testing module contains the tests for the configuration module methods.
 
 import pytest
 
-import Longbow.corelibs.configuration as conf
-import Longbow.corelibs.exceptions as ex
+from longbow.corelibs.configuration import saveconfigs
+import longbow.corelibs.exceptions as ex
 
 
 def test_saveconfigs_test1():
@@ -49,7 +49,7 @@ def test_saveconfigs_test1():
         }
     }
 
-    conf.saveconfigs(configfile, params)
+    saveconfigs(configfile, params)
 
     filestructure = open("/tmp/saveconfigtest1", "r").readlines()
     assert "[test1]\n" in filestructure
@@ -85,4 +85,4 @@ def test_saveconfigs_test2():
 
     with pytest.raises(ex.ConfigurationError):
 
-        conf.saveconfigs(configfile, params)
+        saveconfigs(configfile, params)

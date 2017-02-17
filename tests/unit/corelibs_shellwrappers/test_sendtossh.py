@@ -33,11 +33,11 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.shellwrappers as shellwrappers
+import longbow.corelibs.exceptions as exceptions
+from longbow.corelibs.shellwrappers import sendtossh
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtoshell')
+@mock.patch('longbow.corelibs.shellwrappers.sendtoshell')
 def test_sendtossh_returncheck(mock_sendtoshell):
 
     """
@@ -56,14 +56,14 @@ def test_sendtossh_returncheck(mock_sendtoshell):
     # Set the return values of sendtoshell.
     mock_sendtoshell.return_value = "Output message", "Error message", 0
 
-    output = shellwrappers.sendtossh(job, args)
+    output = sendtossh(job, args)
 
     assert output[0] == "Output message", "method is not returning stdout"
     assert output[1] == "Error message", "method is not returning stderr"
     assert output[2] == 0, "method is not returning the error code"
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtoshell')
+@mock.patch('longbow.corelibs.shellwrappers.sendtoshell')
 def test_sendtossh_errorcode(mock_sendtoshell):
 
     """
@@ -84,10 +84,10 @@ def test_sendtossh_errorcode(mock_sendtoshell):
 
     with pytest.raises(exceptions.SSHError):
 
-        shellwrappers.sendtossh(job, args)
+        sendtossh(job, args)
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtoshell')
+@mock.patch('longbow.corelibs.shellwrappers.sendtoshell')
 def test_sendtossh_formattest(mock_sendtoshell):
 
     """
@@ -104,7 +104,7 @@ def test_sendtossh_formattest(mock_sendtoshell):
     # Set the return values of sendtoshell.
     mock_sendtoshell.return_value = "Output message", "Error message", 0
 
-    shellwrappers.sendtossh(job, ["ls"])
+    sendtossh(job, ["ls"])
 
     callargs = mock_sendtoshell.call_args[0][0]
     testargs = "ssh -p 22 juan_trique-ponee@massive-machine ls"
@@ -113,7 +113,7 @@ def test_sendtossh_formattest(mock_sendtoshell):
 
 
 @mock.patch('time.sleep')
-@mock.patch('Longbow.corelibs.shellwrappers.sendtoshell')
+@mock.patch('longbow.corelibs.shellwrappers.sendtoshell')
 def test_sendtossh_retries(mock_sendtoshell, mock_time):
 
     """
@@ -138,6 +138,6 @@ def test_sendtossh_retries(mock_sendtoshell, mock_time):
 
     with pytest.raises(exceptions.SSHError):
 
-        shellwrappers.sendtossh(job, args)
+        sendtossh(job, args)
 
     assert mock_sendtoshell.call_count == 3, "This method should retry 3 times"

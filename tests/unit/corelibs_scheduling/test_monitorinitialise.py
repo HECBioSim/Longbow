@@ -23,7 +23,7 @@ This testing module contains the tests for the monitorinitialise method within
 the scheduling module.
 """
 
-import Longbow.corelibs.scheduling as scheduling
+from longbow.corelibs.scheduling import _monitorinitialise
 
 
 def test_monitorinitialise_test1():
@@ -49,7 +49,7 @@ def test_monitorinitialise_test1():
         }
     }
 
-    stageintval, pollintval = scheduling._monitorinitialise(jobs)
+    stageintval, pollintval = _monitorinitialise(jobs)
 
     assert stageintval == 0, "Should be zero if staging-frequency = 0"
     assert pollintval == 300, "Should be 300 if frequency = 0"
@@ -78,7 +78,7 @@ def test_monitorinitialise_test2():
         }
     }
 
-    stageintval, pollintval = scheduling._monitorinitialise(jobs)
+    stageintval, pollintval = _monitorinitialise(jobs)
 
     assert stageintval == 100, "The highest should be used: 100"
     assert pollintval == 400, "Should be 400 if frequency = 0"

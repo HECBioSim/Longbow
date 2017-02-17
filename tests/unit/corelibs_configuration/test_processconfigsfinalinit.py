@@ -23,7 +23,7 @@ This testing module contains the tests for the configuration module methods.
 """
 
 import os
-import Longbow.corelibs.configuration as conf
+from longbow.corelibs.configuration import _processconfigsfinalinit
 
 
 def test_processconfigsfinalinit1():
@@ -48,7 +48,7 @@ def test_processconfigsfinalinit1():
         }
     }
 
-    conf._processconfigsfinalinit(jobs)
+    _processconfigsfinalinit(jobs)
 
     assert jobs["jobone"]["localworkdir"] == "/somepath/to/dir"
     assert jobs["jobone"]["executableargs"] == ["arg1", "arg2", "arg3"]

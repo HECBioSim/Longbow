@@ -33,13 +33,13 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.entrypoints as mains
+import longbow.corelibs.exceptions as exceptions
+from longbow.corelibs.entrypoints import recovery
 
 
-@mock.patch('Longbow.corelibs.configuration.loadconfigs')
-@mock.patch('Longbow.corelibs.staging.cleanup')
-@mock.patch('Longbow.corelibs.scheduling.monitor')
+@mock.patch('longbow.corelibs.configuration.loadconfigs')
+@mock.patch('longbow.corelibs.staging.cleanup')
+@mock.patch('longbow.corelibs.scheduling.monitor')
 @mock.patch('os.path.isfile')
 def test_recovery_check(mock_file, mock_mon, mock_clean, mock_load):
 
@@ -50,14 +50,14 @@ def test_recovery_check(mock_file, mock_mon, mock_clean, mock_load):
     mock_file.return_value = True
     mock_load.return_value = ("", "", "testjobs")
 
-    mains.recovery("recovery.file")
+    recovery("recovery.file")
 
     assert mock_mon.call_args[0][0] == "testjobs"
     assert mock_clean.call_args[0][0] == "testjobs"
 
 
-@mock.patch('Longbow.corelibs.staging.cleanup')
-@mock.patch('Longbow.corelibs.scheduling.monitor')
+@mock.patch('longbow.corelibs.staging.cleanup')
+@mock.patch('longbow.corelibs.scheduling.monitor')
 @mock.patch('os.path.isfile')
 def test_recovery_except(mock_isfile, mock_monitor, mock_cleanup):
 
@@ -71,4 +71,4 @@ def test_recovery_except(mock_isfile, mock_monitor, mock_cleanup):
 
     with pytest.raises(exceptions.RequiredinputError):
 
-        mains.recovery("recovery.file")
+        recovery("recovery.file")

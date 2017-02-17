@@ -22,7 +22,7 @@
 This testing module contains the tests for the configuration module methods.
 """
 
-import Longbow.corelibs.configuration as conf
+from longbow.corelibs.configuration import _saveconfigdiffs
 
 
 def test_saveconfigdiffs_test1():
@@ -59,7 +59,7 @@ def test_saveconfigdiffs_test1():
         }
     }
 
-    conf._saveconfigdiffs(params, oldparams, keydiff, valuediff)
+    _saveconfigdiffs(params, oldparams, keydiff, valuediff)
 
     assert keydiff == {}
     assert valuediff == {}
@@ -99,7 +99,7 @@ def test_saveconfigdiffs_test2():
         }
     }
 
-    conf._saveconfigdiffs(params, oldparams, keydiff, valuediff)
+    _saveconfigdiffs(params, oldparams, keydiff, valuediff)
 
     # Check keydiff.
     assert keydiff == {}
@@ -142,7 +142,7 @@ def test_saveconfigdiffs_test3():
         }
     }
 
-    conf._saveconfigdiffs(params, oldparams, keydiff, valuediff)
+    _saveconfigdiffs(params, oldparams, keydiff, valuediff)
 
     # Check keydiff.
     assert keydiff["test1"]["param3"] == "true"

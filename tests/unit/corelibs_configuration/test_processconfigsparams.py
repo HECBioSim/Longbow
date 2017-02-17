@@ -22,7 +22,7 @@
 This testing module contains the tests for the configuration module methods.
 """
 
-import Longbow.corelibs.configuration as conf
+from longbow.corelibs.configuration import _processconfigsparams
 
 
 def test_processconfigsparams_test1():
@@ -136,7 +136,7 @@ def test_processconfigsparams_test1():
         }
     }
 
-    conf._processconfigsparams(jobs, parameters, jobdata, hostdata)
+    _processconfigsparams(jobs, parameters, jobdata, hostdata)
 
     assert jobs["jobone"]["executable"] == "test.exec"
     assert jobs["jobtwo"]["executable"] == "test.exec"
@@ -255,7 +255,7 @@ def test_processconfigsparams_test2():
         }
     }
 
-    conf._processconfigsparams(jobs, parameters, jobdata, hostdata)
+    _processconfigsparams(jobs, parameters, jobdata, hostdata)
 
     assert jobs["jobone"]["executable"] == "job1.exec"
     assert jobs["jobone"]["executableargs"] == \
@@ -379,7 +379,7 @@ def test_processconfigsparams_test3():
         }
     }
 
-    conf._processconfigsparams(jobs, parameters, jobdata, hostdata)
+    _processconfigsparams(jobs, parameters, jobdata, hostdata)
 
     assert jobs["jobone"]["cores"] == "48"
     assert jobs["jobtwo"]["cores"] == "96"

@@ -33,11 +33,11 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.scheduling as scheduling
+import longbow.corelibs.exceptions as exceptions
+from longbow.corelibs.scheduling import _testhandler
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_testhandler_detection1(mock_ssh):
 
     """
@@ -53,12 +53,12 @@ def test_testhandler_detection1(mock_ssh):
 
     mock_ssh.return_value = None
 
-    scheduling._testhandler(job)
+    _testhandler(job)
 
     assert job["handler"] in ["aprun", "mpirun"]
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_testhandler_detection2(mock_ssh):
 
     """
@@ -74,12 +74,12 @@ def test_testhandler_detection2(mock_ssh):
 
     mock_ssh.side_effect = [exceptions.SSHError("SSH Error", "Error"), None]
 
-    scheduling._testhandler(job)
+    _testhandler(job)
 
     assert job["handler"] in ["aprun", "mpirun"]
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_testhandler_except(mock_ssh):
 
     """
@@ -96,10 +96,10 @@ def test_testhandler_except(mock_ssh):
 
     with pytest.raises(exceptions.HandlercheckError):
 
-        scheduling._testhandler(job)
+        _testhandler(job)
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_testhandler_modules1(mock_ssh):
 
     """
@@ -114,12 +114,12 @@ def test_testhandler_modules1(mock_ssh):
 
     mock_ssh.return_value = None
 
-    scheduling._testhandler(job)
+    _testhandler(job)
 
     assert job["modules"] == ""
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_testhandler_modules2(mock_ssh):
 
     """
@@ -132,7 +132,7 @@ def test_testhandler_modules2(mock_ssh):
         "handler": ""
     }
 
-    scheduling._testhandler(job)
+    _testhandler(job)
 
     callargs = mock_ssh.call_args[0][1]
 

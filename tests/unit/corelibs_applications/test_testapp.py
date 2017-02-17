@@ -16,7 +16,7 @@
 # A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License along with
-# Longbow.  If not, see <http://www.gnu.org/licenses/>.
+# longbow.  If not, see <http://www.gnu.org/licenses/>.
 
 """
 This testing module contains the tests for the applications module methods.
@@ -32,11 +32,11 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.applications as apps
-import Longbow.corelibs.exceptions as ex
+from longbow.corelibs.applications import testapp
+import longbow.corelibs.exceptions as ex
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_testapp_exectest(m_sendtossh):
 
     """
@@ -52,13 +52,13 @@ def test_testapp_exectest(m_sendtossh):
         }
     }
 
-    apps.testapp(jobs)
+    testapp(jobs)
 
     assert m_sendtossh.call_count == 1
     assert m_sendtossh.call_args[0][1] == ["which exec1"]
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_testapp_moduletest(m_sendtossh):
 
     """
@@ -75,7 +75,7 @@ def test_testapp_moduletest(m_sendtossh):
         }
     }
 
-    apps.testapp(jobs)
+    testapp(jobs)
 
     assert m_sendtossh.call_count == 1
     assert "which exec1" in m_sendtossh.call_args[0][1]
@@ -83,7 +83,7 @@ def test_testapp_moduletest(m_sendtossh):
     assert "module load amber\n" in m_sendtossh.call_args[0][1]
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_testapp_except(m_sendtossh):
 
     """
@@ -104,4 +104,4 @@ def test_testapp_except(m_sendtossh):
 
     with pytest.raises(ex.SSHError):
 
-        apps.testapp(jobs)
+        testapp(jobs)

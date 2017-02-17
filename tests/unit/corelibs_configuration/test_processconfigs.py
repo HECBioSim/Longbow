@@ -25,8 +25,8 @@ This testing module contains the tests for the configuration module methods.
 import os
 import pytest
 
-import Longbow.corelibs.configuration as conf
-import Longbow.corelibs.exceptions as ex
+from longbow.corelibs.configuration import processconfigs
+import longbow.corelibs.exceptions as ex
 
 
 def test_processconfigs_test1():
@@ -52,7 +52,7 @@ def test_processconfigs_test1():
 
     with pytest.raises(ex.ConfigurationError):
 
-        conf.processconfigs(parameters)
+        processconfigs(parameters)
 
 
 def test_processconfigs_test2():
@@ -80,7 +80,7 @@ def test_processconfigs_test2():
 
     with pytest.raises(ex.ConfigurationError):
 
-        conf.processconfigs(parameters)
+        processconfigs(parameters)
 
 
 def test_processconfigs_test3():
@@ -107,7 +107,7 @@ def test_processconfigs_test3():
         "verbose": False
     }
 
-    jobs = conf.processconfigs(parameters)
+    jobs = processconfigs(parameters)
 
     assert "LongbowJob" in jobs
     assert jobs["LongbowJob"]["executable"] == "pmemd.MPI"
@@ -152,7 +152,7 @@ def test_processconfigs_test4():
         "verbose": False
     }
 
-    jobs = conf.processconfigs(parameters)
+    jobs = processconfigs(parameters)
 
     assert "test-job" in jobs
     assert jobs["test-job"]["executable"] == "pmemd.MPI"
@@ -197,7 +197,7 @@ def test_processconfigs_test5():
         "verbose": False
     }
 
-    jobs = conf.processconfigs(parameters)
+    jobs = processconfigs(parameters)
 
     assert "amber" in jobs
     assert "gromacs_s" in jobs

@@ -33,8 +33,8 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.shellwrappers as shellwrappers
+import longbow.corelibs.exceptions as exceptions
+from longbow.corelibs.shellwrappers import localcopy
 
 
 def test_localcopy_srcpathcheck():
@@ -48,7 +48,7 @@ def test_localcopy_srcpathcheck():
 
     with pytest.raises(exceptions.AbsolutepathError):
 
-        shellwrappers.localcopy(src, dst)
+        localcopy(src, dst)
 
 
 def test_localcopy_dstpathcheck():
@@ -62,7 +62,7 @@ def test_localcopy_dstpathcheck():
 
     with pytest.raises(exceptions.AbsolutepathError):
 
-        shellwrappers.localcopy(src, dst)
+        localcopy(src, dst)
 
 
 @mock.patch('shutil.copy')
@@ -83,7 +83,7 @@ def test_localcopy_fileexcept1(mock_isfile, mock_exists, mock_copy):
 
     with pytest.raises(exceptions.LocalcopyError):
 
-        shellwrappers.localcopy(src, dst)
+        localcopy(src, dst)
 
 
 @mock.patch('shutil.copy')
@@ -106,7 +106,7 @@ def test_localcopy_fileexcept2(mock_isfile, mock_exists, mock_dirs, mock_copy):
 
     with pytest.raises(exceptions.LocalcopyError):
 
-        shellwrappers.localcopy(src, dst)
+        localcopy(src, dst)
 
 
 @mock.patch('shutil.copytree')
@@ -129,7 +129,7 @@ def test_localcopy_direxcept1(mock_isdir, mock_exists, mock_rmt, mock_cpt):
 
     with pytest.raises(exceptions.LocalcopyError):
 
-        shellwrappers.localcopy(src, dst)
+        localcopy(src, dst)
 
 
 @mock.patch('shutil.copytree')
@@ -150,7 +150,7 @@ def test_localcopy_direxcept2(mock_isdir, mock_exists, mock_cpt):
 
     with pytest.raises(exceptions.LocalcopyError):
 
-        shellwrappers.localcopy(src, dst)
+        localcopy(src, dst)
 
 
 @mock.patch('os.path.isdir')
@@ -169,4 +169,4 @@ def test_localcopy_notexist(mock_isfile, mock_isdir):
 
     with pytest.raises(exceptions.LocalcopyError):
 
-        shellwrappers.localcopy(src, dst)
+        localcopy(src, dst)

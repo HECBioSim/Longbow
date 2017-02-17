@@ -25,7 +25,7 @@ entrypoint module.
 
 import pytest
 
-import Longbow.corelibs.entrypoints as mains
+from longbow.corelibs.entrypoints import _messageflags
 
 
 def test_messageflags_sdashabout():
@@ -39,7 +39,7 @@ def test_messageflags_sdashabout():
 
     with pytest.raises(SystemExit):
 
-        mains._messageflags(longbowargs)
+        _messageflags(longbowargs)
 
 
 def test_messageflags_ddashabout():
@@ -53,7 +53,7 @@ def test_messageflags_ddashabout():
 
     with pytest.raises(SystemExit):
 
-        mains._messageflags(longbowargs)
+        _messageflags(longbowargs)
 
 
 def test_messageflags_sdashversion():
@@ -67,7 +67,7 @@ def test_messageflags_sdashversion():
 
     with pytest.raises(SystemExit):
 
-        mains._messageflags(longbowargs)
+        _messageflags(longbowargs)
 
 
 def test_messageflags_ddashversion():
@@ -81,7 +81,7 @@ def test_messageflags_ddashversion():
 
     with pytest.raises(SystemExit):
 
-        mains._messageflags(longbowargs)
+        _messageflags(longbowargs)
 
 
 def test_messageflags_version():
@@ -95,7 +95,7 @@ def test_messageflags_version():
 
     with pytest.raises(SystemExit):
 
-        mains._messageflags(longbowargs)
+        _messageflags(longbowargs)
 
 
 def test_messageflags_sdashhelp():
@@ -109,7 +109,7 @@ def test_messageflags_sdashhelp():
 
     with pytest.raises(SystemExit):
 
-        mains._messageflags(longbowargs)
+        _messageflags(longbowargs)
 
 
 def test_messageflags_ddashhelp():
@@ -123,7 +123,7 @@ def test_messageflags_ddashhelp():
 
     with pytest.raises(SystemExit):
 
-        mains._messageflags(longbowargs)
+        _messageflags(longbowargs)
 
 
 def test_messageflags_help():
@@ -137,4 +137,4 @@ def test_messageflags_help():
 
     with pytest.raises(SystemExit):
 
-        mains._messageflags(longbowargs)
+        _messageflags(longbowargs)

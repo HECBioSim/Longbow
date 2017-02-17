@@ -31,12 +31,12 @@ except ImportError:
 
     import mock
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.staging as staging
+import longbow.corelibs.exceptions as exceptions
+from longbow.corelibs.staging import cleanup
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.remotelist')
-@mock.patch('Longbow.corelibs.shellwrappers.remotedelete')
+@mock.patch('longbow.corelibs.shellwrappers.remotelist')
+@mock.patch('longbow.corelibs.shellwrappers.remotedelete')
 def test_cleanup_single(mock_delete, mock_list):
 
     """
@@ -50,7 +50,7 @@ def test_cleanup_single(mock_delete, mock_list):
             }
     }
 
-    staging.cleanup(jobs)
+    cleanup(jobs)
 
     assert mock_delete.call_count == 1, \
         "There is only one job, this should only be called once"
@@ -58,8 +58,8 @@ def test_cleanup_single(mock_delete, mock_list):
         "There is only one job, this should only be called once"
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.remotelist')
-@mock.patch('Longbow.corelibs.shellwrappers.remotedelete')
+@mock.patch('longbow.corelibs.shellwrappers.remotelist')
+@mock.patch('longbow.corelibs.shellwrappers.remotedelete')
 def test_cleanup_multiple(mock_delete, mock_list):
 
     """
@@ -81,7 +81,7 @@ def test_cleanup_multiple(mock_delete, mock_list):
             }
     }
 
-    staging.cleanup(jobs)
+    cleanup(jobs)
 
     assert mock_delete.call_count == 3, \
         "There is only one job, this should only be called once"
@@ -89,8 +89,8 @@ def test_cleanup_multiple(mock_delete, mock_list):
         "There is only one job, this should only be called once"
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.remotelist')
-@mock.patch('Longbow.corelibs.shellwrappers.remotedelete')
+@mock.patch('longbow.corelibs.shellwrappers.remotelist')
+@mock.patch('longbow.corelibs.shellwrappers.remotedelete')
 def test_cleanup_params(mock_delete, mock_list):
 
     """
@@ -104,7 +104,7 @@ def test_cleanup_params(mock_delete, mock_list):
             }
     }
 
-    staging.cleanup(jobs)
+    cleanup(jobs)
 
     listarg1 = mock_list.call_args[0][0]
     deletearg1 = mock_delete.call_args[0][0]
@@ -113,8 +113,8 @@ def test_cleanup_params(mock_delete, mock_list):
     assert isinstance(deletearg1, dict)
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.remotelist')
-@mock.patch('Longbow.corelibs.shellwrappers.remotedelete')
+@mock.patch('longbow.corelibs.shellwrappers.remotelist')
+@mock.patch('longbow.corelibs.shellwrappers.remotedelete')
 def test_cleanup_nodelete(mock_delete, mock_list):
 
     """
@@ -131,13 +131,13 @@ def test_cleanup_nodelete(mock_delete, mock_list):
     mock_list.return_value = None
     mock_delete.return_value = None
 
-    staging.cleanup(jobs)
+    cleanup(jobs)
 
     assert mock_delete.call_count == 0, "Should not be called in this case."
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.remotelist')
-@mock.patch('Longbow.corelibs.shellwrappers.remotedelete')
+@mock.patch('longbow.corelibs.shellwrappers.remotelist')
+@mock.patch('longbow.corelibs.shellwrappers.remotedelete')
 def test_cleanup_excepttest1(mock_delete, mock_list):
 
     """
@@ -155,11 +155,11 @@ def test_cleanup_excepttest1(mock_delete, mock_list):
     mock_delete.return_value = None
     mock_list.side_effect = exceptions.RemotelistError("List Error", "blah")
 
-    staging.cleanup(jobs)
+    cleanup(jobs)
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.remotelist')
-@mock.patch('Longbow.corelibs.shellwrappers.remotedelete')
+@mock.patch('longbow.corelibs.shellwrappers.remotelist')
+@mock.patch('longbow.corelibs.shellwrappers.remotedelete')
 def test_cleanup_excepttest2(mock_delete, mock_list):
 
     """
@@ -177,11 +177,11 @@ def test_cleanup_excepttest2(mock_delete, mock_list):
     mock_delete.return_value = None
     mock_list.side_effect = KeyError("blah")
 
-    staging.cleanup(jobs)
+    cleanup(jobs)
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.remotelist')
-@mock.patch('Longbow.corelibs.shellwrappers.remotedelete')
+@mock.patch('longbow.corelibs.shellwrappers.remotelist')
+@mock.patch('longbow.corelibs.shellwrappers.remotedelete')
 def test_cleanup_excepttest3(mock_delete, mock_list):
 
     """
@@ -199,11 +199,11 @@ def test_cleanup_excepttest3(mock_delete, mock_list):
     mock_delete.side_effect = exceptions.RemotedeleteError("Error", "blah")
     mock_list.return_value = None
 
-    staging.cleanup(jobs)
+    cleanup(jobs)
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.remotelist')
-@mock.patch('Longbow.corelibs.shellwrappers.remotedelete')
+@mock.patch('longbow.corelibs.shellwrappers.remotelist')
+@mock.patch('longbow.corelibs.shellwrappers.remotedelete')
 def test_cleanup_excepttest4(mock_delete, mock_list):
 
     """
@@ -221,4 +221,4 @@ def test_cleanup_excepttest4(mock_delete, mock_list):
     mock_delete.return_value = None
     mock_list.side_effect = NameError("blah")
 
-    staging.cleanup(jobs)
+    cleanup(jobs)

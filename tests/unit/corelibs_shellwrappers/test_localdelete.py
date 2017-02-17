@@ -33,8 +33,8 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.shellwrappers as shellwrappers
+import longbow.corelibs.exceptions as exceptions
+from longbow.corelibs.shellwrappers import localdelete
 
 
 def test_localdelete_srcpathcheck():
@@ -47,7 +47,7 @@ def test_localdelete_srcpathcheck():
 
     with pytest.raises(exceptions.AbsolutepathError):
 
-        shellwrappers.localdelete(src)
+        localdelete(src)
 
 
 @mock.patch('os.path.isfile')
@@ -65,7 +65,7 @@ def test_localdelete_fileexcept(mock_remove, mock_isfile):
 
     with pytest.raises(exceptions.LocaldeleteError):
 
-        shellwrappers.localdelete(src)
+        localdelete(src)
 
 
 @mock.patch('shutil.rmtree')
@@ -85,7 +85,7 @@ def test_localdelete_direxcept(mock_isfile, mock_isdir, mock_remove):
 
     with pytest.raises(exceptions.LocaldeleteError):
 
-        shellwrappers.localdelete(src)
+        localdelete(src)
 
 
 @mock.patch('os.path.isdir')
@@ -103,4 +103,4 @@ def test_localdelete_notexist(mock_isfile, mock_isdir):
 
     with pytest.raises(exceptions.LocaldeleteError):
 
-        shellwrappers.localdelete(src)
+        localdelete(src)

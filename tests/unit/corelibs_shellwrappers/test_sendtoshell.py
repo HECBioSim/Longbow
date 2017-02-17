@@ -31,7 +31,7 @@ except ImportError:
 
     import mock
 
-import Longbow.corelibs.shellwrappers as shellwrappers
+from longbow.corelibs.shellwrappers import sendtoshell
 
 
 def test_sendtoshell_stdoutcapture():
@@ -41,7 +41,7 @@ def test_sendtoshell_stdoutcapture():
     returned.
     """
 
-    stdout = shellwrappers.sendtoshell(["uname"])[0]
+    stdout = sendtoshell(["uname"])[0]
 
     assert stdout == "Linux\n"
 
@@ -53,7 +53,7 @@ def test_sendtoshell_stderrcapture():
     returned.
     """
 
-    stderr = shellwrappers.sendtoshell(["ls", "-al dir"])[1]
+    stderr = sendtoshell(["ls", "-al dir"])[1]
 
     assert stderr != ""
 
@@ -64,7 +64,7 @@ def test_sendtoshell_errcodesuccess():
     Capture errcode for a known command and see if it is a success code.
     """
 
-    errcode = shellwrappers.sendtoshell(["uname"])[2]
+    errcode = sendtoshell(["uname"])[2]
 
     assert errcode == 0
 
@@ -75,7 +75,7 @@ def test_sendtoshell_errcodefailure():
     Capture errcode for a known command and see if it is a failure code.
     """
 
-    errcode = shellwrappers.sendtoshell(["ls", "-al dir"])[2]
+    errcode = sendtoshell(["ls", "-al dir"])[2]
 
     assert errcode == 2
 
@@ -97,6 +97,6 @@ def test_sendtoshell_unicode(mock_subprocess):
         mock_subprocess.return_value.communicate.return_value = \
             "Linux", ""
 
-    stdout = shellwrappers.sendtoshell(["uname"])[0]
+    stdout = sendtoshell(["uname"])[0]
 
     assert stdout == "Linux"

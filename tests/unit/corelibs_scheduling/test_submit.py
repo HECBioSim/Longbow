@@ -33,11 +33,11 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.scheduling as scheduling
+import longbow.corelibs.exceptions as exceptions
+from longbow.corelibs.scheduling import submit, QUEUEINFO
 
 
-@mock.patch('Longbow.schedulers.lsf.submit')
+@mock.patch('longbow.schedulers.lsf.submit')
 @mock.patch('os.path.isdir')
 def test_submit_single(mock_isdir, mock_submit):
 
@@ -55,14 +55,14 @@ def test_submit_single(mock_isdir, mock_submit):
 
     mock_isdir.return_value = False
 
-    scheduling.submit(jobs)
+    submit(jobs)
 
     assert mock_submit.call_count == 1, \
         "For a single job this method should only be called once"
     assert jobs["job-one"]["laststatus"] == "Queued"
 
 
-@mock.patch('Longbow.schedulers.lsf.submit')
+@mock.patch('longbow.schedulers.lsf.submit')
 @mock.patch('os.path.isdir')
 def test_submit_multiplesame(mock_isdir, mock_lsf):
 
@@ -90,15 +90,15 @@ def test_submit_multiplesame(mock_isdir, mock_lsf):
 
     mock_isdir.return_value = False
 
-    scheduling.submit(jobs)
+    submit(jobs)
 
     assert mock_lsf.call_count == 3, \
         "For a multi job this method should only be called more than once"
 
 
-@mock.patch('Longbow.schedulers.slurm.submit')
-@mock.patch('Longbow.schedulers.pbs.submit')
-@mock.patch('Longbow.schedulers.lsf.submit')
+@mock.patch('longbow.schedulers.slurm.submit')
+@mock.patch('longbow.schedulers.pbs.submit')
+@mock.patch('longbow.schedulers.lsf.submit')
 @mock.patch('os.path.isdir')
 def test_submit_multiplediff(mock_isdir, mock_lsf, mock_pbs, mock_slurm):
 
@@ -126,7 +126,7 @@ def test_submit_multiplediff(mock_isdir, mock_lsf, mock_pbs, mock_slurm):
 
     mock_isdir.return_value = False
 
-    scheduling.submit(jobs)
+    submit(jobs)
 
     assert mock_lsf.call_count == 1, \
         "For a single job this method should only be called once"
@@ -136,8 +136,8 @@ def test_submit_multiplediff(mock_isdir, mock_lsf, mock_pbs, mock_slurm):
         "For a single job this method should only be called once"
 
 
-@mock.patch('Longbow.corelibs.configuration.saveini')
-@mock.patch('Longbow.schedulers.lsf.submit')
+@mock.patch('longbow.corelibs.configuration.saveini')
+@mock.patch('longbow.schedulers.lsf.submit')
 @mock.patch('os.path.isdir')
 def test_submit_fileexcept1(mock_isdir, mock_submit, mock_savini):
 
@@ -157,11 +157,11 @@ def test_submit_fileexcept1(mock_isdir, mock_submit, mock_savini):
     mock_submit.return_value = None
     mock_savini.side_effect = OSError
 
-    scheduling.submit(jobs)
+    submit(jobs)
 
 
-@mock.patch('Longbow.corelibs.configuration.saveini')
-@mock.patch('Longbow.schedulers.lsf.submit')
+@mock.patch('longbow.corelibs.configuration.saveini')
+@mock.patch('longbow.schedulers.lsf.submit')
 @mock.patch('os.path.isdir')
 def test_submit_fileexcept2(mock_isdir, mock_submit, mock_savini):
 
@@ -181,11 +181,11 @@ def test_submit_fileexcept2(mock_isdir, mock_submit, mock_savini):
     mock_submit.return_value = None
     mock_savini.side_effect = IOError
 
-    scheduling.submit(jobs)
+    submit(jobs)
 
 
-@mock.patch('Longbow.corelibs.configuration.saveini')
-@mock.patch('Longbow.schedulers.lsf.submit')
+@mock.patch('longbow.corelibs.configuration.saveini')
+@mock.patch('longbow.schedulers.lsf.submit')
 @mock.patch('os.path.isdir')
 def test_submit_attrexcept(mock_isdir, mock_submit, mock_savini):
 
@@ -207,11 +207,11 @@ def test_submit_attrexcept(mock_isdir, mock_submit, mock_savini):
 
     with pytest.raises(exceptions.PluginattributeError):
 
-        scheduling.submit(jobs)
+        submit(jobs)
 
 
-@mock.patch('Longbow.corelibs.configuration.saveini')
-@mock.patch('Longbow.schedulers.lsf.submit')
+@mock.patch('longbow.corelibs.configuration.saveini')
+@mock.patch('longbow.schedulers.lsf.submit')
 @mock.patch('os.path.isdir')
 def test_submit_submitexcept(mock_isdir, mock_submit, mock_savini):
 
@@ -231,13 +231,13 @@ def test_submit_submitexcept(mock_isdir, mock_submit, mock_savini):
     mock_savini.return_value = None
     mock_submit.side_effect = exceptions.JobsubmitError("Submit Error")
 
-    scheduling.submit(jobs)
+    submit(jobs)
 
     assert jobs["job-one"]["laststatus"] == "Submit Error"
 
 
-@mock.patch('Longbow.corelibs.configuration.saveini')
-@mock.patch('Longbow.schedulers.lsf.submit')
+@mock.patch('longbow.corelibs.configuration.saveini')
+@mock.patch('longbow.schedulers.lsf.submit')
 @mock.patch('os.path.isdir')
 def test_submit_queueexcept(mock_isdir, mock_submit, mock_savini):
 
@@ -258,13 +258,13 @@ def test_submit_queueexcept(mock_isdir, mock_submit, mock_savini):
     mock_savini.return_value = None
     mock_submit.side_effect = exceptions.QueuemaxError("Submit Error")
 
-    scheduling.submit(jobs)
+    submit(jobs)
 
     assert jobs["job-one"]["laststatus"] == "Waiting Submission"
 
 
-@mock.patch('Longbow.corelibs.configuration.saveini')
-@mock.patch('Longbow.schedulers.lsf.submit')
+@mock.patch('longbow.corelibs.configuration.saveini')
+@mock.patch('longbow.schedulers.lsf.submit')
 @mock.patch('os.path.isdir')
 def test_submit_queueinfo(mock_isdir, mock_submit, mock_savini):
 
@@ -289,14 +289,14 @@ def test_submit_queueinfo(mock_isdir, mock_submit, mock_savini):
             "jobid": "test789"
         }
     }
-    scheduling.QUEUEINFO["test-machine"]["queue-slots"] = "0"
-    scheduling.QUEUEINFO["test-machine"]["queue-max"] = "0"
+    QUEUEINFO["test-machine"]["queue-slots"] = "0"
+    QUEUEINFO["test-machine"]["queue-max"] = "0"
 
     mock_isdir.return_value = False
     mock_savini.return_value = None
     mock_submit.return_value = None
 
-    scheduling.submit(jobs)
+    submit(jobs)
 
-    assert scheduling.QUEUEINFO["test-machine"]["queue-slots"] == "3"
-    assert scheduling.QUEUEINFO["test-machine"]["queue-max"] == "3"
+    assert QUEUEINFO["test-machine"]["queue-slots"] == "3"
+    assert QUEUEINFO["test-machine"]["queue-max"] == "3"

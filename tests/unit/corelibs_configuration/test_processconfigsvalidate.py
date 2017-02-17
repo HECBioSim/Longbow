@@ -24,8 +24,8 @@ This testing module contains the tests for the configuration module methods.
 
 import pytest
 
-import Longbow.corelibs.configuration as conf
-import Longbow.corelibs.exceptions as ex
+from longbow.corelibs.configuration import _processconfigsvalidate
+import longbow.corelibs.exceptions as ex
 
 
 def test_validate_test1():
@@ -47,7 +47,7 @@ def test_validate_test1():
 
     with pytest.raises(ex.ConfigurationError):
 
-        conf._processconfigsvalidate(jobs)
+        _processconfigsvalidate(jobs)
 
 
 def test_validate_test2():
@@ -69,7 +69,7 @@ def test_validate_test2():
 
     with pytest.raises(ex.ConfigurationError):
 
-        conf._processconfigsvalidate(jobs)
+        _processconfigsvalidate(jobs)
 
 
 def test_validate_test3():
@@ -91,7 +91,7 @@ def test_validate_test3():
 
     with pytest.raises(ex.ConfigurationError):
 
-        conf._processconfigsvalidate(jobs)
+        _processconfigsvalidate(jobs)
 
 
 def test_validate_test4():
@@ -113,7 +113,7 @@ def test_validate_test4():
 
     with pytest.raises(ex.ConfigurationError):
 
-        conf._processconfigsvalidate(jobs)
+        _processconfigsvalidate(jobs)
 
 
 def test_validate_test5():
@@ -135,7 +135,7 @@ def test_validate_test5():
 
     with pytest.raises(ex.ConfigurationError):
 
-        conf._processconfigsvalidate(jobs)
+        _processconfigsvalidate(jobs)
 
 
 def test_validate_test6():
@@ -157,4 +157,4 @@ def test_validate_test6():
 
     with pytest.raises(ex.ConfigurationError):
 
-        conf._processconfigsvalidate(jobs)
+        _processconfigsvalidate(jobs)

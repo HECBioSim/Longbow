@@ -31,7 +31,7 @@ except ImportError:
 
     import mock
 
-import Longbow.corelibs.scheduling as scheduling
+from longbow.corelibs.scheduling import testenv
 
 
 def changescheduler(job):
@@ -64,9 +64,9 @@ def changehandler(job):
         job["handler"] = "aprun"
 
 
-@mock.patch('Longbow.corelibs.configuration.saveconfigs')
-@mock.patch('Longbow.corelibs.scheduling._testhandler')
-@mock.patch('Longbow.corelibs.scheduling._testscheduler')
+@mock.patch('longbow.corelibs.configuration.saveconfigs')
+@mock.patch('longbow.corelibs.scheduling._testhandler')
+@mock.patch('longbow.corelibs.scheduling._testscheduler')
 def test_testenv_single(mock_sched, mock_hand, mock_save):
 
     """
@@ -84,7 +84,7 @@ def test_testenv_single(mock_sched, mock_hand, mock_save):
 
     hostconf = "/path/to/configfile"
 
-    scheduling.testenv(jobs, hostconf)
+    testenv(jobs, hostconf)
 
     assert mock_sched.call_count == 0, \
         "Testing for scheduler should not be done, as it is set already"
@@ -94,9 +94,9 @@ def test_testenv_single(mock_sched, mock_hand, mock_save):
         "Testing for scheduler should not be done, as it is set already"
 
 
-@mock.patch('Longbow.corelibs.configuration.saveconfigs')
-@mock.patch('Longbow.corelibs.scheduling._testhandler')
-@mock.patch('Longbow.corelibs.scheduling._testscheduler')
+@mock.patch('longbow.corelibs.configuration.saveconfigs')
+@mock.patch('longbow.corelibs.scheduling._testhandler')
+@mock.patch('longbow.corelibs.scheduling._testscheduler')
 def test_testenv_multi(mock_sched, mock_hand, mock_save):
 
     """
@@ -124,7 +124,7 @@ def test_testenv_multi(mock_sched, mock_hand, mock_save):
 
     hostconf = "/path/to/configfile"
 
-    scheduling.testenv(jobs, hostconf)
+    testenv(jobs, hostconf)
 
     assert mock_sched.call_count == 0, \
         "Testing for scheduler should not be done, as it is set already"
@@ -134,8 +134,8 @@ def test_testenv_multi(mock_sched, mock_hand, mock_save):
         "Testing for scheduler should not be done, as it is set already"
 
 
-@mock.patch('Longbow.corelibs.configuration.saveconfigs')
-@mock.patch('Longbow.corelibs.scheduling._testscheduler')
+@mock.patch('longbow.corelibs.configuration.saveconfigs')
+@mock.patch('longbow.corelibs.scheduling._testscheduler')
 def test_testenv_scheduler(mock_sched, mock_save):
 
     """
@@ -165,7 +165,7 @@ def test_testenv_scheduler(mock_sched, mock_save):
 
     mock_sched.side_effect = changescheduler
 
-    scheduling.testenv(jobs, hostconf)
+    testenv(jobs, hostconf)
 
     assert jobs["jobone"]["scheduler"] == "lsf"
     assert jobs["jobtwo"]["scheduler"] == "lsf"
@@ -174,8 +174,8 @@ def test_testenv_scheduler(mock_sched, mock_save):
     assert mock_save.call_count == 1
 
 
-@mock.patch('Longbow.corelibs.configuration.saveconfigs')
-@mock.patch('Longbow.corelibs.scheduling._testhandler')
+@mock.patch('longbow.corelibs.configuration.saveconfigs')
+@mock.patch('longbow.corelibs.scheduling._testhandler')
 def test_testenv_handler(mock_hand, mock_save):
 
     """
@@ -205,7 +205,7 @@ def test_testenv_handler(mock_hand, mock_save):
 
     mock_hand.side_effect = changehandler
 
-    scheduling.testenv(jobs, hostconf)
+    testenv(jobs, hostconf)
 
     assert jobs["jobone"]["handler"] == "mpiexec"
     assert jobs["jobtwo"]["handler"] == "mpiexec"

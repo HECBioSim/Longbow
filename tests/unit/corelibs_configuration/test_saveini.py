@@ -23,7 +23,7 @@ This testing module contains the tests for the configuration module methods.
 """
 
 import os
-import Longbow.corelibs.configuration as conf
+from longbow.corelibs.configuration import saveini
 
 
 def test_saveini_test1():
@@ -39,7 +39,7 @@ def test_saveini_test1():
         }
     }
 
-    conf.saveini("/tmp/initest", params)
+    saveini("/tmp/initest", params)
 
     assert open("/tmp/initest", "rb").read() == open(
         os.path.join(os.getcwd(),

@@ -31,10 +31,10 @@ except ImportError:
 
     import mock
 
-import Longbow.corelibs.scheduling as scheduling
+from longbow.corelibs.scheduling import _stagejobfiles
 
 
-@mock.patch('Longbow.corelibs.staging.stage_downstream')
+@mock.patch('longbow.corelibs.staging.stage_downstream')
 def test_stagejobfiles_singlerun(mock_download):
 
     """
@@ -55,7 +55,7 @@ def test_stagejobfiles_singlerun(mock_download):
         }
     }
 
-    scheduling._stagejobfiles(jobs, False)
+    _stagejobfiles(jobs, False)
 
     assert mock_download.call_count == 2, "Should download two jobs files"
     assert jobs["jobone"]["laststatus"] == "Running"

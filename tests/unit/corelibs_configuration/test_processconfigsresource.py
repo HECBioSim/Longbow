@@ -24,8 +24,8 @@ This testing module contains the tests for the configuration module methods.
 
 import pytest
 
-import Longbow.corelibs.configuration as conf
-import Longbow.corelibs.exceptions as ex
+from longbow.corelibs.configuration import _processconfigsresource
+import longbow.corelibs.exceptions as ex
 
 
 def test_processconfigsresource1():
@@ -124,7 +124,7 @@ def test_processconfigsresource1():
 
     hostsections = ["host1", "host2", "host3"]
 
-    jobs = conf._processconfigsresource(parameters, jobdata, hostsections)
+    jobs = _processconfigsresource(parameters, jobdata, hostsections)
 
     for item in jobs["LongbowJob"]:
 
@@ -227,7 +227,7 @@ def test_processconfigsresource2():
 
     hostsections = ["host1", "host2", "host3"]
 
-    jobs = conf._processconfigsresource(parameters, jobdata, hostsections)
+    jobs = _processconfigsresource(parameters, jobdata, hostsections)
 
     for item in jobs["LongbowJob"]:
 
@@ -331,7 +331,7 @@ def test_processconfigsresource3():
 
     hostsections = ["host1", "host2", "host3"]
 
-    jobs = conf._processconfigsresource(parameters, jobdata, hostsections)
+    jobs = _processconfigsresource(parameters, jobdata, hostsections)
 
     for item in jobs["LongbowJob"]:
 
@@ -434,7 +434,7 @@ def test_processconfigsresource4():
 
     hostsections = ["host1", "host2", "host3"]
 
-    jobs = conf._processconfigsresource(parameters, jobdata, hostsections)
+    jobs = _processconfigsresource(parameters, jobdata, hostsections)
 
     for item in jobs["LongbowJob"]:
 
@@ -502,4 +502,4 @@ def test_processconfigsresource5():
 
     with pytest.raises(ex.ConfigurationError):
 
-        conf._processconfigsresource(parameters, jobdata, hostsections)
+        _processconfigsresource(parameters, jobdata, hostsections)

@@ -33,11 +33,11 @@ except ImportError:
 
 import pytest
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.scheduling as scheduling
+import longbow.corelibs.exceptions as exceptions
+from longbow.corelibs.scheduling import _polljobs, QUEUEINFO
 
 
-@mock.patch('Longbow.schedulers.lsf.status')
+@mock.patch('longbow.schedulers.lsf.status')
 def test_polljobs_callcount(mock_status):
 
     """
@@ -78,7 +78,7 @@ def test_polljobs_callcount(mock_status):
     }
 
     mock_status.return_value = "Running"
-    returnval = scheduling._polljobs(jobs, False)
+    returnval = _polljobs(jobs, False)
 
     assert mock_status.call_count == 2, \
         "Should only be polling running and queued jobs"
@@ -86,7 +86,7 @@ def test_polljobs_callcount(mock_status):
     assert returnval is True
 
 
-@mock.patch('Longbow.schedulers.lsf.status')
+@mock.patch('longbow.schedulers.lsf.status')
 def test_polljobs_finished(mock_status):
 
     """
@@ -132,18 +132,18 @@ def test_polljobs_finished(mock_status):
         }
     }
 
-    scheduling.QUEUEINFO["test-machine"]["queue-slots"] = "2"
+    QUEUEINFO["test-machine"]["queue-slots"] = "2"
     mock_status.return_value = "Finished"
-    scheduling._polljobs(jobs, False)
+    _polljobs(jobs, False)
 
     assert mock_status.call_count == 2, \
         "Should only be polling running and queued jobs"
     assert jobs["jobone"]["laststatus"] == "Finished"
     assert jobs["jobtwo"]["laststatus"] == "Finished"
-    assert scheduling.QUEUEINFO["test-machine"]["queue-slots"] == "0"
+    assert QUEUEINFO["test-machine"]["queue-slots"] == "0"
 
 
-@mock.patch('Longbow.schedulers.lsf.status')
+@mock.patch('longbow.schedulers.lsf.status')
 def test_polljobs_except(mock_status):
 
     """
@@ -193,4 +193,4 @@ def test_polljobs_except(mock_status):
 
     with pytest.raises(exceptions.PluginattributeError):
 
-        scheduling._polljobs(jobs, False)
+        _polljobs(jobs, False)
