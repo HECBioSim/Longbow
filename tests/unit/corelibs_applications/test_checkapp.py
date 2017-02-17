@@ -32,7 +32,7 @@ except ImportError:
 
 import pytest
 
-from longbow.corelibs.applications import testapp
+from longbow.corelibs.applications import checkapp
 import longbow.corelibs.exceptions as ex
 
 
@@ -52,7 +52,7 @@ def test_testapp_exectest(m_sendtossh):
         }
     }
 
-    testapp(jobs)
+    checkapp(jobs)
 
     assert m_sendtossh.call_count == 1
     assert m_sendtossh.call_args[0][1] == ["which exec1"]
@@ -75,7 +75,7 @@ def test_testapp_moduletest(m_sendtossh):
         }
     }
 
-    testapp(jobs)
+    checkapp(jobs)
 
     assert m_sendtossh.call_count == 1
     assert "which exec1" in m_sendtossh.call_args[0][1]
@@ -104,4 +104,4 @@ def test_testapp_except(m_sendtossh):
 
     with pytest.raises(ex.SSHError):
 
-        testapp(jobs)
+        checkapp(jobs)

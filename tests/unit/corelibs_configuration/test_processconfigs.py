@@ -61,7 +61,7 @@ def test_processconfigs_test2():
     Test missing job file raises exception.
     """
 
-    conffile = os.path.join(os.getcwd(), "Tests/standards/simplehostfile.txt")
+    conffile = os.path.join(os.getcwd(), "tests/standards/simplehostfile.txt")
 
     parameters = {
         "debug": False,
@@ -89,7 +89,7 @@ def test_processconfigs_test3():
     Test a single job with hostfile and command-line
     """
 
-    conffile = os.path.join(os.getcwd(), "Tests/standards/simplehostfile.txt")
+    conffile = os.path.join(os.getcwd(), "tests/standards/simplehostfile.txt")
 
     parameters = {
         "debug": False,
@@ -134,7 +134,7 @@ def test_processconfigs_test4():
     Test a single job with hostfile and command-line and a provided job name.
     """
 
-    conffile = os.path.join(os.getcwd(), "Tests/standards/simplehostfile.txt")
+    conffile = os.path.join(os.getcwd(), "tests/standards/simplehostfile.txt")
 
     parameters = {
         "debug": False,
@@ -179,8 +179,8 @@ def test_processconfigs_test5():
     Test a multijob with hostfile and jobfile
     """
 
-    hostfile = os.path.join(os.getcwd(), "Tests/standards/simplehostfile.txt")
-    jobfile = os.path.join(os.getcwd(), "Tests/standards/simplejobfile.txt")
+    hostfile = os.path.join(os.getcwd(), "tests/standards/simplehostfile.txt")
+    jobfile = os.path.join(os.getcwd(), "tests/standards/simplejobfile.txt")
 
     parameters = {
         "debug": False,

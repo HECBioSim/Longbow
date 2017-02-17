@@ -89,7 +89,7 @@ import longbow.corelibs.exceptions as exceptions
 LOG = logging.getLogger("longbow.corelibs.shellwrappers")
 
 
-def testconnections(jobs):
+def checkconnections(jobs):
     """A method to test that connections to HPC machines can be established.
 
     This method will test that connections to hosts specified in jobs can be

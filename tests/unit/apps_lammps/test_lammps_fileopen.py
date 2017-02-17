@@ -34,7 +34,7 @@ def test_fileopen_test1():
     """Test if files can be loaded."""
 
     addfile = "simplefile.txt"
-    path = os.path.join(os.getcwd(), "Tests/standards/")
+    path = os.path.join(os.getcwd(), "tests/standards/")
 
     filehandle = _fileopen(path, addfile)
 
@@ -46,7 +46,7 @@ def test_fileopen_test2():
     """Test what happens with a bogus file."""
 
     addfile = "jkhggkjh.txt"
-    path = os.path.join(os.getcwd(), "Tests/standards/")
+    path = os.path.join(os.getcwd(), "tests/standards/")
 
     with pytest.raises(exceptions.RequiredinputError):
 

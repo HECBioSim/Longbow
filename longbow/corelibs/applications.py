@@ -48,7 +48,7 @@ import longbow.apps as apps
 LOG = logging.getLogger("longbow.corelibs.applications")
 
 
-def testapp(jobs):
+def checkapp(jobs):
     """A method to test that executables and their modules are launchable.
 
     This method will make an attempt to check that the application executables

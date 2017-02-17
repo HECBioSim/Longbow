@@ -38,7 +38,7 @@ def test_procfiles_amber():
     job = {
         "executable": "pmemd.MPI",
         "replicates": "1",
-        "localworkdir": "Tests/standards/jobs/single",
+        "localworkdir": "tests/standards/jobs/single",
         "executableargs": ["-i", "input", "-c", "coords", "-p", "topol"]
     }
     substitution = {}
@@ -62,7 +62,7 @@ def test_procfiles_charmm():
     job = {
         "executable": "charmm",
         "replicates": "1",
-        "localworkdir": "Tests/standards/jobs/single",
+        "localworkdir": "tests/standards/jobs/single",
         "executableargs": ["<", "topol"]
     }
     substitution = {}
@@ -86,7 +86,7 @@ def test_procfiles_gromacs():
     job = {
         "executable": "mdrun_mpi",
         "replicates": "1",
-        "localworkdir": "Tests/standards/jobs/single",
+        "localworkdir": "tests/standards/jobs/single",
         "executableargs": ["-deffnm", "test"]
     }
     substitution = {}
@@ -110,7 +110,7 @@ def test_procfiles_namd1():
     job = {
         "executable": "namd2",
         "replicates": "1",
-        "localworkdir": "Tests/standards/jobs/single",
+        "localworkdir": "tests/standards/jobs/single",
         "executableargs": ["input"]
     }
     substitution = {}
@@ -134,7 +134,7 @@ def test_procfiles_namd2():
     job = {
         "executable": "namd2",
         "replicates": "1",
-        "localworkdir": "Tests/standards/jobs/single",
+        "localworkdir": "tests/standards/jobs/single",
         "executableargs": ["input", ">", "output"]
     }
     substitution = {}
@@ -157,7 +157,7 @@ def test_procfiles_reps1():
     job = {
         "executable": "pmemd.MPI",
         "replicates": "3",
-        "localworkdir": "Tests/standards/jobs/replicate",
+        "localworkdir": "tests/standards/jobs/replicate",
         "executableargs": ["-i", "input", "-c", "coords", "-p", "topol"]
     }
     substitution = {}
@@ -181,7 +181,7 @@ def test_procfiles_reps2():
     job = {
         "executable": "pmemd.MPI",
         "replicates": "3",
-        "localworkdir": "Tests/standards/jobs/replicate",
+        "localworkdir": "tests/standards/jobs/replicate",
         "executableargs": ["-i", "input", "-c", "coords", "-p", "topol"]
     }
     substitution = {}

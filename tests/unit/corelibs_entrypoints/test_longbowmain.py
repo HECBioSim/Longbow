@@ -39,9 +39,9 @@ from longbow.corelibs.entrypoints import longbowmain
 @mock.patch('longbow.corelibs.staging.stage_upstream')
 @mock.patch('longbow.corelibs.scheduling.prepare')
 @mock.patch('longbow.corelibs.applications.processjobs')
-@mock.patch('longbow.corelibs.applications.testapp')
-@mock.patch('longbow.corelibs.scheduling.testenv')
-@mock.patch('longbow.corelibs.shellwrappers.testconnections')
+@mock.patch('longbow.corelibs.applications.checkapp')
+@mock.patch('longbow.corelibs.scheduling.checkenv')
+@mock.patch('longbow.corelibs.shellwrappers.checkconnections')
 @mock.patch('longbow.corelibs.configuration.processconfigs')
 def test_longbowmain_disconnect(m_procconf, m_testcon, m_testenv, m_testapp,
                                 m_procjob, m_schedprep, m_stagup, m_sub,
@@ -76,9 +76,9 @@ def test_longbowmain_disconnect(m_procconf, m_testcon, m_testenv, m_testapp,
 @mock.patch('longbow.corelibs.staging.stage_upstream')
 @mock.patch('longbow.corelibs.scheduling.prepare')
 @mock.patch('longbow.corelibs.applications.processjobs')
-@mock.patch('longbow.corelibs.applications.testapp')
-@mock.patch('longbow.corelibs.scheduling.testenv')
-@mock.patch('longbow.corelibs.shellwrappers.testconnections')
+@mock.patch('longbow.corelibs.applications.checkapp')
+@mock.patch('longbow.corelibs.scheduling.checkenv')
+@mock.patch('longbow.corelibs.shellwrappers.checkconnections')
 @mock.patch('longbow.corelibs.configuration.processconfigs')
 def test_longbowmain_testcalls1(m_procconf, m_testcon, m_testenv, m_testapp,
                                 m_procjob, m_schedprep, m_stagup, m_sub, m_mon,
@@ -114,9 +114,9 @@ def test_longbowmain_testcalls1(m_procconf, m_testcon, m_testenv, m_testapp,
 @mock.patch('longbow.corelibs.staging.stage_upstream')
 @mock.patch('longbow.corelibs.scheduling.prepare')
 @mock.patch('longbow.corelibs.applications.processjobs')
-@mock.patch('longbow.corelibs.applications.testapp')
-@mock.patch('longbow.corelibs.scheduling.testenv')
-@mock.patch('longbow.corelibs.shellwrappers.testconnections')
+@mock.patch('longbow.corelibs.applications.checkapp')
+@mock.patch('longbow.corelibs.scheduling.checkenv')
+@mock.patch('longbow.corelibs.shellwrappers.checkconnections')
 @mock.patch('longbow.corelibs.configuration.processconfigs')
 def test_longbowmain_testcalls2(m_procconf, m_testcon, m_testenv, m_testapp,
                                 m_procjob, m_schedprep, m_stagup, m_sub, m_mon,
@@ -154,9 +154,9 @@ def test_longbowmain_testcalls2(m_procconf, m_testcon, m_testenv, m_testapp,
 @mock.patch('longbow.corelibs.staging.stage_upstream')
 @mock.patch('longbow.corelibs.scheduling.prepare')
 @mock.patch('longbow.corelibs.applications.processjobs')
-@mock.patch('longbow.corelibs.applications.testapp')
-@mock.patch('longbow.corelibs.scheduling.testenv')
-@mock.patch('longbow.corelibs.shellwrappers.testconnections')
+@mock.patch('longbow.corelibs.applications.checkapp')
+@mock.patch('longbow.corelibs.scheduling.checkenv')
+@mock.patch('longbow.corelibs.shellwrappers.checkconnections')
 @mock.patch('longbow.corelibs.configuration.processconfigs')
 def test_longbowmain_killrunning(m_procconf, m_testcon, m_testenv, m_testapp,
                                  m_procjob, m_schedprep, m_stagup, m_sub,
@@ -207,9 +207,9 @@ def test_longbowmain_killrunning(m_procconf, m_testcon, m_testenv, m_testapp,
 @mock.patch('longbow.corelibs.staging.stage_upstream')
 @mock.patch('longbow.corelibs.scheduling.prepare')
 @mock.patch('longbow.corelibs.applications.processjobs')
-@mock.patch('longbow.corelibs.applications.testapp')
-@mock.patch('longbow.corelibs.scheduling.testenv')
-@mock.patch('longbow.corelibs.shellwrappers.testconnections')
+@mock.patch('longbow.corelibs.applications.checkapp')
+@mock.patch('longbow.corelibs.scheduling.checkenv')
+@mock.patch('longbow.corelibs.shellwrappers.checkconnections')
 @mock.patch('longbow.corelibs.configuration.processconfigs')
 def test_longbowmain_killcomplete(m_procconf, m_testcon, m_testenv, m_testapp,
                                   m_procjob, m_schedprep, m_stagup, m_sub,

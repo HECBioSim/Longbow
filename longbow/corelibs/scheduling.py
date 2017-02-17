@@ -66,7 +66,7 @@ JOBFILE = os.path.join(os.path.expanduser('~/.Longbow'), "recovery-" +
                        time.strftime("%Y%m%d-%H%M%S"))
 
 
-def testenv(jobs, hostconf):
+def checkenv(jobs, hostconf):
     """A method for determining the sceduler and job handler on a machine.
 
     This method makes an attempt to test the environment and determine from

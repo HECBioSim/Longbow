@@ -31,7 +31,7 @@ except ImportError:
 
     import mock
 
-from longbow.corelibs.scheduling import testenv
+from longbow.corelibs.scheduling import checkenv
 
 
 def changescheduler(job):
@@ -84,7 +84,7 @@ def test_testenv_single(mock_sched, mock_hand, mock_save):
 
     hostconf = "/path/to/configfile"
 
-    testenv(jobs, hostconf)
+    checkenv(jobs, hostconf)
 
     assert mock_sched.call_count == 0, \
         "Testing for scheduler should not be done, as it is set already"
@@ -124,7 +124,7 @@ def test_testenv_multi(mock_sched, mock_hand, mock_save):
 
     hostconf = "/path/to/configfile"
 
-    testenv(jobs, hostconf)
+    checkenv(jobs, hostconf)
 
     assert mock_sched.call_count == 0, \
         "Testing for scheduler should not be done, as it is set already"
@@ -165,7 +165,7 @@ def test_testenv_scheduler(mock_sched, mock_save):
 
     mock_sched.side_effect = changescheduler
 
-    testenv(jobs, hostconf)
+    checkenv(jobs, hostconf)
 
     assert jobs["jobone"]["scheduler"] == "lsf"
     assert jobs["jobtwo"]["scheduler"] == "lsf"
@@ -205,7 +205,7 @@ def test_testenv_handler(mock_hand, mock_save):
 
     mock_hand.side_effect = changehandler
 
-    testenv(jobs, hostconf)
+    checkenv(jobs, hostconf)
 
     assert jobs["jobone"]["handler"] == "mpiexec"
     assert jobs["jobtwo"]["handler"] == "mpiexec"

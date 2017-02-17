@@ -94,7 +94,7 @@ def test_processjobs_singlejob(m_validator, m_proccommandline):
         "jobone": {
             "executableargs": ["-i", "input", "-c", "coords", "-p", "topol"],
             "localworkdir": os.path.join(os.getcwd(),
-                                         "Tests/standards/jobs/single"),
+                                         "tests/standards/jobs/single"),
             "executable": "pmemd.MPI",
             "upload-include": "",
             "upload-exclude": ""
@@ -109,7 +109,7 @@ def test_processjobs_singlejob(m_validator, m_proccommandline):
 
     assert jobs["jobone"]["upload-exclude"] == "*"
     assert jobs["jobone"]["localworkdir"] == os.path.join(
-        os.getcwd(), "Tests/standards/jobs/single")
+        os.getcwd(), "tests/standards/jobs/single")
     assert jobs["jobone"]["executableargs"] == \
         "pmemd.MPI -i input -c coords -p topol"
     assert jobs["jobone"]["upload-include"] == "input, coords, topol"
@@ -125,7 +125,7 @@ def test_processjobs_multijob(m_validator, m_proccommandline):
         "jobone": {
             "executableargs": ["-i", "input", "-c", "coords", "-p", "topol"],
             "localworkdir": os.path.join(os.getcwd(),
-                                         "Tests/standards/jobs/multi"),
+                                         "tests/standards/jobs/multi"),
             "executable": "pmemd.MPI",
             "upload-include": "",
             "upload-exclude": ""
@@ -133,7 +133,7 @@ def test_processjobs_multijob(m_validator, m_proccommandline):
         "jobtwo": {
             "executableargs": ["-i", "inp", "-c", "coord", "-p", "top"],
             "localworkdir": os.path.join(os.getcwd(),
-                                         "Tests/standards/jobs/multi"),
+                                         "tests/standards/jobs/multi"),
             "executable": "pmemd.MPI",
             "upload-include": "",
             "upload-exclude": ""
@@ -148,14 +148,14 @@ def test_processjobs_multijob(m_validator, m_proccommandline):
 
     assert jobs["jobone"]["upload-exclude"] == "*"
     assert jobs["jobone"]["localworkdir"] == os.path.join(
-        os.getcwd(), "Tests/standards/jobs/multi/jobone")
+        os.getcwd(), "tests/standards/jobs/multi/jobone")
     assert jobs["jobone"]["executableargs"] == \
         "pmemd.MPI -i input -c coords -p topol"
     assert jobs["jobone"]["upload-include"] == "input, coords, topol"
 
     assert jobs["jobtwo"]["upload-exclude"] == "*"
     assert jobs["jobtwo"]["localworkdir"] == os.path.join(
-        os.getcwd(), "Tests/standards/jobs/multi/jobtwo")
+        os.getcwd(), "tests/standards/jobs/multi/jobtwo")
     assert jobs["jobtwo"]["executableargs"] == \
         "pmemd.MPI -i inp -c coord -p top"
     assert jobs["jobtwo"]["upload-include"] == "inp, coord, top"
@@ -169,7 +169,7 @@ def test_processjobs_direxcept():
         "jobone": {
             "executableargs": ["-i", "input", "-c", "coords", "-p", "topol"],
             "localworkdir": os.path.join(os.getcwd(),
-                                         "Tests/standards/jobs/error"),
+                                         "tests/standards/jobs/error"),
             "executable": "pmemd.MPI",
             "upload-include": "",
             "upload-exclude": ""
@@ -193,7 +193,7 @@ def test_processjobs_include(m_validator, m_proccommandline):
         "jobone": {
             "executableargs": ["-i", "input", "-c", "coords", "-p", "topol"],
             "localworkdir": os.path.join(os.getcwd(),
-                                         "Tests/standards/jobs/single"),
+                                         "tests/standards/jobs/single"),
             "executable": "pmemd.MPI",
             "upload-include": "test.file",
             "upload-exclude": ""

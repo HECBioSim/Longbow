@@ -28,7 +28,7 @@ import logging
 from longbow.corelibs.entrypoints import _setuplogger
 
 
-def test_setuplogger_testdebug():
+def test_setuplogger_debug():
 
     """
     Test to check if the logging method sets up logging properly. This is
@@ -63,7 +63,7 @@ def test_setuplogger_testdebug():
     assert "info1" in contents[1]
 
 
-def test_setuplogger_testverbose():
+def test_setuplogger_verbose():
 
     """
     Test to check if the logging method sets up logging properly. This is

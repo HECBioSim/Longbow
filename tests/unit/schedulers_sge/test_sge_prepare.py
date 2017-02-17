@@ -61,7 +61,7 @@ def test_prepare_case1():
     assert open("/tmp/submit.sge", "rb").read() == open(
         os.path.join(
             os.getcwd(),
-            "Tests/standards/sge_submitfiles/case1.txt"), "rb").read()
+            "tests/standards/sge_submitfiles/case1.txt"), "rb").read()
 
 
 def test_prepare_case2():
@@ -97,7 +97,7 @@ def test_prepare_case2():
     assert open("/tmp/submit.sge", "rb").read() == open(
         os.path.join(
             os.getcwd(),
-            "Tests/standards/sge_submitfiles/case2.txt"), "rb").read()
+            "tests/standards/sge_submitfiles/case2.txt"), "rb").read()
 
 
 def test_prepare_case3():
@@ -134,7 +134,7 @@ def test_prepare_case3():
     assert open("/tmp/submit.sge", "rb").read() == open(
         os.path.join(
             os.getcwd(),
-            "Tests/standards/sge_submitfiles/case3.txt"), "rb").read()
+            "tests/standards/sge_submitfiles/case3.txt"), "rb").read()
 
 
 def test_prepare_case4():
@@ -171,7 +171,7 @@ def test_prepare_case4():
     assert open("/tmp/submit.sge", "rb").read() == open(
         os.path.join(
             os.getcwd(),
-            "Tests/standards/sge_submitfiles/case4.txt"), "rb").read()
+            "tests/standards/sge_submitfiles/case4.txt"), "rb").read()
 
 
 def test_prepare_case5():
@@ -208,7 +208,7 @@ def test_prepare_case5():
     assert open("/tmp/submit.sge", "rb").read() == open(
         os.path.join(
             os.getcwd(),
-            "Tests/standards/sge_submitfiles/case5.txt"), "rb").read()
+            "tests/standards/sge_submitfiles/case5.txt"), "rb").read()
 
 
 def test_prepare_case6():
@@ -245,7 +245,7 @@ def test_prepare_case6():
     assert open("/tmp/submit.sge", "rb").read() == open(
         os.path.join(
             os.getcwd(),
-            "Tests/standards/sge_submitfiles/case6.txt"), "rb").read()
+            "tests/standards/sge_submitfiles/case6.txt"), "rb").read()
 
 
 def test_prepare_case7():
@@ -282,4 +282,4 @@ def test_prepare_case7():
     assert open("/tmp/submit.sge", "rb").read() == open(
         os.path.join(
             os.getcwd(),
-            "Tests/standards/sge_submitfiles/case7.txt"), "rb").read()
+            "tests/standards/sge_submitfiles/case7.txt"), "rb").read()

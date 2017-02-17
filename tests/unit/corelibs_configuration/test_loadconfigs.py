@@ -35,7 +35,7 @@ def test_loadconfigs_test1():
     Test that loadconfigs can parse a configuration file.
     """
 
-    conffile = os.path.join(os.getcwd(), "Tests/standards/simplehostfile.txt")
+    conffile = os.path.join(os.getcwd(), "tests/standards/simplehostfile.txt")
 
     contents, sections, params = loadconfigs(conffile)
 
@@ -87,7 +87,7 @@ def test_loadconfigs_test3():
     with pytest.raises(ex.ConfigurationError):
 
         loadconfigs(os.path.join(
-            os.getcwd(), "Tests/standards/simplefile.txt"))
+            os.getcwd(), "tests/standards/simplefile.txt"))
 
 
 def test_loadconfigs_test4():
@@ -99,4 +99,4 @@ def test_loadconfigs_test4():
     with pytest.raises(ex.ConfigurationError):
 
         loadconfigs(os.path.join(
-            os.getcwd(), "Tests/standards/configjustsections.txt"))
+            os.getcwd(), "tests/standards/configjustsections.txt"))

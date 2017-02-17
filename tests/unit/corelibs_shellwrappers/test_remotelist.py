@@ -78,7 +78,7 @@ def test_remotelist_returncheck(mock_sendtossh):
     assert filelist[2] == "file2"
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_remotelist_formattest(mock_sendtossh):
 
     """
@@ -101,7 +101,7 @@ def test_remotelist_formattest(mock_sendtossh):
     assert " ".join(callargs) == testargs
 
 
-@mock.patch('Longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_remotelist_exceptiontest(mock_sendtossh):
 
     """

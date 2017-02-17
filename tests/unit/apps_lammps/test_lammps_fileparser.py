@@ -60,7 +60,7 @@ def test_fileparser_test2(m_subs):
     """
 
     filename = "apps_fileparserblank.txt"
-    path = os.path.join(os.getcwd(), "Tests/standards/")
+    path = os.path.join(os.getcwd(), "tests/standards/")
     files = ["anotherfile"]
     substitutions = {}
 
@@ -76,7 +76,7 @@ def test_fileparser_test3():
     """
 
     filename = "apps_fileparserlammps.txt"
-    path = os.path.join(os.getcwd(), "Tests/standards/")
+    path = os.path.join(os.getcwd(), "tests/standards/")
     files = []
     substitutions = {}
 

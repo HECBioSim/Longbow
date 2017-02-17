@@ -43,7 +43,7 @@ def test_procfilesreplicatejobs_t1():
 
     app = "amber"
     arg = "input"
-    cwd = os.path.join(os.getcwd(), "Tests/standards/jobs/replicate")
+    cwd = os.path.join(os.getcwd(), "tests/standards/jobs/replicate")
     initargs = ["-i", "input", "-c", "coords", "-p", "topol"]
     rep = 1
 
@@ -61,7 +61,7 @@ def test_procfilesreplicatejobs_t2():
 
     app = "amber"
     arg = "topol"
-    cwd = os.path.join(os.getcwd(), "Tests/standards/jobs/replicate")
+    cwd = os.path.join(os.getcwd(), "tests/standards/jobs/replicate")
     initargs = ["-i", "input", "-c", "coords", "-p", "topol"]
     rep = 1
 
@@ -79,7 +79,7 @@ def test_procfilesreplicatejobs_t3():
 
     app = "amber"
     arg = "test"
-    cwd = os.path.join(os.getcwd(), "Tests/standards/jobs/replicate")
+    cwd = os.path.join(os.getcwd(), "tests/standards/jobs/replicate")
     initargs = ["-i", "input", "-c", "coords", "-p", "topol"]
     rep = 1
 
@@ -96,7 +96,7 @@ def test_procfilesreplicatejobs_t4():
 
     app = "gromacs"
     arg = "test"
-    cwd = os.path.join(os.getcwd(), "Tests/standards/jobs/replicate")
+    cwd = os.path.join(os.getcwd(), "tests/standards/jobs/replicate")
     initargs = ["-deffnm", "test"]
     rep = 2
 
@@ -114,7 +114,7 @@ def test_procfilesreplicatejobs_t5(m_mkdir):
 
     app = "gromacs"
     arg = "test"
-    cwd = os.path.join(os.getcwd(), "Tests/standards/jobs/replicate")
+    cwd = os.path.join(os.getcwd(), "tests/standards/jobs/replicate")
     initargs = ["-deffnm", "test"]
     rep = 4
 

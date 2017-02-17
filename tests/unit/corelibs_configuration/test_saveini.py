@@ -43,4 +43,4 @@ def test_saveini_test1():
 
     assert open("/tmp/initest", "rb").read() == open(
         os.path.join(os.getcwd(),
-                     "Tests/standards/saveini.txt"), "rb").read()
+                     "tests/standards/saveini.txt"), "rb").read()

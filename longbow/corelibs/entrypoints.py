@@ -252,17 +252,17 @@ def longbowmain(parameters):
     jobs = configuration.processconfigs(parameters)
 
     # Test all connection/s specified in the job configurations
-    shellwrappers.testconnections(jobs)
+    shellwrappers.checkconnections(jobs)
 
     # Test the hosts listed in the jobs configuration file have their
     # scheduler environments listed, if not then test and save them.
-    scheduling.testenv(jobs, parameters["hosts"])
+    scheduling.checkenv(jobs, parameters["hosts"])
 
     # Test that for the applications listed in the job configuration
     # file are available and that the executable is present.
     if parameters["nochecks"] is False:
 
-        applications.testapp(jobs)
+        applications.checkapp(jobs)
 
     # Process the jobs command line arguments and find files for
     # staging.

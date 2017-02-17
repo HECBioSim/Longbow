@@ -34,7 +34,7 @@ def test_procfilessingle_test1():
 
     app = "amber"
     arg = "test.file"
-    cwd = os.path.join(os.getcwd(), "Tests/standards")
+    cwd = os.path.join(os.getcwd(), "tests/standards")
 
     fileitem = _procfilessinglejob(app, arg, cwd)
 
@@ -49,7 +49,7 @@ def test_procfilessingle_test2():
 
     app = "amber"
     arg = "simplefile.txt"
-    cwd = os.path.join(os.getcwd(), "Tests/standards")
+    cwd = os.path.join(os.getcwd(), "tests/standards")
 
     fileitem = _procfilessinglejob(app, arg, cwd)
 
