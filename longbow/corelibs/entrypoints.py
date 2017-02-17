@@ -49,18 +49,18 @@ import sys
 import logging
 import subprocess
 
-import Longbow.corelibs.applications as applications
-import Longbow.apps as apps
-import Longbow.corelibs.configuration as configuration
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.scheduling as scheduling
-import Longbow.corelibs.shellwrappers as shellwrappers
-import Longbow.corelibs.staging as staging
+import longbow.corelibs.applications as applications
+import longbow.apps as apps
+import longbow.corelibs.configuration as configuration
+import longbow.corelibs.exceptions as exceptions
+import longbow.corelibs.scheduling as scheduling
+import longbow.corelibs.shellwrappers as shellwrappers
+import longbow.corelibs.staging as staging
 
 PYTHONVERSION = "{0}.{1}".format(sys.version_info[0], sys.version_info[1])
 LONGBOWVERSION = "1.4.0"
 
-LOG = logging.getLogger("Longbow")
+LOG = logging.getLogger("longbow")
 
 
 def main():

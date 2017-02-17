@@ -84,9 +84,9 @@ import subprocess
 import logging
 import time
 
-import Longbow.corelibs.exceptions as exceptions
+import longbow.corelibs.exceptions as exceptions
 
-LOG = logging.getLogger("Longbow.corelibs.shellwrappers")
+LOG = logging.getLogger("longbow.corelibs.shellwrappers")
 
 
 def testconnections(jobs):

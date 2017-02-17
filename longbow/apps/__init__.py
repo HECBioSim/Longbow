@@ -40,7 +40,7 @@ for loader, modulename, ispkg in MODULES:
     # Check for double loading in the namespace.
     if modulename not in sys.modules:
 
-        mod = __import__("Longbow.apps." + modulename, fromlist=[""])
+        mod = __import__("longbow.apps." + modulename, fromlist=[""])
 
         for executable, _ in getattr(mod, "EXECDATA").items():
 

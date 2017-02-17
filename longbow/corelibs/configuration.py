@@ -58,11 +58,11 @@ import re
 import os
 from random import randint
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.apps as apps
+import longbow.corelibs.exceptions as exceptions
+import longbow.apps as apps
 
 
-LOG = logging.getLogger("Longbow.corelibs.configuration")
+LOG = logging.getLogger("longbow.corelibs.configuration")
 
 JOBTEMPLATE = {
     "account": "",

@@ -73,9 +73,9 @@ setup(name='Longbow',
       keywords=('hpc hec supercomputer grid cloud batch jobs remote submission'
                 ' submitter lsf pbs torque sge soge slurm automated staging '
                 'longbow hecbiosim ccpbiosim'),
-      packages=['Longbow', 'Longbow.schedulers', 'Longbow.apps',
-                'Longbow.corelibs'],
-      scripts=['Longbow/longbow'],
+      packages=['longbow', 'longbow.schedulers', 'longbow.apps',
+                'longbow.corelibs'],
+      scripts=['longbow/longbow'],
       )
 
 # Try and create the .Longbow directory and a basic hosts.conf

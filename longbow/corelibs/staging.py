@@ -47,10 +47,10 @@ cleanup(jobs)
 
 import logging
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.shellwrappers as shellwrappers
+import longbow.corelibs.exceptions as exceptions
+import longbow.corelibs.shellwrappers as shellwrappers
 
-LOG = logging.getLogger("Longbow.corelibs.staging")
+LOG = logging.getLogger("longbow.corelibs.staging")
 
 
 def stage_upstream(jobs):

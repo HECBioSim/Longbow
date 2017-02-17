@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License along with
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""This is the NAMD plugin module.
+"""This is the LAMMPS plugin module.
 
 This plugin is relatively simple in the fact that adding new executables is as
 simple as modifying the EXECDATA structure below. See the documentation at
@@ -28,21 +28,33 @@ http://www.hecbiosim.ac.uk/longbow-devdocs for more information.
 import os
 import re
 
-import Longbow.corelibs.exceptions as exceptions
+import longbow.corelibs.exceptions as exceptions
 
 
 EXECDATA = {
-    "namd2": {
+    "lmp_xc30": {
         "subexecutables": [],
-        "requiredfiles": ["<"],
+        "requiredfiles": ["-i"],
     },
-    "namd2.mpi": {
+    "lmp_linux": {
         "subexecutables": [],
-        "requiredfiles": ["<"],
+        "requiredfiles": ["-i"],
     },
-    "namd2.cuda": {
+    "lmp_gpu": {
         "subexecutables": [],
-        "requiredfiles": ["<"],
+        "requiredfiles": ["-i"],
+    },
+    "lmp_mpi": {
+        "subexecutables": [],
+        "requiredfiles": ["-i"],
+    },
+    "lmp_cuda": {
+        "subexecutables": [],
+        "requiredfiles": ["-i"],
+    },
+    "lmp": {
+        "subexecutables": [],
+        "requiredfiles": ["-i"],
     }
 }
 
@@ -57,7 +69,6 @@ def file_parser(filename, path, files, substitutions=None):
     variables.
 
     """
-    # Initialise variable.
     addfile = _filechecks(path, filename)
 
     # Now look for references to other files in the input file if not done so
@@ -67,17 +78,18 @@ def file_parser(filename, path, files, substitutions=None):
         files.append(addfile)
 
         # Create a dict for any variable substitutions and define keywords.
-        keywords = ['coordinates', 'extendedsystem', 'structure', 'parameters',
-                    'velocities', 'binvelocities', 'bincoordinates',
-                    'ambercoor', 'parmfile', 'conskfile', 'tclforcesscript',
-                    'fixedatomsfile', 'grotopfile', 'grocoorfile']
-
-        variables = {}
+        keywords = ['read_data', 'read_restart', 'read_dump']
+        variables = {} if not substitutions else substitutions
 
         fil = _fileopen(path, addfile)
 
         # Search every line for possible input files.
         for line in fil:
+
+            # If line commented out, skip.
+            if line[0] == "#":
+
+                continue
 
             # Remove comments.
             if '#' in line:
@@ -90,7 +102,6 @@ def file_parser(filename, path, files, substitutions=None):
 
             if len(words) > 0:
 
-                # Pick up substitutions from within file
                 _internalsubstitutions(variables, words)
 
                 # If this line is reading in an input file.
@@ -113,8 +124,36 @@ def file_parser(filename, path, files, substitutions=None):
         fil.close()
 
 
+def detectsubstitutions(args):
+    """Function to detect substitutions specified on the commandline.
+
+    This method will be called from the hooks within the applications.py
+    module. This is where the applications specific code should be placed so
+    that Longbow can handle substitutions.
+
+    """
+    # Initialise variables.
+    removelist = []
+    sub = {}
+
+    for index, item in enumerate(args):
+
+        if item == "-var" or item == "-v":
+
+            sub[args[index + 1]] = args[index + 2]
+            removelist.append(item)
+            removelist.append(args[index + 1])
+            removelist.append(args[index + 2])
+
+    for item in removelist:
+
+        args.remove(item)
+
+    return sub
+
+
 def _filechecks(path, filename):
-    """A private method to check the file paths to make sure they are valid."""
+    """Check the file paths to make sure they are valid."""
     # Initialise variable.
     addfile = ""
 
@@ -149,7 +188,7 @@ def _filechecks(path, filename):
 
 
 def _fileopen(path, addfile):
-    """A private method to open a file and return the handle."""
+    """Open a file and return the handle."""
     # Initialise variable.
     fil = None
 
@@ -166,17 +205,11 @@ def _fileopen(path, addfile):
 
 
 def _internalsubstitutions(variables, words):
-    """A private method to process substitutions from file."""
+    """A method to process substitutions from file."""
     # Process substitutions.
-    if words[0].lower() == 'set':
+    if words[0].lower() == 'variable':
 
-        if words[2] == "=":
-
-            variables[words[1]] = words[3]
-
-        else:
-
-            variables[words[1]] = words[2]
+        variables[words[1]] = words[3]
 
 
 def _newfilechecks(addfile, newfile, path):
@@ -220,11 +253,11 @@ def _newfilechecks(addfile, newfile, path):
     # Else newfile is indicated to be in a repX subdirectory.
     elif re.search(r'rep\d', newfile):
 
-        # If we are already in a repX subdirectory issue a warning.
+        # If we are already in a repX subdirectory throw exception
         if re.search(r'rep\d', addfile):
 
             raise exceptions.RequiredinputError(
-                "It appears that the user is trying to refer to a file '{0}'"
+                "It appears that the user is trying to refer to a file '{0}' "
                 "that is in a repX/repX subdirectory. This is not permitted."
                 .format(newfile))
 
@@ -237,16 +270,22 @@ def _newfilechecks(addfile, newfile, path):
 
 
 def _variablesubstitutions(newfile, variables):
-    """A private method to process substitutions."""
+    """A method to process substitutions."""
     # Do variable substitution.
     if '$' in newfile and len(variables.keys()) > 0:
 
-        before, _, after = newfile.rpartition("$")
+        start = newfile.index('$') + 1
 
-        for instance in variables:
+        if newfile[start] == '{':
 
-            if instance in after:
+            end = newfile[start:].index('}') + start
+            var = variables[newfile[start + 1:end]]
+            newfile = (newfile[0:start - 1] + var + newfile[end + 1:])
 
-                newfile = before + after.replace(instance, variables[instance])
+        else:
+
+            end = start + 1
+            var = variables[newfile[start:end]]
+            newfile = (newfile[0:start - 1] + var + newfile[end:])
 
     return newfile

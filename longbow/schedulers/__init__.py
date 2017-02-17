@@ -37,7 +37,7 @@ for loader, modulename, ispkg in MODULES:
 
     if modulename not in sys.modules:
 
-        mod = __import__("Longbow.schedulers." + modulename,
+        mod = __import__("longbow.schedulers." + modulename,
                          fromlist=[""])
 
         QUERY[modulename] = [getattr(mod, "QUERY_STRING")]

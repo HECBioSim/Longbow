@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License along with
 # Longbow.  If not, see <http://www.gnu.org/licenses/>.
 
-"""A module containing the code to interact with slurm.
+"""A module containing the code to interact with LSF.
 
 delete(job)
     A method for deleting a single job.
@@ -33,14 +33,13 @@ submit(job)
     The method for submitting a single job.
 """
 
-import math
 import os
 import re
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.shellwrappers as shellwrappers
+import longbow.corelibs.exceptions as exceptions
+import longbow.corelibs.shellwrappers as shellwrappers
 
-QUERY_STRING = "which sbatch"
+QUERY_STRING = "env | grep -i 'lsf'"
 
 
 def delete(job):
@@ -50,7 +49,7 @@ def delete(job):
 
     try:
 
-        shellout = shellwrappers.sendtossh(job, ["scancel " + jobid])
+        shellout = shellwrappers.sendtossh(job, ["bkill " + jobid])
 
     except exceptions.SSHError:
 
@@ -60,32 +59,44 @@ def delete(job):
 
 
 def prepare(job):
-    """A method to create the SLURM jobfile ready for submitting jobs."""
-    # Open file for SLURM script.
-    slurmfile = os.path.join(job["localworkdir"], "submit.slurm")
-    jobfile = open(slurmfile, "w+")
+    """A method to create the LSF jobfile ready for submitting jobs."""
+    # Open file for LSF script.
+    lsffile = os.path.join(job["localworkdir"], "submit.lsf")
+    jobfile = open(lsffile, "w+")
 
-    # Write the SLURM script
+    # Write the PBS script
     jobfile.write("#!/bin/bash --login\n")
 
-    jobfile.write("#SBATCH -J " + job["jobname"] + "\n")
+    # Single job
+    if int(job["replicates"]) == 1:
 
-    # Queue to submit to (if supplied)
+        jobfile.write("#BSUB -J " + job["jobname"] + "\n")
+
+    # Job array
+    elif int(job["replicates"]) > 1:
+
+        jobfile.write("#BSUB -J " + job["jobname"] + "[1-" +
+                      job["replicates"] + "]\n")
+
     if job["queue"] is not "":
 
-        jobfile.write("#SBATCH -p " + job["queue"] + "\n")
+        jobfile.write("#BSUB -q " + job["queue"] + "\n")
 
-    # Account to charge (if supplied)
+    if job["cluster"] is not "":
+
+        jobfile.write("#BSUB -m " + job["cluster"] + "\n")
+
+    # Account to charge (if supplied).
     if job["account"] is not "":
 
         # if no accountflag is provided use the default
         if job["accountflag"] is "":
 
-            jobfile.write("#SBATCH -A " + job["account"] + "\n")
+            jobfile.write("#BSUB -P " + job["account"] + "\n")
 
         else:
 
-            jobfile.write("#SBATCH " + job["accountflag"] + " " +
+            jobfile.write("#BSUB " + job["accountflag"] + " " +
                           job["account"] + "\n")
 
     # Email user.
@@ -93,28 +104,13 @@ def prepare(job):
 
         if job["email-flags"] is not "":
 
-            jobfile.write("#SBATCH --mail-type=" + job["email-flags"] + "\n")
+            jobfile.write("#BSUB " + job["email-flags"] + "\n")
 
-        jobfile.write("#SBATCH --mail-user=" + job["email-address"] + "\n")
+        jobfile.write("#BSUB -u " + job["email-address"] + "\n")
 
-    cores = job["cores"]
-    cpn = job["corespernode"]
+    jobfile.write("#BSUB -W " + job["maxtime"] + "\n")
 
-    # Specify the total number of mpi tasks required
-    jobfile.write("#SBATCH -n " + cores + "\n")
-
-    # If user has specified corespernode for under utilisation then
-    # set the total nodes (-N) parameter.
-    if cpn is not "":
-
-        nodes = float(cores) / float(cpn)
-
-        # Make sure nodes is rounded up to the next highest integer
-        nodes = str(int(math.ceil(nodes)))
-        jobfile.write("#SBATCH -N " + nodes + "\n")
-
-    # Walltime for job
-    jobfile.write("#SBATCH -t " + job["maxtime"] + ":00\n\n")
+    jobfile.write("#BSUB -n " + job["cores"] + "\n")
 
     # Load any custom scripts.
     if job["scripts"] != "":
@@ -123,70 +119,68 @@ def prepare(job):
 
         if len(scripts) > 0:
 
+            jobfile.write("\n")
+
             for item in scripts:
 
                 jobfile.write(item.strip() + "\n")
 
-            jobfile.write("\n")
-
-    # Load up modules if required.
     if job["modules"] is not "":
 
         for module in job["modules"].split(","):
 
             module = module.replace(" ", "")
-            jobfile.write("module load {0}\n\n" .format(module))
+            jobfile.write("\n" + "module load {0}\n\n" .format(module))
 
-    # Handler that is used for job submission.
-    mpirun = job["handler"]
+    # A quick work-around for the hartree phase 3 machines
+    if job["handler"] == "mpiexec.hydra":
 
-    # Single jobs only need one run command.
+        mpirun = job["handler"]
+
+    else:
+
+        mpirun = job["handler"] + " -lsf"
+
+    # Single job
     if int(job["replicates"]) == 1:
 
         jobfile.write(mpirun + " " + job["executableargs"] + "\n")
 
-    # Ensemble jobs need a loop.
+    # Job array
     elif int(job["replicates"]) > 1:
 
-        jobfile.write("basedir = `pwd`\n"
-                      "for i in {1.." + job["replicates"] + "};\n"
-                      "do\n"
-                      "  cd $basedir/rep$i/\n"
-                      "  " + mpirun + " " + job["executableargs"] +
-                      "\n"
-                      "done\n"
-                      "wait\n")
+        jobfile.write("cd rep${LSB_JOBINDEX}/\n" + mpirun + " " +
+                      job["executableargs"] + "\n")
 
-    # Close the file
+    # Close the file (housekeeping)
     jobfile.close()
 
-    # Append submitfile to list of files ready for staging.
-    job["upload-include"] = job["upload-include"] + ", submit.slurm"
-    job["subfile"] = "submit.slurm"
+    # Append lsf file to list of files ready for staging.
+    job["upload-include"] = job["upload-include"] + ", submit.lsf"
+    job["subfile"] = "submit.lsf"
 
 
 def status(job):
     """A method for querying a job status."""
     # Initialise variables.
     states = {
-        "CA": "Cancelled",
-        "CD": "Completed",
-        "CF": "Configuring",
-        "CG": "Completing",
-        "F": "Failed",
-        "NF": "Node Failure",
-        "PD": "Pending",
-        "PR": "Preempted",
-        "R": "Running",
-        "S": "Suspended",
-        "TO": "Timed out"
+        "DONE": "Job Exited Properly",
+        "EXIT": "Job Exited in Error",
+        "PEND": "Queued",
+        "PSUSP": "Suspended",
+        "RUN": "Running",
+        "SSUSP": "Suspended",
+        "UNKWN": "Unknown Status",
+        "USUSP": "Suspended",
+        "WAIT": "Waiting for Start Time",
+        "ZOMBI": "Zombie Job"
     }
 
     jobstate = ""
 
     try:
 
-        shellout = shellwrappers.sendtossh(job, ["squeue -u " + job["user"]])
+        shellout = shellwrappers.sendtossh(job, ["bjobs -u " + job["user"]])
 
     except exceptions.SSHError:
 
@@ -204,7 +198,7 @@ def status(job):
 
         if len(line) > 0 and job["jobid"] in line[0]:
 
-            jobstate = states[line[4]]
+            jobstate = states[line[2]]
             break
 
     if jobstate == "":
@@ -216,8 +210,8 @@ def status(job):
 
 def submit(job):
     """A method for submitting a job."""
-    # Change into the working directory and submit the job.
-    cmd = ["cd " + job["destdir"] + "\n", "sbatch " + job["subfile"]]
+    # cd into the working directory and submit the job.
+    cmd = ["cd " + job["destdir"] + "\n", "bsub < " + job["subfile"]]
 
     # Process the submit
     try:
@@ -226,7 +220,7 @@ def submit(job):
 
     except exceptions.SSHError as inst:
 
-        if "violates" in inst.stderr and "job submit limit" in inst.stderr:
+        if "limit" in inst.stderr:
 
             raise exceptions.QueuemaxError
 

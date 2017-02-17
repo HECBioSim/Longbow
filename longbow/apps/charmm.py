@@ -28,7 +28,7 @@ http://www.hecbiosim.ac.uk/longbow-devdocs for more information.
 import os
 import re
 
-import Longbow.corelibs.exceptions as exceptions
+import longbow.corelibs.exceptions as exceptions
 
 
 EXECDATA = {

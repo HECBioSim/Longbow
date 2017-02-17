@@ -37,8 +37,8 @@ import math
 import os
 import re
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.shellwrappers as shellwrappers
+import longbow.corelibs.exceptions as exceptions
+import longbow.corelibs.shellwrappers as shellwrappers
 
 QUERY_STRING = "env | grep -i 'pbs'"
 

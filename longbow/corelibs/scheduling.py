@@ -53,14 +53,14 @@ import logging
 import time
 import os
 
-import Longbow.corelibs.configuration as configuration
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.shellwrappers as shellwrappers
-import Longbow.corelibs.staging as staging
-import Longbow.schedulers as schedulers
+import longbow.corelibs.configuration as configuration
+import longbow.corelibs.exceptions as exceptions
+import longbow.corelibs.shellwrappers as shellwrappers
+import longbow.corelibs.staging as staging
+import longbow.schedulers as schedulers
 
 
-LOG = logging.getLogger("Longbow.corelibs.scheduling")
+LOG = logging.getLogger("longbow.corelibs.scheduling")
 QUEUEINFO = {}
 JOBFILE = os.path.join(os.path.expanduser('~/.Longbow'), "recovery-" +
                        time.strftime("%Y%m%d-%H%M%S"))

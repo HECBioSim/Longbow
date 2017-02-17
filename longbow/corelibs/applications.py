@@ -40,12 +40,12 @@ processjobs(jobs)
 import logging
 import os
 
-import Longbow.corelibs.exceptions as exceptions
-import Longbow.corelibs.shellwrappers as shellwrappers
-import Longbow.apps as apps
+import longbow.corelibs.exceptions as exceptions
+import longbow.corelibs.shellwrappers as shellwrappers
+import longbow.apps as apps
 
 
-LOG = logging.getLogger("Longbow.corelibs.applications")
+LOG = logging.getLogger("longbow.corelibs.applications")
 
 
 def testapp(jobs):
