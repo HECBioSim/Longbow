@@ -62,7 +62,7 @@ import longbow.schedulers as schedulers
 
 LOG = logging.getLogger("longbow.corelibs.scheduling")
 QUEUEINFO = {}
-JOBFILE = os.path.join(os.path.expanduser('~/.Longbow'), "recovery-" +
+JOBFILE = os.path.join(os.path.expanduser('~/.longbow'), "recovery-" +
                        time.strftime("%Y%m%d-%H%M%S"))
 
 
@@ -240,7 +240,7 @@ def monitor(jobs):
                 QUEUEINFO[jobs[job]["resource"]]["queue-max"]
 
         # Save out the recovery files.
-        if (os.path.isdir(os.path.expanduser('~/.Longbow')) and
+        if (os.path.isdir(os.path.expanduser('~/.longbow')) and
                 saverecoveryfile is True and recoveryfileerror is False):
 
             saverecoveryfile = False
@@ -254,7 +254,7 @@ def monitor(jobs):
                 recoveryfileerror = True
 
                 LOG.warning("Could not write recovery file, possibly due to "
-                            "permissions on the ~/.Longbow directory.")
+                            "permissions on the ~/.longbow directory.")
 
         allcomplete, allfinished = _checkcomplete(jobs)
 
@@ -409,7 +409,7 @@ def submit(jobs):
         job["queue-max"] = QUEUEINFO[job["resource"]]["queue-max"]
 
     # Save out the recovery files.
-    if os.path.isdir(os.path.expanduser('~/.Longbow')):
+    if os.path.isdir(os.path.expanduser('~/.longbow')):
 
         try:
 
@@ -421,7 +421,7 @@ def submit(jobs):
 
             LOG.warning(
                 "Could not write recovery file, possibly due to permissions "
-                "on the ~/.Longbow directory.")
+                "on the ~/.longbow directory.")
 
     LOG.info("%s Submitted, %s Held due to queue limits and %s Failed.",
              submitted, queued, error)

@@ -353,7 +353,7 @@ def recovery(recoveryfile):
     """
     LOG.info("Attempting to find the recovery files")
 
-    longbowdir = os.path.expanduser('~/.Longbow')
+    longbowdir = os.path.expanduser('~/.longbow')
     jobfile = os.path.join(longbowdir, recoveryfile)
 
     # Load the jobs recovery file.
@@ -489,22 +489,22 @@ def _hostfileproc(parameters):
         parameters["hosts"] = "hosts.conf"
 
     # If a full absolute path has not been provided then check within the
-    # current working directory, ~/.Longbow directory and the execution
+    # current working directory, ~/.longbow directory and the execution
     # directory.
     if os.path.isabs(parameters["hosts"]) is False:
 
         # CWD.
         cwd = os.path.join(os.getcwd(), parameters["hosts"])
 
-        # Path for ~/.Longbow directory.
-        longbowdir = os.path.join(os.path.expanduser("~/.Longbow"),
+        # Path for ~/.longbow directory.
+        longbowdir = os.path.join(os.path.expanduser("~/.longbow"),
                                   parameters["hosts"])
 
         if os.path.isfile(cwd):
 
             parameters["hosts"] = cwd
 
-        # The ~/.Longbow directory.
+        # The ~/.longbow directory.
         elif os.path.isfile(longbowdir):
 
             parameters["hosts"] = longbowdir
@@ -514,7 +514,7 @@ def _hostfileproc(parameters):
             raise exceptions.RequiredinputError(
                 "No host configuration file found in the current working "
                 "directory '{0}', the execution directory '{1}' or in the "
-                "~/.Longbow directory."
+                "~/.longbow directory."
                 .format(os.getcwd(),
                         os.path.dirname(os.path.realpath(__file__))))
 
