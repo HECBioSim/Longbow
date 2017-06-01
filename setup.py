@@ -82,11 +82,16 @@ setup(name='Longbow',
 # Try and create the .Longbow directory and a basic hosts.conf
 try:
 
-    print("Checking if to see if the '~/.Longbow' directory already exists, "
-          "if it does not then it will be created.")
+    if os.path.isdir(os.path.expanduser('~/.Longbow')):
+
+        print("Since version 1.5.0 '~/.Longbow' directory has been all lower"
+              "case, moving '~/.Longbow' to '~/.longbow'.")
+
+        os.rename(os.path.expanduser('~/.Longbow'),
+                  os.path.expanduser('~/.longbow'))
 
     # Setting up the .Longbow directory.
-    if not os.path.isdir(os.path.expanduser('~/.Longbow')):
+    elif not os.path.isdir(os.path.expanduser('~/.longbow')):
 
         print('Longbow will create a hidden directory in your $HOME directory '
               'in which it will create the hosts configuration file. You will '
@@ -94,9 +99,9 @@ try:
               'HPC machines you wish to use. See documentation for more '
               'information - www.hecbiosim.ac.uk/longbow-docs')
 
-        os.mkdir(os.path.expanduser('~/.Longbow'))
+        os.mkdir(os.path.expanduser('~/.longbow'))
 
-        HOSTFILE = open(os.path.expanduser('~/.Longbow/hosts.conf'), 'w+')
+        HOSTFILE = open(os.path.expanduser('~/.longbow/hosts.conf'), 'w+')
 
         HOSTFILE.write('[QuickStart]\n')
         HOSTFILE.write('host = login.hpc.ac.uk\n')
@@ -111,13 +116,13 @@ try:
 
     else:
 
-        print("Directory already exists at '~/.Longbow, Longbow is skipping "
+        print("Directory already exists at '~/.longbow, Longbow is skipping "
               "creating a new one.")
 
 
 except IOError:
 
     print('Longbow failed to create the host configuration file in '
-          '"~/.Longbow/hosts.conf", you will have to do this manually. The '
+          '"~/.longbow/hosts.conf", you will have to do this manually. The '
           'user documentation details the information that should be in this '
           'file.')
