@@ -95,7 +95,7 @@ def test_hostfileproc_test2(m_isfile):
     _hostfileproc(parameters)
 
     assert parameters["hosts"] == \
-        os.path.join(os.path.expanduser("~/.Longbow"), "hosts.conf")
+        os.path.join(os.path.expanduser("~/.longbow"), "hosts.conf")
 
 
 @mock.patch("os.path.isfile")
