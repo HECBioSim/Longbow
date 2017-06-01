@@ -27,19 +27,20 @@ import os
 import sys
 
 # Check for unsupported Python versions.
-MAJOR = sys.version_info[0]
-MINOR = sys.version_info[1]
+VERSIONS = ['2.6', '2.7', '3.2', '3.3', '3.4', '3.5', '3.6']
+VERSION = str(sys.version_info[0]) + '.' + str(sys.version_info[1])
 
-if not (MAJOR >= 2 and MINOR >= 6):
+if VERSION not in VERSIONS:
 
-    print('The Python version installed is "{0}.{1}", Longbow does not support'
-          ' this version. We recommend that you install at least version 2.7'
-          .format(MAJOR, MINOR))
+    sys.exit('The Python version installed is "{0}.{1}", Longbow does not '
+             'support this version. We recommend that you install at least '
+             'version 2.7 or a recent 3.x series'.format(sys.version_info[0],
+                                                         sys.version_info[1]))
 
 else:
 
     print('The Python version installed "{0}.{1}" is supported by Longbow.'
-          .format(MAJOR, MINOR))
+          .format(sys.version_info[0], sys.version_info[1]))
 
 # Setup
 setup(name='Longbow',
