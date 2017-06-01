@@ -82,6 +82,7 @@ setup(name='Longbow',
 # Try and create the .Longbow directory and a basic hosts.conf
 try:
 
+    # Test for the old directory presence (IE updating).
     if os.path.isdir(os.path.expanduser('~/.Longbow')):
 
         print("Since version 1.5.0 '~/.Longbow' directory has been all lower"
@@ -119,10 +120,48 @@ try:
         print("Directory already exists at '~/.longbow, Longbow is skipping "
               "creating a new one.")
 
-
 except IOError:
 
     print('Longbow failed to create the host configuration file in '
           '"~/.longbow/hosts.conf", you will have to do this manually. The '
           'user documentation details the information that should be in this '
           'file.')
+
+# Try to create the bash autocomplete file.
+try:
+
+    print('Longbow will try to setup bash autocomplete on this machine, this '
+          'will enable the user to use the tab key as part of the longbow '
+          'command-line to reveal/complete command-line args. This currently '
+          'only works on some operating systems (mainly Linux based).')
+
+    if not os.path.isdir(os.path.expanduser('~/.bash_completion')):
+
+        os.mkdir(os.path.expanduser('~/.bash_completion'))
+
+    BASHFILE = open(os.path.expanduser('~/.bash_completion/longbow'), 'w+')
+
+    BASHFILE.write('_longbow()\n')
+    BASHFILE.write('{\n')
+    BASHFILE.write('    local cur prev opts\n')
+    BASHFILE.write('    COMPREPLY=()\n')
+    BASHFILE.write('    cur="${COMP_WORDS[COMP_CWORD]}"\n')
+    BASHFILE.write('    prev="${COMP_WORDS[COMP_CWORD-1]}"\n')
+    BASHFILE.write('    opts="--about --debug --disconnect --examples --help '
+                   '--hosts --job --jobname --log --recover --resource '
+                   '--replicates --verbose --version"\n\n')
+    BASHFILE.write('    if [[ ${cur} == -* ]] ; then\n')
+    BASHFILE.write('        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )\n')
+    BASHFILE.write('        return 0"\n')
+    BASHFILE.write('    fi"\n')
+    BASHFILE.write('}"\n')
+    BASHFILE.write('complete -F _longbow longbow"\n')
+
+    BASHFILE.close()
+
+except IOError:
+
+    print('Longbow failed to create the bash autocomplete file on this '
+          'machine. Longbow will still continue to function normally, however '
+          'the bash autocomplete will not be available for longbow '
+          'command-line parameters.')
