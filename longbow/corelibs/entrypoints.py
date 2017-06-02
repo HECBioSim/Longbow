@@ -458,8 +458,11 @@ def _downloadexamples(longbowargs):
     # Test for the examples command line flag, download files and exit if found
     if longbowargs.count("-examples") or longbowargs.count("--examples") == 1:
 
+        # Check if the examples have already been downloaded first.
         if not os.path.isfile(
                 os.path.join(os.getcwd(), "LongbowExamples.zip")):
+
+            print("Downloading examples...")
 
             try:
 
@@ -475,8 +478,17 @@ def _downloadexamples(longbowargs):
                     "2-software/4-longbow-examples", "-o",
                     os.path.join(os.getcwd(), "LongbowExamples.zip")])
 
+            # Unzip the archive file.
+            print("Extracting the archive file...")
+
             subprocess.call(["unzip", "-d", os.getcwd(),
                              os.path.join(os.getcwd(), "LongbowExamples.zip")])
+
+            print("Removing the zip archive file...")
+
+            os.remove(os.path.join(os.getcwd(), "LongbowExamples.zip"))
+
+            print("Done.")
 
         exit(0)
 
@@ -576,8 +588,7 @@ def _messageflags(longbowargs):
             longbowargs.count("--version") == 1 or
             longbowargs.count("-V") == 1):
 
-        print("Longbow v{0}"
-              .format(LONGBOWVERSION))
+        print("Longbow v{0}".format(LONGBOWVERSION))
 
         exit(0)
 
