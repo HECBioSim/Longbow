@@ -258,6 +258,9 @@ def monitor(jobs):
 
         allcomplete, allfinished = _checkcomplete(jobs)
 
+        # Sane time interval (CPU core maxes out easily otherwise).
+        time.sleep(1.0)
+
     complete = 0
     error = 0
 
