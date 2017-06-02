@@ -136,11 +136,7 @@ try:
           'command-line to reveal/complete command-line args. This currently '
           'only works on some operating systems (mainly Linux based).')
 
-    if not os.path.isdir(os.path.expanduser('~/.bash_completion')):
-
-        os.mkdir(os.path.expanduser('~/.bash_completion'))
-
-    BASHFILE = open(os.path.expanduser('~/.bash_completion/longbow'), 'w+')
+    BASHFILE = open(os.path.expanduser('~/.longbow/bash_completion'), 'w+')
 
     BASHFILE.write('_longbow()\n')
     BASHFILE.write('{\n')
@@ -159,6 +155,16 @@ try:
     BASHFILE.write('complete -F _longbow longbow"\n')
 
     BASHFILE.close()
+
+    # Now add a source entry to the user .bashrc
+    if os.path.isfile(os.path.expanduser('~/.bashrc')):
+
+        BASHFILE = open(os.path.expanduser('~/.bashrc'), 'a+')
+
+        if not any('source ~/.longbow/bash_completion'
+                   in bashline for bashline in BASHFILE.readlines()):
+
+            BASHFILE.write('source ~/.longbow/bash_completion')
 
 except IOError:
 
