@@ -24,6 +24,7 @@ the entrypoint module.
 """
 
 import os
+import shutil
 import subprocess
 
 try:
@@ -39,9 +40,7 @@ import pytest
 from longbow.corelibs.entrypoints import _downloadexamples
 
 
-@mock.patch('subprocess.call')
-@mock.patch('subprocess.check_call')
-def test_downloadexamples_wget(mock_output, mock_call):
+def test_downloadexamples_wget():
 
     """
     Test that the wget call happens.
@@ -53,16 +52,16 @@ def test_downloadexamples_wget(mock_output, mock_call):
 
         _downloadexamples(longbowargs)
 
-    assert mock_output.call_args[0][0] == \
-        ['wget', 'http://www.hecbiosim.ac.uk/downloads/send/2-software/' +
-         '4-longbow-examples', '-O',
-         os.path.join(os.getcwd(), "LongbowExamples.zip")]
-    assert mock_call.call_count == 1
+    assert not os.path.isfile(os.path.join(os.getcwd(), "LongbowExamples.zip"))
+    assert os.path.isdir(os.path.join(os.getcwd(), "LongbowExamples/"))
+
+    if os.path.isdir(os.path.join(os.getcwd(), "LongbowExamples/")):
+
+        shutil.rmtree(os.path.join(os.getcwd(), "LongbowExamples/"))
 
 
-@mock.patch('subprocess.call')
 @mock.patch('subprocess.check_call')
-def test_downloadexamples_curl(mock_output, mock_call):
+def test_downloadexamples_curl(mock_check_call):
 
     """
     Test that the curl call happens but this time make sure --examples works.
@@ -70,14 +69,15 @@ def test_downloadexamples_curl(mock_output, mock_call):
 
     longbowargs = ["blah", "i", "--examples"]
 
-    mock_output.side_effect = subprocess.CalledProcessError("", "")
+    mock_check_call.side_effect = subprocess.CalledProcessError("", "")
 
     with pytest.raises(SystemExit):
 
         _downloadexamples(longbowargs)
 
-    assert mock_call.call_args_list[0][0][0] == \
-        ["curl", "-L", "http://www.hecbiosim.ac.uk/downloads/send/" +
-         "2-software/4-longbow-examples", "-o",
-         os.path.join(os.getcwd(), "LongbowExamples.zip")]
-    assert mock_call.call_count == 2
+    assert not os.path.isfile(os.path.join(os.getcwd(), "LongbowExamples.zip"))
+    assert os.path.isdir(os.path.join(os.getcwd(), "LongbowExamples/"))
+
+    if os.path.isdir(os.path.join(os.getcwd(), "LongbowExamples/")):
+
+        shutil.rmtree(os.path.join(os.getcwd(), "LongbowExamples/"))
