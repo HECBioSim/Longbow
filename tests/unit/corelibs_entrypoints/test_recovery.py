@@ -72,3 +72,83 @@ def test_recovery_except(mock_isfile, mock_monitor, mock_cleanup):
     with pytest.raises(exceptions.RequiredinputError):
 
         recovery("recovery.file")
+
+
+@mock.patch('longbow.corelibs.staging.stage_downstream')
+@mock.patch('longbow.corelibs.scheduling.delete')
+@mock.patch('longbow.corelibs.configuration.loadconfigs')
+@mock.patch('longbow.corelibs.staging.cleanup')
+@mock.patch('longbow.corelibs.scheduling.monitor')
+@mock.patch('os.path.isfile')
+def test_recovery_interupt(m_file, m_mon, m_clean, m_load, m_del, m_down):
+
+    """
+    Check that user interrupt doesn't result in unhandled exception.
+    """
+
+    m_file.return_value = True
+    m_mon.side_effect = KeyboardInterrupt
+    m_clean.return_value = None
+    m_load.return_value = ("", "", {"testjobs": {}})
+    m_del.return_value = None
+    m_down.return_value = None
+
+    recovery("recovery.file")
+
+    assert m_clean.call_count == 1
+    assert m_down.call_count == 0
+    assert m_del.call_count == 0
+
+
+@mock.patch('longbow.corelibs.staging.stage_downstream')
+@mock.patch('longbow.corelibs.scheduling.delete')
+@mock.patch('longbow.corelibs.configuration.loadconfigs')
+@mock.patch('longbow.corelibs.staging.cleanup')
+@mock.patch('longbow.corelibs.scheduling.monitor')
+@mock.patch('os.path.isfile')
+def test_recovery_interupt2(m_file, m_mon, m_clean, m_load, m_del, m_down):
+
+    """
+    Check that user interrupt doesn't result in unhandled exception. Also test
+    the case where jobs are running.
+    """
+
+    m_file.return_value = True
+    m_mon.side_effect = KeyboardInterrupt
+    m_clean.return_value = None
+    m_load.return_value = ("", "", {"testjobs": {"laststatus": "Running"}})
+    m_del.return_value = None
+    m_down.return_value = None
+
+    recovery("recovery.file")
+
+    assert m_clean.call_count == 1
+    assert m_down.call_count == 1
+    assert m_del.call_count == 1
+
+
+@mock.patch('longbow.corelibs.staging.stage_downstream')
+@mock.patch('longbow.corelibs.scheduling.delete')
+@mock.patch('longbow.corelibs.configuration.loadconfigs')
+@mock.patch('longbow.corelibs.staging.cleanup')
+@mock.patch('longbow.corelibs.scheduling.monitor')
+@mock.patch('os.path.isfile')
+def test_recovery_interupt3(m_file, m_mon, m_clean, m_load, m_del, m_down):
+
+    """
+    Check that user interrupt doesn't result in unhandled exception. Also test
+    the case where jobs are finished.
+    """
+
+    m_file.return_value = True
+    m_mon.side_effect = KeyboardInterrupt
+    m_clean.return_value = None
+    m_load.return_value = ("", "", {"testjobs": {"laststatus": "Complete"}})
+    m_del.return_value = None
+    m_down.return_value = None
+
+    recovery("recovery.file")
+
+    assert m_clean.call_count == 1
+    assert m_down.call_count == 1
+    assert m_del.call_count == 0
