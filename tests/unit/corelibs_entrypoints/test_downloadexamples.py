@@ -52,7 +52,8 @@ def test_downloadexamples_wget():
 
         _downloadexamples(longbowargs)
 
-    assert not os.path.isfile(os.path.join(os.getcwd(), "LongbowExamples.zip"))
+    assert not os.path.isfile(
+        os.path.join(os.getcwd(), "longbow-examples.zip"))
     assert os.path.isdir(os.path.join(os.getcwd(), "LongbowExamples/"))
 
     if os.path.isdir(os.path.join(os.getcwd(), "LongbowExamples/")):
@@ -75,7 +76,8 @@ def test_downloadexamples_curl(mock_check_call):
 
         _downloadexamples(longbowargs)
 
-    assert not os.path.isfile(os.path.join(os.getcwd(), "LongbowExamples.zip"))
+    assert not os.path.isfile(
+        os.path.join(os.getcwd(), "longbow-examples.zip"))
     assert os.path.isdir(os.path.join(os.getcwd(), "LongbowExamples/"))
 
     if os.path.isdir(os.path.join(os.getcwd(), "LongbowExamples/")):
