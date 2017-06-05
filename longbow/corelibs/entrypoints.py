@@ -297,7 +297,7 @@ def longbow(parameters):
     # the jobs, so kill off any running jobs and then remove the job
     # directories. Otherwise just raise all other errors to the top level where
     # in future we can attempt to recover.
-    except (SystemExit, KeyboardInterrupt):
+    except KeyboardInterrupt:
 
         LOG.info("User interrupt detected, kill any queued or running jobs "
                  "and removed any files staged.")
@@ -370,12 +370,48 @@ def recovery(recoveryfile):
             "running the recovery from the job directory that was initially "
             "used to launch the failed job".format(jobfile))
 
-    # Rejoin at the monitoring stage. This will assume that all jobs that are
-    # no longer in the queue have completed.
-    scheduling.monitor(jobs)
+    try:
 
-    # Cleanup the remote working directory.
-    staging.cleanup(jobs)
+        # Rejoin at the monitoring stage. This will assume that all jobs that
+        # are no longer in the queue have completed.
+        scheduling.monitor(jobs)
+
+        # Cleanup the remote working directory.
+        staging.cleanup(jobs)
+
+    # If the user interrupts Longbow at this stage then it they are aborting
+    # the jobs, so kill off any running jobs and then remove the job
+    # directories. Otherwise just raise all other errors to the top level where
+    # in future we can attempt to recover.
+    except KeyboardInterrupt:
+
+        LOG.info("User interrupt detected, kill any queued or running jobs "
+                 "and removed any files staged.")
+
+        # If we are exiting at this stage then we need to kill off
+        for item in jobs:
+
+            job = jobs[item]
+
+            if "laststatus" in job:
+
+                # If job is not finished delete and stage.
+                if (job["laststatus"] != "Complete" and
+                        job["laststatus"] != "Submit Error"):
+
+                    # Kill it.
+                    scheduling.delete(job)
+
+                    # Transfer the directories as they are.
+                    staging.stage_downstream(job)
+
+                # Job is finished then just stage.
+                elif job["laststatus"] != "Submit Error":
+
+                    # Transfer the directories as they are.
+                    staging.stage_downstream(job)
+
+        staging.cleanup(jobs)
 
 
 def _commandlineproc(alllongbowargs, cmdlnargs, parameters):
