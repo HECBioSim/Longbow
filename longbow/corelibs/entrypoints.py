@@ -496,7 +496,7 @@ def _downloadexamples(longbowargs):
 
         # Check if the examples have already been downloaded first.
         if not os.path.isfile(
-                os.path.join(os.getcwd(), "LongbowExamples.zip")):
+                os.path.join(os.getcwd(), "longbow-examples.zip")):
 
             print("Downloading examples...")
 
@@ -505,24 +505,25 @@ def _downloadexamples(longbowargs):
                 subprocess.check_call([
                     "wget", "http://www.hecbiosim.ac.uk/downloads/send/"
                     "2-software/4-longbow-examples", "-O",
-                    os.path.join(os.getcwd(), "LongbowExamples.zip")])
+                    os.path.join(os.getcwd(), "longbow-examples.zip")])
 
             except subprocess.CalledProcessError:
 
                 subprocess.call([
                     "curl", "-L", "http://www.hecbiosim.ac.uk/downloads/send/"
                     "2-software/4-longbow-examples", "-o",
-                    os.path.join(os.getcwd(), "LongbowExamples.zip")])
+                    os.path.join(os.getcwd(), "longbow-examples.zip")])
 
             # Unzip the archive file.
             print("Extracting the archive file...")
 
-            subprocess.call(["unzip", "-d", os.getcwd(),
-                             os.path.join(os.getcwd(), "LongbowExamples.zip")])
+            subprocess.call(
+                ["unzip", "-d", os.getcwd(),
+                 os.path.join(os.getcwd(), "longbow-examples.zip")])
 
             print("Removing the zip archive file...")
 
-            os.remove(os.path.join(os.getcwd(), "LongbowExamples.zip"))
+            os.remove(os.path.join(os.getcwd(), "longbow-examples.zip"))
 
             print("Done.")
 
