@@ -1,0 +1,61 @@
+#!/usr/bin/env python
+
+# Longbow is Copyright (C) of James T Gebbie-Rayet and Gareth B Shannon 2015.
+#
+# This file is part of the Longbow software which was developed as part of the
+# HECBioSim project (http://www.hecbiosim.ac.uk/).
+#
+# HECBioSim facilitates and supports high-end computing within the UK
+# biomolecular simulation community on resources such as ARCHER.
+#
+# Longbow is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 2 of the License, or (at your option) any later
+# version.
+#
+# Longbow is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Longbow.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+This module contains the Longbow application entry point.
+"""
+
+import longbow
+
+if __name__ == "__main__":
+
+    """
+    Main entry point for the Longbow application.
+
+    To run Longbow, simply write longbow before the command you wish to
+    be executed using your chosen simulation package e.g.:
+
+    %longbow pmemd.MPI -i example.in -c example.min -p example.top -o output
+
+    In addition, the following longbow flags may be provided before the
+    executable (pmemd.MPI in the above example):
+
+    --about
+    --debug
+    --disconnect
+    --examples
+    --help
+    --hosts [file name]
+    --job [file name]
+    --jobname [job name]
+    --log [file name]
+    --recover [file name]
+    --resource [remote resource name]
+    --replicates [number]
+    --verbose
+    --version
+
+    Read the documentation at http://www.hecbiosim.ac.uk/longbow-docs for more
+    information on how to setup and run jobs using Longbow.
+    """
+
+    longbow.launcher()

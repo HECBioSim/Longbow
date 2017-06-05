@@ -1,6 +1,8 @@
 doc-warnings: true
 test-warnings: false
 strictness: veryhigh
+ignore-paths:
+  - longbow/__init__.py
 python-targets:
   - 2
   - 3

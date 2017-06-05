@@ -12,6 +12,8 @@
   :target: https://landscape.io/github/HECBioSim/Longbow/master
   :alt: Code Health
 
+Longbow
+=======
 
 Longbow is a piece of software that acts as a job proxying tool for 
 biomolecular simulations, Longbow reproduces the native look and feel of using
