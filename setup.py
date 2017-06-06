@@ -145,8 +145,8 @@ try:
     BASHFILE.write('    cur="${COMP_WORDS[COMP_CWORD]}"\n')
     BASHFILE.write('    prev="${COMP_WORDS[COMP_CWORD-1]}"\n')
     BASHFILE.write('    opts="--about --debug --disconnect --examples --help '
-                   '--hosts --job --jobname --log --recover --resource '
-                   '--replicates --verbose --version"\n\n')
+                   '--hosts --job --jobname --log --nochecks --recover '
+                   '--resource --replicates --verbose --version"\n\n')
     BASHFILE.write('    if [[ ${cur} == -* ]] ; then\n')
     BASHFILE.write('        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )\n')
     BASHFILE.write('        return 0"\n')
