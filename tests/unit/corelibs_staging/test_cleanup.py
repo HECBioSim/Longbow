@@ -46,7 +46,8 @@ def test_cleanup_single(mock_delete, mock_list):
     jobs = {
         "jobone": {
             "destdir": "/path/to/jobone12484",
-            "remoteworkdir": "/path/to/local/dir"
+            "remoteworkdir": "/path/to/local/dir",
+            "recoveryfile": ""
             }
     }
 
@@ -69,15 +70,18 @@ def test_cleanup_multiple(mock_delete, mock_list):
     jobs = {
         "jobone": {
             "destdir": "/path/to/jobone12484",
-            "remoteworkdir": "/path/to/local/dir"
+            "remoteworkdir": "/path/to/local/dir",
+            "recoveryfile": ""
             },
         "jobtwo": {
             "destdir": "/path/to/jobtwo12484",
-            "remoteworkdir": "/path/to/local/dir"
+            "remoteworkdir": "/path/to/local/dir",
+            "recoveryfile": ""
             },
         "jobthree": {
             "destdir": "/path/to/jobthree12484",
-            "remoteworkdir": "/path/to/local/dir"
+            "remoteworkdir": "/path/to/local/dir",
+            "recoveryfile": ""
             }
     }
 
@@ -100,7 +104,8 @@ def test_cleanup_params(mock_delete, mock_list):
     jobs = {
         "jobone": {
             "destdir": "/path/to/jobone12484",
-            "remoteworkdir": "/path/to/local/dir"
+            "remoteworkdir": "/path/to/local/dir",
+            "recoveryfile": ""
             }
     }
 
@@ -124,7 +129,8 @@ def test_cleanup_nodelete(mock_delete, mock_list):
     jobs = {
         "jobone": {
             "destdir": "/path/to/jobone12484",
-            "remoteworkdir": "/path/to/jobone12484"
+            "remoteworkdir": "/path/to/jobone12484",
+            "recoveryfile": ""
             }
     }
 
@@ -148,7 +154,8 @@ def test_cleanup_excepttest1(mock_delete, mock_list):
     jobs = {
         "jobone": {
             "destdir": "/path/to/jobone12484",
-            "remoteworkdir": "/path/to/local/dir"
+            "remoteworkdir": "/path/to/local/dir",
+            "recoveryfile": ""
             }
     }
 
@@ -170,7 +177,8 @@ def test_cleanup_excepttest2(mock_delete, mock_list):
     jobs = {
         "jobone": {
             "destdir": "/path/to/jobone12484",
-            "remoteworkdir": "/path/to/local/dir"
+            "remoteworkdir": "/path/to/local/dir",
+            "recoveryfile": ""
             }
     }
 
@@ -192,7 +200,8 @@ def test_cleanup_excepttest3(mock_delete, mock_list):
     jobs = {
         "jobone": {
             "destdir": "/path/to/jobone12484",
-            "remoteworkdir": "/path/to/local/dir"
+            "remoteworkdir": "/path/to/local/dir",
+            "recoveryfile": ""
             }
     }
 
@@ -214,7 +223,8 @@ def test_cleanup_excepttest4(mock_delete, mock_list):
     jobs = {
         "jobone": {
             "destdir": "/path/to/jobone12484",
-            "remoteworkdir": "/path/to/local/dir"
+            "remoteworkdir": "/path/to/local/dir",
+            "recoveryfile": ""
             }
     }
 
@@ -222,3 +232,84 @@ def test_cleanup_excepttest4(mock_delete, mock_list):
     mock_list.side_effect = NameError("blah")
 
     cleanup(jobs)
+
+
+@mock.patch('os.remove')
+@mock.patch('os.path.isfile')
+@mock.patch('longbow.corelibs.shellwrappers.remotelist')
+@mock.patch('longbow.corelibs.shellwrappers.remotedelete')
+def test_cleanup_recoveryfilerm1(m_delete, m_list, m_isfile, m_remove):
+
+    """
+    Test that the recoveryfile would be removed.
+    """
+
+    jobs = {
+        "jobone": {
+            "destdir": "/path/to/jobone12484",
+            "remoteworkdir": "/path/to/local/dir",
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
+            }
+    }
+
+    m_isfile.return_value = True
+    m_delete.return_value = None
+    m_list.return_value = None
+
+    cleanup(jobs)
+
+    assert m_remove.call_count == 1
+
+
+@mock.patch('os.remove')
+@mock.patch('os.path.isfile')
+@mock.patch('longbow.corelibs.shellwrappers.remotelist')
+@mock.patch('longbow.corelibs.shellwrappers.remotedelete')
+def test_cleanup_recoveryfilerm2(m_delete, m_list, m_isfile, m_remove):
+
+    """
+    Test that the recoveryfile would be removed.
+    """
+
+    jobs = {
+        "jobone": {
+            "destdir": "/path/to/jobone12484",
+            "remoteworkdir": "/path/to/local/dir",
+            "recoveryfile": ""
+            }
+    }
+
+    m_isfile.return_value = True
+    m_delete.return_value = None
+    m_list.return_value = None
+
+    cleanup(jobs)
+
+    assert m_remove.call_count == 0
+
+
+@mock.patch('os.remove')
+@mock.patch('os.path.isfile')
+@mock.patch('longbow.corelibs.shellwrappers.remotelist')
+@mock.patch('longbow.corelibs.shellwrappers.remotedelete')
+def test_cleanup_recoveryfilerm3(m_delete, m_list, m_isfile, m_remove):
+
+    """
+    Test that the recoveryfile would be removed.
+    """
+
+    jobs = {
+        "jobone": {
+            "destdir": "/path/to/jobone12484",
+            "remoteworkdir": "/path/to/local/dir",
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
+            }
+    }
+
+    m_isfile.return_value = False
+    m_delete.return_value = None
+    m_list.return_value = None
+
+    cleanup(jobs)
+
+    assert m_remove.call_count == 0
