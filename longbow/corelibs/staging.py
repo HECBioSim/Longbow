@@ -46,6 +46,7 @@ cleanup(jobs)
 """
 
 import logging
+import os
 
 import longbow.corelibs.exceptions as exceptions
 import longbow.corelibs.shellwrappers as shellwrappers
@@ -204,5 +205,12 @@ def cleanup(jobs):
         except NameError:
 
             pass
+
+    if (jobs[list(jobs.keys())[0]]["recoveryfile"] != "" and
+            os.path.isfile(jobs[list(jobs.keys())[0]]["recoveryfile"])):
+
+        LOG.info("Removing the recovery file.")
+
+        os.remove(jobs[list(jobs.keys())[0]]["recoveryfile"])
 
     LOG.info("Cleaning up complete.")
