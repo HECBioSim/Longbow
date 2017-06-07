@@ -70,7 +70,8 @@ def test_monitor_testpollfrequency(mock_init, mock_poll, mock_wait):
             "resource": "hpc1",
             "queue-max": "0",
             "queue-slots": "0",
-            "laststatus": "Running"
+            "laststatus": "Running",
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
         }
     }
     QUEUEINFO["hpc1"] = {}
@@ -111,7 +112,8 @@ def test_monitor_teststagefreq(mock_init, mock_poll, mock_wait, mock_down):
             "resource": "hpc1",
             "queue-max": "0",
             "queue-slots": "0",
-            "laststatus": "Running"
+            "laststatus": "Running",
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
         }
     }
     QUEUEINFO["hpc1"] = {}
@@ -154,19 +156,22 @@ def test_monitor_complete1(mock_init, mock_poll, mock_wait, mock_down,
             "resource": "hpc1",
             "queue-max": "0",
             "queue-slots": "0",
-            "laststatus": "Finished"
+            "laststatus": "Finished",
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
         },
         "jobtwo": {
             "resource": "hpc1",
             "queue-max": "0",
             "queue-slots": "0",
-            "laststatus": "Complete"
+            "laststatus": "Complete",
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
         },
         "jobthree": {
             "resource": "hpc1",
             "queue-max": "0",
             "queue-slots": "0",
-            "laststatus": "Submit Error"
+            "laststatus": "Submit Error",
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
         }
     }
 
@@ -205,31 +210,36 @@ def test_monitor_complete2(mock_init, mock_poll, mock_wait, mock_down,
             "resource": "hpc1",
             "queue-max": "0",
             "queue-slots": "0",
-            "laststatus": "Finished"
+            "laststatus": "Finished",
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
         },
         "jobtwo": {
             "resource": "hpc1",
             "queue-max": "0",
             "queue-slots": "0",
-            "laststatus": "Complete"
+            "laststatus": "Complete",
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
         },
         "jobthree": {
             "resource": "hpc1",
             "queue-max": "0",
             "queue-slots": "0",
-            "laststatus": "Submit Error"
+            "laststatus": "Submit Error",
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
         },
         "jobfour": {
             "resource": "hpc1",
             "queue-max": "0",
             "queue-slots": "0",
-            "laststatus": "Queued"
+            "laststatus": "Queued",
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
         },
         "jobfive": {
             "resource": "hpc1",
             "queue-max": "0",
             "queue-slots": "0",
-            "laststatus": "Running"
+            "laststatus": "Running",
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
         }
     }
 
@@ -272,31 +282,36 @@ def test_monitor_run1(mock_init, mock_poll, mock_wait, mock_down,
             "resource": "hpc1",
             "queue-max": "0",
             "queue-slots": "0",
-            "laststatus": "Running"
+            "laststatus": "Running",
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
         },
         "jobtwo": {
             "resource": "hpc1",
             "queue-max": "0",
             "queue-slots": "0",
-            "laststatus": "Running"
+            "laststatus": "Running",
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
         },
         "jobthree": {
             "resource": "hpc1",
             "queue-max": "0",
             "queue-slots": "0",
-            "laststatus": "Queued"
+            "laststatus": "Queued",
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
         },
         "jobfour": {
             "resource": "hpc1",
             "queue-max": "0",
             "queue-slots": "0",
-            "laststatus": "Queued"
+            "laststatus": "Queued",
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
         },
         "jobfive": {
             "resource": "hpc1",
             "queue-max": "0",
             "queue-slots": "0",
-            "laststatus": "Queued"
+            "laststatus": "Queued",
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
         }
     }
 
@@ -340,19 +355,22 @@ def test_monitor_except(mock_init, mock_poll, mock_wait, mock_down,
             "resource": "hpc1",
             "queue-max": "0",
             "queue-slots": "0",
-            "laststatus": "Finished"
+            "laststatus": "Finished",
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
         },
         "jobtwo": {
             "resource": "hpc1",
             "queue-max": "0",
             "queue-slots": "0",
-            "laststatus": "Complete"
+            "laststatus": "Complete",
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
         },
         "jobthree": {
             "resource": "hpc1",
             "queue-max": "0",
             "queue-slots": "0",
-            "laststatus": "Submit Error"
+            "laststatus": "Submit Error",
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
         }
     }
     QUEUEINFO["hpc1"] = {}

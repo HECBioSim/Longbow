@@ -54,8 +54,9 @@ saveini(inifile, params)
 """
 
 import logging
-import re
 import os
+import re
+import time
 from random import randint
 
 import longbow.corelibs.exceptions as exceptions
@@ -85,6 +86,7 @@ JOBTEMPLATE = {
     "polling-frequency": "300",
     "port": "22",
     "queue": "",
+    "recoveryfile": "",
     "remoteworkdir": "",
     "resource": "",
     "replicates": "1",
@@ -442,6 +444,11 @@ def _processconfigsfinalinit(jobs):
 
         LOG.debug("Job '%s' will be run in the '%s' directory on the remote "
                   "resource.", job, jobs[job]["destdir"])
+
+        # Create a recovery file.
+        jobs[job]["recoveryfile"] = (
+            os.path.join(os.path.expanduser('~/.longbow'), "recovery-" +
+                         time.strftime("%Y%m%d-%H%M%S")))
 
 
 def _processconfigsparams(jobs, parameters, jobdata, hostdata):

@@ -62,8 +62,6 @@ import longbow.schedulers as schedulers
 
 LOG = logging.getLogger("longbow.corelibs.scheduling")
 QUEUEINFO = {}
-JOBFILE = os.path.join(os.path.expanduser('~/.longbow'), "recovery-" +
-                       time.strftime("%Y%m%d-%H%M%S"))
 
 
 def checkenv(jobs, hostconf):
@@ -208,6 +206,7 @@ def monitor(jobs):
     allfinished = False
     lastpolltime = 0
     laststagetime = 0
+    recoveryfile = jobs[list(jobs.keys())[0]]["recoveryfile"]
     saverecoveryfile = True
     recoveryfileerror = False
 
@@ -241,13 +240,14 @@ def monitor(jobs):
 
         # Save out the recovery files.
         if (os.path.isdir(os.path.expanduser('~/.longbow')) and
-                saverecoveryfile is True and recoveryfileerror is False):
+                saverecoveryfile is True and recoveryfileerror is False and
+                recoveryfile != ""):
 
             saverecoveryfile = False
 
             try:
 
-                configuration.saveini(JOBFILE, jobs)
+                configuration.saveini(recoveryfile, jobs)
 
             except (OSError, IOError):
 
@@ -412,13 +412,15 @@ def submit(jobs):
         job["queue-max"] = QUEUEINFO[job["resource"]]["queue-max"]
 
     # Save out the recovery files.
-    if os.path.isdir(os.path.expanduser('~/.longbow')):
+    if (os.path.isdir(os.path.expanduser('~/.longbow')) and
+            job["recoveryfile"] != ""):
 
         try:
 
-            LOG.info("Recovery file will be placed at path '%s'", JOBFILE)
+            LOG.info("Recovery file will be placed at path '%s'",
+                     job["recoveryfile"])
 
-            configuration.saveini(JOBFILE, jobs)
+            configuration.saveini(job["recoveryfile"], jobs)
 
         except (OSError, IOError):
 

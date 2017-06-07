@@ -139,6 +139,58 @@ def test_submit_multiplediff(mock_isdir, mock_lsf, mock_pbs, mock_slurm):
 @mock.patch('longbow.corelibs.configuration.saveini')
 @mock.patch('longbow.schedulers.lsf.submit')
 @mock.patch('os.path.isdir')
+def test_submit_filewrite(mock_isdir, mock_submit, mock_savini):
+
+    """
+    Test that the recovery file write happens if everything is working.
+    """
+
+    jobs = {
+        "job-one": {
+            "resource": "test-machine",
+            "scheduler": "LSF",
+            "jobid": "test456",
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
+        }
+    }
+
+    mock_isdir.return_value = True
+    mock_submit.return_value = None
+
+    submit(jobs)
+
+    assert mock_savini.call_count == 1
+
+
+@mock.patch('longbow.corelibs.configuration.saveini')
+@mock.patch('longbow.schedulers.lsf.submit')
+@mock.patch('os.path.isdir')
+def test_submit_fileuninit(mock_isdir, mock_submit, mock_savini):
+
+    """
+    Test that if the recovery file is uninitialised that no writing happens.
+    """
+
+    jobs = {
+        "job-one": {
+            "resource": "test-machine",
+            "scheduler": "LSF",
+            "jobid": "test456",
+            "recoveryfile": ""
+        }
+    }
+
+    mock_isdir.return_value = True
+    mock_submit.return_value = None
+
+    submit(jobs)
+
+    assert mock_savini.call_count == 0
+
+
+@mock.patch('longbow.corelibs.configuration.saveini')
+@mock.patch('longbow.schedulers.lsf.submit')
+@mock.patch('os.path.isdir')
 def test_submit_fileexcept1(mock_isdir, mock_submit, mock_savini):
 
     """
@@ -149,7 +201,8 @@ def test_submit_fileexcept1(mock_isdir, mock_submit, mock_savini):
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
-            "jobid": "test456"
+            "jobid": "test456",
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
         }
     }
 
@@ -173,7 +226,8 @@ def test_submit_fileexcept2(mock_isdir, mock_submit, mock_savini):
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
-            "jobid": "test456"
+            "jobid": "test456",
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
         }
     }
 
