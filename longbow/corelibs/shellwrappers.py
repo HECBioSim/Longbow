@@ -102,10 +102,9 @@ def checkconnections(jobs):
     jobs (dictionary) - The Longbow jobs data structure, see configuration.py
                         for more information about the format of this
                         structure.
-
     """
-    LOG.info("Testing connections to all resources that are referenced in the "
-             "job configurations.")
+    LOG.info("Performing basic connection and environment tests for all "
+             "machines referenced in jobs.")
     checked = []
 
     # Test all of the computers listed in jobs in the job configuration
@@ -113,26 +112,46 @@ def checkconnections(jobs):
     # configuration each time if they are not used.
     for item in jobs:
 
-        job = jobs[item]
-        resource = job["resource"]
-
         # Have we checked this connection already?
-        if resource not in checked:
+        if jobs[item]["resource"] not in checked:
 
             # Make sure we don't check this again.
-            checked.extend([resource])
+            checked.extend([jobs[item]["resource"]])
 
-            LOG.debug("Testing connection to '%s'", resource)
+            LOG.debug("Testing connection to '%s'", jobs[item]["resource"])
 
+            # Test that the connection works.
             try:
 
-                sendtossh(job, ["ls"])
+                sendtossh(jobs[item], ["ls"])
+
+                LOG.info("Test connection to '%s' - passed",
+                         jobs[item]["resource"])
 
             except exceptions.SSHError:
 
                 raise
 
-            LOG.info("Test connection to '%s' - passed", resource)
+            # Test that basic enviroment looks ok.
+            try:
+
+                sendtossh(jobs[item], ["module avail"])
+
+            except exceptions.SSHError as err:
+
+                # If the module command is not found, then it is highly likely
+                # that the non-login shells do not source the /etc/profile in
+                # which the system loads a lot of the environment.
+                if ("bash: module: command not found" in err.stdout or
+                        "bash: module: command not found" in err.stderr):
+
+                    # Go over all jobs referencing this machine and switch on
+                    # the environment fix.
+                    for job in jobs:
+
+                        if jobs[job]["resource"] == jobs[item]["resource"]:
+
+                            jobs[job]["env-fix"] = "true"
 
 
 def sendtoshell(cmd):
@@ -200,6 +219,12 @@ def sendtossh(job, args):
     """
     # basic ssh command.
     cmd = ["ssh", "-p " + job["port"], job["user"] + "@" + job["host"]]
+
+    # Source the /etc/profile on machines where problems have been detected
+    # with the environment.
+    if job["env-fix"] == "true":
+
+        cmd.append("source /etc/profile;")
 
     # add the commands to be sent to ssh.
     cmd.extend(args)

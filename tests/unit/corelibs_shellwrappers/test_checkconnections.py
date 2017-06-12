@@ -37,6 +37,15 @@ import longbow.corelibs.exceptions as exceptions
 from longbow.corelibs.shellwrappers import checkconnections
 
 
+def sshfunc(job, cmd):
+    """Function to mock the throwing of exception for a test."""
+
+    if cmd[0] == "module avail" and job["resource"] == "resource1":
+
+        raise exceptions.SSHError(
+            "Err", ("", "bash: module: command not found", 0))
+
+
 @mock.patch('longbow.corelibs.shellwrappers.sendtossh')
 def test_testconnections_single(mock_sendtossh):
 
@@ -52,7 +61,7 @@ def test_testconnections_single(mock_sendtossh):
 
     checkconnections(jobs)
 
-    assert mock_sendtossh.call_count == 1, "sendtossh should be called once"
+    assert mock_sendtossh.call_count == 2, "sendtossh should be called twice"
 
 
 @mock.patch('longbow.corelibs.shellwrappers.sendtossh')
@@ -76,7 +85,7 @@ def test_testconnections_multiple(mock_sendtossh):
 
     checkconnections(jobs)
 
-    assert mock_sendtossh.call_count == 2, "sendtossh should be called twice"
+    assert mock_sendtossh.call_count == 4, "should be called four times"
 
 
 @mock.patch('longbow.corelibs.shellwrappers.sendtossh')
@@ -104,3 +113,34 @@ def test_testconnections_sshexcept(mock_sendtossh):
     with pytest.raises(exceptions.SSHError):
 
         checkconnections(jobs)
+
+
+@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+def test_testconnections_envfix(mock_sendtossh):
+
+    """
+    Test that the environment checking works.
+    """
+
+    jobs = {
+        "LongbowJob1": {
+            "resource": "resource1",
+            "env-fix": "false"
+        },
+        "LongbowJob2": {
+            "resource": "resource2",
+            "env-fix": "false"
+        },
+        "LongbowJob3": {
+            "resource": "resource1",
+            "env-fix": "false"
+        }
+    }
+
+    mock_sendtossh.side_effect = sshfunc
+
+    checkconnections(jobs)
+
+    assert jobs["LongbowJob1"]["env-fix"] == "true"
+    assert jobs["LongbowJob2"]["env-fix"] == "false"
+    assert jobs["LongbowJob3"]["env-fix"] == "true"

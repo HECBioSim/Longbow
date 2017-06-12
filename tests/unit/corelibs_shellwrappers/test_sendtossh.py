@@ -48,7 +48,8 @@ def test_sendtossh_returncheck(mock_sendtoshell):
     job = {
         "port": "22",
         "user": "juan_trique-ponee",
-        "host": "massive-machine"
+        "host": "massive-machine",
+        "env-fix": "false"
     }
 
     args = ["ls"]
@@ -74,7 +75,8 @@ def test_sendtossh_errorcode(mock_sendtoshell):
     job = {
         "port": "22",
         "user": "juan_trique-ponee",
-        "host": "massive-machine"
+        "host": "massive-machine",
+        "env-fix": "false"
     }
 
     args = ["ls"]
@@ -98,7 +100,8 @@ def test_sendtossh_formattest(mock_sendtoshell):
     job = {
         "port": "22",
         "user": "juan_trique-ponee",
-        "host": "massive-machine"
+        "host": "massive-machine",
+        "env-fix": "false"
     }
 
     # Set the return values of sendtoshell.
@@ -108,6 +111,32 @@ def test_sendtossh_formattest(mock_sendtoshell):
 
     callargs = mock_sendtoshell.call_args[0][0]
     testargs = "ssh -p 22 juan_trique-ponee@massive-machine ls"
+
+    assert " ".join(callargs) == testargs
+
+
+@mock.patch('longbow.corelibs.shellwrappers.sendtoshell')
+def test_sendtossh_envfix(mock_sendtoshell):
+
+    """
+    Testing that the environment fix is switched on.
+    """
+
+    job = {
+        "port": "22",
+        "user": "juan_trique-ponee",
+        "host": "massive-machine",
+        "env-fix": "true"
+    }
+
+    # Set the return values of sendtoshell.
+    mock_sendtoshell.return_value = "Output message", "Error message", 0
+
+    sendtossh(job, ["ls"])
+
+    callargs = mock_sendtoshell.call_args[0][0]
+    testargs = ("ssh -p 22 juan_trique-ponee@massive-machine source "
+                "/etc/profile; ls")
 
     assert " ".join(callargs) == testargs
 
@@ -125,7 +154,8 @@ def test_sendtossh_retries(mock_sendtoshell, mock_time):
     job = {
         "port": "22",
         "user": "juan_trique-ponee",
-        "host": "massive-machine"
+        "host": "massive-machine",
+        "env-fix": "false"
     }
 
     args = ["ls"]

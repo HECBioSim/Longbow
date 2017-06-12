@@ -75,6 +75,7 @@ JOBTEMPLATE = {
     "download-include": "",
     "email-address": "",
     "email-flags": "",
+    "env-fix": "false",
     "executable": "",
     "executableargs": "",
     "handler": "",
