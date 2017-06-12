@@ -54,11 +54,11 @@ def test_downloadexamples_wget():
 
     assert not os.path.isfile(
         os.path.join(os.getcwd(), "longbow-examples.zip"))
-    assert os.path.isdir(os.path.join(os.getcwd(), "LongbowExamples/"))
+    assert os.path.isdir(os.path.join(os.getcwd(), "longbow-examples/"))
 
-    if os.path.isdir(os.path.join(os.getcwd(), "LongbowExamples/")):
+    if os.path.isdir(os.path.join(os.getcwd(), "longbow-examples/")):
 
-        shutil.rmtree(os.path.join(os.getcwd(), "LongbowExamples/"))
+        shutil.rmtree(os.path.join(os.getcwd(), "longbow-examples/"))
 
 
 @mock.patch('subprocess.check_call')
@@ -78,8 +78,8 @@ def test_downloadexamples_curl(mock_check_call):
 
     assert not os.path.isfile(
         os.path.join(os.getcwd(), "longbow-examples.zip"))
-    assert os.path.isdir(os.path.join(os.getcwd(), "LongbowExamples/"))
+    assert os.path.isdir(os.path.join(os.getcwd(), "longbow-examples/"))
 
-    if os.path.isdir(os.path.join(os.getcwd(), "LongbowExamples/")):
+    if os.path.isdir(os.path.join(os.getcwd(), "longbow-examples/")):
 
-        shutil.rmtree(os.path.join(os.getcwd(), "LongbowExamples/"))
+        shutil.rmtree(os.path.join(os.getcwd(), "longbow-examples/"))

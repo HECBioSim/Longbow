@@ -518,7 +518,7 @@ def _downloadexamples(longbowargs):
             print("Extracting the archive file...")
 
             subprocess.call(
-                ["unzip", "-d", os.getcwd(),
+                ["unzip", "-d", os.path.join(os.getcwd(), "longbow-examples/"),
                  os.path.join(os.getcwd(), "longbow-examples.zip")])
 
             print("Removing the zip archive file...")
