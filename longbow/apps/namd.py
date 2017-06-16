@@ -48,7 +48,7 @@ EXECDATA = {
 
 
 def file_parser(filename, path, files, substitutions=None):
-    """Method to find dependancy files for upload in a substitution aware way.
+    """Find dependancy files and add them to the upload list.
 
     Recursive function that will assimilate from charmm input files, a list of
     dependancy files to be staged to the remote host. The filename will be
@@ -114,7 +114,7 @@ def file_parser(filename, path, files, substitutions=None):
 
 
 def _filechecks(path, filename):
-    """A private method to check the file paths to make sure they are valid."""
+    """Check the file paths to make sure they are valid."""
     # Initialise variable.
     addfile = ""
 
@@ -149,7 +149,7 @@ def _filechecks(path, filename):
 
 
 def _fileopen(path, addfile):
-    """A private method to open a file and return the handle."""
+    """Open a file and return the handle."""
     # Initialise variable.
     fil = None
 
@@ -166,7 +166,7 @@ def _fileopen(path, addfile):
 
 
 def _internalsubstitutions(variables, words):
-    """A private method to process substitutions from file."""
+    """Process substitutions from file."""
     # Process substitutions.
     if words[0].lower() == 'set':
 
@@ -180,7 +180,7 @@ def _internalsubstitutions(variables, words):
 
 
 def _newfilechecks(addfile, newfile, path):
-    """A private method to check any new files."""
+    """Perform basic checks of on any new file."""
     if newfile.count("../") == 1:
 
         # If we are in a repX subdirectory, the file must be in cwd.
@@ -237,7 +237,7 @@ def _newfilechecks(addfile, newfile, path):
 
 
 def _variablesubstitutions(newfile, variables):
-    """A private method to process substitutions."""
+    """Process substitutions."""
     # Do variable substitution.
     if '$' in newfile and len(variables.keys()) > 0:
 

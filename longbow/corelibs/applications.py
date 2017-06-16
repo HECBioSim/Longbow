@@ -49,11 +49,15 @@ LOG = logging.getLogger("longbow.corelibs.applications")
 
 
 def checkapp(jobs):
-    """A method to test that executables and their modules are launchable.
+    """Test that executables and their modules are launchable.
 
-    This method will make an attempt to check that the application executables
-    required to run a job/s is present on the specified host/s. This method is
-    capable of using the module system.
+    This method will make an attempt to check that the application executable
+    required to run a job or many jobs is present on the specified host. This
+    method is capable of using the module system using some pre-configured
+    either using user specified modules supplied in configuration files, or by
+    using internal defaults. Users of codes that we are not supporting out of
+    the box, will either have to specify the modules explicitly within
+    configuration files.
 
     Required arguments are:
 
@@ -110,7 +114,7 @@ def checkapp(jobs):
 
 
 def processjobs(jobs):
-    """A method to process the application portion of the command-line.
+    """Process the application portion of the command-line.
 
     This method will process information that is given as an intended target to
     be passed on to the executable at run time. It will check that required
@@ -238,7 +242,7 @@ def _flagvalidator(job, foundflags):
 
 
 def _markfoundfiles(arg, initargs, foundflags):
-    """Method to mark file flags as found."""
+    """Mark file flags as found."""
     try:
 
         pos = initargs.index(arg) - 1

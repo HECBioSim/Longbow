@@ -43,7 +43,7 @@ QUERY_STRING = "env | grep -i 'lsf'"
 
 
 def delete(job):
-    """A Method for deleting a job."""
+    """Delete a job."""
     # Initialise variables.
     jobid = job["jobid"]
 
@@ -59,7 +59,7 @@ def delete(job):
 
 
 def prepare(job):
-    """A method to create the LSF jobfile ready for submitting jobs."""
+    """Create the LSF jobfile ready for submitting jobs."""
     # Open file for LSF script.
     lsffile = os.path.join(job["localworkdir"], "submit.lsf")
     jobfile = open(lsffile, "w+")
@@ -161,7 +161,7 @@ def prepare(job):
 
 
 def status(job):
-    """A method for querying a job status."""
+    """Query a job status."""
     # Initialise variables.
     states = {
         "DONE": "Job Exited Properly",
@@ -209,7 +209,7 @@ def status(job):
 
 
 def submit(job):
-    """A method for submitting a job."""
+    """Submit a job."""
     # cd into the working directory and submit the job.
     cmd = ["cd " + job["destdir"] + "\n", "bsub < " + job["subfile"]]
 

@@ -214,7 +214,7 @@ def _internalsubstitutions(variables, words):
 
 
 def _newfilechecks(addfile, newfile, path):
-    """Performs basic checks of on any new file."""
+    """Perform basic checks of on any new file."""
     if newfile.count("../") == 1:
 
         # If we are in a repX subdirectory, the file must be in cwd.

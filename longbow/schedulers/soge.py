@@ -44,7 +44,7 @@ QUERY_STRING = "env | grep -i 'sge'"
 
 
 def delete(job):
-    """A Method for deleting a job."""
+    """Delete a job."""
     # Initialise variables.
     jobid = job["jobid"]
 
@@ -60,7 +60,7 @@ def delete(job):
 
 
 def prepare(job):
-    """A method to create the SGE jobfile ready for submitting jobs."""
+    """Create the SGE jobfile ready for submitting jobs."""
     # Open file for SGE script.
     sgefile = os.path.join(job["localworkdir"], "submit.soge")
     jobfile = open(sgefile, "w+")
@@ -176,7 +176,7 @@ def prepare(job):
 
 
 def status(job):
-    """A method for querying a job status."""
+    """Query a job status."""
     # Initialise variables.
     states = {
         "h": "Held",
@@ -217,7 +217,7 @@ def status(job):
 
 
 def submit(job):
-    """A method for submitting a job."""
+    """Submit a job."""
     # Change into the working directory and submit the job.
     cmd = ["cd " + job["destdir"] + "\n", "qsub " + job["subfile"]]
 

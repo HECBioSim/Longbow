@@ -56,7 +56,7 @@ EXECDATA = {
 
 
 def defaultfilename(path, item, initargs):
-    """Method for processing tpr files provided by the -deffnm flag.
+    """Process tpr files provided by the -deffnm flag.
 
     The reason this needs a special method is due to the fact that users will
     supply the name as -deffnm test but the file name might be test.tpr which

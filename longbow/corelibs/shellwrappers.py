@@ -90,12 +90,19 @@ LOG = logging.getLogger("longbow.corelibs.shellwrappers")
 
 
 def checkconnections(jobs):
-    """A method to test that connections to HPC machines can be established.
+    """Test that connections to HPC machines can be established.
 
     This method will test that connections to hosts specified in jobs can be
-    established. Problems encountered at this stage could be due to either
-    badly configured hosts, networking problems, or even system maintenance/
-    downtime on the HPC host.
+    established. It will at the same time check if the basic Linux environment
+    looks like it is configured for a non-login shell, if not then the
+    environment fix mode is turned on by setting
+
+    jobs["somejob"]["env-fix] = true
+
+    this will make sure that /etc/profile is sourced on certain calls to the
+    remote machine. Problems encountered at this stage could be due to either
+    badly configured hosts, networking problems, or even system
+    maintenance/downtime on the HPC host.
 
     Required arguments are:
 
@@ -121,16 +128,10 @@ def checkconnections(jobs):
             LOG.debug("Testing connection to '%s'", jobs[item]["resource"])
 
             # Test that the connection works.
-            try:
+            sendtossh(jobs[item], ["ls"])
 
-                sendtossh(jobs[item], ["ls"])
-
-                LOG.info("Test connection to '%s' - passed",
-                         jobs[item]["resource"])
-
-            except exceptions.SSHError:
-
-                raise
+            LOG.info("Test connection to '%s' - passed",
+                     jobs[item]["resource"])
 
             # Test that basic enviroment looks ok.
             try:
@@ -155,7 +156,7 @@ def checkconnections(jobs):
 
 
 def sendtoshell(cmd):
-    """A method to send assembled commands to the Unix shell.
+    """Send assembled commands to the Unix shell.
 
     This method is responsible for handing off commands to the Unix shell, it
     makes use of the subprocess library from the Python standard library.
@@ -197,7 +198,7 @@ def sendtoshell(cmd):
 
 
 def sendtossh(job, args):
-    """A method to construct SSH commands and hands them off to the shell.
+    """Construct SSH commands and hand them off to the shell.
 
     This method constructs a string containing commands to be executed via SSH.
     This string is then handed off to the sendtoshell() method for execution.
@@ -273,7 +274,7 @@ def sendtossh(job, args):
 
 
 def sendtorsync(job, src, dst, includemask, excludemask):
-    """A method to construct Rsync commands and hand them off to the shell.
+    """Construct Rsync commands and hand them off to the shell.
 
     This method constructs a string that forms an rsync command, this string is
     then handed off to the sendtoshell() method for execution.
@@ -382,10 +383,14 @@ def sendtorsync(job, src, dst, includemask, excludemask):
 
 
 def localcopy(src, dst):
-    """A method for copying files from one local path to another.
+    """Copy files from one local path to another.
 
     This method is for copying a file/directory between two local paths, this
-    method relies on the Python standard library to perform operations.
+    method relies on the Python standard library to perform operations. This
+    method will test the path and use the correct python methods for
+    transferring an object whether it be a file or a directory. Note that this
+    function requires that you pass absolute paths as both the source and
+    destination paths.
 
     Required arguments are:
 
@@ -455,10 +460,13 @@ def localcopy(src, dst):
 
 
 def localdelete(src):
-    """A method for deleting local files.
+    """Delete local file/directory.
 
     This method is for deleting a file/directory from the local machine, this
-    method relies on the Python standard library to perform operations.
+    method relies on the Python standard library to perform operations. This
+    method will test the path and use the correct variant of the python methods
+    for deleting a file or a directory. Note that this function requires that
+    you pass absolute paths as the source path.
 
     Required arguments are:
 
@@ -506,11 +514,14 @@ def localdelete(src):
 
 
 def locallist(src):
-    """A method for listing the contents of a local directory.
+    """List the contents of a local directory.
 
     This method is for constructing a list of items present within a given
     directory. This method relies on the Python standard library to perform
-    operations.
+    operations. Note that this method is not recursive, nor will it give
+    information on whether an object is a file or directory, however it is
+    trivial to run these tests using standard Python. Note that this function
+    requires that you pass absolute paths as the source path.
 
     Required arguments are:
 
@@ -546,7 +557,7 @@ def locallist(src):
 
 
 def remotecopy(job, src, dst):
-    """A method for copying files between paths on a remote HPC machine.
+    """Copy files between paths on a remote HPC machine.
 
     This method is for copying a file/directory between two paths on a remote
     host, this is done via passing a copy command to the sendtossh() method.
@@ -589,7 +600,7 @@ def remotecopy(job, src, dst):
 
 
 def remotedelete(job):
-    """A method to delete a file/directory on a remote HPC machine.
+    """Delete a file/directory on a remote HPC machine.
 
     This method is for deleting a file/directory from a path on a remote host,
     this is done via passing a delete command to the sendtossh() method.
@@ -621,7 +632,7 @@ def remotedelete(job):
 
 
 def remotelist(job):
-    """A method to list the contents of a directory on a remote HPC machine.
+    """List the contents of a directory on a remote HPC machine.
 
     This method is for listing the contents of a directory on a remote host,
     this is done via passing a list command to the sendtoshell() method.
@@ -661,7 +672,7 @@ def remotelist(job):
 
 
 def upload(job):
-    """A method to setup the command to upload a file to a remote machine.
+    """Upload a file/s to a remote machine.
 
     This method is for uploading files to a remote host, this method is
     responsible for specifying the direction that the transfer takes place.
@@ -705,10 +716,13 @@ def upload(job):
 
 
 def download(job):
-    """A method to setup the command to download files from a remote machine.
+    """Download file/s from a remote machine.
 
     This method is for downloading files from a remote host, this method is
     responsible for specifying the direction that the transfer takes place.
+    This method will make the appropriate call to the rsync method based on
+    data for a given job, the rsync method should not be called directly and
+    this method should be used instead.
 
     Required arguments are:
 

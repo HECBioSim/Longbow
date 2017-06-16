@@ -103,11 +103,17 @@ JOBTEMPLATE = {
 
 
 def processconfigs(parameters):
-    """A method for processing the raw configuration sources.
+    """Process the raw configuration sources.
 
-    Parameters are loaded from the configuration files and sourced from the
-    command-line and processed into Longbow friendly configuration structures.
-    This is where the parameter hierarchy is applied.
+    This method is used to create and populate the main "jobs" dictionary with
+    data from various configuration sources. This is where the configuration
+    hierarchy described here is enforced. Developers can use this method for
+    their configuration to create the required "jobs" dictionary for use with
+    the rest of the Longbow library. Developers can also simply create the
+    "jobs" dictionary themselves as it is likely that all of the data that
+    should go into this data structure already exists within other structures
+    of their application, in this case developers should use the JOBTEMPLATE
+    as the template to create this to minimise problems.
 
     Required arguments are:
 
@@ -172,7 +178,7 @@ def processconfigs(parameters):
 
 
 def loadconfigs(configfile):
-    """A method to load a Longbow configuration file.
+    """Load a Longbow configuration file.
 
     Files of this format contain the following mark-up structure.
 
@@ -301,7 +307,7 @@ def loadconfigs(configfile):
 
 
 def saveconfigs(configfile, params):
-    """A method for saving to a Longbow configuration file.
+    """Save to a Longbow configuration file.
 
     Files of this format contain the following mark-up structure.
 
@@ -384,7 +390,7 @@ def saveconfigs(configfile, params):
 
 
 def saveini(inifile, params):
-    """A method for saving to a Longbow recovery file.
+    """Save to a Longbow recovery file.
 
     This method will write a simple ini formatted file.
 
@@ -415,7 +421,7 @@ def saveini(inifile, params):
 
 
 def _processconfigsfinalinit(jobs):
-    """A private method to perform some last bits of initialisation."""
+    """Perform some last bits of initialisation."""
     # Initialisation.
     modules = getattr(apps, "PLUGINEXECS")
     modules[""] = ""
@@ -453,7 +459,7 @@ def _processconfigsfinalinit(jobs):
 
 
 def _processconfigsparams(jobs, parameters, jobdata, hostdata):
-    """A private method to assimilate all parameters into jobs dict."""
+    """Assimilate all parameters into jobs dict."""
     # Process the parameters and apply priority ordering.
     for job in jobs:
 
@@ -480,7 +486,7 @@ def _processconfigsparams(jobs, parameters, jobdata, hostdata):
 
 
 def _processconfigsresource(parameters, jobdata, hostsections):
-    """A private method to figure out which HPC each job should use."""
+    """Check which HPC each job should use."""
     # Initialise.
     jobs = {}
 
@@ -527,7 +533,7 @@ def _processconfigsresource(parameters, jobdata, hostsections):
 
 
 def _processconfigsvalidate(jobs):
-    """A private method to perform validation."""
+    """Perform validation."""
     # Initialise required messages for flags.
     required = {
         "executable": "An executable has not been specified on the "
@@ -567,7 +573,7 @@ def _processconfigsvalidate(jobs):
 
 
 def _saveconfigdiffs(params, oldparams, kdiff, vdiff):
-    """A private method to calculate configuration data diffs.
+    """Calculate configuration data diffs.
 
     This method is a private method used by the saveconfigs method to calculate
     diffs between data held in the application and data held in configuration
@@ -612,7 +618,7 @@ def _saveconfigdiffs(params, oldparams, kdiff, vdiff):
 
 
 def _saveconfigupdates(contents, oldparams, valuediff):
-    """A private method to update the file metastructure for existing params.
+    """Update the file metastructure for existing params.
 
     This method is a private method used by the saveconfigs method to update
     parameters that already exist in the configuration file, with the new
@@ -661,7 +667,7 @@ def _saveconfigupdates(contents, oldparams, valuediff):
 
 
 def _saveconfignew(contents, keydiff):
-    """A private method to calculate configuration data diffs.
+    """Calculate configuration data diffs.
 
     This method is a private method used by the saveconfigs method to add new
     parameters to the configuration file, if they have been created.
