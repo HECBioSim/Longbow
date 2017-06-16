@@ -64,7 +64,7 @@ LOG = logging.getLogger("longbow")
 
 
 def launcher():
-    """Main entrypoint for Longbow when used as an application.
+    """Entry point for Longbow when used as an application.
 
     This method is the main entry point for Longbow launched as an application.
     Library users should not use this method when linking Longbow at a high
@@ -233,7 +233,7 @@ def launcher():
 
 
 def longbow(parameters):
-    """Main entry point of the Longbow library.
+    """Entry point at the top level of the Longbow library.
 
     Being the top level method that makes calls on the Longbow library.
     This is a good place to link against Longbow if a developer does not want

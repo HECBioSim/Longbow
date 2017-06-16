@@ -510,7 +510,7 @@ def _testhandler(job):
 
 
 def _monitorinitialise(jobs):
-    """Setup the conditions for monitoring jobs."""
+    """Initialise for monitoring jobs."""
     # Initialise values.
     pollinterval = 0
     stageinterval = 0
