@@ -50,7 +50,9 @@ longbow --job job.conf --verbose
 ################################################################################
 LongbowExamples/CondorSubmission
 
-In this directory, users can learn how to submit Longbow jobs to a local batch system - in this case Condor. Execute the below command on a desktop if using Condor:
+In this directory, users can learn how to submit Longbow jobs to a local batch
+system - in this case Condor. Execute the below command on a desktop if using
+Condor:
 
 condor_submit condor_desc
 
