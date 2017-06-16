@@ -55,7 +55,7 @@ LOG = logging.getLogger("longbow.corelibs.staging")
 
 
 def stage_upstream(jobs):
-    """A method for transfering a jobs files to a remote HPC machine.
+    """Transfer files for all jobs, to a remote HPC machine.
 
     A method for staging files for each job to the target HPC host. The
     underlying utility behind this transfer is rsync, thus it is possible
@@ -112,7 +112,7 @@ def stage_upstream(jobs):
 
 
 def stage_downstream(job):
-    """A method for transfering all job files back from the HPC machine.
+    """Transfer all files for a job, back from the HPC machine.
 
     A method for staging files for each job to from target HPC host. The
     underlying utility behind this transfer is rsync, thus it is possible
@@ -143,11 +143,14 @@ def stage_downstream(job):
 
 
 def cleanup(jobs):
-    """A method for cleaning up the working directory on the HPC machine.
+    """Clean up the working directory on the HPC machine.
 
-    A method for cleaning up the working directory on the HPC host, this method
-    will only delete job directories that are valid for the given Longbow
-    instance, thus avoid data loss.
+    This method will only delete job directories that are valid for jobs within
+    a given Longbow instance, thus avoiding catastrophic data loss. It will
+    also fail gracefully with debug level log messages should the cleanup
+    function be triggered at a stage prior to remote job directory creation.
+    This method also contains the code for cleaning up the recovery file used
+    in the session.
 
     Required arguments are:
 

@@ -44,7 +44,7 @@ QUERY_STRING = "which sbatch"
 
 
 def delete(job):
-    """A Method for deleting a job."""
+    """Delete a job."""
     # Initialise variables.
     jobid = job["jobid"]
 
@@ -60,7 +60,7 @@ def delete(job):
 
 
 def prepare(job):
-    """A method to create the SLURM jobfile ready for submitting jobs."""
+    """Create the SLURM jobfile ready for submitting jobs."""
     # Open file for SLURM script.
     slurmfile = os.path.join(job["localworkdir"], "submit.slurm")
     jobfile = open(slurmfile, "w+")
@@ -166,7 +166,7 @@ def prepare(job):
 
 
 def status(job):
-    """A method for querying a job status."""
+    """Query a job status."""
     # Initialise variables.
     states = {
         "CA": "Cancelled",
@@ -215,7 +215,7 @@ def status(job):
 
 
 def submit(job):
-    """A method for submitting a job."""
+    """Submit a job."""
     # Change into the working directory and submit the job.
     cmd = ["cd " + job["destdir"] + "\n", "sbatch " + job["subfile"]]
 

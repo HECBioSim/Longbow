@@ -64,15 +64,15 @@ LOG = logging.getLogger("longbow")
 
 
 def launcher():
-    """The main entrypoint for Longbow when used as an application.
+    """Entry point for Longbow when used as an application.
 
     This method is the main entry point for Longbow launched as an application.
     Library users should not use this method when linking Longbow at a high
-    level. Developers should be calling Longbowmain() directly with the
-    parameters dictionary already setup.
+    level. Developers doing high level linking should be calling Longbow()
+    directly with the parameters dictionary already setup.
 
     This method takes the information from sys.argv and processes this into a
-    dictionary format ready to fire longbowmain().
+    dictionary format ready to fire longbow().
 
     """
     # -------------------------------------------------------------------------
@@ -233,7 +233,7 @@ def launcher():
 
 
 def longbow(parameters):
-    """The main entry point of the Longbow library.
+    """Entry point at the top level of the Longbow library.
 
     Being the top level method that makes calls on the Longbow library.
     This is a good place to link against Longbow if a developer does not want
@@ -336,16 +336,15 @@ def longbow(parameters):
 
 
 def recovery(recoveryfile):
-    """A method for attempting to recover a Longbow session.
+    """Recover a Longbow session.
 
-    This should be used in cases where jobs have been submitted and somehow
-    Longbow failed to keep running. It will try to take the recovery file,
-    written shortly after submission to recover the whole session. Jobs that
-    are no longer in the queue will be marked as finished and will be staged
-    as normal.
-
-    This method should also be used to recover user specified disconnected
-    sessions.
+    This method is for attempting to recover a failed Longbow session or to
+    reconnect to an intentionally disconnected session. It will try to take the
+    recovery file, written shortly after submission to recover the whole
+    session. Once the data has been loaded from the recovery file and a new job
+    data structure populated, this method will then re-enter the monitoring
+    function to continue where it left off. Any jobs that finished in the
+    meantime will be marked accordingly and then file staging will continue.
 
     Required inputs are:
     recoveryfile (string): A path to the recovery file.
@@ -415,7 +414,7 @@ def recovery(recoveryfile):
 
 
 def _commandlineproc(alllongbowargs, cmdlnargs, parameters):
-    """A method to process the command-line arguments.
+    """Process the command-line arguments.
 
     This method is used to process the command-line to discover any Longbow
     arguments, executables and their arguments.
@@ -531,7 +530,7 @@ def _downloadexamples(longbowargs):
 
 
 def _hostfileproc(parameters):
-    """A method to handle the location of the host configuration file."""
+    """Locate the host configuration file."""
     # Hosts - if a filename hasn't been provided default to hosts.conf
     if parameters["hosts"] is "":
 
@@ -569,7 +568,7 @@ def _hostfileproc(parameters):
 
 
 def _jobfileproc(parameters):
-    """A method to handle the location of the job configuration file."""
+    """Locate the job configuration file."""
     # Job - if a job configuration file has been supplied but the path hasn't
     # look in the current working directory and then the execution directory
     # if needs be.
