@@ -38,8 +38,8 @@ supports.
 Licensing
 =========
 
-Longbow is released under the GNU GPLv2 license. A copy of this license will
-be provided with the Longbow application when it is downloaded and installed.
+Longbow is released under the BSD 3-clause license. A copy of this license is
+provided when Longbow is downloaded and installed.
 
 
 Citing

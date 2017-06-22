@@ -1,8 +1,8 @@
-# Include the copying file
-include COPYING.txt
+# Include AUTHORS file
+include AUTHORS
 
 # Include the license file
-include LICENSE.txt
+include LICENSE
 
 # Include the readme file
 include README.rst
