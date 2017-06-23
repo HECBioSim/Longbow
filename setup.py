@@ -61,7 +61,7 @@ setup(name='Longbow',
       long_description=open('README.rst').read(),
       author='James T Gebbie-Rayet, Gareth B Shannon',
       author_email=('james.gebbie@stfc.ac.uk, '
-                    'gareth.shannon@nottingham.ac.uk'),
+                    'gareth.b.shannon@nasa.gov'),
       url='http://www.hecbiosim.ac.uk',
       license='OSI Approved :: BSD License',
       classifiers=['Development Status :: 5 - Production/Stable',
