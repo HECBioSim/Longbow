@@ -1,3 +1,7 @@
+*******
+AUTHORS
+*******
+
 Longbow was originally created by:
 
 Dr James T. Gebbie-Rayet (STFC - Daresbury Lab)
