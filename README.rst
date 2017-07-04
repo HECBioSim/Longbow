@@ -121,6 +121,9 @@ you wish to contribute to the Longbow base code that you contact us first.
 The following resources are available to developers:
 
 Code repository: https://github.com/hecbiosim/longbow
+
 Unit testing: https://travis-ci.org/HECBioSim/Longbow
+
 Code coverage: https://coveralls.io/github/HECBioSim/Longbow
+
 Code quality: https://landscape.io/github/HECBioSim/Longbow
