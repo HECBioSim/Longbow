@@ -21,8 +21,8 @@ local computer with the difference that the heavy lifting is done by a
 supercomputer.
 
 Longbow will automatically generate the necessary submit files and handle all
-initial file transfer, monitor jobs and transfer jobs at periodic and
-configurable intervals, and perform final file transfer and cleanup.
+initial file transfer, monitor jobs, transfer files at configurable
+intervals and perform final file transfer and cleanup.
 
 Longbow can be used to launch one-off jobs, generate ensembles of similar jobs
 or even run many different jobs over many different supercomputers.
@@ -33,6 +33,11 @@ bio-molecular simulation softwares AMBER, CHARMM, GROMACS, LAMMPS, NAMD.
 Longbow is however highly configurable and will function normally with generic
 software without plugins, however plugins can easily be made to extend Longbow
 to fully support applications and schedulers that do not ship out of the box.
+
+Using Longbow can be as simple as the following example:
+
+local: executable -a arg1 -b arg2 -c arg3
+remote: longbow executable -a arg1 -b arg2 -c arg3
 
 
 Licensing
