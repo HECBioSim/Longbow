@@ -40,6 +40,10 @@ local: executable -a arg1 -b arg2 -c arg3
 
 remote: longbow executable -a arg1 -b arg2 -c arg3
 
+Longbow is also available to developers of applications which require support
+for automating job submission. Longbow is available as a convenient and
+light-weight python API that can be integrated in a number of different way.
+
 
 Licensing
 =========
@@ -80,9 +84,14 @@ make this yourself.
 Documentation
 =============
 
-Documentation for Longbow can be found here:
+Documentation for Longbow users can be found here:
 
 http://www.hecbiosim.ac.uk/longbow-docs
+
+Documentation for developers interested in integrating Longbow into other
+software can be found here:
+
+http://www.hecbiosim.ac.uk/longbow-devdocs
 
 
 Examples
@@ -113,4 +122,3 @@ available to developers:
 
 source code: https://github.com/hecbiosim/longbow
 
-documentation: http://www.hecbiosim.ac.uk/longbow-devdocs
