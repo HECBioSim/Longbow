@@ -75,10 +75,7 @@ or to install manually (see docs) Longbow can be downloaded here:
 
 http://www.hecbiosim.ac.uk/longbow
 
-Please note: In cases where you run the setup script, Longbow will create the
-host configuration file in a hidden directory in your user directory. In some
-cases doing a manual install (not using the setup.py) then you will have to
-make this yourself.
+and then extract and run the setup.py script to install.
 
 
 Documentation
