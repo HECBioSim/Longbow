@@ -37,6 +37,7 @@ to fully support applications and schedulers that do not ship out of the box.
 Using Longbow can be as simple as the following example:
 
 local: executable -a arg1 -b arg2 -c arg3
+
 remote: longbow executable -a arg1 -b arg2 -c arg3
 
 
