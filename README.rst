@@ -15,24 +15,24 @@
 Longbow
 =======
 
-Longbow is a piece of software that acts as a job proxying tool for 
-biomolecular simulations, Longbow reproduces the native look and feel of using
-popular molecular dynamics packages (AMBER, CHARMM, GROMACS, LAMMPS and NAMD),
-with the difference that when those packages are used through Longbow 
-simulations can be run on High Performance Computing (HPC) resources such as 
-ARCHER. Longbow handles jobs setup in terms of creating job submission scripts, 
-automatically stages input files, launches and monitors jobs and stages back 
-simulation results. The option is also there to persistently monitor and stage 
-(realtime local syncing with remote simulation files) simulation files at a 
-specified time interval.
+Longbow is an automated simulation submission and monitoring tool. Longbow
+is designed to reproduce the look and feel of using software on the users
+local computer with the difference that the heavy lifting is done by a
+supercomputer.
 
+Longbow will automatically generate the necessary submit files and handle all
+initial file transfer, monitor jobs and transfer jobs at periodic and
+configurable intervals, and perform final file transfer and cleanup.
 
-This is designed to have the jobs running on the HPC remote resource appear to 
-the user as if the simulation has run on their local computer/cluster. Users do
-not have to concern themselves with writing submission files, nor do they have 
-to worry about staging. Longbow provides a convenient interface for generating 
-large ensembles of simulation jobs which in effect extends the packages it 
-supports.
+Longbow can be used to launch one-off jobs, generate ensembles of similar jobs
+or even run many different jobs over many different supercomputers.
+
+Out of the box, Longbow is currently supporting the PBS/Torque, LSF, SGE,
+Slurm, SoGE schedulers and ships with application plugins for commonly used
+bio-molecular simulation softwares AMBER, CHARMM, GROMACS, LAMMPS, NAMD.
+Longbow is however highly configurable and will function normally with generic
+software without plugins, however plugins can easily be made to extend Longbow
+to fully support applications and schedulers that do not ship out of the box.
 
 
 Licensing
