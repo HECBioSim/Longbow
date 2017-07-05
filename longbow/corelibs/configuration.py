@@ -138,24 +138,12 @@ def processconfigs(parameters):
 
     """
     # Try and load the host file.
-    try:
-
-        _, hostsections, hostdata = loadconfigs(parameters["hosts"])
-
-    except exceptions.ConfigurationError:
-
-        raise
+    _, hostsections, hostdata = loadconfigs(parameters["hosts"])
 
     # If we have been given a job file then try and load it.
     if parameters["job"] is not "":
 
-        try:
-
-            _, _, jobdata = loadconfigs(parameters["job"])
-
-        except exceptions.ConfigurationError:
-
-            raise
+        _, _, jobdata = loadconfigs(parameters["job"])
 
     # If there is no job file, then attempt to build a job from other sources.
     else:
