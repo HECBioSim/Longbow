@@ -12,8 +12,9 @@
   :target: https://landscape.io/github/HECBioSim/Longbow/master
   :alt: Code Health
 
+*******
 Longbow
-=======
+*******
 
 Longbow is an automated simulation submission and monitoring tool. Longbow
 is designed to reproduce the look and feel of using software on the users
