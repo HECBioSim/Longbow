@@ -438,10 +438,18 @@ def _processconfigsfinalinit(jobs):
 
         jobs[job]["executableargs"] = jobs[job]["executableargs"].split()
 
-        # If modules hasn't been set then try and use a default.
+        # If modules hasn't been set then try and use a default. If the
+        # executable is given as an absolute path than we will assume the user
+        # knows they need to provide any modules to load etc.
         if jobs[job]["modules"] is "":
 
-            jobs[job]["modules"] = modules[jobs[job]["executable"]]
+            try:
+
+                jobs[job]["modules"] = modules[jobs[job]["executable"]]
+
+            except KeyError:
+
+                pass
 
         # Give each job a unique base path by adding a random hash to jobname.
         destdir = job + ''.join(["%s" % randint(0, 9) for _ in range(0, 5)])
