@@ -159,9 +159,13 @@ try:
     BASHFILE.write('    opts="--about --debug --disconnect --examples --help '
                    '--hosts --job --jobname --log --nochecks --recover '
                    '--resource --replicates --verbose --version"\n\n')
-    BASHFILE.write('    if [[ ${cur} == -* ]] ; then\n')
+    BASHFILE.write('    if [[ ${cur} == -* ]]; then\n')
     BASHFILE.write('        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )\n')
     BASHFILE.write('        return 0\n')
+    BASHFILE.write('    elif [[ ${prev} == --hosts ]] || '
+                   '[[ ${prev} == --job ]] || [[ ${prev} == --recover ]]; '
+                   'then\n')
+    BASHFILE.write('        _filedir\n')
     BASHFILE.write('    fi\n')
     BASHFILE.write('}\n')
     BASHFILE.write('complete -F _longbow longbow\n')
