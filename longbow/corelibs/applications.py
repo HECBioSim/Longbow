@@ -248,9 +248,10 @@ def _flagvalidator(job, foundflags):
     if len(flags) > 0:
 
         raise exceptions.RequiredinputError(
-            "In job '{0}' either there is a flag and/or file missing on the "
-            "command line '{1}'. See user documentation for plug-in '{2}'"
-            .format(job["jobname"], flags, app))
+            "In job '{0}' the following arguments '{1}' to the application "
+            "'{2}' are either missing or they require an input file to be "
+            "specified, which has been found to be missing. Please check your "
+            "command-line and filenames.".format(job["jobname"], flags, app))
 
 
 def _markfoundfiles(arg, initargs, foundflags):
