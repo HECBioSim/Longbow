@@ -80,7 +80,6 @@ LOG = logging.getLogger("longbow.corelibs.configuration")
 JOBTEMPLATE = {
     "account": "",
     "accountflag": "",
-    "cluster": "",
     "cores": "24",
     "corespernode": "24",
     "download-exclude": "",
@@ -93,6 +92,7 @@ JOBTEMPLATE = {
     "handler": "",
     "host": "",
     "localworkdir": "",
+    "lsf-cluster": "",
     "modules": "",
     "maxtime": "24:00",
     "memory": "",

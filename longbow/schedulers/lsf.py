@@ -94,9 +94,9 @@ def prepare(job):
 
         jobfile.write("#BSUB -q " + job["queue"] + "\n")
 
-    if job["cluster"] is not "":
+    if job["lsf-cluster"] is not "":
 
-        jobfile.write("#BSUB -m " + job["cluster"] + "\n")
+        jobfile.write("#BSUB -m " + job["lsf-cluster"] + "\n")
 
     # Account to charge (if supplied).
     if job["account"] is not "":
