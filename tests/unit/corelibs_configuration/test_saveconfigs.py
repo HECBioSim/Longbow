@@ -81,7 +81,7 @@ def test_saveconfigs_test2():
     Try to write somewhere forbidden
     """
 
-    configfile = "/opt/saveconfigtest1"
+    configfile = "/usr/saveconfigtest1"
     params = {
         "test1": {
             "param1": "2",
