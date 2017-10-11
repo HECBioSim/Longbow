@@ -402,15 +402,21 @@ def submit(jobs):
         # Hit maximum slots on resource, Longbow will sub-schedule these.
         except exceptions.QueuemaxError:
 
-            LOG.info("The job '%s' has been held back by Longbow due to "
-                     "reaching queue slot limit, it will be submitted when a "
-                     "slot opens up.", item)
+            for item in jobs:
 
-            # We will set a flag so that we can inform the user that it is
-            # handled.
-            job["laststatus"] = "Waiting Submission"
+                if "laststatus" not in jobs[item]:
 
-            queued += 1
+                    LOG.info("The job '%s' has been held back by Longbow due "
+                             "to reaching queue slot limit, it will be "
+                             "submitted when a slot opens up.", item)
+
+                    # We will set a flag so that we can inform the user that
+                    # it is handled.
+                    jobs[item]["laststatus"] = "Waiting Submission"
+
+                    queued += 1
+
+            break
 
         # We want to find out what the maximum number of slots we have are.
         if int(QUEUEINFO[job["resource"]]["queue-slots"]) > \
