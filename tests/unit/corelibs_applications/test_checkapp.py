@@ -114,6 +114,6 @@ def test_testapp_except(m_sendtossh):
 
     m_sendtossh.side_effect = ex.SSHError("Error", ("stdout", "stderr", 1))
 
-    with pytest.raises(ex.SSHError):
+    with pytest.raises(ex.ExecutableError):
 
         checkapp(jobs)

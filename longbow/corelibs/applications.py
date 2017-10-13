@@ -121,8 +121,7 @@ def checkapp(jobs):
 
             except exceptions.SSHError:
 
-                LOG.error("Executable check - failed.")
-                raise
+                raise exceptions.ExecutableError("Executable check - failed.")
 
 
 def processjobs(jobs):
