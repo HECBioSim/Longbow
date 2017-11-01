@@ -105,6 +105,7 @@ JOBTEMPLATE = {
     "replicates": "1",
     "scheduler": "",
     "scripts": "",
+    "slurm-gres": "",
     "staging-frequency": "300",
     "sge-peflag": "mpi",
     "sge-peoverride": "false",
