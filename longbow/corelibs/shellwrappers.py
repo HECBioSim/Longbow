@@ -198,10 +198,15 @@ def sendtoshell(cmd):
 
     stdout, stderr = handle.communicate()
 
-    # Format the string to utf-8 for python 3, python 2 should be untouched.
+    # Format stdout to utf-8 for python 3, python 2 should be untouched.
     if not isinstance(stdout, str):
 
         stdout = stdout.decode("utf-8")
+    
+    # Format stderr to utf-8 for python 3, python 2 should be untouched.
+    if not isinstance(stderr, str):
+
+        stderr = stderr.decode("utf-8")
 
     # Grab the return code.
     errorstate = handle.returncode
