@@ -147,7 +147,7 @@ def processjobs(jobs):
 
         filelist = []
         appplugins = getattr(apps, "PLUGINEXECS")
-        app = appplugins[jobs[job]["executable"]]
+        app = appplugins[os.path.basename(jobs[job]["executable"])]
         foundflags = []
         substitution = {}
 
@@ -180,7 +180,7 @@ def processjobs(jobs):
                 "The local job directory '{0}' cannot be found for job '{1}'"
                 .format(jobs[job]["localworkdir"], job))
 
-        # Detect command-line parameter substitutions.
+        # Hook to determine command-line parameter substitutions.
         try:
 
             substitution = getattr(
@@ -222,8 +222,9 @@ def _flagvalidator(job, foundflags):
     """Validate that required command-line flags are provided."""
     # Initialisation.
     appplugins = getattr(apps, "PLUGINEXECS")
-    app = appplugins[job["executable"]]
-    execdata = getattr(apps, app.lower()).EXECDATA[job["executable"]]
+    executable = os.path.basename(job["executable"])
+    app = appplugins[executable]
+    execdata = getattr(apps, app.lower()).EXECDATA[executable]
 
     # Final check for if any required flags are missing.
     flags = list(set(execdata["requiredfiles"]) - set(foundflags))
@@ -288,17 +289,17 @@ def _proccommandline(job, filelist, foundflags, substitution):
     """
     # Initialisation.
     appplugins = getattr(apps, "PLUGINEXECS")
-    app = appplugins[job["executable"]]
+    executable = os.path.basename(job["executable"])
+    app = appplugins[executable]
     args = list(job["executableargs"])
-    subexecs = getattr(
-        apps, app.lower()).EXECDATA[job["executable"]]["subexecutables"]
+    subexe = getattr(apps, app.lower()).EXECDATA[executable]["subexecutables"]
 
     try:
 
         for arg in args:
 
             if (arg != "<" and arg != ">" and arg[0] != "-" and
-                    arg not in subexecs):
+                    arg not in subexe):
 
                 foundflags = _procfiles(job, arg, filelist, foundflags,
                                         substitution)
@@ -318,7 +319,8 @@ def _procfiles(job, arg, filelist, foundflags, substitution):
     """Processor for finding flags and files."""
     # Initialisation.
     appplugins = getattr(apps, "PLUGINEXECS")
-    app = appplugins[job["executable"]]
+    executable = os.path.basename(job["executable"])
+    app = appplugins[executable]
     initargs = list(job["executableargs"])
 
     # Check for as many files as there are replicates (default of 1).
@@ -349,7 +351,7 @@ def _procfiles(job, arg, filelist, foundflags, substitution):
 
             _markfoundfiles(arg, initargs, foundflags)
 
-            # Search input file for any file dependencies.
+            # Hook to search input file for any file dependencies.
             try:
 
                 getattr(apps, app.lower()).file_parser(
