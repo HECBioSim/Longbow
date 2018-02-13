@@ -41,36 +41,40 @@ import longbow.corelibs.exceptions as exceptions
 from longbow.corelibs.entrypoints import _commandlineproc
 
 ALLLONGBOWARGS = [
-    "-about",
-    "--about",
-    "-debug",
-    "--debug",
-    "-disconnect",
-    "--disconnect",
-    "-examples",
-    "--examples",
-    "-h",
-    "-help",
-    "--help",
-    "-hosts",
-    "--hosts",
-    "-job",
-    "--job",
-    "-jobname",
-    "--jobname",
-    "-log",
-    "--log",
-    "-recover",
-    "--recover",
-    "-resource",
-    "--resource",
-    "-replicates",
-    "--replicates",
-    "-V",
-    "-verbose",
-    "--verbose",
-    "-version",
-    "--version"
+        "-about",
+        "--about",
+        "-debug",
+        "--debug",
+        "-disconnect",
+        "--disconnect",
+        "-examples",
+        "--examples",
+        "-h",
+        "-help",
+        "--help",
+        "-hosts",
+        "--hosts",
+        "-job",
+        "--job",
+        "-jobname",
+        "--jobname",
+        "-log",
+        "--log",
+        "-maxtime",
+        "--maxtime",
+        "-nochecks",
+        "--nochecks",
+        "-recover",
+        "--recover",
+        "-resource",
+        "--resource",
+        "-replicates",
+        "--replicates",
+        "-V",
+        "-verbose",
+        "--verbose",
+        "-version",
+        "--version"
     ]
 
 
@@ -240,9 +244,9 @@ def test_cmdlineproc_test6():
     }
 
     commandlineargs = ["--hosts", "hosts.file", "--jobname", "test",
-                       "--replicates", "1000", "--disconnect", "pmemd.MPI",
-                       "-O", "-i", "ex.in", "-c", "ex.min", "-p", "ex.top",
-                       "-o", "ex.out"]
+                       "--maxtime", "01:00", "--replicates", "1000",
+                       "--disconnect", "pmemd.MPI", "-O", "-i", "ex.in", "-c",
+                       "ex.min", "-p", "ex.top", "-o", "ex.out"]
 
     longbowargs = _commandlineproc(ALLLONGBOWARGS, commandlineargs, parameters)
 
@@ -250,7 +254,8 @@ def test_cmdlineproc_test6():
     assert parameters["executableargs"] == \
         "-O -i ex.in -c ex.min -p ex.top -o ex.out"
     assert longbowargs == ["--hosts", "hosts.file", "--jobname", "test",
-                           "--replicates", "1000", "--disconnect"]
+                           "--maxtime", "01:00", "--replicates", "1000",
+                           "--disconnect"]
 
 
 def test_cmdlineproc_test7():
