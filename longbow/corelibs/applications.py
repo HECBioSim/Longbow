@@ -272,11 +272,18 @@ def _markfoundfiles(arg, initargs, foundflags):
 
         foundflags.append("<")
 
-    # All other cases should pretty much be formats like:
+    # Other cases should pretty much be formats like:
     # exec -flag file -flag file -flag file
-    elif len(initargs) > 1 and initargs[pos] not in foundflags:
+    elif (len(initargs) > 1 and initargs[pos][0] == "-"
+          and initargs[pos] not in foundflags):
 
         foundflags.append(initargs[pos])
+
+    # Or cases like exec -flag file -flag file inputfile > outputfile
+    elif (len(initargs) > 1 and initargs[pos][0] != "-"
+          and initargs[pos] not in foundflags):
+
+        foundflags.append("<")
 
     return foundflags
 

@@ -30,7 +30,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-"""This is the NAMD plugin module.
+"""This is the Chemshell plugin module.
 
 This plugin is relatively simple in the fact that adding new executables is as
 simple as modifying the EXECDATA structure below. See the documentation at
@@ -42,17 +42,8 @@ import re
 
 import longbow.corelibs.exceptions as exceptions
 
-
 EXECDATA = {
-    "namd2": {
-        "subexecutables": [],
-        "requiredfiles": ["<"],
-    },
-    "namd2.mpi": {
-        "subexecutables": [],
-        "requiredfiles": ["<"],
-    },
-    "namd2.cuda": {
+    "chemsh.x": {
         "subexecutables": [],
         "requiredfiles": ["<"],
     }
@@ -62,8 +53,8 @@ EXECDATA = {
 def file_parser(filename, path, files, substitutions=None):
     """Find dependancy files and add them to the upload list.
 
-    Recursive function that will assimilate from charmm input files, a list of
-    dependancy files to be staged to the remote host. The filename will be
+    Recursive function that will assimilate from chemshell input files, a list
+    of dependancy files to be staged to the remote host. The filename will be
     added to the list and any files mentioned in this included file will also
     be added and searched. Substitutions is a dictionary of "@" style
     variables.
@@ -79,12 +70,7 @@ def file_parser(filename, path, files, substitutions=None):
         files.append(addfile)
 
         # Create a dict for any variable substitutions and define keywords.
-        keywords = ['coordinates', 'extendedsystem', 'structure', 'parameters',
-                    'velocities', 'binvelocities', 'bincoordinates',
-                    'ambercoor', 'parmfile', 'conskfile', 'tclforcesscript',
-                    'fixedatomsfile', 'grotopfile', 'grocoorfile']
-
-        variables = {}
+        keywords = ['Fragment(coords=']
 
         fil = _fileopen(path, addfile)
 
@@ -94,24 +80,25 @@ def file_parser(filename, path, files, substitutions=None):
             # Remove comments.
             if '#' in line:
 
-                words = line[:line.index('#')].split()
+                words = line[:line.index('#')]
 
             else:
 
-                words = line[:len(line)].split()
+                words = line[:len(line)]
 
             if len(words) > 0:
 
-                # Pick up substitutions from within file
-                _internalsubstitutions(variables, words)
-
                 # If this line is reading in an input file.
-                if words[0].lower() in keywords:
+                if any(keyword in words for keyword in keywords):
 
-                    newfile = words[-1]
+                    # Extract the "coords='urea.cjson'" from python file loads
+                    # such as "urea = Fragment(coords='urea.cjson')". Then
+                    # split it to a list containing the file type and file
+                    # name.
+                    words = (words[words.index("(") + 1:words.index(")")]
+                             .split("="))
 
-                    # Do variable substitutons
-                    newfile = _variablesubstitutions(newfile, variables)
+                    newfile = words[1].strip("'\"")
 
                     # Deduce the location of newfile.
                     newpath = path
@@ -177,20 +164,6 @@ def _fileopen(path, addfile):
     return fil
 
 
-def _internalsubstitutions(variables, words):
-    """Process substitutions from file."""
-    # Process substitutions.
-    if words[0].lower() == 'set':
-
-        if words[2] == "=":
-
-            variables[words[1]] = words[3]
-
-        else:
-
-            variables[words[1]] = words[2]
-
-
 def _newfilechecks(addfile, newfile, path):
     """Perform basic checks of on any new file."""
     if newfile.count("../") == 1:
@@ -236,7 +209,7 @@ def _newfilechecks(addfile, newfile, path):
         if re.search(r'rep\d', addfile):
 
             raise exceptions.RequiredinputError(
-                "It appears that the user is trying to refer to a file '{0}'"
+                "It appears that the user is trying to refer to a file '{0}' "
                 "that is in a repX/repX subdirectory. This is not permitted."
                 .format(newfile))
 
@@ -244,21 +217,5 @@ def _newfilechecks(addfile, newfile, path):
         else:
 
             newfile = "rep" + newfile.split("rep")[1]
-
-    return newfile
-
-
-def _variablesubstitutions(newfile, variables):
-    """Process substitutions."""
-    # Do variable substitution.
-    if '$' in newfile and len(variables.keys()) > 0:
-
-        before, _, after = newfile.rpartition("$")
-
-        for instance in variables:
-
-            if instance in after:
-
-                newfile = before + after.replace(instance, variables[instance])
 
     return newfile
