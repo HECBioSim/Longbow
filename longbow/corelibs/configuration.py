@@ -283,7 +283,7 @@ def loadconfigs(configfile):
             # Option is in the format key = param. Added regular expression so
             # that if user writes with/without spaces then we can still extract
             # the configuration info.
-            key, value = re.split(" = |= | =|=", item)
+            key, value = re.split(" = |= | =|=", item, 1)
 
             # Store the keys and values in the data structure.
             params[section][key] = value
