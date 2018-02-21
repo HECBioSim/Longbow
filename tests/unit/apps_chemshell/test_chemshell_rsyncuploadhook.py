@@ -34,67 +34,23 @@
 This testing module contains basic testing for the Chemshell plugin.
 """
 
-import os
-
-try:
-
-    from unittest import mock
-
-except ImportError:
-
-    import mock
-
-from longbow.apps.chemshell import file_parser
+from longbow.apps.chemshell import rsyncuploadhook
 
 
-@mock.patch('longbow.apps.chemshell._fileopen')
-@mock.patch('longbow.apps.chemshell._filechecks')
-def test_fileparser_test1(m_check, m_file):
+def test_rsyncuploadhook():
 
     """
-    Test that if addfile is already in the files list that nothing happens.
+    Test that the data structure is a dictionary.
     """
 
-    filename = "testfile"
-    path = ""
-    files = ["testfile", "anotherfile"]
-    substitutions = {}
+    job = "test"
 
-    m_check.return_value = "testfile"
+    jobs = {}
+    jobs["test"] = {}
+    jobs["test"]["upload-include"] = "test"
+    jobs["test"]["upload-exclude"] = "test"
 
-    file_parser(filename, path, files, substitutions)
+    rsyncuploadhook(jobs, job)
 
-    assert m_file.call_count == 0
-
-
-@mock.patch('longbow.apps.chemshell._newfilechecks')
-def test_fileparser_test2(nfc):
-
-    """
-    Test that with a blank file the recursive checks aren't attempted.
-    """
-
-    filename = "apps_fileparserblank.txt"
-    path = os.path.join(os.getcwd(), "tests/standards/")
-    files = ["anotherfile"]
-    substitutions = {}
-
-    file_parser(filename, path, files, substitutions)
-
-    assert nfc.call_count == 0
-
-
-def test_fileparser_test3():
-
-    """
-    Test with simple dependant files.
-    """
-
-    filename = "apps_fileparserchemshell.txt"
-    path = os.path.join(os.getcwd(), "tests/standards/")
-    files = []
-    substitutions = {}
-
-    file_parser(filename, path, files, substitutions)
-
-    assert files == ["apps_fileparserchemshell.txt", "apps_recursivetest.txt"]
+    assert jobs["test"]["upload-include"] == ""
+    assert jobs["test"]["upload-exclude"] == "log, *.log"

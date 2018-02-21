@@ -198,15 +198,25 @@ def processjobs(jobs):
         # Validate if all required flags are present.
         _flagvalidator(jobs[job], foundflags)
 
-        # Setup the rysnc upload masks.
-        if jobs[job]["upload-include"] != "":
+        # Some programs are too complex to do file detection, such as
+        # chemshell.
+        try:
 
-            jobs[job]["upload-include"] = jobs[job]["upload-include"] + ", "
+            substitution = getattr(apps,
+                                   app.lower()).rsyncuploadhook(jobs, job)
 
-        jobs[job]["upload-include"] = (jobs[job]["upload-include"] +
-                                       ", ".join(filelist))
+        except AttributeError:
 
-        jobs[job]["upload-exclude"] = "*"
+            # Setup the rysnc upload masks.
+            if jobs[job]["upload-include"] != "":
+
+                jobs[job]["upload-include"] = (
+                    jobs[job]["upload-include"] + ", ")
+
+            jobs[job]["upload-include"] = (
+                jobs[job]["upload-include"] + ", ".join(filelist))
+
+            jobs[job]["upload-exclude"] = "*"
 
         # Replace the input command line with the execution command line.
         jobs[job]["executableargs"] = (jobs[job]["executable"] + " " +

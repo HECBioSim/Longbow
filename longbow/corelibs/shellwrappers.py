@@ -202,7 +202,7 @@ def sendtoshell(cmd):
     if not isinstance(stdout, str):
 
         stdout = stdout.decode("utf-8")
-    
+
     # Format stderr to utf-8 for python 3, python 2 should be untouched.
     if not isinstance(stderr, str):
 
