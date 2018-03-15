@@ -44,11 +44,11 @@ except ImportError:
 
 import pytest
 
-import longbow.corelibs.exceptions as exceptions
+import longbow.exceptions as exceptions
 from longbow.schedulers.lsf import submit
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_submit_jobid1(mock_ssh):
 
     """
@@ -68,7 +68,7 @@ def test_submit_jobid1(mock_ssh):
     assert job["jobid"] == "2685"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_submit_jobid2(mock_ssh):
 
     """
@@ -87,7 +87,7 @@ def test_submit_jobid2(mock_ssh):
         submit(job)
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_submit_except1(mock_ssh):
 
     """
@@ -108,7 +108,7 @@ def test_submit_except1(mock_ssh):
         submit(job)
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_submit_except2(mock_ssh):
 
     """

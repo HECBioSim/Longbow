@@ -87,8 +87,7 @@ setup(name='Longbow',
       keywords=('hpc hec supercomputer grid cloud batch jobs remote submission'
                 ' submitter lsf pbs torque sge soge slurm automated staging '
                 'longbow hecbiosim ccpbiosim'),
-      packages=['longbow', 'longbow.schedulers', 'longbow.apps',
-                'longbow.corelibs'],
+      packages=['longbow', 'longbow.schedulers', 'longbow.apps'],
       scripts=['longbow/longbow'],
       )
 
