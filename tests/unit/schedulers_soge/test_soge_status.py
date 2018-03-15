@@ -44,7 +44,7 @@ except ImportError:
 
 import pytest
 
-import longbow.corelibs.exceptions as exceptions
+import longbow.exceptions as exceptions
 from longbow.schedulers.soge import status
 
 out = ("job-ID  prior name       user         state submit/start at     queue      master  ja-task-ID\n"
@@ -54,7 +54,7 @@ out = ("job-ID  prior name       user         state submit/start at     queue   
        "     22     0 sleep.sh   sysadm1      qw    12/23/2003 23:22:06                              \n")
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_state1(mock_ssh):
 
     """
@@ -73,7 +73,7 @@ def test_status_state1(mock_ssh):
     assert output == "Held"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_state2(mock_ssh):
 
     """
@@ -92,7 +92,7 @@ def test_status_state2(mock_ssh):
     assert output == "Running"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_state3(mock_ssh):
 
     """
@@ -111,7 +111,7 @@ def test_status_state3(mock_ssh):
     assert output == "Queued"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_state4(mock_ssh):
 
     """
@@ -130,7 +130,7 @@ def test_status_state4(mock_ssh):
     assert output == "Finished"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_except1(mock_ssh):
 
     """

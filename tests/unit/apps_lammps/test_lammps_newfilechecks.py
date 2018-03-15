@@ -35,7 +35,7 @@ This testing module contains basic testing for the LAMMPS plugin.
 """
 
 import pytest
-import longbow.corelibs.exceptions as exceptions
+import longbow.exceptions as exceptions
 from longbow.apps.lammps import _newfilechecks
 
 

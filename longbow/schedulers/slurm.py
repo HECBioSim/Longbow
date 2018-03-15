@@ -49,8 +49,8 @@ import math
 import os
 import re
 
-import longbow.corelibs.exceptions as exceptions
-import longbow.corelibs.shellwrappers as shellwrappers
+import longbow.exceptions as exceptions
+import longbow.shellwrappers as shellwrappers
 
 QUERY_STRING = "which sbatch"
 

@@ -44,7 +44,7 @@ except ImportError:
 
 import pytest
 
-import longbow.corelibs.exceptions as exceptions
+import longbow.exceptions as exceptions
 from longbow.schedulers.slurm import status
 
 out = ("             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)\n"
@@ -61,7 +61,7 @@ out = ("             JOBID PARTITION     NAME     USER ST       TIME  NODES NODE
        "               610 interacti  run2.sh     user TO       0:19      1 blade01)\n")
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_state1(mock_ssh):
 
     """
@@ -80,7 +80,7 @@ def test_status_state1(mock_ssh):
     assert output == "Cancelled"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_state2(mock_ssh):
 
     """
@@ -99,7 +99,7 @@ def test_status_state2(mock_ssh):
     assert output == "Completed"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_state3(mock_ssh):
 
     """
@@ -118,7 +118,7 @@ def test_status_state3(mock_ssh):
     assert output == "Configuring"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_state4(mock_ssh):
 
     """
@@ -137,7 +137,7 @@ def test_status_state4(mock_ssh):
     assert output == "Completing"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_state5(mock_ssh):
 
     """
@@ -156,7 +156,7 @@ def test_status_state5(mock_ssh):
     assert output == "Failed"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_state6(mock_ssh):
 
     """
@@ -175,7 +175,7 @@ def test_status_state6(mock_ssh):
     assert output == "Node Failure"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_state7(mock_ssh):
 
     """
@@ -194,7 +194,7 @@ def test_status_state7(mock_ssh):
     assert output == "Pending"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_state8(mock_ssh):
 
     """
@@ -213,7 +213,7 @@ def test_status_state8(mock_ssh):
     assert output == "Preempted"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_state9(mock_ssh):
 
     """
@@ -232,7 +232,7 @@ def test_status_state9(mock_ssh):
     assert output == ("Running")
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_state10(mock_ssh):
 
     """
@@ -251,7 +251,7 @@ def test_status_state10(mock_ssh):
     assert output == "Suspended"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_state11(mock_ssh):
 
     """
@@ -270,7 +270,7 @@ def test_status_state11(mock_ssh):
     assert output == "Timed out"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_state12(mock_ssh):
 
     """
@@ -289,7 +289,7 @@ def test_status_state12(mock_ssh):
     assert output == "Finished"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_except1(mock_ssh):
 
     """

@@ -30,17 +30,16 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-"""Longbow package."""
+"""Longbow package. Import all of the usable functions to the top level."""
 
-from longbow.corelibs.applications import checkapp, processjobs
-from longbow.corelibs.configuration import (processconfigs, loadconfigs,
-                                            saveconfigs, saveini)
-from longbow.corelibs.entrypoints import launcher, longbow, recovery
-from longbow.corelibs.scheduling import (checkenv, delete, monitor, prepare,
-                                         submit)
-from longbow.corelibs.shellwrappers import (checkconnections, sendtoshell,
-                                            sendtossh, sendtorsync, localcopy,
-                                            localdelete, locallist, remotecopy,
-                                            remotedelete, remotelist, upload,
-                                            download)
-from longbow.corelibs.staging import stage_upstream, stage_downstream, cleanup
+from longbow.applications import checkapp, processjobs
+from longbow.configuration import (processconfigs, loadconfigs, saveconfigs,
+                                   saveini)
+from longbow.entrypoints import launcher, longbow, recovery
+from longbow.scheduling import (checkenv, delete, monitor, prepare,
+                                submit)
+from longbow.shellwrappers import (checkconnections, sendtoshell, sendtossh,
+                                   sendtorsync, localcopy, localdelete,
+                                   locallist, remotecopy, remotedelete,
+                                   remotelist, upload, download)
+from longbow.staging import stage_upstream, stage_downstream, cleanup

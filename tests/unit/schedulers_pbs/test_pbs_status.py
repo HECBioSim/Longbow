@@ -44,7 +44,7 @@ except ImportError:
 
 import pytest
 
-import longbow.corelibs.exceptions as exceptions
+import longbow.exceptions as exceptions
 from longbow.schedulers.pbs import status
 
 out = ("Job ID          Username Queue    Jobname    SessID NDS TSK Memory Time  S Time \n"
@@ -62,7 +62,7 @@ out = ("Job ID          Username Queue    Jobname    SessID NDS TSK Memory Time 
        "3538341.sdb     katrine  standard ZrF-mir       --    4  96    --  00:20 X   -- \n")
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_state1(mock_ssh):
 
     """
@@ -81,7 +81,7 @@ def test_status_state1(mock_ssh):
     assert output == "Subjob(s) Running"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_state2(mock_ssh):
 
     """
@@ -100,7 +100,7 @@ def test_status_state2(mock_ssh):
     assert output == "Exiting"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_state3(mock_ssh):
 
     """
@@ -119,7 +119,7 @@ def test_status_state3(mock_ssh):
     assert output == "Held"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_state4(mock_ssh):
 
     """
@@ -138,7 +138,7 @@ def test_status_state4(mock_ssh):
     assert output == "Job Moved to Server"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_state5(mock_ssh):
 
     """
@@ -157,7 +157,7 @@ def test_status_state5(mock_ssh):
     assert output == "Queued"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_state6(mock_ssh):
 
     """
@@ -176,7 +176,7 @@ def test_status_state6(mock_ssh):
     assert output == "Running"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_state7(mock_ssh):
 
     """
@@ -195,7 +195,7 @@ def test_status_state7(mock_ssh):
     assert output == "Suspended"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_state8(mock_ssh):
 
     """
@@ -214,7 +214,7 @@ def test_status_state8(mock_ssh):
     assert output == "Job Moved to New Location"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_state9(mock_ssh):
 
     """
@@ -234,7 +234,7 @@ def test_status_state9(mock_ssh):
                       "Activity")
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_state10(mock_ssh):
 
     """
@@ -253,7 +253,7 @@ def test_status_state10(mock_ssh):
     assert output == "Waiting for Start Time"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_state11(mock_ssh):
 
     """
@@ -272,7 +272,7 @@ def test_status_state11(mock_ssh):
     assert output == "Subjob Completed Execution/Has Been Deleted"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_state12(mock_ssh):
 
     """
@@ -291,7 +291,7 @@ def test_status_state12(mock_ssh):
     assert output == "Finished"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_status_except1(mock_ssh):
 
     """

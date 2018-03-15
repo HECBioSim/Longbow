@@ -37,7 +37,7 @@ This testing module contains basic testing for the NAMD plugin.
 import os
 import pytest
 
-import longbow.corelibs.exceptions as exceptions
+import longbow.exceptions as exceptions
 from longbow.apps.namd import _fileopen
 
 
