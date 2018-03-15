@@ -316,7 +316,7 @@ def _proccommandline(job, filelist, foundflags, substitution):
         for arg in args:
 
             if (arg != "<" and arg != ">" and arg[0] != "-" and
-                    arg not in subexe):
+                    arg[0] != "+" and arg not in subexe):
 
                 foundflags = _procfiles(job, arg, filelist, foundflags,
                                         substitution)
