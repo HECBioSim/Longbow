@@ -232,7 +232,7 @@ def _newfilechecks(addfile, newfile, path):
     # Else newfile is indicated to be in a repX subdirectory.
     elif re.search(r'rep\d', newfile):
 
-        # If we are already in a repX subdirectory issue a warning.
+        # If we are already in a repX subdirectory throw exception.
         if re.search(r'rep\d', addfile):
 
             raise exceptions.RequiredinputError(

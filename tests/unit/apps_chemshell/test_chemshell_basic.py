@@ -31,70 +31,38 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 """
-This testing module contains the tests for the configuration module methods.
+This testing module contains basic testing for the Chemshell plugin.
 """
 
-import pytest
-
-from longbow.corelibs.configuration import saveconfigs
-import longbow.corelibs.exceptions as ex
+from longbow.apps.chemshell import EXECDATA
 
 
-def test_saveconfigs_test1():
+def test_basic1():
 
     """
-    Test to see if the save configuration method works with a simple data
-    structure.
+    Test that the data structure is a dictionary.
     """
 
-    configfile = "/tmp/saveconfigtest1"
-    params = {
-        "test1": {
-            "param1": "2",
-            "param2": "test",
-            "param3": "true"
-        },
-        "test2": {
-            "parama": "f",
-            "paramb": "12",
-            "paramc": "/path/to/somethingelse"
-        }
-    }
-
-    saveconfigs(configfile, params)
-
-    filestructure = open("/tmp/saveconfigtest1", "r").readlines()
-    assert "[test1]\n" in filestructure
-    assert "param1 = 2\n" in filestructure
-    assert "param2 = test\n" in filestructure
-    assert "param3 = true\n" in filestructure
-
-    assert "[test2]\n" in filestructure
-    assert "parama = f\n" in filestructure
-    assert "paramb = 12\n" in filestructure
-    assert "paramc = /path/to/somethingelse\n" in filestructure
+    assert isinstance(EXECDATA, dict)
 
 
-def test_saveconfigs_test2():
+def test_basic2():
 
     """
-    Try to write somewhere forbidden
+    Test that the data structure has values.
     """
 
-    configfile = "/usr/saveconfigtest1"
-    params = {
-        "test1": {
-            "param1": "2",
-            "param2": "test",
-            "param3": "true"
-        },
-        "test2": {
-            "parama": "f",
-            "paramb": "12",
-            "paramc": "/path/to/somethingelse"
-        }
-    }
+    assert len(EXECDATA) > 0
 
-    with pytest.raises(ex.ConfigurationError):
 
-        saveconfigs(configfile, params)
+def test_basic3():
+
+    """
+    Test that the data structure has values.
+    """
+
+    for param in EXECDATA:
+
+        assert isinstance(EXECDATA[param], dict)
+        assert "subexecutables" in EXECDATA[param]
+        assert "requiredfiles" in EXECDATA[param]

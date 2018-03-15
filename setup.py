@@ -56,7 +56,7 @@ else:
 
 # Setup
 setup(name='Longbow',
-      version='1.5.0',
+      version='1.5.1-dev',
       description='Biomolecular simulation remote job submission tool.',
       long_description=open('README.rst').read(),
       author='James T Gebbie-Rayet, Gareth B Shannon',
@@ -157,11 +157,16 @@ try:
     BASHFILE.write('    cur="${COMP_WORDS[COMP_CWORD]}"\n')
     BASHFILE.write('    prev="${COMP_WORDS[COMP_CWORD-1]}"\n')
     BASHFILE.write('    opts="--about --debug --disconnect --examples --help '
-                   '--hosts --job --jobname --log --nochecks --recover '
-                   '--resource --replicates --verbose --version"\n\n')
-    BASHFILE.write('    if [[ ${cur} == -* ]] ; then\n')
+                   '--hosts --job --jobname --log -- maxtime --nochecks '
+                   '--recover --resource --replicates --verbose '
+                   '--version"\n\n')
+    BASHFILE.write('    if [[ ${cur} == -* ]]; then\n')
     BASHFILE.write('        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )\n')
     BASHFILE.write('        return 0\n')
+    BASHFILE.write('    elif [[ ${prev} == --hosts ]] || '
+                   '[[ ${prev} == --job ]] || [[ ${prev} == --recover ]]; '
+                   'then\n')
+    BASHFILE.write('        _filedir\n')
     BASHFILE.write('    fi\n')
     BASHFILE.write('}\n')
     BASHFILE.write('complete -F _longbow longbow\n')

@@ -121,8 +121,7 @@ def checkapp(jobs):
 
             except exceptions.SSHError:
 
-                LOG.error("Executable check - failed.")
-                raise
+                raise exceptions.ExecutableError("Executable check - failed.")
 
 
 def processjobs(jobs):
@@ -148,7 +147,7 @@ def processjobs(jobs):
 
         filelist = []
         appplugins = getattr(apps, "PLUGINEXECS")
-        app = appplugins[jobs[job]["executable"]]
+        app = appplugins[os.path.basename(jobs[job]["executable"])]
         foundflags = []
         substitution = {}
 
@@ -181,7 +180,7 @@ def processjobs(jobs):
                 "The local job directory '{0}' cannot be found for job '{1}'"
                 .format(jobs[job]["localworkdir"], job))
 
-        # Detect command-line parameter substitutions.
+        # Hook to determine command-line parameter substitutions.
         try:
 
             substitution = getattr(
@@ -199,15 +198,25 @@ def processjobs(jobs):
         # Validate if all required flags are present.
         _flagvalidator(jobs[job], foundflags)
 
-        # Setup the rysnc upload masks.
-        if jobs[job]["upload-include"] != "":
+        # Some programs are too complex to do file detection, such as
+        # chemshell.
+        try:
 
-            jobs[job]["upload-include"] = jobs[job]["upload-include"] + ", "
+            substitution = getattr(apps,
+                                   app.lower()).rsyncuploadhook(jobs, job)
 
-        jobs[job]["upload-include"] = (jobs[job]["upload-include"] +
-                                       ", ".join(filelist))
+        except AttributeError:
 
-        jobs[job]["upload-exclude"] = "*"
+            # Setup the rysnc upload masks.
+            if jobs[job]["upload-include"] != "":
+
+                jobs[job]["upload-include"] = (
+                    jobs[job]["upload-include"] + ", ")
+
+            jobs[job]["upload-include"] = (
+                jobs[job]["upload-include"] + ", ".join(filelist))
+
+            jobs[job]["upload-exclude"] = "*"
 
         # Replace the input command line with the execution command line.
         jobs[job]["executableargs"] = (jobs[job]["executable"] + " " +
@@ -223,8 +232,9 @@ def _flagvalidator(job, foundflags):
     """Validate that required command-line flags are provided."""
     # Initialisation.
     appplugins = getattr(apps, "PLUGINEXECS")
-    app = appplugins[job["executable"]]
-    execdata = getattr(apps, app.lower()).EXECDATA[job["executable"]]
+    executable = os.path.basename(job["executable"])
+    app = appplugins[executable]
+    execdata = getattr(apps, app.lower()).EXECDATA[executable]
 
     # Final check for if any required flags are missing.
     flags = list(set(execdata["requiredfiles"]) - set(foundflags))
@@ -248,9 +258,10 @@ def _flagvalidator(job, foundflags):
     if len(flags) > 0:
 
         raise exceptions.RequiredinputError(
-            "In job '{0}' either there is a flag and/or file missing on the "
-            "command line '{1}'. See user documentation for plug-in '{2}'"
-            .format(job["jobname"], flags, app))
+            "In job '{0}' the following arguments '{1}' to the application "
+            "'{2}' are either missing or they require an input file to be "
+            "specified, which has been found to be missing. Please check your "
+            "command-line and filenames.".format(job["jobname"], flags, app))
 
 
 def _markfoundfiles(arg, initargs, foundflags):
@@ -271,11 +282,18 @@ def _markfoundfiles(arg, initargs, foundflags):
 
         foundflags.append("<")
 
-    # All other cases should pretty much be formats like:
+    # Other cases should pretty much be formats like:
     # exec -flag file -flag file -flag file
-    elif len(initargs) > 1 and initargs[pos] not in foundflags:
+    elif (len(initargs) > 1 and initargs[pos][0] == "-"
+          and initargs[pos] not in foundflags):
 
         foundflags.append(initargs[pos])
+
+    # Or cases like exec -flag file -flag file inputfile > outputfile
+    elif (len(initargs) > 1 and initargs[pos][0] != "-"
+          and initargs[pos] not in foundflags):
+
+        foundflags.append("<")
 
     return foundflags
 
@@ -288,17 +306,17 @@ def _proccommandline(job, filelist, foundflags, substitution):
     """
     # Initialisation.
     appplugins = getattr(apps, "PLUGINEXECS")
-    app = appplugins[job["executable"]]
+    executable = os.path.basename(job["executable"])
+    app = appplugins[executable]
     args = list(job["executableargs"])
-    subexecs = getattr(
-        apps, app.lower()).EXECDATA[job["executable"]]["subexecutables"]
+    subexe = getattr(apps, app.lower()).EXECDATA[executable]["subexecutables"]
 
     try:
 
         for arg in args:
 
             if (arg != "<" and arg != ">" and arg[0] != "-" and
-                    arg not in subexecs):
+                    arg[0] != "+" and arg not in subexe):
 
                 foundflags = _procfiles(job, arg, filelist, foundflags,
                                         substitution)
@@ -318,7 +336,8 @@ def _procfiles(job, arg, filelist, foundflags, substitution):
     """Processor for finding flags and files."""
     # Initialisation.
     appplugins = getattr(apps, "PLUGINEXECS")
-    app = appplugins[job["executable"]]
+    executable = os.path.basename(job["executable"])
+    app = appplugins[executable]
     initargs = list(job["executableargs"])
 
     # Check for as many files as there are replicates (default of 1).
@@ -349,7 +368,7 @@ def _procfiles(job, arg, filelist, foundflags, substitution):
 
             _markfoundfiles(arg, initargs, foundflags)
 
-            # Search input file for any file dependencies.
+            # Hook to search input file for any file dependencies.
             try:
 
                 getattr(apps, app.lower()).file_parser(

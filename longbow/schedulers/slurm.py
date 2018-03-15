@@ -100,6 +100,11 @@ def prepare(job):
             jobfile.write("#SBATCH " + job["accountflag"] + " " +
                           job["account"] + "\n")
 
+    # Generic resource (if supplied)
+    if job["slurm-gres"] is not "":
+
+        jobfile.write("#SBATCH --gres=" + job["slurm-gres"] + "\n")
+
     # Email user.
     if job["email-address"] is not "":
 

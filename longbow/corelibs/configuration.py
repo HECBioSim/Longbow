@@ -80,7 +80,6 @@ LOG = logging.getLogger("longbow.corelibs.configuration")
 JOBTEMPLATE = {
     "account": "",
     "accountflag": "",
-    "cluster": "",
     "cores": "24",
     "corespernode": "24",
     "download-exclude": "",
@@ -93,6 +92,7 @@ JOBTEMPLATE = {
     "handler": "",
     "host": "",
     "localworkdir": "",
+    "lsf-cluster": "",
     "modules": "",
     "maxtime": "24:00",
     "memory": "",
@@ -105,6 +105,7 @@ JOBTEMPLATE = {
     "replicates": "1",
     "scheduler": "",
     "scripts": "",
+    "slurm-gres": "",
     "staging-frequency": "300",
     "sge-peflag": "mpi",
     "sge-peoverride": "false",
@@ -282,7 +283,7 @@ def loadconfigs(configfile):
             # Option is in the format key = param. Added regular expression so
             # that if user writes with/without spaces then we can still extract
             # the configuration info.
-            key, value = re.split(" = |= | =|=", item)
+            key, value = re.split(" = |= | =|=", item, 1)
 
             # Store the keys and values in the data structure.
             params[section][key] = value
@@ -438,10 +439,18 @@ def _processconfigsfinalinit(jobs):
 
         jobs[job]["executableargs"] = jobs[job]["executableargs"].split()
 
-        # If modules hasn't been set then try and use a default.
+        # If modules hasn't been set then try and use a default. If the
+        # executable is given as an absolute path than we will assume the user
+        # knows they need to provide any modules to load etc.
         if jobs[job]["modules"] is "":
 
-            jobs[job]["modules"] = modules[jobs[job]["executable"]]
+            try:
+
+                jobs[job]["modules"] = modules[jobs[job]["executable"]]
+
+            except KeyError:
+
+                pass
 
         # Give each job a unique base path by adding a random hash to jobname.
         destdir = job + ''.join(["%s" % randint(0, 9) for _ in range(0, 5)])

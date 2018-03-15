@@ -41,6 +41,7 @@ from longbow.corelibs.configuration import _processconfigsfinalinit
 def test_processconfigsfinalinit1():
 
     """
+    Tests for basic functionality of the final initialisation checking method.
     """
 
     jobs = {
@@ -75,3 +76,29 @@ def test_processconfigsfinalinit1():
     assert jobs["jobtwo"]["destdir"] != ""
     assert jobs["jobtwo"]["remoteworkdir"] == "/work/dir"
     assert jobs["jobtwo"]["modules"] == "gromacs"
+
+
+def test_processconfigsfinalinit2():
+
+    """
+    Test with an absolute path for the executable.
+    """
+
+    jobs = {
+        "test": {
+            "modules": "",
+            "localworkdir": "/somepath/to/dir",
+            "executableargs": "arg1 arg2 arg3",
+            "executable": "/some/path/to/mdrun_mpi_d",
+            "remoteworkdir": "/work/dir"
+        }
+    }
+
+    _processconfigsfinalinit(jobs)
+
+    assert jobs["test"]["localworkdir"] == "/somepath/to/dir"
+    assert jobs["test"]["executableargs"] == ["arg1", "arg2", "arg3"]
+    assert jobs["test"]["executable"] == "/some/path/to/mdrun_mpi_d"
+    assert jobs["test"]["destdir"] != ""
+    assert jobs["test"]["remoteworkdir"] == "/work/dir"
+    assert jobs["test"]["modules"] == ""

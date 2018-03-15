@@ -46,7 +46,6 @@ def test_prepare_case1():
 
     job = {
         "account": "",
-        "cluster": "",
         "cores": "24",
         "executableargs": "pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out",
         "handler": "mpirun",
@@ -54,6 +53,7 @@ def test_prepare_case1():
         "email-flags": "",
         "jobname": "testjob",
         "localworkdir": "/tmp",
+        "lsf-cluster": "",
         "maxtime": "24:00",
         "modules": "amber",
         "queue": "debug",
@@ -80,7 +80,6 @@ def test_prepare_case2():
 
     job = {
         "account": "",
-        "cluster": "",
         "cores": "24",
         "executableargs": "pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out",
         "handler": "mpirun",
@@ -88,6 +87,7 @@ def test_prepare_case2():
         "email-flags": "",
         "jobname": "testjob",
         "localworkdir": "/tmp",
+        "lsf-cluster": "",
         "maxtime": "24:00",
         "modules": "amber",
         "queue": "debug",
@@ -112,7 +112,6 @@ def test_prepare_case3():
 
     job = {
         "account": "",
-        "cluster": "cluster1",
         "cores": "24",
         "executableargs": "pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out",
         "handler": "mpirun",
@@ -120,6 +119,7 @@ def test_prepare_case3():
         "email-flags": "",
         "jobname": "testjob",
         "localworkdir": "/tmp",
+        "lsf-cluster": "cluster1",
         "maxtime": "24:00",
         "modules": "amber",
         "queue": "debug",
@@ -145,7 +145,6 @@ def test_prepare_case4():
     job = {
         "account": "accno1234",
         "accountflag": "",
-        "cluster": "",
         "cores": "24",
         "executableargs": "pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out",
         "handler": "mpirun",
@@ -153,6 +152,7 @@ def test_prepare_case4():
         "email-flags": "",
         "jobname": "testjob",
         "localworkdir": "/tmp",
+        "lsf-cluster": "",
         "maxtime": "24:00",
         "modules": "amber",
         "queue": "debug",
@@ -178,7 +178,6 @@ def test_prepare_case5():
     job = {
         "account": "accno1234",
         "accountflag": "-F",
-        "cluster": "",
         "cores": "24",
         "executableargs": "pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out",
         "handler": "mpirun",
@@ -186,6 +185,7 @@ def test_prepare_case5():
         "email-flags": "",
         "jobname": "testjob",
         "localworkdir": "/tmp",
+        "lsf-cluster": "",
         "maxtime": "24:00",
         "modules": "amber",
         "queue": "debug",
@@ -211,7 +211,6 @@ def test_prepare_case6():
     job = {
         "account": "",
         "accountflag": "",
-        "cluster": "",
         "cores": "24",
         "executableargs": "pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out",
         "handler": "mpirun",
@@ -219,6 +218,7 @@ def test_prepare_case6():
         "email-flags": "-B",
         "jobname": "testjob",
         "localworkdir": "/tmp",
+        "lsf-cluster": "",
         "maxtime": "24:00",
         "modules": "amber",
         "queue": "debug",
@@ -244,7 +244,6 @@ def test_prepare_case7():
     job = {
         "account": "",
         "accountflag": "",
-        "cluster": "",
         "cores": "24",
         "executableargs": "pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out",
         "handler": "mpirun",
@@ -252,6 +251,7 @@ def test_prepare_case7():
         "email-flags": "",
         "jobname": "testjob",
         "localworkdir": "/tmp",
+        "lsf-cluster": "",
         "maxtime": "24:00",
         "modules": "amber",
         "queue": "debug",
@@ -277,7 +277,6 @@ def test_prepare_case8():
     job = {
         "account": "",
         "accountflag": "",
-        "cluster": "",
         "cores": "24",
         "executableargs": "pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out",
         "handler": "mpiexec.hydra",
@@ -285,6 +284,7 @@ def test_prepare_case8():
         "email-flags": "",
         "jobname": "testjob",
         "localworkdir": "/tmp",
+        "lsf-cluster": "",
         "maxtime": "24:00",
         "modules": "amber",
         "queue": "debug",

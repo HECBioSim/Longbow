@@ -30,71 +30,24 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+"""This is the Chemshell plugin module.
+
+This plugin is relatively simple in the fact that adding new executables is as
+simple as modifying the EXECDATA structure below. See the documentation at
+http://www.hecbiosim.ac.uk/longbow-devdocs for more information.
 """
-This testing module contains the tests for the configuration module methods.
-"""
 
-import pytest
-
-from longbow.corelibs.configuration import saveconfigs
-import longbow.corelibs.exceptions as ex
-
-
-def test_saveconfigs_test1():
-
-    """
-    Test to see if the save configuration method works with a simple data
-    structure.
-    """
-
-    configfile = "/tmp/saveconfigtest1"
-    params = {
-        "test1": {
-            "param1": "2",
-            "param2": "test",
-            "param3": "true"
-        },
-        "test2": {
-            "parama": "f",
-            "paramb": "12",
-            "paramc": "/path/to/somethingelse"
-        }
+EXECDATA = {
+    "chemsh.x": {
+        "subexecutables": [],
+        "requiredfiles": ["<"],
     }
-
-    saveconfigs(configfile, params)
-
-    filestructure = open("/tmp/saveconfigtest1", "r").readlines()
-    assert "[test1]\n" in filestructure
-    assert "param1 = 2\n" in filestructure
-    assert "param2 = test\n" in filestructure
-    assert "param3 = true\n" in filestructure
-
-    assert "[test2]\n" in filestructure
-    assert "parama = f\n" in filestructure
-    assert "paramb = 12\n" in filestructure
-    assert "paramc = /path/to/somethingelse\n" in filestructure
+}
 
 
-def test_saveconfigs_test2():
+def rsyncuploadhook(jobs, job):
+    '''Override the default rsync upload parameters to null so that rsync
+    basically transfers all files'''
 
-    """
-    Try to write somewhere forbidden
-    """
-
-    configfile = "/usr/saveconfigtest1"
-    params = {
-        "test1": {
-            "param1": "2",
-            "param2": "test",
-            "param3": "true"
-        },
-        "test2": {
-            "parama": "f",
-            "paramb": "12",
-            "paramc": "/path/to/somethingelse"
-        }
-    }
-
-    with pytest.raises(ex.ConfigurationError):
-
-        saveconfigs(configfile, params)
+    jobs[job]["upload-include"] = ""
+    jobs[job]["upload-exclude"] = "log, *.log"

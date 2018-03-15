@@ -83,6 +83,13 @@ class CommandlineargsError(Exception):
     pass
 
 
+class ExecutableError(Exception):
+
+    """Executable not found exception."""
+
+    pass
+
+
 class RequiredinputError(Exception):
 
     """Required input error exception."""

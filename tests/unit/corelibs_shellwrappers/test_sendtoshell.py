@@ -112,3 +112,25 @@ def test_sendtoshell_unicode(mock_subprocess):
     stdout = sendtoshell(["uname"])[0]
 
     assert stdout == "Linux"
+
+
+@mock.patch('subprocess.Popen')
+def test_sendtoshell_unicode2(mock_subprocess):
+
+    """
+    Test the unicode line, would pass in python 3 but not 2.
+    """
+
+    try:
+
+        mock_subprocess.return_value.communicate.return_value = \
+            "", unicode("Linux")
+
+    except NameError:
+
+        mock_subprocess.return_value.communicate.return_value = \
+            "", "Linux"
+
+    stderr = sendtoshell(["uname"])[1]
+
+    assert stderr == "Linux"

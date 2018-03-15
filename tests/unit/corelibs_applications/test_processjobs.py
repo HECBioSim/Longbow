@@ -98,7 +98,38 @@ def test_processjobs_pardir():
 
 @mock.patch('longbow.corelibs.applications._proccommandline')
 @mock.patch('longbow.corelibs.applications._flagvalidator')
-def test_processjobs_singlejob(m_validator, m_proccommandline):
+def test_processjobs_singlejob1(m_validator, m_proccommandline):
+
+    """Test for single job, make sure parameters are all set correctly."""
+
+    jobs = {
+        "jobone": {
+            "executableargs": ["-i", "input", "-c", "coords", "-p", "topol"],
+            "localworkdir": os.path.join(os.getcwd(),
+                                         "tests/standards/jobs/single"),
+            "executable": "/some/path/pmemd.MPI",
+            "upload-include": "",
+            "upload-exclude": ""
+        }
+    }
+
+    m_proccommandline.side_effect = _proccommandline
+
+    m_validator.return_value = None
+
+    processjobs(jobs)
+
+    assert jobs["jobone"]["upload-exclude"] == "*"
+    assert jobs["jobone"]["localworkdir"] == os.path.join(
+        os.getcwd(), "tests/standards/jobs/single")
+    assert jobs["jobone"]["executableargs"] == \
+        "/some/path/pmemd.MPI -i input -c coords -p topol"
+    assert jobs["jobone"]["upload-include"] == "input, coords, topol"
+
+
+@mock.patch('longbow.corelibs.applications._proccommandline')
+@mock.patch('longbow.corelibs.applications._flagvalidator')
+def test_processjobs_singlejob2(m_validator, m_proccommandline):
 
     """Test for single job, make sure parameters are all set correctly."""
 

@@ -234,8 +234,8 @@ def _newfilechecks(addfile, newfile, path):
 
             _, _, newfile = newfile.rpartition("/")
 
-            # Else we must be in cwd so issue a warning about referring to a
-            # file that is above cwd.
+        # Else we must be in cwd so issue a warning about referring to a file
+        # that is above cwd.
         else:
 
             raise exceptions.RequiredinputError(
@@ -266,11 +266,11 @@ def _newfilechecks(addfile, newfile, path):
     # Else newfile is indicated to be in a repX subdirectory.
     elif re.search(r'rep\d', newfile):
 
-        # If we are already in a repX subdirectory issue a warning.
+        # If we are already in a repX subdirectory throw exception.
         if re.search(r'rep\d', addfile):
 
             raise exceptions.RequiredinputError(
-                "It appears that theuser is trying to refer to a file '{0}' "
+                "It appears that the user is trying to refer to a file '{0}' "
                 "that is in a repX/repX subdirectory. This is not permitted."
                 .format(newfile))
 
