@@ -67,6 +67,10 @@ EXECDATA = {
     "lmp": {
         "subexecutables": [],
         "requiredfiles": ["-i"],
+    },
+    "lmp_intel_cpu_intelmpi": {
+        "subexecutables": [],
+        "requiredfiles": ["-i"],
     }
 }
 
