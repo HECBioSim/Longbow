@@ -1,3 +1,4 @@
+include includetest.file # comment
 read_data       apps_recursivetest.txt # Comment
 # commented out line
 read_restart    /some/path/to/file

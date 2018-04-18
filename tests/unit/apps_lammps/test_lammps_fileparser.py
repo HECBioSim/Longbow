@@ -94,4 +94,5 @@ def test_fileparser_test3():
 
     file_parser(filename, path, files, substitutions)
 
-    assert files == ["apps_fileparserlammps.txt", "apps_recursivetest.txt"]
+    assert files == ["apps_fileparserlammps.txt", "includetest.file",
+                     "apps_recursivetest.txt"]

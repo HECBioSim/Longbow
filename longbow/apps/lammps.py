@@ -94,7 +94,7 @@ def file_parser(filename, path, files, substitutions=None):
         files.append(addfile)
 
         # Create a dict for any variable substitutions and define keywords.
-        keywords = ['read_data', 'read_restart', 'read_dump']
+        keywords = ['read_data', 'read_restart', 'read_dump', 'include']
         variables = {} if not substitutions else substitutions
 
         fil = _fileopen(path, addfile)
