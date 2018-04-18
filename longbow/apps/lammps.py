@@ -46,27 +46,31 @@ import longbow.corelibs.exceptions as exceptions
 EXECDATA = {
     "lmp_xc30": {
         "subexecutables": [],
-        "requiredfiles": ["-i"],
+        "requiredfiles": ["-i || -in"],
     },
     "lmp_linux": {
         "subexecutables": [],
-        "requiredfiles": ["-i"],
+        "requiredfiles": ["-i || -in"],
     },
     "lmp_gpu": {
         "subexecutables": [],
-        "requiredfiles": ["-i"],
+        "requiredfiles": ["-i || -in"],
     },
     "lmp_mpi": {
         "subexecutables": [],
-        "requiredfiles": ["-i"],
+        "requiredfiles": ["-i || -in"],
     },
     "lmp_cuda": {
         "subexecutables": [],
-        "requiredfiles": ["-i"],
+        "requiredfiles": ["-i || -in"],
     },
     "lmp": {
         "subexecutables": [],
-        "requiredfiles": ["-i"],
+        "requiredfiles": ["-i || -in"],
+    },
+    "lmp_intel_cpu_intelmpi": {
+        "subexecutables": [],
+        "requiredfiles": ["-i || -in"],
     }
 }
 
