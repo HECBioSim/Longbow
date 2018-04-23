@@ -93,8 +93,15 @@ def file_parser(filename, path, files, substitutions=None):
 
         files.append(addfile)
 
-        # Create a dict for any variable substitutions and define keywords.
-        keywords = ['read_data', 'read_restart', 'read_dump', 'include']
+        # List of LAMMPS output commands, these will be used to mask against
+        # keywords that shouldn't used to detect files for transfer.
+        output_commands = ["print", "dump", "log", "restart", "write_dump",
+                           "write_restart", "pair_write", "write_coeff",
+                           "ave/time", "ave/chunk", "bond_write",
+                           "ave/histo/weight", "saed/vtk", "ave/histo",
+                           "write_data"]
+
+        # Setup variables to be substituted.
         variables = {} if not substitutions else substitutions
 
         fil = _fileopen(path, addfile)
@@ -114,28 +121,30 @@ def file_parser(filename, path, files, substitutions=None):
 
             else:
 
-                words = line[:len(line)].split()
+                words = line.split()
 
             if len(words) > 0:
 
                 _internalsubstitutions(variables, words)
 
-                # If this line is reading in an input file.
-                if words[0].lower() in keywords:
+                # Does this line contain an output command?
+                if set(words).isdisjoint(output_commands):
 
-                    newfile = words[-1]
+                    for word in words:
 
-                    # Do variable substitutons
-                    newfile = _variablesubstitutions(newfile, variables)
+                        if os.path.isfile(os.path.join(path, word)):
 
-                    # Deduce the location of newfile.
-                    newpath = path
+                            newfile = word
 
-                    # Check newfile.
-                    newfile = _newfilechecks(addfile, newfile, path)
+                            # Do variable substitutons
+                            newfile = _variablesubstitutions(newfile,
+                                                             variables)
 
-                    # Recursive function.
-                    file_parser(newfile, newpath, files, substitutions)
+                            # Check newfile.
+                            newfile = _newfilechecks(addfile, newfile, path)
+
+                            # Recursive function.
+                            file_parser(newfile, path, files, substitutions)
 
         fil.close()
 

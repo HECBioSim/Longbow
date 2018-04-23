@@ -13,3 +13,5 @@ Contributors:
 #############
 
 Developers with accepted contributions should include their name below.
+
+Anders Johansson - The University of Oslo - Contributed code to the LAMMPS plugin.
