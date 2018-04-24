@@ -14,7 +14,6 @@
                                   "Y88P"
 
 
-
 longbow-examples contains a set of Molecular Dynamics input files that you can
 use to learn how to use Longbow.
 
