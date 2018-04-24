@@ -15,8 +15,101 @@
 
 
 
-LongbowExamples contains a set of Molecular Dynamics input files users can use
-to learn how to use Longbow.
+longbow-examples contains a set of Molecular Dynamics input files that you can
+use to learn how to use Longbow.
 
-In longbow-examples/how-to-run there is a list of the commands that will submit
-jobs on an external resource (HPC) using these files.
+In the section below there is a list of the commands that will show you how to
+submit the Longbow examples as jobs on an external resource (HPC) using these
+files. 
+
+Prior to attempting the examples you should firstly ensure that you have an
+active account on a HPC machine and that the MD package of interest is
+installed, then follow the documentation for adding your first HPC machine
+account to Longbow at the following link
+
+http://www.hecbiosim.ac.uk/longbow-docs?showall=&start=2#2.1
+
+Note - We ensure that these examples work on the UK national supercomputer
+ARCHER, whilst there is no reason to suspect that they will not work elsewhere,
+there is a chance that software has been installed with different executable
+names or in other non-default ways. In these cases you might need to slightly
+modify the procedures described below. We are happy to provide support if
+required.
+
+
+**********
+How to Run
+**********
+
+The following instructions will assume you have downloaded and extracted the
+examples and changed into the 'longbow-examples' directory path.
+
+Quick Start Examples
+====================
+
+In the 'quick_start' directory, you can choose examples for your favourite
+Molecular Dynamics package and learn how to submit a simple longbow job from
+your local machine. 
+
+AMBER
+-----
+
+Change into 'longbow-examples/quick_start/amber' and run:
+
+longbow --verbose pmemd.MPI -O -i example.in -c example.min -p example.top -o example.out
+
+CHARMM
+------
+
+Change into 'longbow-examples/quick_start/charmm' and run:
+
+longbow --verbose charmm -i example.inp ">" example.out
+
+GROMACS
+-------
+
+Change into 'longbow-examples/quick_start/gromacs' and run:
+
+longbow --verbose gmx mdrun_mpi -s example.tpr -deffnm output
+
+LAMMPS
+------
+
+Change into 'longbow-examples/quick_start/lammps' and run:
+
+longbow --verbose lmp_xc30 -i example.in -l output
+
+NAMD
+----
+
+Change into 'longbow-examples/quick_start/namd' and run:
+
+longbow --verbose namd2 example.in ">" example.out
+
+
+################################################################################
+longbow-examples/replicate_job
+
+In this directory, users can learn how to submit replicas by executing the below 
+command on a desktop:
+
+longbow --verbose --replicates 5 namd2 example.in
+
+################################################################################
+longbow-examples/multiple-jobs
+
+longbow-examples/multiple-jobs/different_job_types
+
+In this directory, users can learn how to submit multiple jobs to multiple 
+resources (HPC's). Edit /multi/job.conf to specify resources with entries in 
+~/.Longbow/hosts.conf and submit on your desktop using the below command:
+
+longbow --job job.conf --verbose
+
+longbow-examples/multiple-jobs/different_applications
+
+In this directory, users can learn how to submit multiple jobs that each use a
+different molecular dynamics package. Just execute the following command on a 
+desktop:
+
+longbow --job job.conf --verbose
