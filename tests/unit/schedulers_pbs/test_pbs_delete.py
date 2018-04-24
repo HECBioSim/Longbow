@@ -43,11 +43,11 @@ except ImportError:
 
 import pytest
 
-import longbow.corelibs.exceptions as exceptions
+import longbow.exceptions as exceptions
 from longbow.schedulers.pbs import delete
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_delete_test1(mock_ssh):
 
     """
@@ -69,7 +69,7 @@ def test_delete_test1(mock_ssh):
     assert " ".join(args) == "qdel 12345"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_delete_test2(mock_ssh):
 
     """
@@ -91,7 +91,7 @@ def test_delete_test2(mock_ssh):
     assert " ".join(args) == "qdel 12345[]"
 
 
-@mock.patch('longbow.corelibs.shellwrappers.sendtossh')
+@mock.patch('longbow.shellwrappers.sendtossh')
 def test_delete_except1(mock_ssh):
 
     """

@@ -35,7 +35,7 @@ This testing module contains basic testing for the CHARMM plugin.
 """
 
 import pytest
-import longbow.corelibs.exceptions as exceptions
+import longbow.exceptions as exceptions
 from longbow.apps.charmm import _newfilechecks
 
 
