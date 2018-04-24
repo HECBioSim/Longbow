@@ -1,3 +1,7 @@
+****************
+Longbow Examples
+****************
+
 longbow-examples contains a set of Molecular Dynamics input files that you can
 use to learn how to use Longbow.
 
@@ -20,7 +24,6 @@ modify the procedures described below. We are happy to provide support if
 required.
 
 
-**********
 How to Run
 **********
 
