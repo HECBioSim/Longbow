@@ -31,7 +31,7 @@ The following instructions will assume you have downloaded and extracted the
 examples and changed into the 'longbow-examples' directory path.
 
 Quick Start Examples
-====================
+********************
 
 In the 'quick_start' directory, you can choose examples for your favourite
 Molecular Dynamics package and learn how to submit a simple longbow job from
@@ -79,7 +79,7 @@ longbow --verbose namd2 +ppn 23 +pemap 1-23 +commap 0 example.in ">" example.out
 *The parameters "cores" and "corespernode" must be set to "1" in your hosts.conf
 
 Replicate Job Example
-=====================
+*********************
 
 In this directory, you will learn how to submit a replicate job. These are
 useful for submitting ensembles of jobs where the command-line is identical but
@@ -90,7 +90,7 @@ Change into 'longbow-examples/replicate_job' and run:
 longbow --verbose --replicates 5 namd2 example.in
 
 Multi-Job Example
-=================
+*****************
 
 Multi-jobs are the most flexible type of job Longbow offers, they are basically
 a fully customisable ensemble of jobs. The following examples show the
