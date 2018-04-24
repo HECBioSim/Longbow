@@ -70,7 +70,7 @@ GROMACS
 
 Change into 'longbow-examples/quick_start/gromacs' and run:
 
-longbow --verbose gmx mdrun_mpi -s example.tpr -deffnm output
+longbow --verbose gmx mdrun -s example.tpr -deffnm output
 
 LAMMPS
 ------
@@ -86,30 +86,57 @@ Change into 'longbow-examples/quick_start/namd' and run:
 
 longbow --verbose namd2 example.in ">" example.out
 
+or for SMP builds (NAMD v2.12+)*:
 
-################################################################################
-longbow-examples/replicate_job
+longbow --verbose namd2 +ppn 23 +pemap 1-23 +commap 0 example.in ">" example.out
 
-In this directory, users can learn how to submit replicas by executing the below 
-command on a desktop:
+*The parameters "cores" and "corespernode" must be set to "1" in your hosts.conf
+
+Replicate Job Example
+=====================
+
+In this directory, you will learn how to submit a replicate job. These are
+useful for submitting ensembles of jobs where the command-line is identical but
+a number of different runs or slightly different input files are used.
+
+Change into 'longbow-examples/replicate_job' and run:
 
 longbow --verbose --replicates 5 namd2 example.in
 
-################################################################################
-longbow-examples/multiple-jobs
+Multi-Job Example
+=================
 
-longbow-examples/multiple-jobs/different_job_types
+Multi-jobs are the most flexible type of job Longbow offers, they are basically
+a fully customisable ensemble of jobs. The following examples show the
+flexibility and power of using this type of job. These jobs use a job
+configuration file to gain control over each jobs parameters separately.
 
-In this directory, users can learn how to submit multiple jobs to multiple 
-resources (HPC's). Edit /multi/job.conf to specify resources with entries in 
-~/.Longbow/hosts.conf and submit on your desktop using the below command:
+Many Different Single Jobs
+--------------------------
+
+In the 'multiple-jobs/different_applications' directory, you can learn how to
+submit multiple jobs that each use a different molecular dynamics package.
+
+Change into 'longbow-examples/multiple-jobs/different_applications' and run:
 
 longbow --job job.conf --verbose
 
-longbow-examples/multiple-jobs/different_applications
+Mixed Job Types
+---------------
 
-In this directory, users can learn how to submit multiple jobs that each use a
-different molecular dynamics package. Just execute the following command on a 
-desktop:
+Have a bunch of simulations where some are replicates and some are simple
+single use jobs? Then you can mix these too.
+
+In the 'multiple-jobs/different_job_types' directory, you can learn how to
+submit multiple jobs that are different types.
+
+Change into 'longbow-examples/multiple-jobs/different_job_types' and run:
 
 longbow --job job.conf --verbose
+
+
+That's it for our quick start guide, check out the documentation for more 
+in-depth information on what is configurable. You can build on the basic
+concepts in these examples to create large-scale, multi-machine, large-volume
+jobs where you no longer have to worry about job scripts and moving around
+files.
