@@ -89,6 +89,12 @@ Change into 'longbow-examples/replicate_job' and run:
 
 longbow --verbose --replicates 5 namd2 example.in
 
+or for SMP builds (NAMD v2.12+)*:
+
+longbow --verbose --replicates 5 namd2 +ppn 23 +pemap 1-23 +commap 0 example.in ">" example.out
+
+*The parameters "cores" and "corespernode" must be set to "1" in your hosts.conf
+
 Multi-Job Example
 *****************
 
