@@ -35,6 +35,7 @@ This testing module contains the tests for the applications module methods.
 """
 
 from longbow.applications import _procfiles
+from longbow.configuration import JOBTEMPLATE
 
 
 def test_procfiles_amber():
@@ -43,16 +44,16 @@ def test_procfiles_amber():
     Test to make sure that the file and flag is picked up for an amber-like
     command-line.
     """
+    job = JOBTEMPLATE.copy()
 
     arg = "coords"
     filelist = []
     foundflags = []
-    job = {
-        "executable": "pmemd.MPI",
-        "replicates": "1",
-        "localworkdir": "tests/standards/jobs/single",
-        "executableargs": ["-i", "input", "-c", "coords", "-p", "topol"]
-    }
+
+    job["executable"] = "pmemd.MPI"
+    job["localworkdir"] = "tests/standards/jobs/single"
+    job["executableargs"] = ["-i", "input", "-c", "coords", "-p", "topol"]
+
     substitution = {}
 
     foundflags = _procfiles(job, arg, filelist, foundflags, substitution)
@@ -68,15 +69,15 @@ def test_procfiles_charmm():
     command-line.
     """
 
+    job = JOBTEMPLATE.copy()
+
     arg = "topol"
     filelist = []
     foundflags = []
-    job = {
-        "executable": "charmm",
-        "replicates": "1",
-        "localworkdir": "tests/standards/jobs/single",
-        "executableargs": ["<", "topol"]
-    }
+    job["executable"] = "charmm"
+    job["localworkdir"] = "tests/standards/jobs/single"
+    job["executableargs"] = ["<", "topol"]
+
     substitution = {}
 
     foundflags = _procfiles(job, arg, filelist, foundflags, substitution)
@@ -92,15 +93,15 @@ def test_procfiles_gromacs():
     command-line.
     """
 
+    job = JOBTEMPLATE.copy()
+
     arg = "test"
     filelist = []
     foundflags = []
-    job = {
-        "executable": "mdrun_mpi",
-        "replicates": "1",
-        "localworkdir": "tests/standards/jobs/single",
-        "executableargs": ["-deffnm", "test"]
-    }
+    job["executable"] = "mdrun_mpi"
+    job["localworkdir"] = "tests/standards/jobs/single"
+    job["executableargs"] = ["-deffnm", "test"]
+
     substitution = {}
 
     foundflags = _procfiles(job, arg, filelist, foundflags, substitution)
@@ -116,15 +117,15 @@ def test_procfiles_namd1():
     command-line.
     """
 
+    job = JOBTEMPLATE.copy()
+
     arg = "input"
     filelist = []
     foundflags = []
-    job = {
-        "executable": "namd2",
-        "replicates": "1",
-        "localworkdir": "tests/standards/jobs/single",
-        "executableargs": ["input"]
-    }
+    job["executable"] = "namd2"
+    job["localworkdir"] = "tests/standards/jobs/single"
+    job["executableargs"] = ["input"]
+
     substitution = {}
 
     foundflags = _procfiles(job, arg, filelist, foundflags, substitution)
@@ -140,15 +141,15 @@ def test_procfiles_namd2():
     command-line.
     """
 
+    job = JOBTEMPLATE.copy()
+
     arg = "input"
     filelist = []
     foundflags = []
-    job = {
-        "executable": "namd2",
-        "replicates": "1",
-        "localworkdir": "tests/standards/jobs/single",
-        "executableargs": ["input", ">", "output"]
-    }
+    job["executable"] = "namd2"
+    job["localworkdir"] = "tests/standards/jobs/single"
+    job["executableargs"] = ["input", ">", "output"]
+
     substitution = {}
 
     foundflags = _procfiles(job, arg, filelist, foundflags, substitution)
@@ -163,15 +164,16 @@ def test_procfiles_reps1():
     Test for replicate variant.
     """
 
+    job = JOBTEMPLATE.copy()
+
     arg = "coords"
     filelist = []
     foundflags = []
-    job = {
-        "executable": "pmemd.MPI",
-        "replicates": "3",
-        "localworkdir": "tests/standards/jobs/replicate",
-        "executableargs": ["-i", "input", "-c", "coords", "-p", "topol"]
-    }
+    job["executable"] = "pmemd.MPI"
+    job["replicates"] = "3"
+    job["localworkdir"] = "tests/standards/jobs/replicate"
+    job["executableargs"] = ["-i", "input", "-c", "coords", "-p", "topol"]
+
     substitution = {}
 
     foundflags = _procfiles(job, arg, filelist, foundflags, substitution)
@@ -187,15 +189,16 @@ def test_procfiles_reps2():
     Test for replicate variant with global.
     """
 
+    job = JOBTEMPLATE.copy()
+
     arg = "topol"
     filelist = []
     foundflags = []
-    job = {
-        "executable": "pmemd.MPI",
-        "replicates": "3",
-        "localworkdir": "tests/standards/jobs/replicate",
-        "executableargs": ["-i", "input", "-c", "coords", "-p", "topol"]
-    }
+    job["executable"] = "pmemd.MPI"
+    job["replicates"] = "3"
+    job["localworkdir"] = "tests/standards/jobs/replicate"
+    job["executableargs"] = ["-i", "input", "-c", "coords", "-p", "topol"]
+
     substitution = {}
 
     foundflags = _procfiles(job, arg, filelist, foundflags, substitution)
