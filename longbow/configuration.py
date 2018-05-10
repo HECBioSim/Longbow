@@ -110,6 +110,7 @@ JOBTEMPLATE = {
     "staging-frequency": "300",
     "sge-peflag": "mpi",
     "sge-peoverride": "false",
+    "subfile": "",
     "user": "",
     "upload-exclude": "",
     "upload-include": ""

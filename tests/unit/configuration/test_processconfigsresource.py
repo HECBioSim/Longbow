@@ -132,6 +132,7 @@ def test_processconfigsresource1():
             "replicates": "1",
             "replicate-naming": "rep",
             "scheduler": "",
+            "subfile": "",
             "user": "",
             "upload-exclude": "",
             "upload-include": ""
@@ -239,6 +240,7 @@ def test_processconfigsresource2():
             "replicates": "1",
             "replicate-naming": "rep",
             "scheduler": "",
+            "subfile": "",
             "user": "",
             "upload-exclude": "",
             "upload-include": ""
@@ -347,6 +349,7 @@ def test_processconfigsresource3():
             "replicates": "1",
             "replicate-naming": "rep",
             "scheduler": "",
+            "subfile": "",
             "user": "",
             "upload-exclude": "",
             "upload-include": ""
@@ -454,6 +457,7 @@ def test_processconfigsresource4():
             "replicates": "1",
             "replicate-naming": "rep",
             "scheduler": "",
+            "subfile": "",
             "user": "",
             "upload-exclude": "",
             "upload-include": ""

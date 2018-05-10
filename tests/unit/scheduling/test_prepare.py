@@ -60,7 +60,8 @@ def test_prepare_single(mock_prepare):
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
-            "jobid": "test456"
+            "jobid": "test456",
+            "subfile": ""
         }
     }
 
@@ -82,17 +83,20 @@ def test_prepare_multiple(mock_prepare):
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
-            "jobid": "test123"
+            "jobid": "test123",
+            "subfile": ""
         },
         "job-two": {
             "resource": "test-machine",
             "scheduler": "LSF",
-            "jobid": "test456"
+            "jobid": "test456",
+            "subfile": ""
         },
         "job-three": {
             "resource": "test-machine",
             "scheduler": "LSF",
-            "jobid": "test789"
+            "jobid": "test789",
+            "subfile": ""
         }
     }
 
@@ -113,7 +117,8 @@ def test_prepare_attrexcept(mock_prepare):
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
-            "jobid": "test456"
+            "jobid": "test456",
+            "subfile": ""
         }
     }
 
@@ -122,3 +127,25 @@ def test_prepare_attrexcept(mock_prepare):
     with pytest.raises(exceptions.PluginattributeError):
 
         prepare(jobs)
+
+
+@mock.patch('longbow.schedulers.lsf.prepare')
+def test_prepare_ownscript(mock_prepare):
+
+    """
+    Test that if user supplies a script that longbow doesn't create one.
+    """
+
+    jobs = {
+        "job-one": {
+            "resource": "test-machine",
+            "scheduler": "LSF",
+            "jobid": "test456",
+            "subfile": "test.lsf"
+        }
+    }
+
+    prepare(jobs)
+
+    assert mock_prepare.call_count == 0, \
+        "This method shouldn't be called at all in this case."
