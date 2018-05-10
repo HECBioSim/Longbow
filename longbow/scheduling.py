@@ -317,11 +317,18 @@ def prepare(jobs):
 
         try:
 
-            LOG.info("Creating submit file for job '%s'", item)
+            if job["subfile"] == "":
 
-            getattr(schedulers, scheduler.lower()).prepare(job)
+                LOG.info("Creating submit file for job '%s'", item)
 
-            LOG.info("Submit file created successfully")
+                getattr(schedulers, scheduler.lower()).prepare(job)
+
+                LOG.info("Submit file created successfully")
+
+            else:
+
+                LOG.info("For job '%s' user has supplied their own job submit "
+                         "script - skipping creation.", item)
 
         except AttributeError:
 

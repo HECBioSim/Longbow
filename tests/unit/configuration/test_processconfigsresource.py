@@ -131,6 +131,7 @@ def test_processconfigsresource1():
             "resource": "host1",
             "replicates": "1",
             "scheduler": "",
+            "subfile": "",
             "user": "",
             "upload-exclude": "",
             "upload-include": ""
@@ -237,6 +238,7 @@ def test_processconfigsresource2():
             "resource": "host2",
             "replicates": "1",
             "scheduler": "",
+            "subfile": "",
             "user": "",
             "upload-exclude": "",
             "upload-include": ""
@@ -344,6 +346,7 @@ def test_processconfigsresource3():
             "resource": "host1",
             "replicates": "1",
             "scheduler": "",
+            "subfile": "",
             "user": "",
             "upload-exclude": "",
             "upload-include": ""
@@ -450,6 +453,7 @@ def test_processconfigsresource4():
             "resource": "host3",
             "replicates": "1",
             "scheduler": "",
+            "subfile": "",
             "user": "",
             "upload-exclude": "",
             "upload-include": ""
