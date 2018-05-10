@@ -353,13 +353,15 @@ def _procfiles(job, arg, filelist, foundflags, substitution):
         # Otherwise we have a replicate job so check these.
         else:
 
-            # Add the repX dir
-            if ("rep" + str(rep)) not in filelist:
+            repx = str(job["replicate-naming"]) + str(rep)
 
-                filelist.append("rep" + str(rep))
+            # Add the repx dir
+            if (repx) not in filelist:
+
+                filelist.append(repx)
 
             fileitem = _procfilesreplicatejobs(
-                app, arg, job["localworkdir"], initargs, rep)
+                app, arg, job["localworkdir"], initargs, repx)
 
             job["executableargs"] = initargs
 
@@ -407,21 +409,21 @@ def _procfilessinglejob(app, arg, cwd):
     return fileitem
 
 
-def _procfilesreplicatejobs(app, arg, cwd, initargs, rep):
+def _procfilesreplicatejobs(app, arg, cwd, initargs, repx):
     """Processor for replicate jobs."""
     fileitem = ""
     tmpitem = ""
 
     # We should check that the replicate directory structure exists.
-    if os.path.isdir(os.path.join(cwd, "rep" + str(rep))) is False:
+    if os.path.isdir(os.path.join(cwd, repx)) is False:
 
-        os.mkdir(os.path.join(cwd, "rep" + str(rep)))
+        os.mkdir(os.path.join(cwd, repx))
 
     # If we have a replicate job then we should check if the file resides
     # within ./rep{i} or if it is a global (common to each replicate) file.
-    if os.path.isfile(os.path.join(cwd, "rep" + str(rep), arg)):
+    if os.path.isfile(os.path.join(cwd, repx, arg)):
 
-        fileitem = os.path.join("rep" + str(rep), arg)
+        fileitem = os.path.join(repx, arg)
 
     # Otherwise do we have a file in cwd
     elif os.path.isfile(os.path.join(cwd, arg)):
@@ -440,7 +442,7 @@ def _procfilesreplicatejobs(app, arg, cwd, initargs, rep):
         try:
 
             tmpitem, _ = getattr(apps, app.lower()).defaultfilename(
-                cwd, os.path.join("rep" + str(rep), arg), "")
+                cwd, os.path.join(repx, arg), "")
 
         except AttributeError:
 

@@ -103,6 +103,7 @@ JOBTEMPLATE = {
     "remoteworkdir": "",
     "resource": "",
     "replicates": "1",
+    "replicate-naming": "rep",
     "scheduler": "",
     "scripts": "",
     "slurm-gres": "",
