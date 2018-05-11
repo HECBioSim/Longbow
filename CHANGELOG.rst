@@ -1,9 +1,61 @@
-*********
-CHANGELOG
+Changelog
 *********
 
+Changes to the Longbow source code are listed below by release version.
+
+Version 1.5.1
+-------------
+
+1. Bug fix - a number of parameters that are only used in specific scheduler or
+   application plugins have been renamed to include the plugin name prefix #54.
+
+2. Bug fix - executables expressed as absolute paths for supported plugins
+   would cause a crash due to searching for a module with that key #63.
+
+3. Bug fix - wrong error message was displayed when an executable didn't exist
+   on HPC machine #65.
+
+4. Bug fix - fix for crash when using NAMD SMP builds, the commandline
+   parameters beginning with "+" would trigger the crash #66.
+
+5. Bug fix - fixed misleading error messages about missing files and flags #67.
+
+6. Bug fix - fixed problem where the newly added bash autocomplete did not
+   allow filenames on disk to autocomplete #68.
+
+7. Bug fix - fixed a problem when a large number of short jobs that trigger job
+   subqueuing would cause a crash #72.
+
+8. Bug fix - fixed user reported bug with strange looking error messages
+   concealing a further absolute path bug #75.
+
+9. New feature - Added support for the slurm gres flag so users can do
+   something like this "slurm-gres = gpu:1" in their host or job conf files #76.
+
+10. Bug fix - Restored the ability to issue --maxtime on the commandline #78.
+
+11. New feature - support added for the upcoming release of python chemshell #80.
+
+12. Bug fix - fix for problem where parameters in configuration files
+    containing the "=" sign would cause the input file parser to misread
+    them #81.
+
+13. Bug fix - fix for problem with LAMMPS jobs where files provided with
+    "include" or as part of other parameters would not be transferred, thanks
+    to Anders Johansson for suggesting some ideas and solutions #86.
+
+14. The structure of the Longbow API has been simplified, the source files no
+    longer reside in a subdirectory called "core" within the installation
+    directory. This has made importing much simpler and imports shorter.
+
+15. Examples have been restructured and the how to run instructions updated.
+    The actual run files remain the same, there are still incompatibilities
+    with these and newer versions of MD codes but this will be addressed in
+    the next version.
+
+
 Version 1.5.0
-#############
+-------------
 
 1. Change of license from GPLv2 to the BSD 3 clause license. This will resolve
    the copy-left issues a number of projects are having (Issue #30).
@@ -36,7 +88,7 @@ Version 1.5.0
 
 
 Version 1.4.0
-#############
+-------------
 
 This release is a rather large release with a lot of changes to the code and
 also to the way things are being done. This project is moving towards using CI
@@ -151,7 +203,7 @@ The actual changes to the code are:
 
  
 Version 1.3.2
-#############
+-------------
 
 1. Fix for new gromacs packaging where the gmx mdrun CLI would not be
    recognised.
@@ -183,7 +235,7 @@ Version 1.3.2
 
  
 Version 1.3.1 
-#############
+-------------
 
 1. For machines running SGE a new parameter to control the flag used on the -pe
    directive has been implemented. This parameter is "sge-peflag" and has a
@@ -217,7 +269,7 @@ Version 1.3.1
  
 
 Version 1.3.0
-#############
+-------------
 
 1. Fix for recovery file bug where the file name was mangled by misplaced comma
    in os.path.join().
@@ -246,7 +298,7 @@ Version 1.3.0
 
 
 Version 1.2.1
-#############
+-------------
 
 1. Fix for annoying error in pip when not using http on urls.
 
@@ -256,7 +308,7 @@ Version 1.2.1
 
 
 Version 1.2.0
-#############
+-------------
 
 1. Simplification of the whole Longbow library. This means lots of changes have
    been made to the source code and thus developers making use of Longbow in
@@ -329,7 +381,7 @@ Version 1.2.0
 
 
 Version 1.1.6
-#############
+-------------
 
 1. Fix for issue on install through pip where it was complaining about the
    missing README.rst.
@@ -339,7 +391,7 @@ Version 1.1.6
 
 
 Version 1.1.5
-#############
+-------------
 
 1. Longbow would not install under python 3 using either pip or by running the
    setup script manually. This has now been fixed by using print statements of
@@ -390,7 +442,7 @@ Version 1.1.5
  
 
 Version 1.1.4
-#############
+-------------
 
 1. The saveconfigs method would overwrite entries within the hosts config with
    potentially blank entries if it was triggered and parameters existed in such
@@ -402,7 +454,7 @@ Version 1.1.4
  
 
 Version 1.1.3
-#############
+-------------
 
 1. Update to the supported command line arguments to support non and GNU
    standard options for help and version number.
@@ -416,7 +468,7 @@ Version 1.1.3
  
 
 Version 1.1.1
-#############
+-------------
 
 1. Modifications to how Longbow accepts the help and version command line
    parameters, some people don't follow GNU standards and thus so that we can
@@ -429,7 +481,7 @@ Version 1.1.1
 
 
 Version 1.1.0
-#############
+-------------
 
 1. Fix for overwritten rsync-includes (developers only).
 
