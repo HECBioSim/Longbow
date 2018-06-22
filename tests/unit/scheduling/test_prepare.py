@@ -150,4 +150,4 @@ def test_prepare_ownscript(mock_prepare):
 
     assert mock_prepare.call_count == 0, \
         "This method shouldn't be called at all in this case."
-    assert jobs["upload-include"] == "file1, file2, file3, test.lsf"
+    assert jobs["job-one"]["upload-include"] == "file1, file2, file3, test.lsf"
