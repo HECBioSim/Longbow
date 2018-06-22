@@ -32,11 +32,11 @@ Support for any issues arising from using Longbow, whether these are questions, 
    :maxdepth: 2
    :caption: User Documentation:
 
-   installation
-   getting-started
-   configuration
-   running-jobs
-   troubleshooting
+   usr-installation
+   usr-getting-started
+   usr-configuration
+   usr-running-jobs
+   usr-troubleshooting
    changelog
 
 .. toctree::
@@ -47,7 +47,10 @@ Support for any issues arising from using Longbow, whether these are questions, 
    :maxdepth: 2
    :caption: Developers Documentation:
 
-   test
+   dev-contributing
+   dev-integrating
+   dev-plugins
+   dev-testing
 
 Longbow has been brought to you by a collaboration between STFC and Nottingham university through the HECBioSim consortium (a part of CoSeC).
 
