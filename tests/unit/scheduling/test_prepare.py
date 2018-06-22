@@ -142,6 +142,7 @@ def test_prepare_ownscript(mock_prepare):
             "scheduler": "LSF",
             "jobid": "test456",
             "subfile": "test.lsf"
+            "upload-include": "file1, file2, file3"
         }
     }
 
@@ -149,3 +150,4 @@ def test_prepare_ownscript(mock_prepare):
 
     assert mock_prepare.call_count == 0, \
         "This method shouldn't be called at all in this case."
+    assert jobs["upload-include"] == "file1, file2, file3, test.lsf"
