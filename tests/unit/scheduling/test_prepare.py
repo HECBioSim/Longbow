@@ -141,7 +141,7 @@ def test_prepare_ownscript(mock_prepare):
             "resource": "test-machine",
             "scheduler": "LSF",
             "jobid": "test456",
-            "subfile": "test.lsf"
+            "subfile": "test.lsf",
             "upload-include": "file1, file2, file3"
         }
     }
