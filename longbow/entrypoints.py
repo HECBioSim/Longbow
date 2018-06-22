@@ -110,6 +110,7 @@ def launcher():
         "recover": "",
         "resource": "",
         "replicates": "",
+        "update": "",
         "verbose": False
     }
 
@@ -219,18 +220,35 @@ def launcher():
         # ---------------------------------------------------------------------
         # Call one of the main methods at the top level of the library.
 
-        # Are we trying to recover or are we running as normal.
-        if parameters["recover"] == "":
+        # If recovery or update mode is not active then this is a new run.
+        if parameters["recover"] == "" and parameters["update"] == "":
 
             LOG.info("Initialisation complete.")
 
             longbow(parameters)
 
-        else:
+        # If recovery mode is set then start the recovery process.
+        elif parameters["recover"] != "" and parameters["update"] == "":
 
-            LOG.info("Entering recovery mode.")
+            LOG.info("Starting recovery mode to reconnect monitoring of jobs.")
 
             recovery(parameters["recover"])
+
+        # If update mode is set then start the update process.
+        elif parameters["recover"] == "" and parameters["update"] != "":
+
+            LOG.info("Starting update mode to refresh progress of jobs.")
+
+        # If too many arguments are set, we have a problem
+        else:
+
+            raise exceptions.CommandlineargsError(
+                "You have both the --recover and --update command-line flags "
+                "set, these cannot be used together as they enable "
+                "conflicting functionality. Either reconnect with persistent "
+                "monitoring (--recover) or reconnect to refresh the status of "
+                "jobs and sync current files before disconnecting again "
+                "(--update).")
 
     except Exception as err:
 
@@ -367,24 +385,25 @@ def recovery(recoveryfile):
     recoveryfile (string): A path to the recovery file.
 
     """
-    LOG.info("Attempting to find the recovery files")
 
     longbowdir = os.path.expanduser('~/.longbow')
     jobfile = os.path.join(longbowdir, recoveryfile)
 
+    LOG.info("Attempting to find the recovery file '{0}'".format(jobfile))
+
     # Load the jobs recovery file.
     if os.path.isfile(jobfile):
 
-        LOG.info("Recovery file found at '%s'", jobfile)
+        LOG.info("Recovery file found.")
 
         _, _, jobs = configuration.loadconfigs(jobfile)
 
     else:
 
         raise exceptions.RequiredinputError(
-            "Recovery file could not be found at '{0}' make sure you are "
-            "running the recovery from the job directory that was initially "
-            "used to launch the failed job".format(jobfile))
+            "Recovery file could not be found, make sure you haven't deleted "
+            "the recovery file and that you are not providing the full path, "
+            "just the file name is needed.")
 
     try:
 
@@ -428,6 +447,35 @@ def recovery(recoveryfile):
                     staging.stage_downstream(job)
 
         staging.cleanup(jobs)
+
+
+def update(updatefile):
+    """Trigger update of a disconnected Longbow session.
+
+    This method will start the update process on an existing but disconnected
+    Longbow session. All job statuses will be checked and updated in the
+    recovery file and all output files will be synced before disconnecting."""
+
+    longbowdir = os.path.expanduser('~/.longbow')
+    jobfile = os.path.join(longbowdir, updatefile)
+
+    LOG.info("Attempting to find the recovery file '{0}'".format(jobfile))
+
+    # Load the jobs recovery file.
+    if os.path.isfile(jobfile):
+
+        LOG.info("Recovery file found.")
+
+        _, _, jobs = configuration.loadconfigs(jobfile)
+
+    else:
+
+        raise exceptions.RequiredinputError(
+            "Recovery file could not be found, make sure you haven't deleted "
+            "the recovery file and that you are not providing the full path, "
+            "just the file name is needed.")
+
+    # 
 
 
 def _commandlineproc(alllongbowargs, cmdlnargs, parameters):
@@ -686,6 +734,8 @@ def _messageflags(longbowargs):
               "submitted.\n"
               "--verbose                 : additional run-time info to be "
               "output.\n"
+              "--update [file name]      : launches the update mode to sync"
+              "current job progress and files.\n"
               "--version, -V             : prints Longbow version number.\n"
               "\n"
               "Read the documentation at http://www.hecbiosim.ac.uk/ for more "
