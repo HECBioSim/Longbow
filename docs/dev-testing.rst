@@ -17,6 +17,10 @@ unit testing::
 
     pip install --user pytest
 
+mock::
+
+    pip install --user mock
+
 code coverage::
 
     pip install --user coverage
