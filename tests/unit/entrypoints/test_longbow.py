@@ -43,6 +43,8 @@ except ImportError:
 
     import mock
 
+import pytest
+import longbow.exceptions as exceptions
 from longbow.entrypoints import longbow
 
 
@@ -69,7 +71,8 @@ def test_longbowmain_disconnect(m_procconf, m_testcon, m_testenv, m_testapp,
         "nochecks": False
         }
 
-    longbow(params)
+    with pytest.raises(exceptions.DisconnectException):
+        longbow(params)
 
     assert m_procconf.call_count == 1
     assert m_testcon.call_count == 1
