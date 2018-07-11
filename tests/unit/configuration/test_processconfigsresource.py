@@ -141,7 +141,8 @@ def test_processconfigsresource1():
 
     hostsections = ["host1", "host2", "host3"]
 
-    jobs = _processconfigsresource(parameters, jobdata, hostsections)
+    jobs = {}
+    _processconfigsresource(jobs, parameters, jobdata, hostsections)
 
     for item in jobs["LongbowJob"]:
 
@@ -249,7 +250,8 @@ def test_processconfigsresource2():
 
     hostsections = ["host1", "host2", "host3"]
 
-    jobs = _processconfigsresource(parameters, jobdata, hostsections)
+    jobs = {}
+    _processconfigsresource(jobs, parameters, jobdata, hostsections)
 
     for item in jobs["LongbowJob"]:
 
@@ -358,7 +360,8 @@ def test_processconfigsresource3():
 
     hostsections = ["host1", "host2", "host3"]
 
-    jobs = _processconfigsresource(parameters, jobdata, hostsections)
+    jobs = {}
+    _processconfigsresource(jobs, parameters, jobdata, hostsections)
 
     for item in jobs["LongbowJob"]:
 
@@ -466,7 +469,8 @@ def test_processconfigsresource4():
 
     hostsections = ["host1", "host2", "host3"]
 
-    jobs = _processconfigsresource(parameters, jobdata, hostsections)
+    jobs = {}
+    _processconfigsresource(jobs, parameters, jobdata, hostsections)
 
     for item in jobs["LongbowJob"]:
 
@@ -534,4 +538,4 @@ def test_processconfigsresource5():
 
     with pytest.raises(ex.ConfigurationError):
 
-        _processconfigsresource(parameters, jobdata, hostsections)
+        _processconfigsresource({}, parameters, jobdata, hostsections)

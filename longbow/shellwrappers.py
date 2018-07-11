@@ -129,7 +129,7 @@ def checkconnections(jobs):
     # Test all of the computers listed in jobs in the job configuration
     # file, there is no need to check all the ones listed in host
     # configuration each time if they are not used.
-    for item in jobs:
+    for item in {a for a in jobs if "lbowconf-" not in a}:
 
         # Have we checked this connection already?
         if jobs[item]["resource"] not in checked:
@@ -160,7 +160,7 @@ def checkconnections(jobs):
 
                     # Go over all jobs referencing this machine and switch on
                     # the environment fix.
-                    for job in jobs:
+                    for job in {a for a in jobs if "lbowconf-" not in a}:
 
                         if jobs[job]["resource"] == jobs[item]["resource"]:
 

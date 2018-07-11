@@ -117,7 +117,7 @@ JOBTEMPLATE = {
 }
 
 
-def processconfigs(parameters):
+def processconfigs(jobs, parameters):
     """Process the raw configuration sources.
 
     This method is used to create and populate the main "jobs" dictionary with
@@ -169,15 +169,13 @@ def processconfigs(parameters):
 
             jobdata[jobname][item] = ""
 
-    jobs = _processconfigsresource(parameters, jobdata, hostsections)
+    _processconfigsresource(jobs, parameters, jobdata, hostsections)
 
     _processconfigsparams(jobs, parameters, jobdata, hostdata)
 
     _processconfigsvalidate(jobs)
 
     _processconfigsfinalinit(jobs)
-
-    return jobs
 
 
 def loadconfigs(configfile):
@@ -429,7 +427,7 @@ def _processconfigsfinalinit(jobs):
     modules = getattr(apps, "PLUGINEXECS")
     modules[""] = ""
 
-    for job in jobs:
+    for job in {a for a in jobs if "lbowconf-" not in a}:
 
         # This is just for logging messages.
         jobs[job]["jobname"] = job
@@ -464,7 +462,7 @@ def _processconfigsfinalinit(jobs):
                   "resource.", job, jobs[job]["destdir"])
 
         # Create a recovery file.
-        jobs[job]["recoveryfile"] = (
+        jobs["lbowconf-recoveryfile"] = (
             os.path.join(os.path.expanduser('~/.longbow'), "recovery-" +
                          time.strftime("%Y%m%d-%H%M%S")))
 
@@ -496,10 +494,8 @@ def _processconfigsparams(jobs, parameters, jobdata, hostdata):
                     jobs[job][item] = hostdata[jobs[job]["resource"]][item]
 
 
-def _processconfigsresource(parameters, jobdata, hostsections):
+def _processconfigsresource(jobs, parameters, jobdata, hostsections):
     """Check which HPC each job should use."""
-    # Initialise.
-    jobs = {}
 
     # Process resource/s for job/s.
     for job in jobdata:
@@ -573,7 +569,7 @@ def _processconfigsvalidate(jobs):
                       "specifying a value for it in the configuration file."
     }
     # Check parameters that are required for running jobs are provided.
-    for job in jobs:
+    for job in {a for a in jobs if "lbowconf-" not in a}:
 
         # Validate required parameters have been set.
         for validationitem in required:

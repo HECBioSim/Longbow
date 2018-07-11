@@ -82,7 +82,7 @@ def checkapp(jobs):
 
     LOG.info("Testing the executables defined for each job.")
 
-    for job in jobs:
+    for job in {a for a in jobs if "lbowconf-" not in a}:
 
         # If we haven't checked this resource then it is likely not in the dict
         if jobs[job]["resource"] not in checked:
@@ -143,7 +143,7 @@ def processjobs(jobs):
     LOG.info("Processing job/s and detecting files that require upload.")
 
     # Process each job.
-    for job in jobs:
+    for job in {a for a in jobs if "lbowconf-" not in a}:
 
         filelist = []
         appplugins = getattr(apps, "PLUGINEXECS")

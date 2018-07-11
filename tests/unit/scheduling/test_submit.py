@@ -46,7 +46,7 @@ except ImportError:
 import pytest
 
 import longbow.exceptions as exceptions
-from longbow.scheduling import submit, QUEUEINFO
+from longbow.scheduling import submit
 
 
 @mock.patch('longbow.schedulers.lsf.submit')
@@ -339,6 +339,12 @@ def test_submit_queueinfo(mock_isdir, mock_submit, mock_savini):
     """
 
     jobs = {
+        "lbowconf-queueinfo": {
+            "test-machine": {
+                "queue-slots": 0,
+                "queue-max": 0
+            }
+        },
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
@@ -355,8 +361,6 @@ def test_submit_queueinfo(mock_isdir, mock_submit, mock_savini):
             "jobid": "test789"
         }
     }
-    QUEUEINFO["test-machine"]["queue-slots"] = "0"
-    QUEUEINFO["test-machine"]["queue-max"] = "0"
 
     mock_isdir.return_value = False
     mock_savini.return_value = None
@@ -364,5 +368,6 @@ def test_submit_queueinfo(mock_isdir, mock_submit, mock_savini):
 
     submit(jobs)
 
-    assert QUEUEINFO["test-machine"]["queue-slots"] == "3"
-    assert QUEUEINFO["test-machine"]["queue-max"] == "3"
+    assert jobs["lbowconf-queueinfo"]["test-machine"]["queue-slots"] == "3"
+    assert jobs["lbowconf-queueinfo"]["test-machine"]["queue-max"] == "3"
+
