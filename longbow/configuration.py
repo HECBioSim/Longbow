@@ -427,7 +427,7 @@ def _processconfigsfinalinit(jobs):
     modules = getattr(apps, "PLUGINEXECS")
     modules[""] = ""
 
-    for job in {a for a in jobs if "lbowconf-" not in a}:
+    for job in [a for a in jobs if "lbowconf-" not in a]:
 
         # This is just for logging messages.
         jobs[job]["jobname"] = job
@@ -569,7 +569,7 @@ def _processconfigsvalidate(jobs):
                       "specifying a value for it in the configuration file."
     }
     # Check parameters that are required for running jobs are provided.
-    for job in {a for a in jobs if "lbowconf-" not in a}:
+    for job in [a for a in jobs if "lbowconf-" not in a]:
 
         # Validate required parameters have been set.
         for validationitem in required:

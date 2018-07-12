@@ -252,7 +252,7 @@ def launcher():
             LOG.info("Kill any queued or running jobs and clean up.")
 
             # If we are exiting at this stage then we need to kill off
-            for item in {a for a in jobs if "lbowconf-" not in a}:
+            for item in [a for a in jobs if "lbowconf-" not in a]:
 
                 job = jobs[item]
 

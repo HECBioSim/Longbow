@@ -55,7 +55,7 @@ def jobstatus(jobs, _):
     Change status of the job
     """
 
-    for job in {a for a in jobs if "lbowconf-" not in a}:
+    for job in [a for a in jobs if "lbowconf-" not in a]:
 
         if jobs[job]["laststatus"] == "Queued":
 

@@ -84,7 +84,7 @@ def stage_upstream(jobs):
     """
     LOG.info("Staging files for job/s.")
 
-    for item in {a for a in jobs if "lbowconf-" not in a}:
+    for item in [a for a in jobs if "lbowconf-" not in a]:
 
         job = jobs[item]
         destdir = job["destdir"]
@@ -173,7 +173,7 @@ def cleanup(jobs):
     """
     LOG.info("Cleaning up the work directories.")
 
-    for item in {a for a in jobs if "lbowconf-" not in a}:
+    for item in [a for a in jobs if "lbowconf-" not in a]:
 
         job = jobs[item]
         destdir = job["destdir"]

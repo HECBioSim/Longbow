@@ -100,7 +100,7 @@ def checkenv(jobs, hostconf):
     saveparams = {}
 
     # Take a look at each job.
-    for item in {a for a in jobs if "lbowconf-" not in a}:
+    for item in [a for a in jobs if "lbowconf-" not in a]:
 
         job = jobs[item]
 
@@ -276,7 +276,7 @@ def monitor(jobs):
     complete = 0
     error = 0
 
-    for job in {a for a in jobs if "lbowconf-" not in a}:
+    for job in [a for a in jobs if "lbowconf-" not in a]:
 
         if jobs[job]["laststatus"] == "Submit Error":
 
@@ -307,7 +307,7 @@ def prepare(jobs):
     """
     LOG.info("Creating submit files for job/s.")
 
-    for item in {a for a in jobs if "lbowconf-" not in a}:
+    for item in [a for a in jobs if "lbowconf-" not in a]:
 
         job = jobs[item]
         scheduler = job["scheduler"]
@@ -360,7 +360,7 @@ def submit(jobs):
 
         jobs["lbowconf-queueinfo"] = {}
 
-    for item in {a for a in jobs if "lbowconf-" not in a}:
+    for item in [a for a in jobs if "lbowconf-" not in a]:
 
         job = jobs[item]
 
@@ -372,7 +372,7 @@ def submit(jobs):
                 "queue-slots": str(0),
                 "queue-max": str(0)}
 
-    for item in {a for a in jobs if "lbowconf-" not in a}:
+    for item in [a for a in jobs if "lbowconf-" not in a]:
 
         job = jobs[item]
         scheduler = job["scheduler"]
@@ -411,7 +411,7 @@ def submit(jobs):
         # Hit maximum slots on resource, Longbow will sub-schedule these.
         except exceptions.QueuemaxError:
 
-            for item in {a for a in jobs if "lbowconf-" not in a}:
+            for item in [a for a in jobs if "lbowconf-" not in a]:
 
                 if "laststatus" not in jobs[item]:
 
@@ -534,7 +534,7 @@ def _monitorinitialise(jobs):
     stageinterval = 0
 
     # Sort out some defaults.
-    for job in {a for a in jobs if "lbowconf-" not in a}:
+    for job in [a for a in jobs if "lbowconf-" not in a]:
 
         # This should always be present.
         if "laststatus" not in jobs[job]:
@@ -567,7 +567,7 @@ def _polljobs(jobs, save):
     finihed.
 
     """
-    for job in {a for a in jobs if "lbowconf-" not in a}:
+    for job in [a for a in jobs if "lbowconf-" not in a]:
 
         if (jobs[job]["laststatus"] != "Finished" and
                 jobs[job]["laststatus"] != "Complete" and
@@ -615,7 +615,7 @@ def _stagejobfiles(jobs, save):
     complete. This will stop future staging.
 
     """
-    for job in {a for a in jobs if "lbowconf-" not in a}:
+    for job in [a for a in jobs if "lbowconf-" not in a]:
 
         if (jobs[job]["laststatus"] == "Running" or
                 jobs[job]["laststatus"] == "Subjob(s) running" or
@@ -634,7 +634,7 @@ def _stagejobfiles(jobs, save):
 
 def _checkwaitingjobs(jobs, save):
     """Check if any jobs marked as "Waiting Submission" can be submitted."""
-    for job in {a for a in jobs if "lbowconf-" not in a}:
+    for job in [a for a in jobs if "lbowconf-" not in a]:
 
         # Check if we can submit any further jobs.
         resource = jobs[job]["resource"]
@@ -695,7 +695,7 @@ def _checkcomplete(jobs):
     error = []
     finished = []
 
-    for job in {a for a in jobs if "lbowconf-" not in a}:
+    for job in [a for a in jobs if "lbowconf-" not in a]:
 
         if jobs[job]["laststatus"] != "Submit Error":
 
