@@ -94,11 +94,9 @@ def test_checkwaitingjobs_one(mock_submit):
     """
 
     jobs = {
-        "lbowconf-queueinfo": {
-            "test-machine": {
-                "queue-slots": 1,
-                "queue-max": 2
-            }
+        "lbowconf": {
+            "test-machine-queue-slots": 1,
+            "test-machine-queue-max": 2
         },
         "jobone": {
             "laststatus": "Running",
@@ -122,7 +120,7 @@ def test_checkwaitingjobs_one(mock_submit):
     _checkwaitingjobs(jobs, False)
 
     assert mock_submit.call_count == 1, "Should be submitting one job"
-    assert jobs["lbowconf-queueinfo"]["test-machine"]["queue-slots"] == "2"
+    assert jobs["lbowconf"]["test-machine-queue-slots"] == "2"
 
 
 @mock.patch('longbow.schedulers.lsf.submit')
@@ -134,11 +132,9 @@ def test_checkwaitingjobs_two(mock_submit):
     """
 
     jobs = {
-        "lbowconf-queueinfo": {
-            "test-machine": {
-                "queue-slots": 1,
-                "queue-max": 8
-            }
+        "lbowconf": {
+            "test-machine-queue-slots": 1,
+            "test-machine-queue-max": 8
         },
         "jobone": {
             "laststatus": "Running",
@@ -162,7 +158,7 @@ def test_checkwaitingjobs_two(mock_submit):
     _checkwaitingjobs(jobs, False)
 
     assert mock_submit.call_count == 2, "Should be submitting two jobs"
-    assert jobs["lbowconf-queueinfo"]["test-machine"]["queue-slots"] == "3"
+    assert jobs["lbowconf"]["test-machine-queue-slots"] == "3"
 
 
 @mock.patch('longbow.schedulers.lsf.submit')
@@ -173,11 +169,9 @@ def test_checkwaitingjobs_except1(mock_submit):
     """
 
     jobs = {
-        "lbowconf-queueinfo": {
-            "test-machine": {
-                "queue-slots": 1,
-                "queue-max": 8
-            }
+        "lbowconf": {
+            "test-machine-queue-slots": 1,
+            "test-machine-queue-max": 8
         },
         "jobone": {
             "laststatus": "Running",
@@ -212,11 +206,9 @@ def test_checkwaitingjobs_except2(mock_submit):
     """
 
     jobs = {
-        "lbowconf-queueinfo": {
-            "test-machine": {
-                "queue-slots": 1,
-                "queue-max": 8
-            }
+        "lbowconf": {
+            "test-machine-queue-slots": 1,
+            "test-machine-queue-max": 8
         },
         "jobone": {
             "laststatus": "Running",
@@ -253,11 +245,9 @@ def test_checkwaitingjobs_except3(mock_submit):
     """
 
     jobs = {
-        "lbowconf-queueinfo": {
-            "test-machine": {
-                "queue-slots": 1,
-                "queue-max": 8
-            }
+        "lbowconf": {
+            "test-machine-queue-slots": 1,
+            "test-machine-queue-max": 8
         },
         "jobone": {
             "laststatus": "Running",
@@ -283,4 +273,3 @@ def test_checkwaitingjobs_except3(mock_submit):
     assert jobs["jobone"]["laststatus"] == "Running"
     assert jobs["jobtwo"]["laststatus"] == "Submit Error"
     assert jobs["jobthree"]["laststatus"] == "Submit Error"
-

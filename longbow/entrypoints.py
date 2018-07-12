@@ -252,7 +252,7 @@ def launcher():
             LOG.info("Kill any queued or running jobs and clean up.")
 
             # If we are exiting at this stage then we need to kill off
-            for item in [a for a in jobs if "lbowconf-" not in a]:
+            for item in [a for a in jobs if "lbowconf" not in a]:
 
                 job = jobs[item]
 
@@ -282,26 +282,29 @@ def launcher():
     except exceptions.DisconnectException:
 
         LOG.info("User specified --disconnect flag on command-line, so "
-                 "Longbow will exit. You can reconnect this session for "
-                 "persistent monitoring by using the recovery file: "
-                 "longbow --recover {0} --verbose "
-                 "Or an update of current progress followed by disconnecting "
-                 "can be done using: "
-                 "longbow --update {0} --verbose"
-                 .format(jobs["lbowconf-recoveryfile"]))
+                 "Longbow will exit.")
+        LOG.info("You can reconnect this session for persistent monitoring by "
+                 "using the recovery file:")
+        LOG.info("longbow --recover {0} --verbose"
+                 .format(jobs["lbowconf"]["recoveryfile"]))
+        LOG.info("Or an update of current progress followed by disconnecting "
+                 "can be done using:")
+        LOG.info("longbow --update {0} --verbose"
+                 .format(jobs["lbowconf"]["recoveryfile"]))
 
     # If disconnect mode is enabled then the disconnect exception is raised,
     # allow to disconnect gracefully.
     except exceptions.UpdateExit:
 
-        LOG.info("Update of current job progress has completed, exiting."
-                 "You can reconnect this session for persistent monitoring by "
-                 "using the recovery file: "
-                 "longbow --recover {0} --verbose "
-                 "Or an update of current progress followed by disconnecting "
-                 "can be done using: "
-                 "longbow --update {0} --verbose"
-                 .format(jobs["lbowconf-recoveryfile"]))
+        LOG.info("Update of current job progress has completed, exiting.")
+        LOG.info("You can reconnect this session for persistent monitoring by "
+                 "using the recovery file:")
+        LOG.info("longbow --recover {0} --verbose"
+                 .format(jobs["lbowconf"]["recoveryfile"]))
+        LOG.info("Or an update of current progress followed by disconnecting "
+                 "can be done using:")
+        LOG.info("longbow --update {0} --verbose"
+                 .format(jobs["lbowconf"]["recoveryfile"]))
 
     # If a problem happens assign the correct level of debug logging.
     except Exception as err:
@@ -450,7 +453,7 @@ def update(jobs, updatefile):
             "just the file name is needed.")
 
     # Add the updater key
-    jobs["lbowconf-update"] = True
+    jobs["lbowconf"]["update"] = True
 
     # Enter monitoring loop
     scheduling.monitor(jobs)

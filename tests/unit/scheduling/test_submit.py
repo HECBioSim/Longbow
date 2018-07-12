@@ -58,6 +58,7 @@ def test_submit_single(mock_isdir, mock_submit):
     """
 
     jobs = {
+        "lbowconf": {},
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
@@ -83,6 +84,7 @@ def test_submit_multiplesame(mock_isdir, mock_lsf):
     """
 
     jobs = {
+        "lbowconf": {},
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
@@ -119,6 +121,7 @@ def test_submit_multiplediff(mock_isdir, mock_lsf, mock_pbs, mock_slurm):
     """
 
     jobs = {
+        "lbowconf": {},
         "job-one": {
             "resource": "lsf-machine",
             "scheduler": "LSF",
@@ -158,6 +161,7 @@ def test_submit_filewrite(mock_isdir, mock_submit, mock_savini):
     """
 
     jobs = {
+        "lbowconf": {},
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
@@ -184,6 +188,7 @@ def test_submit_fileuninit(mock_isdir, mock_submit, mock_savini):
     """
 
     jobs = {
+        "lbowconf": {},
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
@@ -210,6 +215,7 @@ def test_submit_fileexcept1(mock_isdir, mock_submit, mock_savini):
     """
 
     jobs = {
+        "lbowconf": {},
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
@@ -235,6 +241,7 @@ def test_submit_fileexcept2(mock_isdir, mock_submit, mock_savini):
     """
 
     jobs = {
+        "lbowconf": {},
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
@@ -260,6 +267,7 @@ def test_submit_attrexcept(mock_isdir, mock_submit, mock_savini):
     """
 
     jobs = {
+        "lbowconf": {},
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
@@ -286,6 +294,7 @@ def test_submit_submitexcept(mock_isdir, mock_submit, mock_savini):
     """
 
     jobs = {
+        "lbowconf": {},
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
@@ -313,6 +322,7 @@ def test_submit_queueexcept(mock_isdir, mock_submit, mock_savini):
     """
 
     jobs = {
+        "lbowconf": {},
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
@@ -339,11 +349,9 @@ def test_submit_queueinfo(mock_isdir, mock_submit, mock_savini):
     """
 
     jobs = {
-        "lbowconf-queueinfo": {
-            "test-machine": {
-                "queue-slots": 0,
-                "queue-max": 0
-            }
+        "lbowconf": {
+            "test-machine-queue-slots": 0,
+            "test-machine-queue-max": 0
         },
         "job-one": {
             "resource": "test-machine",
@@ -368,6 +376,5 @@ def test_submit_queueinfo(mock_isdir, mock_submit, mock_savini):
 
     submit(jobs)
 
-    assert jobs["lbowconf-queueinfo"]["test-machine"]["queue-slots"] == "3"
-    assert jobs["lbowconf-queueinfo"]["test-machine"]["queue-max"] == "3"
-
+    assert jobs["lbowconf"]["test-machine-queue-slots"] == "3"
+    assert jobs["lbowconf"]["test-machine-queue-max"] == "3"

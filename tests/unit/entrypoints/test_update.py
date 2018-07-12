@@ -59,14 +59,15 @@ def test_update_check(mock_file, mock_mon, mock_load):
     """
 
     mock_file.return_value = True
-    mock_load.return_value = ("", "", {"testparam": "test"})
+    mock_load.return_value = ("", "", {
+        "testparam": "test", "lbowconf": {"update": False}})
 
     update({}, "update.file")
 
     params = mock_mon.call_args[0][0]
 
     assert params["testparam"] == "test"
-    assert params["lbowconf-update"] == True
+    assert params["lbowconf"]["update"] is True
 
 
 @mock.patch('longbow.scheduling.monitor')
@@ -83,4 +84,3 @@ def test_recovery_except(mock_isfile, mock_monitor):
     with pytest.raises(exceptions.RequiredinputError):
 
         update({}, "update.file")
-

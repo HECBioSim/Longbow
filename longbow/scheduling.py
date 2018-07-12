@@ -100,7 +100,7 @@ def checkenv(jobs, hostconf):
     saveparams = {}
 
     # Take a look at each job.
-    for item in [a for a in jobs if "lbowconf-" not in a]:
+    for item in [a for a in jobs if "lbowconf" not in a]:
 
         job = jobs[item]
 
@@ -220,12 +220,15 @@ def monitor(jobs):
     allfinished = False
     lastpolltime = 0
     laststagetime = 0
-    recoveryfile = jobs["lbowconf-recoveryfile"]
+    recoveryfile = jobs["lbowconf"]["recoveryfile"]
     saverecoveryfile = True
     recoveryfileerror = False
 
     # Loop until all jobs are done.
     while allcomplete is False:
+
+        # Sane time interval (CPU core maxes out easily otherwise).
+        time.sleep(1.0)
 
         now = time.time()
 
@@ -263,20 +266,17 @@ def monitor(jobs):
 
         allcomplete, allfinished = _checkcomplete(jobs)
 
-        if "lbowconf-update" in jobs:
+        if "update" in jobs["lbowconf"]:
 
-            if jobs["lbowconf-update"] is True and allcomplete is not True:
+            if jobs["lbowconf"]["update"] is True:
 
-                jobs["lbowconf-update"] = False
+                jobs["lbowconf"]["update"] = False
                 raise exceptions.UpdateExit
-
-        # Sane time interval (CPU core maxes out easily otherwise).
-        time.sleep(1.0)
 
     complete = 0
     error = 0
 
-    for job in [a for a in jobs if "lbowconf-" not in a]:
+    for job in [a for a in jobs if "lbowconf" not in a]:
 
         if jobs[job]["laststatus"] == "Submit Error":
 
@@ -307,7 +307,7 @@ def prepare(jobs):
     """
     LOG.info("Creating submit files for job/s.")
 
-    for item in [a for a in jobs if "lbowconf-" not in a]:
+    for item in [a for a in jobs if "lbowconf" not in a]:
 
         job = jobs[item]
         scheduler = job["scheduler"]
@@ -356,23 +356,15 @@ def submit(jobs):
 
     LOG.info("Submitting job/s.")
 
-    if "lbowconf-queueinfo" not in jobs:
-
-        jobs["lbowconf-queueinfo"] = {}
-
-    for item in [a for a in jobs if "lbowconf-" not in a]:
+    for item in [a for a in jobs if "lbowconf" not in a]:
 
         job = jobs[item]
 
-        # Have we got this resource already?
-        if job["resource"] not in jobs["lbowconf-queueinfo"]:
+        # Set up counters for each resource.
+        jobs["lbowconf"][job["resource"] + "-" + "queue-slots"] = str(0)
+        jobs["lbowconf"][job["resource"] + "-" + "queue-max"] = str(0)
 
-            # no, well create it.
-            jobs["lbowconf-queueinfo"][job["resource"]] = {
-                "queue-slots": str(0),
-                "queue-max": str(0)}
-
-    for item in [a for a in jobs if "lbowconf-" not in a]:
+    for item in [a for a in jobs if "lbowconf" not in a]:
 
         job = jobs[item]
         scheduler = job["scheduler"]
@@ -387,8 +379,8 @@ def submit(jobs):
             job["laststatus"] = "Queued"
 
             # Increment the queue counter by one (used to count the slots).
-            jobs["lbowconf-queueinfo"][job["resource"]]["queue-slots"] = \
-                str(int(jobs["lbowconf-queueinfo"][job["resource"]]["queue-slots"]) + 1)
+            jobs["lbowconf"][job["resource"] + "-" + "queue-slots"] = str(int(
+                jobs["lbowconf"][job["resource"] + "-" + "queue-slots"]) + 1)
 
             submitted += 1
 
@@ -411,7 +403,7 @@ def submit(jobs):
         # Hit maximum slots on resource, Longbow will sub-schedule these.
         except exceptions.QueuemaxError:
 
-            for item in [a for a in jobs if "lbowconf-" not in a]:
+            for item in [a for a in jobs if "lbowconf" not in a]:
 
                 if "laststatus" not in jobs[item]:
 
@@ -428,11 +420,11 @@ def submit(jobs):
             break
 
         # We want to find out what the maximum number of slots we have are.
-        if int(jobs["lbowconf-queueinfo"][job["resource"]]["queue-slots"]) > \
-                int(jobs["lbowconf-queueinfo"][job["resource"]]["queue-max"]):
+        if int(jobs["lbowconf"][job["resource"] + "-" + "queue-slots"]) > \
+                int(jobs["lbowconf"][job["resource"] + "-" + "queue-max"]):
 
-            jobs["lbowconf-queueinfo"][job["resource"]]["queue-max"] = \
-                jobs["lbowconf-queueinfo"][job["resource"]]["queue-slots"]
+            jobs["lbowconf"][job["resource"] + "-" + "queue-max"] = \
+                jobs["lbowconf"][job["resource"] + "-" + "queue-slots"]
 
     # Save out the recovery files.
     if (os.path.isdir(os.path.expanduser('~/.longbow')) and
@@ -534,7 +526,7 @@ def _monitorinitialise(jobs):
     stageinterval = 0
 
     # Sort out some defaults.
-    for job in [a for a in jobs if "lbowconf-" not in a]:
+    for job in [a for a in jobs if "lbowconf" not in a]:
 
         # This should always be present.
         if "laststatus" not in jobs[job]:
@@ -567,7 +559,7 @@ def _polljobs(jobs, save):
     finihed.
 
     """
-    for job in [a for a in jobs if "lbowconf-" not in a]:
+    for job in [a for a in jobs if "lbowconf" not in a]:
 
         if (jobs[job]["laststatus"] != "Finished" and
                 jobs[job]["laststatus"] != "Complete" and
@@ -597,9 +589,9 @@ def _polljobs(jobs, save):
 
                 if status == "Finished":
 
-                    resource = jobs[job]["resource"]
-                    jobs["lbowconf-queueinfo"][resource]["queue-slots"] = \
-                        str(int(jobs["lbowconf-queueinfo"][resource]["queue-slots"]) - 1)
+                    qslots = jobs[job]["resource"] + "-" + "queue-slots"
+                    jobs["lbowconf"][qslots] = str(int(
+                        jobs["lbowconf"][qslots]) - 1)
 
                 LOG.info("Status of job '%s' with id '%s' is '%s'", job,
                          jobs[job]["jobid"], status)
@@ -615,7 +607,7 @@ def _stagejobfiles(jobs, save):
     complete. This will stop future staging.
 
     """
-    for job in [a for a in jobs if "lbowconf-" not in a]:
+    for job in [a for a in jobs if "lbowconf" not in a]:
 
         if (jobs[job]["laststatus"] == "Running" or
                 jobs[job]["laststatus"] == "Subjob(s) running" or
@@ -634,13 +626,13 @@ def _stagejobfiles(jobs, save):
 
 def _checkwaitingjobs(jobs, save):
     """Check if any jobs marked as "Waiting Submission" can be submitted."""
-    for job in [a for a in jobs if "lbowconf-" not in a]:
+    for job in [a for a in jobs if "lbowconf" not in a]:
 
         # Check if we can submit any further jobs.
         resource = jobs[job]["resource"]
         if (jobs[job]["laststatus"] == "Waiting Submission" and
-                int(jobs["lbowconf-queueinfo"][resource]["queue-slots"]) <
-                int(jobs["lbowconf-queueinfo"][resource]["queue-max"])):
+                int(jobs["lbowconf"][resource + "-" + "queue-slots"]) <
+                int(jobs["lbowconf"][resource + "-" + "queue-max"])):
 
             # Try and submit this job.
             try:
@@ -654,8 +646,8 @@ def _checkwaitingjobs(jobs, save):
                          jobs[job]["jobid"])
 
                 # Increment the queue counter by one (used to count the slots).
-                jobs["lbowconf-queueinfo"][resource]["queue-slots"] = str(
-                    int(jobs["lbowconf-queueinfo"][resource]["queue-slots"]) + 1)
+                jobs["lbowconf"][resource + "-" + "queue-slots"] = str(int(
+                    jobs["lbowconf"][resource + "-" + "queue-slots"]) + 1)
 
                 save = True
 
@@ -695,7 +687,7 @@ def _checkcomplete(jobs):
     error = []
     finished = []
 
-    for job in [a for a in jobs if "lbowconf-" not in a]:
+    for job in [a for a in jobs if "lbowconf" not in a]:
 
         if jobs[job]["laststatus"] != "Submit Error":
 

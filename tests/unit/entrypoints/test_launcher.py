@@ -45,17 +45,16 @@ except ImportError:
 
     import mock
 
-import pytest
-
 import longbow.exceptions as exceptions
 from longbow.entrypoints import launcher
+from longbow.exceptions import UpdateExit
 
 
 def _configload(jobs, _):
 
     "Mock configuration"
 
-    jobs["lbowconf-recoveryfile"] = "recovery.file"
+    jobs["lbowconf"] = {"recoveryfile": "recovery.file"}
 
 
 def _runningjobs(jobs, _):
@@ -65,12 +64,14 @@ def _runningjobs(jobs, _):
     jobs["job1"] = {"laststatus": "Running"}
     jobs["job2"] = {"laststatus": "Running"}
 
+
 def _finishedjobs(jobs, _):
 
     "Set up two running jobs"
 
     jobs["job1"] = {"laststatus": "Finished"}
     jobs["job2"] = {"laststatus": "Finished"}
+
 
 def _completejobs(jobs, _):
 
@@ -384,8 +385,8 @@ def test_main_test9(m_isfile, m_procconf, m_testcon, m_testenv, m_testapp,
 @mock.patch('longbow.configuration.processconfigs')
 @mock.patch('os.path.isfile')
 def test_main_test10(m_isfile, m_procconf, m_testcon, m_testenv, m_testapp,
-                    m_procjob, m_schedprep, m_stagup, m_sub, m_mon, m_del,
-                    m_stagdown, m_clean):
+                     m_procjob, m_schedprep, m_stagup, m_sub, m_mon, m_del,
+                     m_stagdown, m_clean):
 
     """Test the keyboard interrupt feature with running jobs."""
 
@@ -429,8 +430,8 @@ def test_main_test10(m_isfile, m_procconf, m_testcon, m_testenv, m_testapp,
 @mock.patch('longbow.configuration.processconfigs')
 @mock.patch('os.path.isfile')
 def test_main_test11(m_isfile, m_procconf, m_testcon, m_testenv, m_testapp,
-                    m_procjob, m_schedprep, m_stagup, m_sub, m_mon, m_del,
-                    m_stagdown, m_clean):
+                     m_procjob, m_schedprep, m_stagup, m_sub, m_mon, m_del,
+                     m_stagdown, m_clean):
 
     """Test the keyboard interrupt feature with complete jobs."""
 
@@ -473,18 +474,17 @@ def test_main_test11(m_isfile, m_procconf, m_testcon, m_testenv, m_testapp,
 @mock.patch('longbow.shellwrappers.checkconnections')
 @mock.patch('longbow.configuration.processconfigs')
 @mock.patch('os.path.isfile')
-def test_main_test11(m_isfile, m_procconf, m_testcon, m_testenv, m_testapp,
-                    m_procjob, m_schedprep, m_stagup, m_sub, m_mon, m_del,
-                    m_stagdown, m_clean):
+def test_main_test12(m_isfile, m_procconf, m_testcon, m_testenv, m_testapp,
+                     m_procjob, m_schedprep, m_stagup, m_sub, m_mon, m_del,
+                     m_stagdown, m_clean):
 
-    """Test the keyboard interrupt feature with complete jobs."""
+    """Test the disconnect feature with complete jobs."""
 
     m_isfile.return_value = True
 
     args = ["longbow", "--job", "testjob", "--disconnect", "--debug"]
 
     m_procconf.side_effect = _configload
-    m_mon.side_effect = KeyboardInterrupt
 
     with mock.patch('sys.argv', args):
 
@@ -503,3 +503,47 @@ def test_main_test11(m_isfile, m_procconf, m_testcon, m_testenv, m_testapp,
     assert m_stagdown.call_count == 0
     assert m_clean.call_count == 0
 
+
+@mock.patch('longbow.staging.cleanup')
+@mock.patch('longbow.staging.stage_downstream')
+@mock.patch('longbow.scheduling.delete')
+@mock.patch('longbow.scheduling.monitor')
+@mock.patch('longbow.scheduling.submit')
+@mock.patch('longbow.staging.stage_upstream')
+@mock.patch('longbow.scheduling.prepare')
+@mock.patch('longbow.applications.processjobs')
+@mock.patch('longbow.applications.checkapp')
+@mock.patch('longbow.scheduling.checkenv')
+@mock.patch('longbow.shellwrappers.checkconnections')
+@mock.patch('longbow.configuration.processconfigs')
+@mock.patch('os.path.isfile')
+def test_main_test13(m_isfile, m_procconf, m_testcon, m_testenv, m_testapp,
+                     m_procjob, m_schedprep, m_stagup, m_sub, m_mon, m_del,
+                     m_stagdown, m_clean):
+
+    """Test the keyboard interrupt feature with complete jobs."""
+
+    m_isfile.return_value = True
+
+    args = ["longbow", "--job", "testjob", "--resource", "big-machine",
+            "--debug"]
+
+    m_procconf.side_effect = _configload
+    m_mon.side_effect = UpdateExit
+
+    with mock.patch('sys.argv', args):
+
+        launcher()
+
+    assert m_procconf.call_count == 1
+    assert m_testcon.call_count == 1
+    assert m_testenv.call_count == 1
+    assert m_testapp.call_count == 1
+    assert m_procjob.call_count == 1
+    assert m_schedprep.call_count == 1
+    assert m_stagup.call_count == 1
+    assert m_sub.call_count == 1
+    assert m_mon.call_count == 1
+    assert m_del.call_count == 0
+    assert m_stagdown.call_count == 0
+    assert m_clean.call_count == 0

@@ -106,11 +106,9 @@ def test_polljobs_finished(mock_status):
     """
 
     jobs = {
-        "lbowconf-queueinfo": {
-            "test-machine": {
-                "queue-slots": 2,
-                "queue-max": 4
-            }
+        "lbowconf": {
+            "test-machine-queue-slots": 2,
+            "test-machine-queue-max": 4
         },
         "jobone": {
             "resource": "test-machine",
@@ -157,7 +155,7 @@ def test_polljobs_finished(mock_status):
         "Should only be polling running and queued jobs"
     assert jobs["jobone"]["laststatus"] == "Finished"
     assert jobs["jobtwo"]["laststatus"] == "Finished"
-    assert jobs["lbowconf-queueinfo"]["test-machine"]["queue-slots"] == "0"
+    assert jobs["lbowconf"]["test-machine-queue-slots"] == "0"
 
 
 @mock.patch('longbow.schedulers.lsf.status')
@@ -211,4 +209,3 @@ def test_polljobs_except(mock_status):
     with pytest.raises(exceptions.PluginattributeError):
 
         _polljobs(jobs, False)
-

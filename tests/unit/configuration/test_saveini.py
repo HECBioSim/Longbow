@@ -56,3 +56,50 @@ def test_saveini_test1():
     assert open("/tmp/initest", "rb").read() == open(
         os.path.join(os.getcwd(),
                      "tests/standards/saveini.txt"), "rb").read()
+
+
+def test_saveini_test2():
+
+    """
+    A more advanced test checking that the internal configuration data is
+    saved.
+    """
+
+    params = {
+        "lbowconf": {
+            "update": False,
+            "hpc1-queue-max": 0,
+            "hpc1-queue-slots": 0
+        },
+        "job1": {
+            "param1": "val1",
+            "param2": "val2",
+        },
+        "job2": {
+            "parama": "vala",
+            "paramb": "valb",
+        },
+        "job3": {
+            "parami": "vali",
+            "paramii": "valii",
+        }
+    }
+
+    saveini("/tmp/initest2", params)
+
+    with open("/tmp/initest2", "rb") as tmpfile:
+        tmpcontents = tmpfile.read()
+
+    assert "[lbowconf]\n" in tmpcontents
+    assert "hpc1-queue-max = 0\n" in tmpcontents
+    assert "update = False\n" in tmpcontents
+    assert "hpc1-queue-slots = 0\n" in tmpcontents
+    assert "[job3]\n" in tmpcontents
+    assert "[job2]\n" in tmpcontents
+    assert "[job1]\n" in tmpcontents
+    assert "param1 = val1\n" in tmpcontents
+    assert "param2 = val2\n" in tmpcontents
+    assert "parama = vala\n" in tmpcontents
+    assert "paramb = valb\n" in tmpcontents
+    assert "parami = vali\n" in tmpcontents
+    assert "paramii = valii\n" in tmpcontents

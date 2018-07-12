@@ -407,14 +407,13 @@ def saveini(inifile, params):
 
     ini = open(inifile, "w")
 
-    for section in params:
+    for obj in params:
 
-        ini.write("[" + str(section) + "]\n")
+        ini.write("[" + str(obj) + "]\n")
 
-        for option in params[section]:
+        for opt in params[obj]:
 
-            ini.write(str(option) + " = " + str(params[section][option]) +
-                      "\n")
+            ini.write(str(opt) + " = " + str(params[obj][opt]) + "\n")
 
         ini.write("\n")
 
@@ -427,7 +426,7 @@ def _processconfigsfinalinit(jobs):
     modules = getattr(apps, "PLUGINEXECS")
     modules[""] = ""
 
-    for job in [a for a in jobs if "lbowconf-" not in a]:
+    for job in [a for a in jobs if "lbowconf" not in a]:
 
         # This is just for logging messages.
         jobs[job]["jobname"] = job
@@ -461,10 +460,14 @@ def _processconfigsfinalinit(jobs):
         LOG.debug("Job '%s' will be run in the '%s' directory on the remote "
                   "resource.", job, jobs[job]["destdir"])
 
-        # Create a recovery file.
-        jobs["lbowconf-recoveryfile"] = (
-            os.path.join(os.path.expanduser('~/.longbow'), "recovery-" +
-                         time.strftime("%Y%m%d-%H%M%S")))
+    # Create a recovery file.
+    if "lbowconf" not in jobs:
+
+        jobs["lbowconf"] = {}
+
+    jobs["lbowconf"]["recoveryfile"] = (
+        os.path.join(os.path.expanduser('~/.longbow'), "recovery-" +
+                     time.strftime("%Y%m%d-%H%M%S")))
 
 
 def _processconfigsparams(jobs, parameters, jobdata, hostdata):
@@ -569,7 +572,7 @@ def _processconfigsvalidate(jobs):
                       "specifying a value for it in the configuration file."
     }
     # Check parameters that are required for running jobs are provided.
-    for job in [a for a in jobs if "lbowconf-" not in a]:
+    for job in [a for a in jobs if "lbowconf" not in a]:
 
         # Validate required parameters have been set.
         for validationitem in required:
