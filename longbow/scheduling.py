@@ -267,7 +267,8 @@ def monitor(jobs):
 
         allcomplete, allfinished = _checkcomplete(jobs)
 
-        if "update" in jobs["lbowconf"]:
+        if ("update" in jobs["lbowconf"] and allfinished is False and
+                allcomplete is False):
 
             if jobs["lbowconf"]["update"] is True:
 

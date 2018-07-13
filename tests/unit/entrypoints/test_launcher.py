@@ -50,35 +50,40 @@ from longbow.entrypoints import launcher
 from longbow.exceptions import UpdateExit
 
 
-def _configload(jobs, _):
+def _configload(_):
 
     "Mock configuration"
 
-    jobs["lbowconf"] = {"recoveryfile": "recovery.file"}
+    jobs={"lbowconf": {"recoveryfile": "recovery.file"}}
+
+    return jobs
 
 
-def _runningjobs(jobs, _):
-
-    "Set up two running jobs"
-
-    jobs["job1"] = {"laststatus": "Running"}
-    jobs["job2"] = {"laststatus": "Running"}
-
-
-def _finishedjobs(jobs, _):
+def _runningjobs(_):
 
     "Set up two running jobs"
 
-    jobs["job1"] = {"laststatus": "Finished"}
-    jobs["job2"] = {"laststatus": "Finished"}
+    jobs = {"job1": {"laststatus": "Running"}, "job2": {"laststatus": "Running"}}
+
+    return jobs
 
 
-def _completejobs(jobs, _):
+def _finishedjobs(_):
 
     "Set up two running jobs"
 
-    jobs["job1"] = {"laststatus": "Complete"}
-    jobs["job2"] = {"laststatus": "Complete"}
+    jobs = {"job1": {"laststatus": "Finished"}, "job2": {"laststatus": "Finished"}}
+
+    return jobs
+
+
+def _completejobs(_):
+
+    "Set up two running jobs"
+
+    jobs = {"job1": {"laststatus": "Complete"}, "job2": {"laststatus": "Complete"}}
+
+    return jobs
 
 
 @mock.patch('longbow.entrypoints.longbow')

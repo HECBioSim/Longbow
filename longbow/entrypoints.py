@@ -342,7 +342,12 @@ def longbow(jobs, parameters):
     # escalating the exception to trigger graceful exit.
 
     # Load configurations and initialise Longbow data structures.
-    configuration.processconfigs(jobs, parameters)
+    jobparams = configuration.processconfigs(parameters)
+
+    # Copy to jobs so when exceptions are raised the structure is available.
+    for param in jobparams:
+
+        jobs[param] = jobparams[param]
 
     # Test all connection/s specified in the job configurations
     shellwrappers.checkconnections(jobs)
@@ -408,7 +413,12 @@ def recovery(jobs, recoveryfile):
 
         LOG.info("Recovery file found.")
 
-        _, _, jobs = configuration.loadconfigs(jobfile)
+        _, _, jobparams = configuration.loadconfigs(jobfile)
+
+        # Copy to jobs so when exceptions are raised the structure is available.
+        for param in jobparams:
+
+            jobs[param] = jobparams[param]
 
     else:
 
@@ -441,7 +451,12 @@ def update(jobs, updatefile):
 
         LOG.info("Recovery file found.")
 
-        _, _, jobs = configuration.loadconfigs(jobfile)
+        _, _, jobparams = configuration.loadconfigs(jobfile)
+
+        # Copy to jobs so when exceptions are raised the structure is available.
+        for param in jobparams:
+
+            jobs[param] = jobparams[param]
 
     else:
 
@@ -455,6 +470,9 @@ def update(jobs, updatefile):
 
     # Enter monitoring loop
     scheduling.monitor(jobs)
+
+    # Cleanup the remote working directory.
+    staging.cleanup(jobs)
 
 
 def _commandlineproc(alllongbowargs, cmdlnargs, parameters):

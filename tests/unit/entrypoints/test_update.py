@@ -49,10 +49,11 @@ import longbow.exceptions as exceptions
 from longbow.entrypoints import update
 
 
+@mock.patch('longbow.staging.cleanup')
 @mock.patch('longbow.configuration.loadconfigs')
 @mock.patch('longbow.scheduling.monitor')
 @mock.patch('os.path.isfile')
-def test_update_check(mock_file, mock_mon, mock_load):
+def test_update_check(mock_file, mock_mon, mock_load, m_clean):
 
     """
     Check that the correct function calls are made.

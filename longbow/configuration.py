@@ -117,7 +117,7 @@ JOBTEMPLATE = {
 }
 
 
-def processconfigs(jobs, parameters):
+def processconfigs(parameters):
     """Process the raw configuration sources.
 
     This method is used to create and populate the main "jobs" dictionary with
@@ -169,13 +169,15 @@ def processconfigs(jobs, parameters):
 
             jobdata[jobname][item] = ""
 
-    _processconfigsresource(jobs, parameters, jobdata, hostsections)
+    jobs = _processconfigsresource(parameters, jobdata, hostsections)
 
     _processconfigsparams(jobs, parameters, jobdata, hostdata)
 
     _processconfigsvalidate(jobs)
 
     _processconfigsfinalinit(jobs)
+
+    return jobs
 
 
 def loadconfigs(configfile):
@@ -496,8 +498,11 @@ def _processconfigsparams(jobs, parameters, jobdata, hostdata):
                     jobs[job][item] = hostdata[jobs[job]["resource"]][item]
 
 
-def _processconfigsresource(jobs, parameters, jobdata, hostsections):
+def _processconfigsresource(parameters, jobdata, hostsections):
     """Check which HPC each job should use."""
+    # Initialise
+    jobs = {}
+
 
     # Process resource/s for job/s.
     for job in jobdata:

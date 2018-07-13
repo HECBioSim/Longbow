@@ -60,12 +60,12 @@ def test_recovery_check(mock_file, mock_mon, mock_clean, mock_load):
     """
 
     mock_file.return_value = True
-    mock_load.return_value = ("", "", "testjobs")
+    mock_load.return_value = ("", "", {"testjobs": {}})
 
     recovery({}, "recovery.file")
 
-    assert mock_mon.call_args[0][0] == "testjobs"
-    assert mock_clean.call_args[0][0] == "testjobs"
+    assert mock_mon.call_args[0][0] == {"testjobs": {}}
+    assert mock_clean.call_args[0][0] == {"testjobs": {}}
 
 
 @mock.patch('longbow.staging.cleanup')

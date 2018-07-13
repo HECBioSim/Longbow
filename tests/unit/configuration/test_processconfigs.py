@@ -64,7 +64,7 @@ def test_processconfigs_test1():
 
     with pytest.raises(ex.ConfigurationError):
 
-        processconfigs({}, parameters)
+        processconfigs(parameters)
 
 
 def test_processconfigs_test2():
@@ -92,7 +92,7 @@ def test_processconfigs_test2():
 
     with pytest.raises(ex.ConfigurationError):
 
-        processconfigs({}, parameters)
+        processconfigs(parameters)
 
 
 def test_processconfigs_test3():
@@ -119,9 +119,7 @@ def test_processconfigs_test3():
         "verbose": False
     }
 
-    jobs = {}
-
-    processconfigs(jobs, parameters)
+    jobs = processconfigs(parameters)
 
     assert "LongbowJob" in jobs
     assert jobs["LongbowJob"]["executable"] == "pmemd.MPI"
@@ -166,8 +164,7 @@ def test_processconfigs_test4():
         "verbose": False
     }
 
-    jobs = {}
-    processconfigs(jobs, parameters)
+    jobs = processconfigs(parameters)
 
     assert "test-job" in jobs
     assert jobs["test-job"]["executable"] == "pmemd.MPI"
@@ -212,8 +209,7 @@ def test_processconfigs_test5():
         "verbose": False
     }
 
-    jobs = {}
-    processconfigs(jobs, parameters)
+    jobs = processconfigs(parameters)
 
     assert "amber" in jobs
     assert "gromacs_s" in jobs
