@@ -88,7 +88,7 @@ def test_saveini_test2():
     saveini("/tmp/initest2", params)
 
     with open("/tmp/initest2", "rb") as tmpfile:
-        tmpcontents = str(tmpfile.read())
+        tmpcontents = tmpfile.read().decode("utf-8")
 
     assert "[lbowconf]\n" in tmpcontents
     assert "hpc1-queue-max = 0\n" in tmpcontents
