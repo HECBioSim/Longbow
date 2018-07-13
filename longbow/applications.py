@@ -166,7 +166,7 @@ def processjobs(jobs):
                     "not supported".format(job))
 
         # If we have multiple jobs.
-        if len(jobs) > 1:
+        if len([a for a in jobs if "lbowconf" not in a]) > 1:
 
             # Add the job name to the path.
             jobs[job]["localworkdir"] = os.path.join(

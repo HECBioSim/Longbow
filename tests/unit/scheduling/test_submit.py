@@ -161,12 +161,13 @@ def test_submit_filewrite(mock_isdir, mock_submit, mock_savini):
     """
 
     jobs = {
-        "lbowconf": {},
+        "lbowconf": {
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
+        },
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
             "jobid": "test456",
-            "recoveryfile": "recovery-YYMMDD-HHMMSS"
         }
     }
 
@@ -188,12 +189,13 @@ def test_submit_fileuninit(mock_isdir, mock_submit, mock_savini):
     """
 
     jobs = {
-        "lbowconf": {},
+        "lbowconf": {
+            "recoveryfile": ""
+        },
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
             "jobid": "test456",
-            "recoveryfile": ""
         }
     }
 
@@ -215,12 +217,13 @@ def test_submit_fileexcept1(mock_isdir, mock_submit, mock_savini):
     """
 
     jobs = {
-        "lbowconf": {},
+        "lbowconf": {
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
+        },
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
             "jobid": "test456",
-            "recoveryfile": "recovery-YYMMDD-HHMMSS"
         }
     }
 
@@ -241,12 +244,13 @@ def test_submit_fileexcept2(mock_isdir, mock_submit, mock_savini):
     """
 
     jobs = {
-        "lbowconf": {},
+        "lbowconf": {
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
+        },
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
             "jobid": "test456",
-            "recoveryfile": "recovery-YYMMDD-HHMMSS"
         }
     }
 

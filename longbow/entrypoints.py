@@ -247,7 +247,7 @@ def launcher():
 
         LOG.info("User interrupt detected.")
 
-        if len(jobs) > 1:
+        if len([a for a in jobs if "lbowconf" not in a]) >= 1:
 
             LOG.info("Kill any queued or running jobs and clean up.")
 
@@ -399,8 +399,7 @@ def recovery(jobs, recoveryfile):
 
     """
 
-    longbowdir = os.path.expanduser('~/.longbow')
-    jobfile = os.path.join(longbowdir, recoveryfile)
+    jobfile = os.path.join(os.path.expanduser('~/.longbow'), recoveryfile)
 
     LOG.info("Attempting to find the recovery file '{0}'".format(jobfile))
 
@@ -433,8 +432,7 @@ def update(jobs, updatefile):
     Longbow session. All job statuses will be checked and updated in the
     recovery file and all output files will be synced before disconnecting."""
 
-    longbowdir = os.path.expanduser('~/.longbow')
-    jobfile = os.path.join(longbowdir, updatefile)
+    jobfile = os.path.join(os.path.expanduser('~/.longbow'), updatefile)
 
     LOG.info("Attempting to find the recovery file '{0}'".format(jobfile))
 
@@ -697,7 +695,7 @@ def _messageflags(longbowargs):
               "--debug                   : additional output to assist "
               "debugging.\n"
               "--disconnect              : instructs Longbow to disconnect and"
-              " exit\n after submitting jobs.\n"
+              " exit\n                            after submitting jobs.\n"
               "--examples                : downloads example files to "
               "./LongbowExamples\n"
               "--help, -h                : prints Longbow help.\n"
@@ -715,7 +713,7 @@ def _messageflags(longbowargs):
               "submitted.\n"
               "--verbose                 : additional run-time info to be "
               "output.\n"
-              "--update [file name]      : launches the update mode to sync"
+              "--update [file name]      : launches the update mode to sync "
               "current job progress and files.\n"
               "--version, -V             : prints Longbow version number.\n"
               "\n"

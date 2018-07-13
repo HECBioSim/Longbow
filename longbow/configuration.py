@@ -466,8 +466,7 @@ def _processconfigsfinalinit(jobs):
         jobs["lbowconf"] = {}
 
     jobs["lbowconf"]["recoveryfile"] = (
-        os.path.join(os.path.expanduser('~/.longbow'), "recovery-" +
-                     time.strftime("%Y%m%d-%H%M%S")))
+        "recovery-" + time.strftime("%Y%m%d-%H%M%S"))
 
 
 def _processconfigsparams(jobs, parameters, jobdata, hostdata):

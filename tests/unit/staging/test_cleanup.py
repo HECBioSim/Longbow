@@ -56,10 +56,12 @@ def test_cleanup_single(mock_delete, mock_list):
     """
 
     jobs = {
+        "lbowconf": {
+            "recoveryfile": "rec.file"
+        },
         "jobone": {
             "destdir": "/path/to/jobone12484",
             "remoteworkdir": "/path/to/local/dir",
-            "recoveryfile": ""
             }
     }
 
@@ -80,20 +82,20 @@ def test_cleanup_multiple(mock_delete, mock_list):
     """
 
     jobs = {
+        "lbowconf": {
+            "recoveryfile": "rec.file"
+        },
         "jobone": {
             "destdir": "/path/to/jobone12484",
             "remoteworkdir": "/path/to/local/dir",
-            "recoveryfile": ""
             },
         "jobtwo": {
             "destdir": "/path/to/jobtwo12484",
             "remoteworkdir": "/path/to/local/dir",
-            "recoveryfile": ""
             },
         "jobthree": {
             "destdir": "/path/to/jobthree12484",
             "remoteworkdir": "/path/to/local/dir",
-            "recoveryfile": ""
             }
     }
 
@@ -114,10 +116,12 @@ def test_cleanup_params(mock_delete, mock_list):
     """
 
     jobs = {
+        "lbowconf": {
+            "recoveryfile": "rec.file"
+        },
         "jobone": {
             "destdir": "/path/to/jobone12484",
             "remoteworkdir": "/path/to/local/dir",
-            "recoveryfile": ""
             }
     }
 
@@ -139,10 +143,12 @@ def test_cleanup_nodelete(mock_delete, mock_list):
     """
 
     jobs = {
+        "lbowconf": {
+            "recoveryfile": "rec.file"
+        },
         "jobone": {
             "destdir": "/path/to/jobone12484",
             "remoteworkdir": "/path/to/jobone12484",
-            "recoveryfile": ""
             }
     }
 
@@ -164,10 +170,12 @@ def test_cleanup_excepttest1(mock_delete, mock_list):
     """
 
     jobs = {
+        "lbowconf": {
+            "recoveryfile": "rec.file"
+        },
         "jobone": {
             "destdir": "/path/to/jobone12484",
             "remoteworkdir": "/path/to/local/dir",
-            "recoveryfile": ""
             }
     }
 
@@ -187,10 +195,12 @@ def test_cleanup_excepttest2(mock_delete, mock_list):
     """
 
     jobs = {
+        "lbowconf": {
+            "recoveryfile": "rec.file"
+        },
         "jobone": {
             "destdir": "/path/to/jobone12484",
             "remoteworkdir": "/path/to/local/dir",
-            "recoveryfile": ""
             }
     }
 
@@ -210,10 +220,12 @@ def test_cleanup_excepttest3(mock_delete, mock_list):
     """
 
     jobs = {
+        "lbowconf": {
+            "recoveryfile": "rec.file"
+        },
         "jobone": {
             "destdir": "/path/to/jobone12484",
             "remoteworkdir": "/path/to/local/dir",
-            "recoveryfile": ""
             }
     }
 
@@ -233,10 +245,12 @@ def test_cleanup_excepttest4(mock_delete, mock_list):
     """
 
     jobs = {
+        "lbowconf": {
+            "recoveryfile": "rec.file"
+        },
         "jobone": {
             "destdir": "/path/to/jobone12484",
             "remoteworkdir": "/path/to/local/dir",
-            "recoveryfile": ""
             }
     }
 
@@ -257,10 +271,12 @@ def test_cleanup_recoveryfilerm1(m_delete, m_list, m_isfile, m_remove):
     """
 
     jobs = {
+        "lbowconf": {
+            "recoveryfile": "rec.file"
+        },
         "jobone": {
             "destdir": "/path/to/jobone12484",
             "remoteworkdir": "/path/to/local/dir",
-            "recoveryfile": "recovery-YYMMDD-HHMMSS"
             }
     }
 
@@ -284,10 +300,12 @@ def test_cleanup_recoveryfilerm2(m_delete, m_list, m_isfile, m_remove):
     """
 
     jobs = {
+        "lbowconf": {
+            "recoveryfile": ""
+        },
         "jobone": {
             "destdir": "/path/to/jobone12484",
             "remoteworkdir": "/path/to/local/dir",
-            "recoveryfile": ""
             }
     }
 
@@ -311,10 +329,12 @@ def test_cleanup_recoveryfilerm3(m_delete, m_list, m_isfile, m_remove):
     """
 
     jobs = {
+        "lbowconf": {
+            "recoveryfile": "rec.file"
+        },
         "jobone": {
             "destdir": "/path/to/jobone12484",
             "remoteworkdir": "/path/to/local/dir",
-            "recoveryfile": "recovery-YYMMDD-HHMMSS"
             }
     }
 

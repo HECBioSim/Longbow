@@ -220,7 +220,8 @@ def monitor(jobs):
     allfinished = False
     lastpolltime = 0
     laststagetime = 0
-    recoveryfile = jobs["lbowconf"]["recoveryfile"]
+    basepath = os.path.expanduser('~/.longbow')
+    recoveryfile = os.path.join(basepath, jobs["lbowconf"]["recoveryfile"])
     saverecoveryfile = True
     recoveryfileerror = False
 
@@ -428,14 +429,17 @@ def submit(jobs):
 
     # Save out the recovery files.
     if (os.path.isdir(os.path.expanduser('~/.longbow')) and
-            job["recoveryfile"] != ""):
+            jobs["lbowconf"]["recoveryfile"] != ""):
+
+        basepath = os.path.expanduser('~/.longbow')
+        recoveryfile = os.path.join(basepath, jobs["lbowconf"]["recoveryfile"])
 
         try:
 
             LOG.info("Recovery file will be placed at path '%s'",
-                     job["recoveryfile"])
+                     recoveryfile)
 
-            configuration.saveini(job["recoveryfile"], jobs)
+            configuration.saveini(recoveryfile, jobs)
 
         except (OSError, IOError):
 
@@ -706,7 +710,7 @@ def _checkcomplete(jobs):
 
         allcomplete = True
 
-    if len(error) == len(jobs):
+    if len(error) == len([a for a in jobs if "lbowconf" not in a]):
 
         allcomplete = True
 
