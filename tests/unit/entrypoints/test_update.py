@@ -46,32 +46,34 @@ except ImportError:
 import pytest
 
 import longbow.exceptions as exceptions
-from longbow.entrypoints import recovery
+from longbow.entrypoints import update
 
 
-@mock.patch('longbow.configuration.loadconfigs')
 @mock.patch('longbow.staging.cleanup')
+@mock.patch('longbow.configuration.loadconfigs')
 @mock.patch('longbow.scheduling.monitor')
 @mock.patch('os.path.isfile')
-def test_recovery_check(mock_file, mock_mon, mock_clean, mock_load):
+def test_update_check(mock_file, mock_mon, mock_load, m_clean):
 
     """
     Check that the correct function calls are made.
     """
 
     mock_file.return_value = True
-    mock_load.return_value = ("", "", {"testjobs": {}})
+    mock_load.return_value = ("", "", {
+        "testparam": "test", "lbowconf": {"update": False}})
 
-    recovery({}, "recovery.file")
+    update({}, "update.file")
 
-    assert mock_mon.call_args[0][0] == {"testjobs": {}}
-    assert mock_clean.call_args[0][0] == {"testjobs": {}}
+    params = mock_mon.call_args[0][0]
+
+    assert params["testparam"] == "test"
+    assert params["lbowconf"]["update"] is True
 
 
-@mock.patch('longbow.staging.cleanup')
 @mock.patch('longbow.scheduling.monitor')
 @mock.patch('os.path.isfile')
-def test_recovery_except(mock_isfile, mock_monitor, mock_cleanup):
+def test_recovery_except(mock_isfile, mock_monitor):
 
     """
     Check that exception is raised on bad file.
@@ -79,9 +81,7 @@ def test_recovery_except(mock_isfile, mock_monitor, mock_cleanup):
 
     mock_isfile.return_value = False
     mock_monitor.return_value = None
-    mock_cleanup.return_value = None
 
     with pytest.raises(exceptions.RequiredinputError):
 
-        recovery({}, "recovery.file")
-
+        update({}, "update.file")

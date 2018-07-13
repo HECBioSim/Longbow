@@ -110,44 +110,30 @@ def launcher():
         "recover": "",
         "resource": "",
         "replicates": "",
+        "update": "",
         "verbose": False
     }
 
     # Specify all recognised longbow arguments
     alllongbowargs = [
-        "-about",
         "--about",
-        "-debug",
         "--debug",
-        "-disconnect",
         "--disconnect",
-        "-examples",
         "--examples",
         "-h",
-        "-help",
         "--help",
-        "-hosts",
         "--hosts",
-        "-job",
         "--job",
-        "-jobname",
         "--jobname",
-        "-log",
         "--log",
-        "-maxtime",
         "--maxtime",
-        "-nochecks",
         "--nochecks",
-        "-recover",
         "--recover",
-        "-resource",
         "--resource",
-        "-replicates",
         "--replicates",
+        "--update",
         "-V",
-        "-verbose",
         "--verbose",
-        "-version",
         "--version"
     ]
 
@@ -209,7 +195,7 @@ def launcher():
 
         # If no executable and jobfile has been given then fail.
         if (parameters["executable"] == "" and parameters["job"] == "" and
-                parameters["recover"] == ""):
+                parameters["recover"] == "" and parameters["update"] == ""):
 
             raise exceptions.RequiredinputError(
                 "There was no executable or job file given on the "
@@ -219,19 +205,108 @@ def launcher():
         # ---------------------------------------------------------------------
         # Call one of the main methods at the top level of the library.
 
-        # Are we trying to recover or are we running as normal.
-        if parameters["recover"] == "":
+        jobs = {}
+
+        # If recovery or update mode is not active then this is a new run.
+        if parameters["recover"] == "" and parameters["update"] == "":
 
             LOG.info("Initialisation complete.")
 
-            longbow(parameters)
+            longbow(jobs, parameters)
 
+        # If recovery mode is set then start the recovery process.
+        elif parameters["recover"] != "" and parameters["update"] == "":
+
+            LOG.info("Starting recovery mode to reconnect monitoring of jobs.")
+
+            recovery(jobs, parameters["recover"])
+
+        # If update mode is set then start the update process.
+        elif parameters["recover"] == "" and parameters["update"] != "":
+
+            LOG.info("Starting update mode to refresh progress of jobs.")
+
+            update(jobs, parameters["update"])
+
+        # If too many arguments are set, we have a problem
         else:
 
-            LOG.info("Entering recovery mode.")
+            raise exceptions.CommandlineargsError(
+                "You have both the --recover and --update command-line flags "
+                "set, these cannot be used together as they enable "
+                "conflicting functionality. Either reconnect with persistent "
+                "monitoring (--recover) or reconnect to refresh the status of "
+                "jobs and sync current files before disconnecting again "
+                "(--update).")
 
-            recovery(parameters["recover"])
+    # If the user interrupts Longbow then they are aborting the jobs, so kill
+    # off any running jobs and then remove the job directories. Otherwise just
+    # raise all other errors to the top level where in future we can attempt to
+    # recover.
+    except KeyboardInterrupt:
 
+        LOG.info("User interrupt detected.")
+
+        if len([a for a in jobs if "lbowconf" not in a]) >= 1:
+
+            LOG.info("Kill any queued or running jobs and clean up.")
+
+            # If we are exiting at this stage then we need to kill off
+            for item in [a for a in jobs if "lbowconf" not in a]:
+
+                job = jobs[item]
+
+                if "laststatus" in job:
+
+                    # If job is not finished delete and stage.
+                    if (job["laststatus"] != "Complete" and
+                            job["laststatus"] != "Finished" and
+                            job["laststatus"] != "Submit Error"):
+
+                        # Kill it.
+                        scheduling.delete(job)
+
+                        # Transfer the directories as they are.
+                        staging.stage_downstream(job)
+
+                    # Job is finished then just stage.
+                    elif job["laststatus"] != "Submit Error":
+
+                        # Transfer the directories as they are.
+                        staging.stage_downstream(job)
+
+            staging.cleanup(jobs)
+
+    # If disconnect mode is enabled then the disconnect exception is raised,
+    # allow to disconnect gracefully.
+    except exceptions.DisconnectException:
+
+        LOG.info("User specified --disconnect flag on command-line, so "
+                 "Longbow will exit.")
+        LOG.info("You can reconnect this session for persistent monitoring by "
+                 "using the recovery file:")
+        LOG.info("longbow --recover {0} --verbose"
+                 .format(jobs["lbowconf"]["recoveryfile"]))
+        LOG.info("Or an update of current progress followed by disconnecting "
+                 "can be done using:")
+        LOG.info("longbow --update {0} --verbose"
+                 .format(jobs["lbowconf"]["recoveryfile"]))
+
+    # If disconnect mode is enabled then the disconnect exception is raised,
+    # allow to disconnect gracefully.
+    except exceptions.UpdateExit:
+
+        LOG.info("Update of current job progress has completed, exiting.")
+        LOG.info("You can reconnect this session for persistent monitoring by "
+                 "using the recovery file:")
+        LOG.info("longbow --recover {0} --verbose"
+                 .format(jobs["lbowconf"]["recoveryfile"]))
+        LOG.info("Or an update of current progress followed by disconnecting "
+                 "can be done using:")
+        LOG.info("longbow --update {0} --verbose"
+                 .format(jobs["lbowconf"]["recoveryfile"]))
+
+    # If a problem happens assign the correct level of debug logging.
     except Exception as err:
 
         if parameters["debug"] is True:
@@ -242,6 +317,7 @@ def launcher():
 
             LOG.error(err)
 
+    # Show nice exit message.
     finally:
 
         LOG.info("Good bye from Longbow!")
@@ -249,7 +325,7 @@ def launcher():
                  "powerful biomolecular simulation software tools.")
 
 
-def longbow(parameters):
+def longbow(jobs, parameters):
     """Entry point at the top level of the Longbow library.
 
     Being the top level method that makes calls on the Longbow library.
@@ -266,7 +342,12 @@ def longbow(parameters):
     # escalating the exception to trigger graceful exit.
 
     # Load configurations and initialise Longbow data structures.
-    jobs = configuration.processconfigs(parameters)
+    jobparams = configuration.processconfigs(parameters)
+
+    # Copy to jobs so when exceptions are raised the structure is available.
+    for param in jobparams:
+
+        jobs[param] = jobparams[param]
 
     # Test all connection/s specified in the job configurations
     shellwrappers.checkconnections(jobs)
@@ -289,70 +370,25 @@ def longbow(parameters):
     # uploading.
     scheduling.prepare(jobs)
 
-    # Exceptions that occur before here don't require cleanup operations before
-    # reporting up.
-    try:
+    # Stage all of the job files along with the scheduling script.
+    staging.stage_upstream(jobs)
 
-        # Stage all of the job files along with the scheduling script.
-        staging.stage_upstream(jobs)
+    # Submit all jobs.
+    scheduling.submit(jobs)
 
-        # Submit all jobs.
-        scheduling.submit(jobs)
+    # Process the disconnect function.
+    if parameters["disconnect"] is True:
 
-        # Process the disconnect function.
-        if parameters["disconnect"] is True:
+        raise exceptions.DisconnectException
 
-            raise exceptions.DisconnectException
+    # Monitor all jobs.
+    scheduling.monitor(jobs)
 
-        # Monitor all jobs.
-        scheduling.monitor(jobs)
-
-        # Clean up all jobs
-        staging.cleanup(jobs)
-
-    # If the user interrupts Longbow at this stage then it they are aborting
-    # the jobs, so kill off any running jobs and then remove the job
-    # directories. Otherwise just raise all other errors to the top level where
-    # in future we can attempt to recover.
-    except KeyboardInterrupt:
-
-        LOG.info("User interrupt detected, kill any queued or running jobs "
-                 "and removed any files staged.")
-
-        # If we are exiting at this stage then we need to kill off
-        for item in jobs:
-
-            job = jobs[item]
-
-            if "laststatus" in job:
-
-                # If job is not finished delete and stage.
-                if (job["laststatus"] != "Complete" and
-                        job["laststatus"] != "Submit Error"):
-
-                    # Kill it.
-                    scheduling.delete(job)
-
-                    # Transfer the directories as they are.
-                    staging.stage_downstream(job)
-
-                # Job is finished then just stage.
-                elif job["laststatus"] != "Submit Error":
-
-                    # Transfer the directories as they are.
-                    staging.stage_downstream(job)
-
-        staging.cleanup(jobs)
-
-    except exceptions.DisconnectException:
-
-        LOG.info("User specified --disconnect flag on command-line, so "
-                 "Longbow will exit. You can reconnect this session by using "
-                 "the recovery file, details of this file will be listed in "
-                 "the logs")
+    # Clean up all jobs
+    staging.cleanup(jobs)
 
 
-def recovery(recoveryfile):
+def recovery(jobs, recoveryfile):
     """Recover a Longbow session.
 
     This method is for attempting to recover a failed Longbow session or to
@@ -367,67 +403,76 @@ def recovery(recoveryfile):
     recoveryfile (string): A path to the recovery file.
 
     """
-    LOG.info("Attempting to find the recovery files")
 
-    longbowdir = os.path.expanduser('~/.longbow')
-    jobfile = os.path.join(longbowdir, recoveryfile)
+    jobfile = os.path.join(os.path.expanduser('~/.longbow'), recoveryfile)
+
+    LOG.info("Attempting to find the recovery file '{0}'".format(jobfile))
 
     # Load the jobs recovery file.
     if os.path.isfile(jobfile):
 
-        LOG.info("Recovery file found at '%s'", jobfile)
+        LOG.info("Recovery file found.")
 
-        _, _, jobs = configuration.loadconfigs(jobfile)
+        _, _, jobparams = configuration.loadconfigs(jobfile)
+
+        # Copy to jobs so when exceptions are raised the structure is available.
+        for param in jobparams:
+
+            jobs[param] = jobparams[param]
 
     else:
 
         raise exceptions.RequiredinputError(
-            "Recovery file could not be found at '{0}' make sure you are "
-            "running the recovery from the job directory that was initially "
-            "used to launch the failed job".format(jobfile))
+            "Recovery file could not be found, make sure you haven't deleted "
+            "the recovery file and that you are not providing the full path, "
+            "just the file name is needed.")
 
-    try:
+    # Rejoin at the monitoring stage. This will assume that all jobs that
+    # are no longer in the queue have completed.
+    scheduling.monitor(jobs)
 
-        # Rejoin at the monitoring stage. This will assume that all jobs that
-        # are no longer in the queue have completed.
-        scheduling.monitor(jobs)
+    # Cleanup the remote working directory.
+    staging.cleanup(jobs)
 
-        # Cleanup the remote working directory.
-        staging.cleanup(jobs)
 
-    # If the user interrupts Longbow at this stage then it they are aborting
-    # the jobs, so kill off any running jobs and then remove the job
-    # directories. Otherwise just raise all other errors to the top level where
-    # in future we can attempt to recover.
-    except KeyboardInterrupt:
+def update(jobs, updatefile):
+    """Trigger update of a disconnected Longbow session.
 
-        LOG.info("User interrupt detected, kill any queued or running jobs "
-                 "and removed any files staged.")
+    This method will start the update process on an existing but disconnected
+    Longbow session. All job statuses will be checked and updated in the
+    recovery file and all output files will be synced before disconnecting."""
 
-        # If we are exiting at this stage then we need to kill off
-        for item in jobs:
+    jobfile = os.path.join(os.path.expanduser('~/.longbow'), updatefile)
 
-            job = jobs[item]
+    LOG.info("Attempting to find the recovery file '{0}'".format(jobfile))
 
-            if "laststatus" in job:
+    # Load the jobs recovery file.
+    if os.path.isfile(jobfile):
 
-                # If job is not finished delete and stage.
-                if (job["laststatus"] != "Complete" and
-                        job["laststatus"] != "Submit Error"):
+        LOG.info("Recovery file found.")
 
-                    # Kill it.
-                    scheduling.delete(job)
+        _, _, jobparams = configuration.loadconfigs(jobfile)
 
-                    # Transfer the directories as they are.
-                    staging.stage_downstream(job)
+        # Copy to jobs so when exceptions are raised the structure is available.
+        for param in jobparams:
 
-                # Job is finished then just stage.
-                elif job["laststatus"] != "Submit Error":
+            jobs[param] = jobparams[param]
 
-                    # Transfer the directories as they are.
-                    staging.stage_downstream(job)
+    else:
 
-        staging.cleanup(jobs)
+        raise exceptions.RequiredinputError(
+            "Recovery file could not be found, make sure you haven't deleted "
+            "the recovery file and that you are not providing the full path, "
+            "just the file name is needed.")
+
+    # Add the updater key
+    jobs["lbowconf"]["update"] = True
+
+    # Enter monitoring loop
+    scheduling.monitor(jobs)
+
+    # Cleanup the remote working directory.
+    staging.cleanup(jobs)
 
 
 def _commandlineproc(alllongbowargs, cmdlnargs, parameters):
@@ -668,7 +713,7 @@ def _messageflags(longbowargs):
               "--debug                   : additional output to assist "
               "debugging.\n"
               "--disconnect              : instructs Longbow to disconnect and"
-              " exit\n after submitting jobs.\n"
+              " exit\n                            after submitting jobs.\n"
               "--examples                : downloads example files to "
               "./LongbowExamples\n"
               "--help, -h                : prints Longbow help.\n"
@@ -688,6 +733,8 @@ def _messageflags(longbowargs):
               "submitted.\n"
               "--verbose                 : additional run-time info to be "
               "output.\n"
+              "--update [file name]      : launches the update mode to sync "
+              "current job progress and files.\n"
               "--version, -V             : prints Longbow version number.\n"
               "\n"
               "Read the documentation at http://www.hecbiosim.ac.uk/ for more "

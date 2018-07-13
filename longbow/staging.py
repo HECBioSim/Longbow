@@ -84,7 +84,7 @@ def stage_upstream(jobs):
     """
     LOG.info("Staging files for job/s.")
 
-    for item in jobs:
+    for item in [a for a in jobs if "lbowconf" not in a]:
 
         job = jobs[item]
         destdir = job["destdir"]
@@ -173,7 +173,7 @@ def cleanup(jobs):
     """
     LOG.info("Cleaning up the work directories.")
 
-    for item in jobs:
+    for item in [a for a in jobs if "lbowconf" not in a]:
 
         job = jobs[item]
         destdir = job["destdir"]
@@ -221,11 +221,13 @@ def cleanup(jobs):
 
             pass
 
-    if (jobs[list(jobs.keys())[0]]["recoveryfile"] != "" and
-            os.path.isfile(jobs[list(jobs.keys())[0]]["recoveryfile"])):
+    recfile = jobs["lbowconf"]["recoveryfile"]
+    fpath = os.path.expanduser('~/.longbow')
+
+    if (recfile != "" and os.path.isfile(os.path.join(fpath, recfile))):
 
         LOG.info("Removing the recovery file.")
 
-        os.remove(jobs[list(jobs.keys())[0]]["recoveryfile"])
+        os.remove(os.path.join(fpath, recfile))
 
     LOG.info("Cleaning up complete.")

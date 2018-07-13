@@ -46,7 +46,7 @@ except ImportError:
 import pytest
 
 import longbow.exceptions as exceptions
-from longbow.scheduling import _polljobs, QUEUEINFO
+from longbow.scheduling import _polljobs
 
 
 @mock.patch('longbow.schedulers.lsf.status')
@@ -106,6 +106,10 @@ def test_polljobs_finished(mock_status):
     """
 
     jobs = {
+        "lbowconf": {
+            "test-machine-queue-slots": 2,
+            "test-machine-queue-max": 4
+        },
         "jobone": {
             "resource": "test-machine",
             "laststatus": "Running",
@@ -144,7 +148,6 @@ def test_polljobs_finished(mock_status):
         }
     }
 
-    QUEUEINFO["test-machine"]["queue-slots"] = "2"
     mock_status.return_value = "Finished"
     _polljobs(jobs, False)
 
@@ -152,7 +155,7 @@ def test_polljobs_finished(mock_status):
         "Should only be polling running and queued jobs"
     assert jobs["jobone"]["laststatus"] == "Finished"
     assert jobs["jobtwo"]["laststatus"] == "Finished"
-    assert QUEUEINFO["test-machine"]["queue-slots"] == "0"
+    assert jobs["lbowconf"]["test-machine-queue-slots"] == "0"
 
 
 @mock.patch('longbow.schedulers.lsf.status')

@@ -72,6 +72,13 @@ class DisconnectException(Exception):
 
     pass
 
+
+class UpdateExit(Exception):
+
+    """Exception, to exit gracefully after update of job progress."""
+
+    pass
+
 # -----------------------------------------------------------------------------
 # Exceptions for applications.py
 

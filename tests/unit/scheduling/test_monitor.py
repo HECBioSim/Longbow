@@ -46,7 +46,7 @@ except ImportError:
 import pytest
 
 import longbow.exceptions as exceptions
-from longbow.scheduling import monitor, QUEUEINFO
+from longbow.scheduling import monitor
 
 
 def jobstatus(jobs, _):
@@ -55,13 +55,13 @@ def jobstatus(jobs, _):
     Change status of the job
     """
 
-    for job in jobs:
+    for job in [a for a in jobs if "lbowconf" not in a]:
 
         if jobs[job]["laststatus"] == "Queued":
 
             jobs[job]["laststatus"] = "Running"
 
-        if jobs[job]["laststatus"] == "Running":
+        elif jobs[job]["laststatus"] == "Running":
 
             jobs[job]["laststatus"] = "Finished"
 
@@ -78,17 +78,16 @@ def test_monitor_testpollfrequency(mock_init, mock_poll, mock_wait):
     import time
 
     jobs = {
+        "lbowconf": {
+            "recoveryfile": "recovery-YYMMDD-HHMMSS",
+            "hpc1-queue-slots": 1,
+            "hpc1-queue-max": 2
+        },
         "jobone": {
             "resource": "hpc1",
-            "queue-max": "0",
-            "queue-slots": "0",
-            "laststatus": "Running",
-            "recoveryfile": "recovery-YYMMDD-HHMMSS"
+            "laststatus": "Running"
         }
     }
-    QUEUEINFO["hpc1"] = {}
-    QUEUEINFO["hpc1"]["queue-slots"] = "1"
-    QUEUEINFO["hpc1"]["queue-max"] = "2"
 
     mock_init.return_value = 0, 2
     mock_poll.return_value = False
@@ -120,17 +119,16 @@ def test_monitor_teststagefreq(mock_init, mock_poll, mock_wait, mock_down):
     import time
 
     jobs = {
+        "lbowconf": {
+            "recoveryfile": "recovery-YYMMDD-HHMMSS",
+            "hpc1-queue-slots": 1,
+            "hpc1-queue-max": 2
+        },
         "jobone": {
             "resource": "hpc1",
-            "queue-max": "0",
-            "queue-slots": "0",
-            "laststatus": "Running",
-            "recoveryfile": "recovery-YYMMDD-HHMMSS"
+            "laststatus": "Running"
         }
     }
-    QUEUEINFO["hpc1"] = {}
-    QUEUEINFO["hpc1"]["queue-slots"] = "1"
-    QUEUEINFO["hpc1"]["queue-max"] = "2"
 
     mock_init.return_value = 1, 1
     mock_poll.return_value = False
@@ -164,32 +162,24 @@ def test_monitor_complete1(mock_init, mock_poll, mock_wait, mock_down,
     """
 
     jobs = {
+        "lbowconf": {
+            "recoveryfile": "recovery-YYMMDD-HHMMSS",
+            "hpc1-queue-slots": 1,
+            "hpc1-queue-max": 2
+        },
         "jobone": {
             "resource": "hpc1",
-            "queue-max": "0",
-            "queue-slots": "0",
-            "laststatus": "Finished",
-            "recoveryfile": "recovery-YYMMDD-HHMMSS"
+            "laststatus": "Finished"
         },
         "jobtwo": {
             "resource": "hpc1",
-            "queue-max": "0",
-            "queue-slots": "0",
-            "laststatus": "Complete",
-            "recoveryfile": "recovery-YYMMDD-HHMMSS"
+            "laststatus": "Complete"
         },
         "jobthree": {
             "resource": "hpc1",
-            "queue-max": "0",
-            "queue-slots": "0",
-            "laststatus": "Submit Error",
-            "recoveryfile": "recovery-YYMMDD-HHMMSS"
+            "laststatus": "Submit Error"
         }
     }
-
-    QUEUEINFO["hpc1"] = {}
-    QUEUEINFO["hpc1"]["queue-slots"] = "1"
-    QUEUEINFO["hpc1"]["queue-max"] = "2"
 
     mock_init.return_value = 0, 1
     mock_poll.return_value = False
@@ -218,46 +208,32 @@ def test_monitor_complete2(mock_init, mock_poll, mock_wait, mock_down,
     """
 
     jobs = {
+        "lbowconf": {
+            "recoveryfile": "recovery-YYMMDD-HHMMSS",
+            "hpc1-queue-slots": 1,
+            "hpc1-queue-max": 2
+        },
         "jobone": {
             "resource": "hpc1",
-            "queue-max": "0",
-            "queue-slots": "0",
-            "laststatus": "Finished",
-            "recoveryfile": "recovery-YYMMDD-HHMMSS"
+            "laststatus": "Finished"
         },
         "jobtwo": {
             "resource": "hpc1",
-            "queue-max": "0",
-            "queue-slots": "0",
-            "laststatus": "Complete",
-            "recoveryfile": "recovery-YYMMDD-HHMMSS"
+            "laststatus": "Complete"
         },
         "jobthree": {
             "resource": "hpc1",
-            "queue-max": "0",
-            "queue-slots": "0",
-            "laststatus": "Submit Error",
-            "recoveryfile": "recovery-YYMMDD-HHMMSS"
+            "laststatus": "Submit Error"
         },
         "jobfour": {
             "resource": "hpc1",
-            "queue-max": "0",
-            "queue-slots": "0",
-            "laststatus": "Queued",
-            "recoveryfile": "recovery-YYMMDD-HHMMSS"
+            "laststatus": "Queued"
         },
         "jobfive": {
             "resource": "hpc1",
-            "queue-max": "0",
-            "queue-slots": "0",
-            "laststatus": "Running",
-            "recoveryfile": "recovery-YYMMDD-HHMMSS"
+            "laststatus": "Running"
         }
     }
-
-    QUEUEINFO["hpc1"] = {}
-    QUEUEINFO["hpc1"]["queue-slots"] = "1"
-    QUEUEINFO["hpc1"]["queue-max"] = "2"
 
     mock_init.return_value = 0, 1
     mock_poll.return_value = False
@@ -290,46 +266,32 @@ def test_monitor_run1(mock_init, mock_poll, mock_wait, mock_down,
     """
 
     jobs = {
+        "lbowconf": {
+            "recoveryfile": "recovery-YYMMDD-HHMMSS",
+            "hpc1-queue-slots": 1,
+            "hpc1-queue-max": 2
+        },
         "jobone": {
             "resource": "hpc1",
-            "queue-max": "0",
-            "queue-slots": "0",
-            "laststatus": "Running",
-            "recoveryfile": "recovery-YYMMDD-HHMMSS"
+            "laststatus": "Running"
         },
         "jobtwo": {
             "resource": "hpc1",
-            "queue-max": "0",
-            "queue-slots": "0",
-            "laststatus": "Running",
-            "recoveryfile": "recovery-YYMMDD-HHMMSS"
+            "laststatus": "Running"
         },
         "jobthree": {
             "resource": "hpc1",
-            "queue-max": "0",
-            "queue-slots": "0",
-            "laststatus": "Queued",
-            "recoveryfile": "recovery-YYMMDD-HHMMSS"
+            "laststatus": "Queued"
         },
         "jobfour": {
             "resource": "hpc1",
-            "queue-max": "0",
-            "queue-slots": "0",
-            "laststatus": "Queued",
-            "recoveryfile": "recovery-YYMMDD-HHMMSS"
+            "laststatus": "Queued"
         },
         "jobfive": {
             "resource": "hpc1",
-            "queue-max": "0",
-            "queue-slots": "0",
-            "laststatus": "Queued",
-            "recoveryfile": "recovery-YYMMDD-HHMMSS"
+            "laststatus": "Queued"
         }
     }
-
-    QUEUEINFO["hpc1"] = {}
-    QUEUEINFO["hpc1"]["queue-slots"] = "1"
-    QUEUEINFO["hpc1"]["queue-max"] = "2"
 
     mock_init.return_value = 0, 1
     mock_poll.return_value = False
@@ -363,31 +325,24 @@ def test_monitor_except(mock_init, mock_poll, mock_wait, mock_down,
     """
 
     jobs = {
+        "lbowconf": {
+            "recoveryfile": "recovery-YYMMDD-HHMMSS",
+            "hpc1-queue-slots": 1,
+            "hpc1-queue-max": 2
+        },
         "jobone": {
             "resource": "hpc1",
-            "queue-max": "0",
-            "queue-slots": "0",
-            "laststatus": "Finished",
-            "recoveryfile": "recovery-YYMMDD-HHMMSS"
+            "laststatus": "Finished"
         },
         "jobtwo": {
             "resource": "hpc1",
-            "queue-max": "0",
-            "queue-slots": "0",
-            "laststatus": "Complete",
-            "recoveryfile": "recovery-YYMMDD-HHMMSS"
+            "laststatus": "Complete"
         },
         "jobthree": {
             "resource": "hpc1",
-            "queue-max": "0",
-            "queue-slots": "0",
-            "laststatus": "Submit Error",
-            "recoveryfile": "recovery-YYMMDD-HHMMSS"
+            "laststatus": "Submit Error"
         }
     }
-    QUEUEINFO["hpc1"] = {}
-    QUEUEINFO["hpc1"]["queue-slots"] = "1"
-    QUEUEINFO["hpc1"]["queue-max"] = "2"
 
     mock_init.return_value = 0, 1
     mock_poll.return_value = False
@@ -398,4 +353,65 @@ def test_monitor_except(mock_init, mock_poll, mock_wait, mock_down,
     monitor(jobs)
 
     assert jobs["jobone"]["laststatus"] == "Complete"
+    assert mock_save.call_count == 1
+
+
+@mock.patch('longbow.configuration.saveini')
+@mock.patch('longbow.staging.stage_downstream')
+@mock.patch('longbow.scheduling._checkwaitingjobs')
+@mock.patch('longbow.scheduling._polljobs')
+@mock.patch('longbow.scheduling._monitorinitialise')
+def test_monitor_update(mock_init, mock_poll, mock_wait, mock_down, mock_save):
+
+    """
+    Test that when all jobs complete the method exits.
+    """
+
+    jobs = {
+        "lbowconf": {
+            "update": True,
+            "recoveryfile": "recovery-YYMMDD-HHMMSS",
+            "hpc1-queue-slots": 2,
+            "hpc1-queue-max": 8
+        },
+        "jobone": {
+            "resource": "hpc1",
+            "laststatus": "Running"
+        },
+        "jobtwo": {
+            "resource": "hpc1",
+            "laststatus": "Running"
+        },
+        "jobthree": {
+            "resource": "hpc1",
+            "laststatus": "Queued"
+        },
+        "jobfour": {
+            "resource": "hpc1",
+            "laststatus": "Queued"
+        },
+        "jobfive": {
+            "resource": "hpc1",
+            "laststatus": "Queued"
+        }
+    }
+
+    mock_init.return_value = 0, 1
+    mock_poll.return_value = True
+    mock_poll.side_effect = jobstatus
+    mock_wait.return_value = True
+
+    with pytest.raises(exceptions.UpdateExit):
+
+        monitor(jobs)
+
+    assert jobs["lbowconf"]["update"] is False
+    assert jobs["jobone"]["laststatus"] == "Finished"
+    assert jobs["jobtwo"]["laststatus"] == "Finished"
+    assert jobs["jobthree"]["laststatus"] == "Running"
+    assert jobs["jobfour"]["laststatus"] == "Running"
+    assert jobs["jobfive"]["laststatus"] == "Running"
+    assert mock_poll.call_count == 1
+    assert mock_wait.call_count == 1
+    assert mock_down.call_count == 0
     assert mock_save.call_count == 1

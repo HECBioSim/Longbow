@@ -46,7 +46,7 @@ except ImportError:
 import pytest
 
 import longbow.exceptions as exceptions
-from longbow.scheduling import submit, QUEUEINFO
+from longbow.scheduling import submit
 
 
 @mock.patch('longbow.schedulers.lsf.submit')
@@ -58,6 +58,7 @@ def test_submit_single(mock_isdir, mock_submit):
     """
 
     jobs = {
+        "lbowconf": {},
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
@@ -83,6 +84,7 @@ def test_submit_multiplesame(mock_isdir, mock_lsf):
     """
 
     jobs = {
+        "lbowconf": {},
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
@@ -119,6 +121,7 @@ def test_submit_multiplediff(mock_isdir, mock_lsf, mock_pbs, mock_slurm):
     """
 
     jobs = {
+        "lbowconf": {},
         "job-one": {
             "resource": "lsf-machine",
             "scheduler": "LSF",
@@ -158,11 +161,13 @@ def test_submit_filewrite(mock_isdir, mock_submit, mock_savini):
     """
 
     jobs = {
+        "lbowconf": {
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
+        },
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
             "jobid": "test456",
-            "recoveryfile": "recovery-YYMMDD-HHMMSS"
         }
     }
 
@@ -184,11 +189,13 @@ def test_submit_fileuninit(mock_isdir, mock_submit, mock_savini):
     """
 
     jobs = {
+        "lbowconf": {
+            "recoveryfile": ""
+        },
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
             "jobid": "test456",
-            "recoveryfile": ""
         }
     }
 
@@ -210,11 +217,13 @@ def test_submit_fileexcept1(mock_isdir, mock_submit, mock_savini):
     """
 
     jobs = {
+        "lbowconf": {
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
+        },
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
             "jobid": "test456",
-            "recoveryfile": "recovery-YYMMDD-HHMMSS"
         }
     }
 
@@ -235,11 +244,13 @@ def test_submit_fileexcept2(mock_isdir, mock_submit, mock_savini):
     """
 
     jobs = {
+        "lbowconf": {
+            "recoveryfile": "recovery-YYMMDD-HHMMSS"
+        },
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
             "jobid": "test456",
-            "recoveryfile": "recovery-YYMMDD-HHMMSS"
         }
     }
 
@@ -260,6 +271,7 @@ def test_submit_attrexcept(mock_isdir, mock_submit, mock_savini):
     """
 
     jobs = {
+        "lbowconf": {},
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
@@ -286,6 +298,7 @@ def test_submit_submitexcept(mock_isdir, mock_submit, mock_savini):
     """
 
     jobs = {
+        "lbowconf": {},
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
@@ -313,6 +326,7 @@ def test_submit_queueexcept(mock_isdir, mock_submit, mock_savini):
     """
 
     jobs = {
+        "lbowconf": {},
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
@@ -339,6 +353,10 @@ def test_submit_queueinfo(mock_isdir, mock_submit, mock_savini):
     """
 
     jobs = {
+        "lbowconf": {
+            "test-machine-queue-slots": 0,
+            "test-machine-queue-max": 0
+        },
         "job-one": {
             "resource": "test-machine",
             "scheduler": "LSF",
@@ -355,8 +373,6 @@ def test_submit_queueinfo(mock_isdir, mock_submit, mock_savini):
             "jobid": "test789"
         }
     }
-    QUEUEINFO["test-machine"]["queue-slots"] = "0"
-    QUEUEINFO["test-machine"]["queue-max"] = "0"
 
     mock_isdir.return_value = False
     mock_savini.return_value = None
@@ -364,5 +380,5 @@ def test_submit_queueinfo(mock_isdir, mock_submit, mock_savini):
 
     submit(jobs)
 
-    assert QUEUEINFO["test-machine"]["queue-slots"] == "3"
-    assert QUEUEINFO["test-machine"]["queue-max"] == "3"
+    assert jobs["lbowconf"]["test-machine-queue-slots"] == "3"
+    assert jobs["lbowconf"]["test-machine-queue-max"] == "3"

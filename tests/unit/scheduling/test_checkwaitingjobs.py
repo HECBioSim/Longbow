@@ -46,7 +46,7 @@ except ImportError:
 import pytest
 
 import longbow.exceptions as exceptions
-from longbow.scheduling import _checkwaitingjobs, QUEUEINFO
+from longbow.scheduling import _checkwaitingjobs
 
 
 def addjobid(job):
@@ -67,13 +67,16 @@ def test_checkwaitingjobs_none(mock_submit):
 
     jobs = {
         "jobone": {
-            "laststatus": "Running"
+            "laststatus": "Running",
+            "resource": "hpc-1"
         },
         "jobtwo": {
-            "laststatus": "Finished"
+            "laststatus": "Finished",
+            "resource": "hpc-1"
         },
         "jobthree": {
-            "laststatus": "Complete"
+            "laststatus": "Complete",
+            "resource": "hpc-1"
         }
     }
 
@@ -91,6 +94,10 @@ def test_checkwaitingjobs_one(mock_submit):
     """
 
     jobs = {
+        "lbowconf": {
+            "test-machine-queue-slots": 1,
+            "test-machine-queue-max": 2
+        },
         "jobone": {
             "laststatus": "Running",
             "resource": "test-machine",
@@ -109,14 +116,11 @@ def test_checkwaitingjobs_one(mock_submit):
     }
 
     mock_submit.side_effect = addjobid
-    QUEUEINFO["test-machine"] = {}
-    QUEUEINFO["test-machine"]["queue-slots"] = 1
-    QUEUEINFO["test-machine"]["queue-max"] = 2
 
     _checkwaitingjobs(jobs, False)
 
     assert mock_submit.call_count == 1, "Should be submitting one job"
-    assert QUEUEINFO["test-machine"]["queue-slots"] == "2"
+    assert jobs["lbowconf"]["test-machine-queue-slots"] == "2"
 
 
 @mock.patch('longbow.schedulers.lsf.submit')
@@ -128,6 +132,10 @@ def test_checkwaitingjobs_two(mock_submit):
     """
 
     jobs = {
+        "lbowconf": {
+            "test-machine-queue-slots": 1,
+            "test-machine-queue-max": 8
+        },
         "jobone": {
             "laststatus": "Running",
             "resource": "test-machine",
@@ -146,13 +154,11 @@ def test_checkwaitingjobs_two(mock_submit):
     }
 
     mock_submit.side_effect = addjobid
-    QUEUEINFO["test-machine"]["queue-slots"] = 1
-    QUEUEINFO["test-machine"]["queue-max"] = 8
 
     _checkwaitingjobs(jobs, False)
 
     assert mock_submit.call_count == 2, "Should be submitting two jobs"
-    assert QUEUEINFO["test-machine"]["queue-slots"] == "3"
+    assert jobs["lbowconf"]["test-machine-queue-slots"] == "3"
 
 
 @mock.patch('longbow.schedulers.lsf.submit')
@@ -163,6 +169,10 @@ def test_checkwaitingjobs_except1(mock_submit):
     """
 
     jobs = {
+        "lbowconf": {
+            "test-machine-queue-slots": 1,
+            "test-machine-queue-max": 8
+        },
         "jobone": {
             "laststatus": "Running",
             "resource": "test-machine",
@@ -181,8 +191,6 @@ def test_checkwaitingjobs_except1(mock_submit):
     }
 
     mock_submit.side_effect = AttributeError
-    QUEUEINFO["test-machine"]["queue-slots"] = 1
-    QUEUEINFO["test-machine"]["queue-max"] = 8
 
     with pytest.raises(exceptions.PluginattributeError):
 
@@ -198,6 +206,10 @@ def test_checkwaitingjobs_except2(mock_submit):
     """
 
     jobs = {
+        "lbowconf": {
+            "test-machine-queue-slots": 1,
+            "test-machine-queue-max": 8
+        },
         "jobone": {
             "laststatus": "Running",
             "resource": "test-machine",
@@ -216,8 +228,6 @@ def test_checkwaitingjobs_except2(mock_submit):
     }
 
     mock_submit.side_effect = exceptions.JobsubmitError
-    QUEUEINFO["test-machine"]["queue-slots"] = 1
-    QUEUEINFO["test-machine"]["queue-max"] = 8
 
     _checkwaitingjobs(jobs, False)
 
@@ -235,6 +245,10 @@ def test_checkwaitingjobs_except3(mock_submit):
     """
 
     jobs = {
+        "lbowconf": {
+            "test-machine-queue-slots": 1,
+            "test-machine-queue-max": 8
+        },
         "jobone": {
             "laststatus": "Running",
             "resource": "test-machine",
@@ -253,8 +267,6 @@ def test_checkwaitingjobs_except3(mock_submit):
     }
 
     mock_submit.side_effect = exceptions.QueuemaxError
-    QUEUEINFO["test-machine"]["queue-slots"] = "1"
-    QUEUEINFO["test-machine"]["queue-max"] = "8"
 
     _checkwaitingjobs(jobs, False)
 
