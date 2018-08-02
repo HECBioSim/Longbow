@@ -302,8 +302,8 @@ Longbow will simply submit your jobs and then write out the details to a recover
 
     longbow --versbose --disconnect --log new.log namd2 ">" output.out
 
-Reconnect/Recover Sessions
-==========================
+Persistent Reconnect/Recover Sessions
+=====================================
 
 For recovering an intentionally disconnected Longbow session or for the hopefully more rare occasions that Longbow for some reason crashes, be it due to a spate of network instability or simply rotten luck. Longbow has a recovery mode, this recovery mode is designed to reconnect Longbow with jobs that are running on the HPC. 
 
@@ -311,11 +311,22 @@ Even if you know that all your jobs have managed to finish since Longbow crashed
 
 To start Longbow in recovery mode, you will need to supply the following command-line::
 
-    longbow --recover /path/to/recoveryfile
+    longbow --recover recoveryfilename
 
-Where you will need to provide the path to a recovery file. Longbow creates these recover files within the ~/.longbow directory and they will have the time stamp of when the Longbow session was started, further inspection of the internals of the recovery file can confirm the job information to assist with choosing the correct recovery file (the path will also appear in your logfile). 
+You do not need to provide the path to a recovery file as Longbow stores these in ~/.longbow so it knows where to find them. They will typically have the time stamp of when the Longbow session was started, further inspection of the internals of the recovery file can confirm the job information to assist with choosing the correct recovery file (the filename will also appear in your logfile). 
 
 A small number of flags can be provided with the recover flag, such as the debug, verbose or the log flag. Often users will want to display the outcome of the recovery to their terminal to make sure the session is recovered, or to change the location of the logging to a new file such that if anything goes wrong they have all information at hand. Here is an example of a user that wants to log to the screen to monitor the recovery, but also to log to a new file so there is a record of what went wrong in the original log file::
 
-    longbow --verbose --log new.log --recover /path/to/recoveryfile
+    longbow --verbose --log new.log --recover recoveryfilename
+
+Update Disconnected Sessions
+============================
+
+For grabbing an update of job status and to download a snapshot of the current simulation output (can save transfer time at the end) an update mode is available. This mode will simply connect and grab the latest job/s status, it will update the state of downloaded files. Also, if you have jobs that have been held back by Longbow due to queue slot limits, and jobs already submitted have finished running, then Longbow will submit these before exiting disconnecting again. Once all jobs are finished and downloaded, then running this update mode will trigger the correct cleanup and exit procedure as if it was running in persistent mode.
+
+To invoke this recovery mode, you just simply need to provide the recovery file to the --update flag::
+
+    longbow --update recoveryfilename
+
+
 
