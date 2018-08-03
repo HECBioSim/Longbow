@@ -55,6 +55,7 @@ def test_prepare_case1():
         "localworkdir": "/tmp",
         "lsf-cluster": "",
         "maxtime": "24:00",
+        "memory": "",
         "modules": "amber",
         "queue": "debug",
         "replicates": "1",
@@ -89,6 +90,7 @@ def test_prepare_case2():
         "localworkdir": "/tmp",
         "lsf-cluster": "",
         "maxtime": "24:00",
+        "memory": "",
         "modules": "amber",
         "queue": "debug",
         "replicates": "5",
@@ -121,6 +123,7 @@ def test_prepare_case3():
         "localworkdir": "/tmp",
         "lsf-cluster": "cluster1",
         "maxtime": "24:00",
+        "memory": "",
         "modules": "amber",
         "queue": "debug",
         "replicates": "1",
@@ -154,6 +157,7 @@ def test_prepare_case4():
         "localworkdir": "/tmp",
         "lsf-cluster": "",
         "maxtime": "24:00",
+        "memory": "",
         "modules": "amber",
         "queue": "debug",
         "replicates": "1",
@@ -187,6 +191,7 @@ def test_prepare_case5():
         "localworkdir": "/tmp",
         "lsf-cluster": "",
         "maxtime": "24:00",
+        "memory": "",
         "modules": "amber",
         "queue": "debug",
         "replicates": "1",
@@ -220,6 +225,7 @@ def test_prepare_case6():
         "localworkdir": "/tmp",
         "lsf-cluster": "",
         "maxtime": "24:00",
+        "memory": "",
         "modules": "amber",
         "queue": "debug",
         "replicates": "1",
@@ -253,6 +259,7 @@ def test_prepare_case7():
         "localworkdir": "/tmp",
         "lsf-cluster": "",
         "maxtime": "24:00",
+        "memory": "",
         "modules": "amber",
         "queue": "debug",
         "replicates": "1",
@@ -286,6 +293,7 @@ def test_prepare_case8():
         "localworkdir": "/tmp",
         "lsf-cluster": "",
         "maxtime": "24:00",
+        "memory": "",
         "modules": "amber",
         "queue": "debug",
         "replicates": "1",
@@ -299,3 +307,37 @@ def test_prepare_case8():
         os.path.join(
             os.getcwd(),
             "tests/standards/lsf_submitfiles/case8.txt"), "rb").read()
+
+
+def test_prepare_case9():
+
+    """
+    Test handler parameters
+    """
+
+    job = {
+        "account": "",
+        "accountflag": "",
+        "cores": "24",
+        "executableargs": "pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out",
+        "handler": "mpiexec.hydra",
+        "email-address": "",
+        "email-flags": "",
+        "jobname": "testjob",
+        "localworkdir": "/tmp",
+        "lsf-cluster": "",
+        "maxtime": "24:00",
+        "memory": "10",
+        "modules": "amber",
+        "queue": "debug",
+        "replicates": "1",
+        "scripts": "",
+        "upload-include": "file1, file2"
+    }
+
+    prepare(job)
+
+    assert open("/tmp/submit.lsf", "rb").read() == open(
+        os.path.join(
+            os.getcwd(),
+            "tests/standards/lsf_submitfiles/case9.txt"), "rb").read()

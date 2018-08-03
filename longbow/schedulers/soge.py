@@ -103,6 +103,10 @@ def prepare(job):
 
     jobfile.write("#$ -l h_rt=" + job["maxtime"] + ":00\n")
 
+    if job["memory"] is not "":
+
+        jobfile.write("#$ -l h_vmem=" + job["memory"] + "G\n")
+
     # Email user.
     if job["email-address"] is not "":
 
