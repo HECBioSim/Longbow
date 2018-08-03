@@ -100,6 +100,10 @@ def prepare(job):
             jobfile.write("#SBATCH " + job["accountflag"] + " " +
                           job["account"] + "\n")
 
+    if job["memory"] is not "":
+
+        jobfile.write("#SBATCH --mem=" + job["memory"] + "G" + "\n")
+
     # Generic resource (if supplied)
     if job["slurm-gres"] is not "":
 

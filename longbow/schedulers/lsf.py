@@ -98,6 +98,10 @@ def prepare(job):
 
         jobfile.write("#BSUB -m " + job["lsf-cluster"] + "\n")
 
+    if job["memory"] is not "":
+
+        jobfile.write('#BSUB -R "rusage[mem=' + job["memory"] + 'G]"\n')
+
     # Account to charge (if supplied).
     if job["account"] is not "":
 

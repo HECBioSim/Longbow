@@ -131,16 +131,13 @@ def prepare(job):
     # Number of mpi processes per node.
     mpiprocs = cpn
 
-    # Memory size (used to select nodes with minimum memory).
-    memory = job["memory"]
-
     tmp = "select=" + nodes + ":ncpus=" + ncpus + ":mpiprocs=" + mpiprocs
 
     # If user has specified memory append the flag (not all machines support
     # this).
-    if memory is not "":
+    if job["memory"] is not "":
 
-        tmp = tmp + ":mem=" + memory + "gb"
+        tmp = tmp + ":mem=" + job["memory"] + "gb"
 
     # Write the resource requests
     jobfile.write("#PBS -l " + tmp + "\n")

@@ -302,3 +302,41 @@ def test_prepare_case7():
         os.path.join(
             os.getcwd(),
             "tests/standards/slurm_submitfiles/case7.txt"), "rb").read()
+
+
+def test_prepare_case8():
+
+    """
+    Test gres parameters
+    """
+
+    job = {
+        "account": "",
+        "accountflag": "",
+        "cluster": "",
+        "cores": "24",
+        "corespernode": "24",
+        "executableargs": "pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out",
+        "handler": "mpirun",
+        "email-address": "",
+        "email-flags": "",
+        "jobname": "testjob",
+        "localworkdir": "/tmp",
+        "maxtime": "24:00",
+        "memory": "10",
+        "modules": "amber",
+        "queue": "debug",
+        "replicates": "1",
+        "scripts": "ls /dir, cd /dir",
+        "slurm-gres": "gpu:1",
+        "sge-peflag": "mpi",
+        "sge-peoverride": "false",
+        "upload-include": "file1, file2"
+    }
+
+    prepare(job)
+
+    assert open("/tmp/submit.slurm", "rb").read() == open(
+        os.path.join(
+            os.getcwd(),
+            "tests/standards/slurm_submitfiles/case8.txt"), "rb").read()
