@@ -126,6 +126,16 @@ def prepare(job):
         jobfile.write("#$ -pe " + job["sge-peflag"] + " " +
                       job["cores"] + "\n\n")
 
+    # Redirect stdout
+    if job["stdout"] != "":
+
+        jobfile.write("#$ -o " + job["stdout"] + "\n")
+
+    # Redirect stderr
+    if job["stderr"] != "":
+
+        jobfile.write("#$ -e " + job["stderr"] + "\n\n")
+
     # Load any custom scripts.
     if job["scripts"] != "":
 

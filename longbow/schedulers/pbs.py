@@ -160,6 +160,16 @@ def prepare(job):
         jobfile.write("#PBS -J 1-" + job["replicates"] + "\n")
         jobfile.write("#PBS -r y\n")
 
+    # Redirect stdout
+    if job["stdout"] != "":
+
+        jobfile.write("#PBS -o " + job["stdout"] + "\n")
+
+    # Redirect stderr
+    if job["stderr"] != "":
+
+        jobfile.write("#PBS -e " + job["stderr"] + "\n")
+
     # Set some environment variables for PBS.
     jobfile.write(
         "\n" + "export PBS_O_WORKDIR=$(readlink -f $PBS_O_WORKDIR)\n"

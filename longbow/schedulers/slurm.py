@@ -137,6 +137,16 @@ def prepare(job):
     # Walltime for job
     jobfile.write("#SBATCH -t " + job["maxtime"] + ":00\n\n")
 
+    # Redirect stdout
+    if job["stdout"] != "":
+
+        jobfile.write("#SBATCH -o " + job["stdout"] + "\n")
+
+    # Redirect stderr
+    if job["stderr"] != "":
+
+        jobfile.write("#SBATCH -e " + job["stderr"] + "\n\n")
+
     # Load any custom scripts.
     if job["scripts"] != "":
 

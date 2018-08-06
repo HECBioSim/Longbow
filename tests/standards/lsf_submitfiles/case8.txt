@@ -3,6 +3,8 @@
 #BSUB -q debug
 #BSUB -W 24:00
 #BSUB -n 24
+#BSUB -o %J.out
+#BSUB -e %J.err
 
 module load amber
 

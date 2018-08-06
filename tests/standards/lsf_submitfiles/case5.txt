@@ -4,7 +4,9 @@
 #BSUB -F accno1234
 #BSUB -W 24:00
 #BSUB -n 24
+#BSUB -o %J.out
+#BSUB -e %J.err
 
 module load amber
 
-mpirun -lsf pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out
+mpirun pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out

@@ -129,22 +129,22 @@ def prepare(job):
     jobfile.write("#BSUB -n " + job["cores"] + "\n")
 
     # Redirect stdout
-    if job["stdout"] == "":
+    if job["stdout"] != "":
 
-        jobfile.write("#BSUB -o %J.out")
+        jobfile.write("#BSUB -o " + job["stdout"] + "\n")
 
     else:
 
-        jobfile.write("#BSUB -o " + job["stdout"])
+        jobfile.write("#BSUB -o %J.out" + "\n")
 
     # Redirect stderr
-    if job["stderr"] == "":
+    if job["stderr"] != "":
 
-        jobfile.write("#BSUB -e %J.err")
+        jobfile.write("#BSUB -e " + job["stderr"] + "\n")
 
     else:
 
-        jobfile.write("#BSUB -e " + job["stderr"])
+        jobfile.write("#BSUB -e %J.err" + "\n")
 
     # Load any custom scripts.
     if job["scripts"] != "":
