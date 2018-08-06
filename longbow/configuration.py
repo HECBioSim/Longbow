@@ -108,6 +108,8 @@ JOBTEMPLATE = {
     "scripts": "",
     "slurm-gres": "",
     "staging-frequency": "300",
+    "stdout": "",
+    "stderr": "",
     "sge-peflag": "mpi",
     "sge-peoverride": "false",
     "subfile": "",

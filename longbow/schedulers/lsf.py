@@ -128,6 +128,24 @@ def prepare(job):
 
     jobfile.write("#BSUB -n " + job["cores"] + "\n")
 
+    # Redirect stdout
+    if job["stdout"] == "":
+
+        jobfile.write("#BSUB -o %J.out")
+
+    else:
+
+        jobfile.write("#BSUB -o " + job["stdout"])
+
+    # Redirect stderr
+    if job["stderr"] == "":
+
+        jobfile.write("#BSUB -e %J.err")
+
+    else:
+
+        jobfile.write("#BSUB -e " + job["stderr"])
+
     # Load any custom scripts.
     if job["scripts"] != "":
 
@@ -155,7 +173,7 @@ def prepare(job):
 
     else:
 
-        mpirun = job["handler"] + " -lsf"
+        mpirun = job["handler"]
 
     # Single job
     if int(job["replicates"]) == 1:
