@@ -59,6 +59,8 @@ def test_prepare_case1():
         "modules": "amber",
         "queue": "debug",
         "replicates": "1",
+        "stdout": "",
+        "stderr": "",
         "scripts": "",
         "upload-include": "file1, file2"
     }
@@ -94,6 +96,8 @@ def test_prepare_case2():
         "modules": "amber",
         "queue": "debug",
         "replicates": "5",
+        "stdout": "",
+        "stderr": "",
         "scripts": "",
         "upload-include": "file1, file2"
     }
@@ -127,6 +131,8 @@ def test_prepare_case3():
         "modules": "amber",
         "queue": "debug",
         "replicates": "1",
+        "stdout": "",
+        "stderr": "",
         "scripts": "",
         "upload-include": "file1, file2"
     }
@@ -161,6 +167,8 @@ def test_prepare_case4():
         "modules": "amber",
         "queue": "debug",
         "replicates": "1",
+        "stdout": "",
+        "stderr": "",
         "scripts": "",
         "upload-include": "file1, file2"
     }
@@ -195,6 +203,8 @@ def test_prepare_case5():
         "modules": "amber",
         "queue": "debug",
         "replicates": "1",
+        "stdout": "",
+        "stderr": "",
         "scripts": "",
         "upload-include": "file1, file2"
     }
@@ -229,6 +239,8 @@ def test_prepare_case6():
         "modules": "amber",
         "queue": "debug",
         "replicates": "1",
+        "stdout": "",
+        "stderr": "",
         "scripts": "",
         "upload-include": "file1, file2"
     }
@@ -263,6 +275,8 @@ def test_prepare_case7():
         "modules": "amber",
         "queue": "debug",
         "replicates": "1",
+        "stdout": "",
+        "stderr": "",
         "scripts": "ls /dir, cd /dir",
         "upload-include": "file1, file2"
     }
@@ -297,6 +311,8 @@ def test_prepare_case8():
         "modules": "amber",
         "queue": "debug",
         "replicates": "1",
+        "stdout": "",
+        "stderr": "",
         "scripts": "",
         "upload-include": "file1, file2"
     }
@@ -331,6 +347,8 @@ def test_prepare_case9():
         "modules": "amber",
         "queue": "debug",
         "replicates": "1",
+        "stdout": "",
+        "stderr": "",
         "scripts": "",
         "upload-include": "file1, file2"
     }
@@ -341,3 +359,40 @@ def test_prepare_case9():
         os.path.join(
             os.getcwd(),
             "tests/standards/lsf_submitfiles/case9.txt"), "rb").read()
+
+
+def test_prepare_case10():
+
+    """
+    Stdout and stderr check
+    """
+
+    job = {
+        "account": "",
+        "cores": "24",
+        "executableargs": "pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out",
+        "handler": "mpirun",
+        "email-address": "",
+        "email-flags": "",
+        "jobname": "testjob",
+        "localworkdir": "/tmp",
+        "lsf-cluster": "",
+        "maxtime": "24:00",
+        "memory": "",
+        "modules": "amber",
+        "queue": "debug",
+        "replicates": "1",
+        "stdout": "test.log",
+        "stderr": "test.err",
+        "scripts": "",
+        "upload-include": "file1, file2"
+    }
+
+    prepare(job)
+
+    assert job["subfile"] == "submit.lsf"
+    assert job["upload-include"] == "file1, file2, submit.lsf"
+    assert open("/tmp/submit.lsf", "rb").read() == open(
+        os.path.join(
+            os.getcwd(),
+            "tests/standards/lsf_submitfiles/case10.txt"), "rb").read()

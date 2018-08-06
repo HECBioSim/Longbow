@@ -60,6 +60,8 @@ def test_prepare_case1():
         "modules": "amber",
         "queue": "debug",
         "replicates": "1",
+        "stdout": "",
+        "stderr": "",
         "scripts": "",
         "slurm-gres": "",
         "sge-peflag": "mpi",
@@ -99,6 +101,8 @@ def test_prepare_case2():
         "modules": "amber",
         "queue": "debug",
         "replicates": "5",
+        "stdout": "",
+        "stderr": "",
         "scripts": "",
         "slurm-gres": "",
         "sge-peflag": "mpi",
@@ -137,6 +141,8 @@ def test_prepare_case3():
         "modules": "amber",
         "queue": "debug",
         "replicates": "1",
+        "stdout": "",
+        "stderr": "",
         "scripts": "",
         "slurm-gres": "",
         "sge-peflag": "mpi",
@@ -175,6 +181,8 @@ def test_prepare_case4():
         "modules": "amber",
         "queue": "debug",
         "replicates": "1",
+        "stdout": "",
+        "stderr": "",
         "scripts": "",
         "slurm-gres": "",
         "sge-peflag": "mpi",
@@ -213,6 +221,8 @@ def test_prepare_case5():
         "modules": "amber",
         "queue": "debug",
         "replicates": "1",
+        "stdout": "",
+        "stderr": "",
         "scripts": "",
         "slurm-gres": "",
         "sge-peflag": "mpi",
@@ -251,6 +261,8 @@ def test_prepare_case6():
         "modules": "amber",
         "queue": "debug",
         "replicates": "1",
+        "stdout": "",
+        "stderr": "",
         "scripts": "ls /dir, cd /dir",
         "slurm-gres": "",
         "sge-peflag": "mpi",
@@ -289,6 +301,8 @@ def test_prepare_case7():
         "modules": "amber",
         "queue": "debug",
         "replicates": "1",
+        "stdout": "",
+        "stderr": "",
         "scripts": "ls /dir, cd /dir",
         "slurm-gres": "gpu:1",
         "sge-peflag": "mpi",
@@ -327,6 +341,8 @@ def test_prepare_case8():
         "modules": "amber",
         "queue": "debug",
         "replicates": "1",
+        "stdout": "",
+        "stderr": "",
         "scripts": "ls /dir, cd /dir",
         "slurm-gres": "gpu:1",
         "sge-peflag": "mpi",
@@ -340,3 +356,44 @@ def test_prepare_case8():
         os.path.join(
             os.getcwd(),
             "tests/standards/slurm_submitfiles/case8.txt"), "rb").read()
+
+
+def test_prepare_case9():
+
+    """
+    Simple test
+    """
+
+    job = {
+        "account": "",
+        "cluster": "",
+        "cores": "24",
+        "corespernode": "24",
+        "executableargs": "pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out",
+        "handler": "mpirun",
+        "email-address": "",
+        "email-flags": "",
+        "jobname": "testjob",
+        "localworkdir": "/tmp",
+        "maxtime": "24:00",
+        "memory": "",
+        "modules": "amber",
+        "queue": "debug",
+        "replicates": "1",
+        "stdout": "test.log",
+        "stderr": "test.err",
+        "scripts": "",
+        "slurm-gres": "",
+        "sge-peflag": "mpi",
+        "sge-peoverride": "false",
+        "upload-include": "file1, file2"
+    }
+
+    prepare(job)
+
+    assert job["subfile"] == "submit.slurm"
+    assert job["upload-include"] == "file1, file2, submit.slurm"
+    assert open("/tmp/submit.slurm", "rb").read() == open(
+        os.path.join(
+            os.getcwd(),
+            "tests/standards/slurm_submitfiles/case9.txt"), "rb").read()
