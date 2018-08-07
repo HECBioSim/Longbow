@@ -108,7 +108,7 @@ Support for any issues arising from using Longbow, whether these are questions,
 to report a bug or to suggest new ideas. You should use the Longbow forums
 here:
 
-http://www.hecbiosim.ac.uk/longbow-support
+https://github.com/HECBioSim/Longbow/issues
 
 
 Developers
