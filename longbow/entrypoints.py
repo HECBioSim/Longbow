@@ -415,7 +415,8 @@ def recovery(jobs, recoveryfile):
 
         _, _, jobparams = configuration.loadconfigs(jobfile)
 
-        # Copy to jobs so when exceptions are raised the structure is available.
+        # Copy to jobs so when exceptions are raised the structure is
+        # available.
         for param in jobparams:
 
             jobs[param] = jobparams[param]
@@ -453,7 +454,8 @@ def update(jobs, updatefile):
 
         _, _, jobparams = configuration.loadconfigs(jobfile)
 
-        # Copy to jobs so when exceptions are raised the structure is available.
+        # Copy to jobs so when exceptions are raised the structure is
+        # available.
         for param in jobparams:
 
             jobs[param] = jobparams[param]

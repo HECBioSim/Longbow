@@ -329,7 +329,8 @@ def prepare(jobs):
                 LOG.info("For job '%s' user has supplied their own job submit "
                          "script - skipping creation.", item)
 
-                job["upload-include"] = job["upload-include"] + ", " + job["subfile"]
+                job["upload-include"] = (job["upload-include"] + ", " +
+                                         job["subfile"])
 
         except AttributeError:
 

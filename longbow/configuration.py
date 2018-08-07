@@ -505,7 +505,6 @@ def _processconfigsresource(parameters, jobdata, hostsections):
     # Initialise
     jobs = {}
 
-
     # Process resource/s for job/s.
     for job in jobdata:
 
