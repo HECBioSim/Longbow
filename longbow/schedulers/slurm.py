@@ -147,6 +147,8 @@ def prepare(job):
 
         jobfile.write("#SBATCH -e " + job["stderr"] + "\n\n")
 
+    jobfile.write("export OMP_NUM_THREADS=1\n\n")
+
     # Load any custom scripts.
     if job["scripts"] != "":
 

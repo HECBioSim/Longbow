@@ -146,6 +146,8 @@ def prepare(job):
 
         jobfile.write("#BSUB -e %J.err" + "\n")
 
+    jobfile.write("export OMP_NUM_THREADS=1\n\n")
+
     # Load any custom scripts.
     if job["scripts"] != "":
 
