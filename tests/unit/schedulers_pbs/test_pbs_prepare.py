@@ -58,6 +58,7 @@ def test_prepare_case1():
         "maxtime": "24:00",
         "memory": "",
         "modules": "amber",
+        "mpiprocs": "",
         "queue": "debug",
         "replicates": "1",
         "stdout": "",
@@ -96,6 +97,7 @@ def test_prepare_case2():
         "maxtime": "24:00",
         "memory": "",
         "modules": "amber",
+        "mpiprocs": "",
         "queue": "debug",
         "replicates": "5",
         "stdout": "",
@@ -132,6 +134,7 @@ def test_prepare_case3():
         "maxtime": "24:00",
         "memory": "",
         "modules": "amber",
+        "mpiprocs": "",
         "queue": "debug",
         "replicates": "1",
         "stdout": "",
@@ -169,6 +172,7 @@ def test_prepare_case4():
         "maxtime": "24:00",
         "memory": "",
         "modules": "amber",
+        "mpiprocs": "",
         "queue": "debug",
         "replicates": "1",
         "stdout": "",
@@ -206,6 +210,7 @@ def test_prepare_case5():
         "maxtime": "24:00",
         "memory": "",
         "modules": "amber",
+        "mpiprocs": "",
         "queue": "debug",
         "replicates": "1",
         "stdout": "",
@@ -243,6 +248,7 @@ def test_prepare_case6():
         "maxtime": "24:00",
         "memory": "",
         "modules": "amber",
+        "mpiprocs": "",
         "queue": "debug",
         "replicates": "1",
         "stdout": "",
@@ -280,6 +286,7 @@ def test_prepare_case7():
         "maxtime": "24:00",
         "memory": "",
         "modules": "amber",
+        "mpiprocs": "",
         "queue": "debug",
         "replicates": "1",
         "stdout": "",
@@ -317,6 +324,7 @@ def test_prepare_case8():
         "maxtime": "24:00",
         "memory": "",
         "modules": "amber",
+        "mpiprocs": "",
         "queue": "debug",
         "replicates": "1",
         "stdout": "",
@@ -354,6 +362,7 @@ def test_prepare_case9():
         "maxtime": "24:00",
         "memory": "8",
         "modules": "amber",
+        "mpiprocs": "",
         "queue": "debug",
         "replicates": "1",
         "stdout": "",
@@ -390,6 +399,7 @@ def test_prepare_case10():
         "maxtime": "24:00",
         "memory": "",
         "modules": "amber",
+        "mpiprocs": "",
         "queue": "debug",
         "replicates": "1",
         "stdout": "test.log",
@@ -406,3 +416,41 @@ def test_prepare_case10():
         os.path.join(
             os.getcwd(),
             "tests/standards/pbs_submitfiles/case10.txt"), "rb").read()
+
+
+def test_prepare_case11():
+
+    """
+    Test SMP type
+    """
+
+    job = {
+        "account": "",
+        "cluster": "cluster1",
+        "cores": "2",
+        "corespernode": "24",
+        "executableargs": ("namd2 +ppn 23 +pemap 1-23 +commap 0 " +
+                           "bench.in > bench.log"),
+        "handler": "aprun",
+        "email-address": "",
+        "email-flags": "",
+        "jobname": "testjob",
+        "localworkdir": "/tmp",
+        "maxtime": "24:00",
+        "memory": "",
+        "modules": "namd",
+        "mpiprocs": "1",
+        "queue": "debug",
+        "replicates": "1",
+        "stdout": "",
+        "stderr": "",
+        "scripts": "",
+        "upload-include": "file1, file2"
+    }
+
+    prepare(job)
+
+    assert open("/tmp/submit.pbs", "rb").read() == open(
+        os.path.join(
+            os.getcwd(),
+            "tests/standards/pbs_submitfiles/case11.txt"), "rb").read()
