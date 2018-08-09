@@ -108,30 +108,23 @@ def prepare(job):
             jobfile.write("#PBS " + job["accountflag"] + " " +
                           job["account"] + "\n")
 
+    processes = job["cores"]
     cpn = job["corespernode"]
+    mpiprocs = job["mpiprocs"]
 
-    cores = job["cores"]
+    # If not undersubscribing then.
+    if mpiprocs == "" and processes < cpn:
 
-    # Load levelling override. In cases where # of cores is less than
-    # corespernode, user is likely to be undersubscribing.
-    if int(cores) < int(cpn):
+        mpiprocs = processes
 
-        cpn = cores
+    elif mpiprocs == "":
+
+        mpiprocs = cpn
 
     # Calculate the number of nodes.
-    nodes = float(cores) / float(cpn)
+    nodes = str(int(math.ceil(float(processes) / float(mpiprocs))))
 
-    # Makes sure nodes is rounded up to the next highest integer.
-    nodes = str(int(math.ceil(nodes)))
-
-    # Number of cpus per node (most machines will charge for all available cpus
-    # per node whether you are using them or not)
-    ncpus = cpn
-
-    # Number of mpi processes per node.
-    mpiprocs = cpn
-
-    tmp = "select=" + nodes + ":ncpus=" + ncpus + ":mpiprocs=" + mpiprocs
+    tmp = "select=" + nodes + ":ncpus=" + cpn + ":mpiprocs=" + mpiprocs
 
     # If user has specified memory append the flag (not all machines support
     # this).
@@ -203,7 +196,7 @@ def prepare(job):
     # CRAY's use aprun which has slightly different requirements to mpirun.
     if mpirun == "aprun":
 
-        mpirun = mpirun + " -n " + cores + " -N " + mpiprocs
+        mpirun = mpirun + " -n " + processes + " -N " + mpiprocs
 
     # Single jobs only need one run command.
     if int(job["replicates"]) == 1:
