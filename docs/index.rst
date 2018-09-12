@@ -26,7 +26,7 @@ Gebbie-Rayet, J, Shannon, G, Loeffler, H H and Laughton, C A 2016 Longbow: A Lig
 Support
 +++++++
 
-Support for any issues arising from using Longbow, whether these are questions, to report a bug or to suggest new ideas. You should use the Longbow forums here: http://www.hecbiosim.ac.uk/longbow-support
+Support for any issues arising from using Longbow, whether these are questions, to report a bug or to suggest new ideas. You should use the Longbow issue tracker here: https://github.com/HECBioSim/Longbow/issues
 
 .. toctree::
    :maxdepth: 2
@@ -47,9 +47,10 @@ Support for any issues arising from using Longbow, whether these are questions, 
    :maxdepth: 2
    :caption: Developers Documentation:
 
-   dev-contributing
    dev-integrating
    dev-plugins
+   dev-contributing
+   dev-documenting
    dev-testing
 
 Longbow has been brought to you by a collaboration between STFC and Nottingham university through the HECBioSim consortium (a part of CoSeC).
