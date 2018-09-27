@@ -39,7 +39,7 @@ import os
 import sys
 
 # Check for unsupported Python versions.
-VERSIONS = ['2.6', '2.7', '3.2', '3.3', '3.4', '3.5', '3.6']
+VERSIONS = ['2.6', '2.7', '3.2', '3.3', '3.4', '3.5', '3.6', '3.7']
 VERSION = str(sys.version_info[0]) + '.' + str(sys.version_info[1])
 
 if VERSION not in VERSIONS:
@@ -74,6 +74,7 @@ setup(name='Longbow',
                    'Programming Language :: Python :: 3.4',
                    'Programming Language :: Python :: 3.5',
                    'Programming Language :: Python :: 3.6',
+                   'Programming Language :: Python :: 3.7',
                    'Topic :: Scientific/Engineering',
                    'Topic :: Scientific/Engineering :: Bio-Informatics',
                    'Topic :: Scientific/Engineering :: Chemistry',
