@@ -294,7 +294,10 @@ This section contains a list of parameters that may be used in either of the hos
 |                   | kicked out of the queue if it overruns. This should be given in the format "HH:MM". Longbow will automatically add     |
 |                   | zero seconds onto your entry if your scheduler requires the format "HH:MM:SS".                                         |
 +-------------------+------------------------------------------------------------------------------------------------------------------------+
-| memory            | Integer representing the number of GB to be assigned to PBS option mem which some PBS installs require.                |
+| memory            | Integer representing the number of GB to be assigned to the scheduler memory directive in your submit script.          |
++-------------------+------------------------------------------------------------------------------------------------------------------------+
+| mpiprocs          | Allows undersubscription or to change mpiprocs freely without hacking the corespernode parameter. This is often needed |
+|                   | to properly run LAMMPS SMP builds.                                                                                     |
 +-------------------+------------------------------------------------------------------------------------------------------------------------+
 | polling-frequency | The interval for Longbow to query the status of a job/s, this is given in seconds and should not be set too small      |
 |                   | (not less than 60) otherwise the system admins may not like you.                                                       |
@@ -378,6 +381,10 @@ This section contains a list of parameters that may be used in either of the hos
 | staging-frequency | The frequency in seconds in which files should be synced between the remote and local machine. If the frequency should |
 |                   | be the same as the polling frequency then leave this unset and it will default to the same. This parameter should not  |
 |                   | be set too small, especially you are syncing large files otherwise you will be syncing constantly.                     |
++-------------------+------------------------------------------------------------------------------------------------------------------------+
+| stderr            | This parameter will rename the stdout file that is created by the scheduling system.                                   |
++-------------------+------------------------------------------------------------------------------------------------------------------------+
+| stdout            | This parameter will rename the stdout file that is created by the scheduling system.                                   |
 +-------------------+------------------------------------------------------------------------------------------------------------------------+
 | subfile           | Advanced users that use other tools to generate submission scripts but would like to take advantage of the staging and |
 |                   | submission parts of Longbow can do so using the subfile parameter to give the exising submit file. This is for         |
