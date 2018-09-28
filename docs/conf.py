@@ -155,3 +155,6 @@ texinfo_documents = [
      author, 'Longbow', 'One line description of project.',
      'Miscellaneous'),
 ]
+
+def setup(app):
+    app.add_stylesheet('table-overflow.css')
