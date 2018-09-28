@@ -150,6 +150,8 @@ def prepare(job):
 
     jobfile.write("#$ -pe ib " + cores + "\n\n")
 
+    jobfile.write("export OMP_NUM_THREADS=1\n\n")
+
     # Redirect stdout
     if job["stdout"] != "":
 

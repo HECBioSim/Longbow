@@ -124,7 +124,10 @@ def prepare(job):
     if int(job["cores"]) > 1 or job["sge-peoverride"].lower() == "true":
 
         jobfile.write("#$ -pe " + job["sge-peflag"] + " " +
-                      job["cores"] + "\n\n")
+                      job["cores"] + "\n")
+
+    jobfile.write("\n")
+    jobfile.write("export OMP_NUM_THREADS=1\n\n")
 
     # Redirect stdout
     if job["stdout"] != "":
