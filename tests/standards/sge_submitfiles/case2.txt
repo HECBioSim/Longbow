@@ -6,6 +6,8 @@
 #$ -t 1-5
 #$ -pe mpi 24
 
+export OMP_NUM_THREADS=1
+
 module load amber
 
 cd rep${SGE_TASK_ID}/

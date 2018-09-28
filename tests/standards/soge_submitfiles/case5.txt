@@ -8,6 +8,8 @@
 #$ -l nodes=1
 #$ -pe ib 24
 
+export OMP_NUM_THREADS=1
+
 module load amber
 
 mpirun pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out

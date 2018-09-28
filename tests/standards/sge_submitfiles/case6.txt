@@ -5,6 +5,8 @@
 #$ -l h_rt=24:00:00
 #$ -pe mpi 24
 
+export OMP_NUM_THREADS=1
+
 ls /dir
 cd /dir
 

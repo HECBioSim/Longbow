@@ -4,6 +4,9 @@
 #$ -q debug
 #$ -l h_rt=24:00:00
 #$ -l h_vmem=10G
+
+export OMP_NUM_THREADS=1
+
 module load amber
 
 mpiexec pmemd.MPI -O -i e.in -c e.min -p e.top -o e.out

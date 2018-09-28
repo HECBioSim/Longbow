@@ -137,6 +137,8 @@ def prepare(job):
     # Walltime for job
     jobfile.write("#SBATCH -t " + job["maxtime"] + ":00\n\n")
 
+    jobfile.write("export OMP_NUM_THREADS=1\n\n")
+
     # Redirect stdout
     if job["stdout"] != "":
 
@@ -146,8 +148,6 @@ def prepare(job):
     if job["stderr"] != "":
 
         jobfile.write("#SBATCH -e " + job["stderr"] + "\n\n")
-
-    jobfile.write("export OMP_NUM_THREADS=1\n\n")
 
     # Load any custom scripts.
     if job["scripts"] != "":

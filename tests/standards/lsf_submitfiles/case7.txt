@@ -6,6 +6,8 @@
 #BSUB -o %J.out
 #BSUB -e %J.err
 
+export OMP_NUM_THREADS=1
+
 ls /dir
 cd /dir
 
