@@ -7,95 +7,95 @@ Version 1.5.2
 -------------
 
 1. Bug fix - OMP environment variable added to all schedulers to fix a specific
-   set of user reported issues.
+   set of user reported issues (issue #114).
 
 2. Bug fix - Further PBS and NAMD SMP issues relating to under subscription,
    users had to do a hacky way by dropping the corespernode parameter to under
    subscribe which resulted in errors from the scheduler. Now users wishing to
-   do this should set mpiprocs in their job or host conf files to do this.
+   do this should set mpiprocs in their job or host conf files to do this (issue #105).
 
 3. Bug fix - The memory parameter only worked with the PBS scheduler, this has
-   now been extended to work in all schedulers.
+   now been extended to work in all schedulers (issue #98).
 
-4. Bug fix - The --maxtime parameter went missing from the --help output.
+4. Bug fix - The --maxtime parameter went missing from the --help output (issue #96).
 
-5. Doc fix - The documentation for the recovery mode was incorrect.
+5. Doc fix - The documentation for the recovery mode was incorrect (issue #102).
 
 6. New feature - An update mode has been added so that users doing
    disconnectable sessions can simply run an update to get the current
-   simulation status and download a snapshot of the data.
+   simulation status and download a snapshot of the data (issue #61).
    
 7. New feature - Move documentation to be under version control, using sphinx
    and readthedocs for auto documentation assembly. Documentation can then
-   become part of the CI cycle and thus be enforced on code contribution.
+   become part of the CI cycle and thus be enforced on code contribution (issue #90).
    
 8. Enhancement - users can now explicitly set the filenames of stderr and
    stdout from the scheduler script using the parameters "stdout = filename"
-   and "stderr = filename" in their host of job conf files.
+   and "stderr = filename" in their host of job conf files (issue #108).
    
 9. Enhancement - Users can now make use of existing job scripts, by providing
    the name of the script to the parameter "subfile" in their host or job conf
    files. This mode is mainly aimed at advanced users that understand the short
-   falls of doing this and the problems that could occur.
+   falls of doing this and the problems that could occur (issue #77).
 
 10. Enhancement - Users can now set the naming scheme of the replicate
     directories. Instead of having to provide directories of the form
     rep1, rep2, ...., repx. Users can now set the name of the "rep" part by
     setting the "replicate-naming" parameter. So "replicate-naming = foo"
-    would need directories named foo1, foo2, ...., foox.
+    would need directories named foo1, foo2, ...., foox (issue #92).
 
 11. Enhancement - Documentation for the examples have been cleaned up and added
-    to the new sphinx docs.
+    to the new sphinx docs (issue #10).
 
 12. Enhancement - Refactor the exception code in the top level API methods to
-    remove duplication.
+    remove duplication (issue #44).
    
 13. Removed support for Python versions 2.6, 3.2 and 3.3 due to these versions
     being old unsupported versions and various python packages such as 
     pip/ci-tools withdrawing support. Longbow may still work for these versions
-    but this is no longer guaranteed.
+    but this is no longer guaranteed (issue #113).
 
 
 Version 1.5.1
 -------------
 
 1. Bug fix - a number of parameters that are only used in specific scheduler or
-   application plugins have been renamed to include the plugin name prefix #54.
+   application plugins have been renamed to include the plugin name prefix (issue #54).
 
 2. Bug fix - executables expressed as absolute paths for supported plugins
-   would cause a crash due to searching for a module with that key #63.
+   would cause a crash due to searching for a module with that key (issue #63).
 
 3. Bug fix - wrong error message was displayed when an executable didn't exist
-   on HPC machine #65.
+   on HPC machine (issue #65).
 
 4. Bug fix - fix for crash when using NAMD SMP builds, the commandline
-   parameters beginning with "+" would trigger the crash #66.
+   parameters beginning with "+" would trigger the crash (issue #66).
 
-5. Bug fix - fixed misleading error messages about missing files and flags #67.
+5. Bug fix - fixed misleading error messages about missing files and flags (issue #67).
 
 6. Bug fix - fixed problem where the newly added bash autocomplete did not
-   allow filenames on disk to autocomplete #68.
+   allow filenames on disk to autocomplete (issue #68).
 
 7. Bug fix - fixed a problem when a large number of short jobs that trigger job
-   subqueuing would cause a crash #72.
+   subqueuing would cause a crash (issue #72).
 
 8. Bug fix - fixed user reported bug with strange looking error messages
-   concealing a further absolute path bug #75.
+   concealing a further absolute path bug (issue #75).
 
 9. New feature - Added support for the slurm gres flag so users can do
-   something like this "slurm-gres = gpu:1" in their host or job conf files #76.
+   something like this "slurm-gres = gpu:1" in their host or job conf files (issue #76).
 
-10. Bug fix - Restored the ability to issue --maxtime on the commandline #78.
+10. Bug fix - Restored the ability to issue --maxtime on the commandline (issue #78).
 
-11. New feature - support added for the upcoming release of python chemshell #80.
+11. New feature - support added for the upcoming release of python chemshell (issue #80).
 
 12. Bug fix - fix for problem where parameters in configuration files
     containing the "=" sign would cause the input file parser to misread
-    them #81.
+    them (issue #81).
 
 13. Bug fix - fix for problem with LAMMPS jobs where files provided with
     "include" or as part of other parameters would not be transferred, thanks
-    to Anders Johansson for suggesting some ideas and solutions #86.
+    to Anders Johansson for suggesting some ideas and solutions (issue #86).
 
 14. The structure of the Longbow API has been simplified, the source files no
     longer reside in a subdirectory called "core" within the installation
