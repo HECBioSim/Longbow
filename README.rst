@@ -84,11 +84,6 @@ Documentation for Longbow users can be found here:
 
 http://www.hecbiosim.ac.uk/longbow-docs
 
-Documentation for developers interested in integrating Longbow into other
-software can be found here:
-
-http://www.hecbiosim.ac.uk/longbow-devdocs
-
 
 Examples
 ========
@@ -124,5 +119,3 @@ Code repository: https://github.com/hecbiosim/longbow
 Unit testing: https://travis-ci.org/HECBioSim/Longbow
 
 Code coverage: https://coveralls.io/github/HECBioSim/Longbow
-
-Code quality: https://landscape.io/github/HECBioSim/Longbow
