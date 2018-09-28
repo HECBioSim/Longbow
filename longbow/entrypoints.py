@@ -70,7 +70,7 @@ import longbow.shellwrappers as shellwrappers
 import longbow.staging as staging
 
 PYTHONVERSION = "{0}.{1}".format(sys.version_info[0], sys.version_info[1])
-LONGBOWVERSION = "1.5.2-dev"
+LONGBOWVERSION = "1.5.2"
 
 LOG = logging.getLogger("longbow")
 

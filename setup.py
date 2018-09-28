@@ -56,7 +56,7 @@ else:
 
 # Setup
 setup(name='Longbow',
-      version='1.5.2-dev',
+      version='1.5.2',
       description='Biomolecular simulation remote job submission tool.',
       long_description=open('README.rst').read(),
       author='James T Gebbie-Rayet, Gareth B Shannon',

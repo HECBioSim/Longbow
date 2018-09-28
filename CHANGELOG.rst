@@ -3,6 +3,59 @@ Changelog
 
 Changes to the Longbow source code are listed below by release version.
 
+Version 1.5.2
+-------------
+
+1. Bug fix - OMP environment variable added to all schedulers to fix a specific
+   set of user reported issues.
+
+2. Bug fix - Further PBS and NAMD SMP issues relating to under subscription,
+   users had to do a hacky way by dropping the corespernode parameter to under
+   subscribe which resulted in errors from the scheduler. Now users wishing to
+   do this should set mpiprocs in their job or host conf files to do this.
+
+3. Bug fix - The memory parameter only worked with the PBS scheduler, this has
+   now been extended to work in all schedulers.
+
+4. Bug fix - The --maxtime parameter went missing from the --help output.
+
+5. Doc fix - The documentation for the recovery mode was incorrect.
+
+6. New feature - An update mode has been added so that users doing
+   disconnectable sessions can simply run an update to get the current
+   simulation status and download a snapshot of the data.
+   
+7. New feature - Move documentation to be under version control, using sphinx
+   and readthedocs for auto documentation assembly. Documentation can then
+   become part of the CI cycle and thus be enforced on code contribution.
+   
+8. Enhancement - users can now explicitly set the filenames of stderr and
+   stdout from the scheduler script using the parameters "stdout = filename"
+   and "stderr = filename" in their host of job conf files.
+   
+9. Enhancement - Users can now make use of existing job scripts, by providing
+   the name of the script to the parameter "subfile" in their host or job conf
+   files. This mode is mainly aimed at advanced users that understand the short
+   falls of doing this and the problems that could occur.
+
+10. Enhancement - Users can now set the naming scheme of the replicate
+   directories. Instead of having to provide directories of the form
+   rep1, rep2, ...., repx. Users can now set the name of the "rep" part by
+   setting the "replicate-naming" parameter. So "replicate-naming = foo"
+   would need directories named foo1, foo2, ...., foox.
+
+11. Enhancement - Documentation for the examples have been cleaned up and added
+    to the new sphinx docs.
+
+12. Enhancement - Refactor the exception code in the top level API methods to
+    remove duplication.
+   
+   Removed support for Python versions 2.6, 3.2 and 3.3 due to these versions
+   being old unsupported versions and various python packages such as 
+   pip/ci-tools withdrawing support. Longbow may still work for these versions
+   but this is no longer guaranteed.
+
+
 Version 1.5.1
 -------------
 
