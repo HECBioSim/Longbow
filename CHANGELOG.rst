@@ -39,10 +39,10 @@ Version 1.5.2
    falls of doing this and the problems that could occur.
 
 10. Enhancement - Users can now set the naming scheme of the replicate
-   directories. Instead of having to provide directories of the form
-   rep1, rep2, ...., repx. Users can now set the name of the "rep" part by
-   setting the "replicate-naming" parameter. So "replicate-naming = foo"
-   would need directories named foo1, foo2, ...., foox.
+    directories. Instead of having to provide directories of the form
+    rep1, rep2, ...., repx. Users can now set the name of the "rep" part by
+    setting the "replicate-naming" parameter. So "replicate-naming = foo"
+    would need directories named foo1, foo2, ...., foox.
 
 11. Enhancement - Documentation for the examples have been cleaned up and added
     to the new sphinx docs.
@@ -50,10 +50,10 @@ Version 1.5.2
 12. Enhancement - Refactor the exception code in the top level API methods to
     remove duplication.
    
-   Removed support for Python versions 2.6, 3.2 and 3.3 due to these versions
-   being old unsupported versions and various python packages such as 
-   pip/ci-tools withdrawing support. Longbow may still work for these versions
-   but this is no longer guaranteed.
+13. Removed support for Python versions 2.6, 3.2 and 3.3 due to these versions
+    being old unsupported versions and various python packages such as 
+    pip/ci-tools withdrawing support. Longbow may still work for these versions
+    but this is no longer guaranteed.
 
 
 Version 1.5.1
