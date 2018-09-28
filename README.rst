@@ -8,6 +8,9 @@
   :target: https://travis-ci.org/HECBioSim/Longbow
 .. image:: https://coveralls.io/repos/github/HECBioSim/Longbow/badge.svg?branch=master
   :target: https://coveralls.io/github/HECBioSim/Longbow?branch=master
+.. image:: https://readthedocs.org/projects/longbow/badge/?version=latest
+  :target: https://longbow.readthedocs.io/en/latest/?badge=latest
+  :alt: Documentation Status
 
 
 *******
