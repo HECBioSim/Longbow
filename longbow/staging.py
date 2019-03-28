@@ -63,7 +63,7 @@ import os
 import longbow.exceptions as exceptions
 import longbow.shellwrappers as shellwrappers
 
-LOG = logging.getLogger("longbow.corelibs.staging")
+LOG = logging.getLogger("longbow.staging")
 
 
 def stage_upstream(jobs):

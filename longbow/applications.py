@@ -57,7 +57,7 @@ import longbow.shellwrappers as shellwrappers
 import longbow.apps as apps
 
 
-LOG = logging.getLogger("longbow.corelibs.applications")
+LOG = logging.getLogger("longbow.applications")
 
 
 def checkapp(jobs):
