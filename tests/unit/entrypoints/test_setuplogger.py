@@ -68,7 +68,7 @@ def test_setuplogger_debug():
     log.debug("debug1")
     log.info("info1")
 
-    logfile = open("log", "r")
+    logfile = open("longbow.log", "r")
     contents = logfile.readlines()
 
     assert "debug1" in contents[0]
@@ -103,7 +103,7 @@ def test_setuplogger_verbose():
     log.debug("debug1")
     log.info("info1")
 
-    logfile = open("log", "r")
+    logfile = open("longbow.log", "r")
     contents = logfile.readlines()
 
     assert "debug1" not in contents[0]
