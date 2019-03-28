@@ -75,7 +75,7 @@ import longbow.exceptions as exceptions
 import longbow.apps as apps
 
 
-LOG = logging.getLogger("longbow.corelibs.configuration")
+LOG = logging.getLogger("longbow.configuration")
 
 JOBTEMPLATE = {
     "account": "",

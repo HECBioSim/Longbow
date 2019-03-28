@@ -72,7 +72,7 @@ import longbow.staging as staging
 import longbow.schedulers as schedulers
 
 
-LOG = logging.getLogger("longbow.corelibs.scheduling")
+LOG = logging.getLogger("longbow.scheduling")
 
 
 def checkenv(jobs, hostconf):

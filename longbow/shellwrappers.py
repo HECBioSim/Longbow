@@ -98,7 +98,7 @@ import time
 
 import longbow.exceptions as exceptions
 
-LOG = logging.getLogger("longbow.corelibs.shellwrappers")
+LOG = logging.getLogger("longbow.shellwrappers")
 
 
 def checkconnections(jobs):
