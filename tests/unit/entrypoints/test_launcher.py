@@ -54,7 +54,10 @@ def _configload(_):
 
     "Mock configuration"
 
-    jobs={"lbowconf": {"recoveryfile": "recovery.file"}}
+    jobs = {
+        "lbowconf": {
+            "recoveryfile": "recovery.file"}
+        }
 
     return jobs
 
@@ -63,7 +66,13 @@ def _runningjobs(_):
 
     "Set up two running jobs"
 
-    jobs = {"job1": {"laststatus": "Running"}, "job2": {"laststatus": "Running"}}
+    jobs = {
+        "job1": {
+            "laststatus": "Running"
+        },
+        "job2": {
+            "laststatus": "Running"}
+        }
 
     return jobs
 
@@ -72,7 +81,13 @@ def _finishedjobs(_):
 
     "Set up two running jobs"
 
-    jobs = {"job1": {"laststatus": "Finished"}, "job2": {"laststatus": "Finished"}}
+    jobs = {
+        "job1": {
+            "laststatus": "Finished"
+        },
+        "job2": {
+            "laststatus": "Finished"}
+        }
 
     return jobs
 
@@ -81,7 +96,12 @@ def _completejobs(_):
 
     "Set up two running jobs"
 
-    jobs = {"job1": {"laststatus": "Complete"}, "job2": {"laststatus": "Complete"}}
+    jobs = {
+        "job1": {
+            "laststatus": "Complete"
+        }, "job2": {
+            "laststatus": "Complete"}
+        }
 
     return jobs
 
@@ -115,7 +135,7 @@ def test_main_test1(m_isfile, m_longbowmain):
     assert params["hosts"] == os.path.join(os.getcwd(), "hosts.conf")
     assert params["job"] == ""
     assert params["jobname"] == "testjob"
-    assert params["log"] == os.path.join(os.getcwd(), "log")
+    assert params["log"] == os.path.join(os.getcwd(), "longbow.log")
     assert params["recover"] == ""
     assert params["resource"] == ""
     assert params["replicates"] == ""
@@ -152,7 +172,7 @@ def test_main_test2(m_isfile, m_longbowmain):
     assert params["hosts"] == os.path.join(os.getcwd(), "hosts.conf")
     assert params["job"] == ""
     assert params["jobname"] == "testjob"
-    assert params["log"] == os.path.join(os.getcwd(), "log")
+    assert params["log"] == os.path.join(os.getcwd(), "longbow.log")
     assert params["recover"] == ""
     assert params["resource"] == "big-machine"
     assert params["replicates"] == ""
@@ -264,7 +284,7 @@ def test_main_test6(m_isfile, m_longbowmain):
     assert params["hosts"] == os.path.join(os.getcwd(), "hosts.conf")
     assert params["job"] == ""
     assert params["jobname"] == "testjob"
-    assert params["log"] == os.path.join(os.getcwd(), "log")
+    assert params["log"] == os.path.join(os.getcwd(), "longbow.log")
     assert params["recover"] == ""
     assert params["resource"] == "big-machine"
     assert params["replicates"] == ""
@@ -302,7 +322,7 @@ def test_main_test7(m_isfile, m_longbowmain):
     assert params["hosts"] == os.path.join(os.getcwd(), "hosts.conf")
     assert params["job"] == ""
     assert params["jobname"] == "testjob"
-    assert params["log"] == os.path.join(os.getcwd(), "log")
+    assert params["log"] == os.path.join(os.getcwd(), "longbow.log")
     assert params["recover"] == ""
     assert params["resource"] == "big-machine"
     assert params["replicates"] == ""
