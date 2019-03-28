@@ -393,6 +393,11 @@ This section contains a list of parameters that may be used in either of the hos
 +-------------------+------------------------------------------------------------------------------------------------------------------------+
 | user              | Used to supply your user name on the HPC machine. This is the user name that you would normally use with SSH.          |
 +-------------------+------------------------------------------------------------------------------------------------------------------------+
+| upload-include    | Normally this is set internally by Longbow. However sometimes it is necessary to upload files that Longbow cannot      |
+|                   | detect by itself. A comma separated list of files given here will be included in the list of files to upload.          |
++-------------------+------------------------------------------------------------------------------------------------------------------------+
+| upload-exclude    | This is not available to be set. Longbow always sets the '*' wildcard for this and is not available for override.      |
++-------------------+------------------------------------------------------------------------------------------------------------------------+
 
 Default values
 ==============
