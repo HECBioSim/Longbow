@@ -800,7 +800,7 @@ def _setuplogger(parameters):
     # If no log file name was given then default to "log".
     if parameters["log"] is "":
 
-        parameters["log"] = "log"
+        parameters["log"] = "longbow.log"
 
     # If the path isn't absolute then create the log in CWD.
     if os.path.isabs(parameters["log"]) is False:
