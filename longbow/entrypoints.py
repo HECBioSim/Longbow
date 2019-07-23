@@ -317,6 +317,8 @@ def launcher():
 
             LOG.error(err)
 
+        exit(1)
+
     # Show nice exit message.
     finally:
 

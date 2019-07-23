@@ -36,6 +36,7 @@ entrypoint module.
 """
 
 import os
+import pytest
 
 try:
 
@@ -245,12 +246,14 @@ def test_main_test5(m_isfile, m_update, m_recovery, m_longbow):
             "--log", "new-log.file", "--verbose"]
 
     with mock.patch('sys.argv', args):
-
-        launcher()
+        with pytest.raises(SystemExit) as err:
+            launcher()
 
     assert m_longbow.call_count == 0
     assert m_recovery.call_count == 0
     assert m_update.call_count == 0
+    assert err.type == SystemExit
+    assert err.value.code == 1
 
 
 @mock.patch('longbow.entrypoints.longbow')
@@ -270,8 +273,8 @@ def test_main_test6(m_isfile, m_longbowmain):
     m_longbowmain.side_effect = exceptions.PluginattributeError
 
     with mock.patch('sys.argv', args):
-
-        launcher()
+        with pytest.raises(SystemExit) as err:
+            launcher()
 
     params = m_longbowmain.call_args[0][1]
 
@@ -289,6 +292,8 @@ def test_main_test6(m_isfile, m_longbowmain):
     assert params["resource"] == "big-machine"
     assert params["replicates"] == ""
     assert params["verbose"] is False
+    assert err.type == SystemExit
+    assert err.value.code == 1
 
 
 @mock.patch('longbow.entrypoints.longbow')
@@ -308,8 +313,8 @@ def test_main_test7(m_isfile, m_longbowmain):
     m_longbowmain.side_effect = exceptions.PluginattributeError
 
     with mock.patch('sys.argv', args):
-
-        launcher()
+        with pytest.raises(SystemExit) as err:
+            launcher()
 
     params = m_longbowmain.call_args[0][1]
 
@@ -327,6 +332,8 @@ def test_main_test7(m_isfile, m_longbowmain):
     assert params["resource"] == "big-machine"
     assert params["replicates"] == ""
     assert params["verbose"] is False
+    assert err.type == SystemExit
+    assert err.value.code == 1
 
 
 @mock.patch('longbow.entrypoints.recovery')
@@ -344,11 +351,13 @@ def test_main_test8(m_isfile, m_longbowmain, m_recovery):
             "--debug"]
 
     with mock.patch('sys.argv', args):
-
-        launcher()
+        with pytest.raises(SystemExit) as err:
+            launcher()
 
     assert m_longbowmain.call_count == 0
     assert m_recovery.call_count == 0
+    assert err.type == SystemExit
+    assert err.value.code == 1
 
 
 @mock.patch('longbow.staging.cleanup')
