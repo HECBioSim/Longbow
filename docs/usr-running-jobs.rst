@@ -300,7 +300,7 @@ A useful feature is the ability for Longbow to disconnect itself shortly after s
 
 Longbow will simply submit your jobs and then write out the details to a recovery file, by doing this the user always has the option to reconnect to the session later to automatically download files or to continue polling if desired. To initiate this feature one just simply adds the --disconnect flag to the Longbow part of the command-line::
 
-    longbow --versbose --disconnect --log new.log namd2 ">" output.out
+    longbow --verbose --disconnect --log new.log namd2 ">" output.out
 
 Persistent Reconnect/Recover Sessions
 =====================================
