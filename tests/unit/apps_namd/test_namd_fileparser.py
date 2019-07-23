@@ -98,3 +98,42 @@ def test_fileparser_test3():
     file_parser(filename, path, files, substitutions)
 
     assert files == ["apps_fileparsernamd.txt", "apps_recursivetest.txt"]
+
+
+def test_fileparser_test4():
+
+    """
+    Test with a binary file.
+    """
+
+    filename = "namdcoordfile.coor"
+    path = os.path.join(os.getcwd(), "tests/standards/")
+    files = []
+    substitutions = {}
+
+    file_parser(filename, path, files, substitutions)
+
+    assert files == ["namdcoordfile.coor"]
+
+
+@mock.patch('longbow.apps.namd._internalsubstitutions')
+def test_fileparser_test5(subs):
+
+    """
+    Test with a binary file check file still added for upload on mocked except.
+
+    This is test is really a bit of a fake, since it is difficult to mock the
+    exception in the way it is thrown organically. But this test does do the
+    trick!
+    """
+
+    filename = "namdcoordfile.coor"
+    path = os.path.join(os.getcwd(), "tests/standards/")
+    files = []
+    substitutions = {}
+
+    subs.side_effect = UnicodeDecodeError('blah', '', 80, 0, '')
+
+    file_parser(filename, path, files, substitutions)
+
+    assert files == ["namdcoordfile.coor"]

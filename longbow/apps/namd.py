@@ -39,9 +39,10 @@ http://www.hecbiosim.ac.uk/longbow-devdocs for more information.
 
 import os
 import re
-
+import logging
 import longbow.exceptions as exceptions
 
+LOG = logging.getLogger("longbow.apps.namd")
 
 EXECDATA = {
     "namd2": {
@@ -88,39 +89,44 @@ def file_parser(filename, path, files, substitutions=None):
 
         fil = _fileopen(path, addfile)
 
-        # Search every line for possible input files.
-        for line in fil:
+        try:
 
-            # Remove comments.
-            if '#' in line:
+            # Search every line for possible input files.
+            for line in fil:
 
-                words = line[:line.index('#')].split()
+                # Remove comments.
+                if '#' in line:
 
-            else:
+                    words = line[:line.index('#')].split()
 
-                words = line[:len(line)].split()
+                else:
 
-            if len(words) > 0:
+                    words = line[:len(line)].split()
 
-                # Pick up substitutions from within file
-                _internalsubstitutions(variables, words)
+                if len(words) > 0:
 
-                # If this line is reading in an input file.
-                if words[0].lower() in keywords:
+                    # Pick up substitutions from within file
+                    _internalsubstitutions(variables, words)
 
-                    newfile = words[-1]
+                    # If this line is reading in an input file.
+                    if words[0].lower() in keywords:
 
-                    # Do variable substitutons
-                    newfile = _variablesubstitutions(newfile, variables)
+                        newfile = words[-1]
 
-                    # Deduce the location of newfile.
-                    newpath = path
+                        # Do variable substitutons
+                        newfile = _variablesubstitutions(newfile, variables)
 
-                    # Check newfile.
-                    newfile = _newfilechecks(addfile, newfile, path)
+                        # Check newfile.
+                        newfile = _newfilechecks(addfile, newfile, path)
 
-                    # Recursive function.
-                    file_parser(newfile, newpath, files, substitutions)
+                        # Recursive function
+                        file_parser(newfile, path, files, substitutions)
+
+        except UnicodeDecodeError:
+
+            LOG.debug("Couldn't read file '{0}' - this is probably because "
+                      "it is a binary format or unknown encoding"
+                      .format(addfile))
 
         fil.close()
 
