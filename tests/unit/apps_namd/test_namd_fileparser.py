@@ -132,7 +132,7 @@ def test_fileparser_test5(subs):
     files = []
     substitutions = {}
 
-    subs.side_effect = UnicodeDecodeError('blah', '', 80, 0, '')
+    subs.side_effect = UnicodeDecodeError('blah', b'', 80, 0, '')
 
     file_parser(filename, path, files, substitutions)
 
