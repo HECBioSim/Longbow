@@ -178,7 +178,7 @@ try:
         if not any('source ~/.longbow/bash_completion'
                    in bashline for bashline in BASHFILE.readlines()):
 
-            BASHFILE.write('source ~/.longbow/bash_completion')
+            BASHFILE.write('source ~/.longbow/bash_completion\n')
 
 except IOError:
 
