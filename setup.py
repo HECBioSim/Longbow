@@ -42,6 +42,14 @@ import sys
 VERSIONS = ['2.7', '3.4', '3.5', '3.6', '3.7']
 VERSION = str(sys.version_info[0]) + '.' + str(sys.version_info[1])
 
+# Do we want config directory with host.conf and bash completion.
+HOMECFG = True
+
+if '--no-home-cfg' in sys.argv:
+
+    HOMECFG = False
+    sys.argv.pop(sys.argv.index('--no-home-cfg'))
+
 if VERSION not in VERSIONS:
 
     sys.exit('The Python version installed is "{0}.{1}", Longbow does not '
@@ -89,7 +97,7 @@ setup(name='Longbow',
       scripts=['longbow/longbow'],
       )
 
-if "--no-hosts-cfg" not in sys.argv:
+if HOMECFG is True:
 
     # Try and create the .Longbow directory and a basic hosts.conf
     try:
