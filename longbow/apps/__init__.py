@@ -45,6 +45,7 @@ MODULES = pkgutil.iter_modules(path=[PATH])
 
 EXECLIST = []
 PLUGINEXECS = {}
+MODNAMEOVERRIDES = {}
 
 # Loop through all the modules in the plugin.
 for loader, modulename, ispkg in MODULES:
@@ -61,3 +62,12 @@ for loader, modulename, ispkg in MODULES:
 
             # Compile a dictionary associating executable with plugins.
             PLUGINEXECS[executable] = modulename
+
+        # Is the module named differently on HPC than the software is called.
+        try:
+
+            MODNAMEOVERRIDES[modulename] = getattr(mod, "MODULENAME").items()
+
+        except AttributeError:
+
+            pass
