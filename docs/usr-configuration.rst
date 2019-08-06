@@ -322,9 +322,12 @@ This section contains a list of parameters that may be used in either of the hos
 | resource          | This specifies the name of the HPC machine to use, which refers to the name given within the square brackets [] in the |
 |                   | host configuration file.                                                                                               |
 +-------------------+------------------------------------------------------------------------------------------------------------------------+
-| scheduler         | This is the name of the job scheduling environment (PBS/LSF/SGE/SLURM) this can be used to force Longbow to use the    |
-|                   | logic for a given scheduler if the internal tests run by Longbow are struggling to identify the setup for your HPC     |
+| scheduler         | This is the name of the job scheduling environment (PBS/LSF/SGE/SoGE/SLURM) this can be used to force Longbow to use   |
+|                   | the logic for a given scheduler if the internal tests run by Longbow are struggling to identify the setup for your HPC |
 |                   | machine.                                                                                                               |
+|                   |                                                                                                                        |
+|                   | Please note, if using Son of Grid Engine (SoGE) or Sun Grid Engine (SGE) the autodetection is unable to distinguish    |
+|                   | between them. It is best to just add the scheduler = SGE or scheduler = SoGE to your hosts.conf                        |
 +-------------------+------------------------------------------------------------------------------------------------------------------------+
 | scripts           | This parameter is for including scripts in the job submission script written by Longbow. The script/s must already be  |
 |                   | present on the HPC machine, Longbow will not transfer these for you, so any paths must be valid for the script path on |
