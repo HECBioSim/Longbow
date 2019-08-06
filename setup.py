@@ -92,17 +92,8 @@ setup(name='Longbow',
 # Try and create the .Longbow directory and a basic hosts.conf
 try:
 
-    # Test for the old directory presence (IE updating).
-    if os.path.isdir(os.path.expanduser('~/.Longbow')):
-
-        print("Since version 1.5.0 '~/.Longbow' directory has been all lower"
-              "case, moving '~/.Longbow' to '~/.longbow'.")
-
-        os.rename(os.path.expanduser('~/.Longbow'),
-                  os.path.expanduser('~/.longbow'))
-
     # Setting up the .Longbow directory.
-    elif not os.path.isdir(os.path.expanduser('~/.longbow')):
+    if not os.path.isdir(os.path.expanduser('~/.longbow')):
 
         print('Longbow will create a hidden directory in your $HOME directory '
               'in which it will create the hosts configuration file. You will '
