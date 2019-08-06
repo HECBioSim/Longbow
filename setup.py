@@ -89,91 +89,96 @@ setup(name='Longbow',
       scripts=['longbow/longbow'],
       )
 
-# Try and create the .Longbow directory and a basic hosts.conf
-try:
+if "--no-hosts-cfg" not in sys.argv:
 
-    # Setting up the .Longbow directory.
-    if not os.path.isdir(os.path.expanduser('~/.longbow')):
+    # Try and create the .Longbow directory and a basic hosts.conf
+    try:
 
-        print('Longbow will create a hidden directory in your $HOME directory '
-              'in which it will create the hosts configuration file. You will '
-              'need to edit this file with your account information on the '
-              'HPC machines you wish to use. See documentation for more '
-              'information - www.hecbiosim.ac.uk/longbow-docs')
+        # Setting up the .Longbow directory.
+        if not os.path.isdir(os.path.expanduser('~/.longbow')):
 
-        os.mkdir(os.path.expanduser('~/.longbow'))
+            print('Longbow will create a hidden directory in your $HOME '
+                  'directory in which it will create the hosts configuration '
+                  'file. You will need to edit this file with your account '
+                  'information on the HPC machines you wish to use. See '
+                  'documentation for more information - '
+                  'www.hecbiosim.ac.uk/longbow-docs')
 
-        HOSTFILE = open(os.path.expanduser('~/.longbow/hosts.conf'), 'w+')
+            os.mkdir(os.path.expanduser('~/.longbow'))
 
-        HOSTFILE.write('[QuickStart]\n')
-        HOSTFILE.write('host = login.hpc.ac.uk\n')
-        HOSTFILE.write('user = myusername\n')
-        HOSTFILE.write('corespernode = 24\n')
-        HOSTFILE.write('cores = 24\n')
-        HOSTFILE.write('remoteworkdir = /work/myusername/\n')
-        HOSTFILE.write('account = myaccount\n')
-        HOSTFILE.write('modules = mymodules\n')
+            HOSTFILE = open(os.path.expanduser('~/.longbow/hosts.conf'), 'w+')
 
-        HOSTFILE.close()
+            HOSTFILE.write(
+                '[QuickStart]\n'
+                'host = login.hpc.ac.uk\n'
+                'user = myusername\n'
+                'corespernode = 24\n'
+                'cores = 24\n'
+                'remoteworkdir = /work/myusername/\n'
+                'account = myaccount\n'
+                'modules = mymodules\n')
 
-    else:
+            HOSTFILE.close()
 
-        print("Directory already exists at '~/.longbow, Longbow is skipping "
-              "creating a new one.")
+        else:
 
-except IOError:
+            print('Directory already exists at "~/.longbow" - Longbow is '
+                  'skipping creating a new one.')
 
-    print('Longbow failed to create the host configuration file in '
-          '"~/.longbow/hosts.conf", you will have to do this manually. The '
-          'user documentation details the information that should be in this '
-          'file.')
+    except IOError:
 
-# Try to create the bash autocomplete file.
-try:
+        print('Longbow failed to create the host configuration file in '
+              '"~/.longbow/hosts.conf", you will have to do this manually.\n'
+              'The user documentation details the information that should be '
+              'in this file here \n https://longbow.readthedocs.io/en/latest/'
+              'usr-getting-started.html#adding-a-hpc-machine-to-longbow')
 
-    print('Longbow will try to setup bash autocomplete on this machine, this '
-          'will enable the user to use the tab key as part of the longbow '
-          'command-line to reveal/complete command-line args. This currently '
-          'only works on some operating systems (mainly Linux based).')
+    # Try to create the bash autocomplete file.
+    try:
 
-    BASHFILE = open(os.path.expanduser('~/.longbow/bash_completion'), 'w+')
+        print('Longbow will try to setup bash autocomplete on this machine, '
+              'this will enable the user to use the tab key as part of the '
+              'longbow command-line to reveal/complete command-line args.\n'
+              'This currently only works on some operating systems.')
 
-    BASHFILE.write('_longbow()\n')
-    BASHFILE.write('{\n')
-    BASHFILE.write('    local cur prev opts\n')
-    BASHFILE.write('    COMPREPLY=()\n')
-    BASHFILE.write('    cur="${COMP_WORDS[COMP_CWORD]}"\n')
-    BASHFILE.write('    prev="${COMP_WORDS[COMP_CWORD-1]}"\n')
-    BASHFILE.write('    opts="--about --debug --disconnect --examples --help '
-                   '--hosts --job --jobname --log -- maxtime --nochecks '
-                   '--recover --resource --replicates --verbose '
-                   '--version"\n\n')
-    BASHFILE.write('    if [[ ${cur} == -* ]]; then\n')
-    BASHFILE.write('        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )\n')
-    BASHFILE.write('        return 0\n')
-    BASHFILE.write('    elif [[ ${prev} == --hosts ]] || '
-                   '[[ ${prev} == --job ]] || [[ ${prev} == --recover ]]; '
-                   'then\n')
-    BASHFILE.write('        _filedir\n')
-    BASHFILE.write('    fi\n')
-    BASHFILE.write('}\n')
-    BASHFILE.write('complete -F _longbow longbow\n')
+        BASHFILE = open(os.path.expanduser('~/.longbow/bash_completion'), 'w+')
 
-    BASHFILE.close()
+        BASHFILE.write(
+            '_longbow()\n'
+            '{\n'
+            '    local cur prev opts\n'
+            '    COMPREPLY=()\n'
+            '    cur="${COMP_WORDS[COMP_CWORD]}"\n'
+            '    prev="${COMP_WORDS[COMP_CWORD-1]}"\n'
+            '    opts="--about --debug --disconnect --examples '
+            '--help --hosts --job --jobname --log -- maxtime '
+            '--nochecks --recover --resource --replicates '
+            '--verbose --version"\n\n'
+            '    if [[ ${cur} == -* ]]; then\n'
+            '        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )\n'
+            '        return 0\n'
+            '    elif [[ ${prev} == --hosts ]] || '
+            '[[ ${prev} == --job ]] || [[ ${prev} == --recover ]]; then\n'
+            '        _filedir\n'
+            '    fi\n'
+            '}\n'
+            'complete -F _longbow longbow\n')
 
-    # Now add a source entry to the user .bashrc
-    if os.path.isfile(os.path.expanduser('~/.bashrc')):
+        BASHFILE.close()
 
-        BASHFILE = open(os.path.expanduser('~/.bashrc'), 'a+')
+        # Now add a source entry to the user .bashrc
+        if os.path.isfile(os.path.expanduser('~/.bashrc')):
 
-        if not any('source ~/.longbow/bash_completion'
-                   in bashline for bashline in BASHFILE.readlines()):
+            BASHFILE = open(os.path.expanduser('~/.bashrc'), 'a+')
 
-            BASHFILE.write('source ~/.longbow/bash_completion\n')
+            if not any('source ~/.longbow/bash_completion'
+                       in bashline for bashline in BASHFILE.readlines()):
 
-except IOError:
+                BASHFILE.write('source ~/.longbow/bash_completion\n')
 
-    print('Longbow failed to create the bash autocomplete file on this '
-          'machine. Longbow will still continue to function normally, however '
-          'the bash autocomplete will not be available for longbow '
-          'command-line parameters.')
+    except IOError:
+
+        print('Longbow failed to create the bash autocomplete file on this '
+              'machine. Longbow will still continue to function normally, '
+              'however the bash autocomplete will not be available for '
+              'longbow command-line parameters.')
