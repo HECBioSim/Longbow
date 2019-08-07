@@ -33,9 +33,31 @@
 """
 This testing module contains the tests for the configuration module methods.
 """
+try:
+
+    from unittest import mock
+
+except ImportError:
+
+    import mock
 
 import os
 from longbow.configuration import _processconfigsfinalinit
+
+
+def pluginsdata(_, data):
+
+    """
+    mocked getattr call for external data.
+    """
+
+    if data == "PLUGINEXECS":
+
+        return {"testexec": "testmodule"}
+
+    elif data == "MODNAMEOVERRIDES":
+
+        return {"testmodule": "fictionmodule"}
 
 
 def test_processconfigsfinalinit1():
@@ -102,3 +124,32 @@ def test_processconfigsfinalinit2():
     assert jobs["test"]["destdir"] != ""
     assert jobs["test"]["remoteworkdir"] == "/work/dir"
     assert jobs["test"]["modules"] == ""
+
+
+@mock.patch('longbow.configuration.getattr')
+def test_processconfigsfinalinit3(attr):
+
+    """
+    Test the modulename overrides
+    """
+
+    jobs = {
+        "jobone": {
+            "modules": "",
+            "localworkdir": "/somepath/to/dir",
+            "executableargs": "arg1 arg2 arg3",
+            "executable": "testexec",
+            "remoteworkdir": "/work/dir"
+        }
+    }
+
+    attr.side_effect = pluginsdata
+
+    _processconfigsfinalinit(jobs)
+
+    assert jobs["jobone"]["localworkdir"] == "/somepath/to/dir"
+    assert jobs["jobone"]["executableargs"] == ["arg1", "arg2", "arg3"]
+    assert jobs["jobone"]["executable"] == "testexec"
+    assert jobs["jobone"]["destdir"] != ""
+    assert jobs["jobone"]["remoteworkdir"] == "/work/dir"
+    assert jobs["jobone"]["modules"] == "fictionmodule"

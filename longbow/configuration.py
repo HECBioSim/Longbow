@@ -429,6 +429,7 @@ def _processconfigsfinalinit(jobs):
     """Perform some last bits of initialisation."""
     # Initialisation.
     modules = getattr(apps, "PLUGINEXECS")
+    modoverrides = getattr(apps, "MODNAMEOVERRIDES")
     modules[""] = ""
 
     for job in [a for a in jobs if "lbowconf" not in a]:
@@ -451,6 +452,10 @@ def _processconfigsfinalinit(jobs):
             try:
 
                 jobs[job]["modules"] = modules[jobs[job]["executable"]]
+
+                if jobs[job]["modules"] in modoverrides:
+
+                    jobs[job]["modules"] = modoverrides[jobs[job]["modules"]]
 
             except KeyError:
 
