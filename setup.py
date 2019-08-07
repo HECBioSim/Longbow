@@ -39,7 +39,7 @@ import os
 import sys
 
 # Check for unsupported Python versions.
-VERSIONS = ['2.7', '3.4', '3.5', '3.6', '3.7']
+VERSIONS = ['2.7', '3.5', '3.6', '3.7']
 VERSION = str(sys.version_info[0]) + '.' + str(sys.version_info[1])
 
 # Do we want config directory with host.conf and bash completion.
@@ -76,7 +76,6 @@ setup(name='Longbow',
                    'Environment :: Console',
                    'Programming Language :: Python',
                    'Programming Language :: Python :: 2.7',
-                   'Programming Language :: Python :: 3.4',
                    'Programming Language :: Python :: 3.5',
                    'Programming Language :: Python :: 3.6',
                    'Programming Language :: Python :: 3.7',
