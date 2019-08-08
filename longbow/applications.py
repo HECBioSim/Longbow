@@ -195,7 +195,7 @@ def processjobs(jobs):
                      "please open a ticket on github.")
 
             jobs[job]["upload-include"] = ""
-            jobs[job]["upload-exclude"] = ".log"
+            jobs[job]["upload-exclude"] = "*.log"
 
             # Replace the input command line with the execution command line.
             jobs[job]["executableargs"] = (
