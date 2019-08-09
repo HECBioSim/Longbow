@@ -43,6 +43,10 @@ Support for any issues arising from using Longbow, whether these are questions, 
    :maxdepth: 2
    :caption: API Documentation:
 
+   api-longbow
+   api-longbow.apps
+   api-longbow.schedulers
+
 .. toctree::
    :maxdepth: 2
    :caption: Developers Documentation:
