@@ -146,8 +146,6 @@ def processjobs(jobs):
     for job in [a for a in jobs if "lbowconf" not in a]:
 
         filelist = []
-        appplugins = getattr(apps, "PLUGINEXECS")
-        app = appplugins[os.path.basename(jobs[job]["executable"])]
         foundflags = []
         substitution = {}
 
@@ -179,6 +177,37 @@ def processjobs(jobs):
             raise exceptions.DirectorynotfoundError(
                 "The local job directory '{0}' cannot be found for job '{1}'"
                 .format(jobs[job]["localworkdir"], job))
+
+        # Here we want to support generic executable launching. To do this
+        # we will switch off all checking and testing and simply upload all
+        # files in the job directory.
+        try:
+
+            appplugins = getattr(apps, "PLUGINEXECS")
+            app = appplugins[os.path.basename(jobs[job]["executable"])]
+
+        except KeyError:
+
+            LOG.info("The software you are using is unsupported by a plugin. "
+                     "Longbow will attempt to submit, but will assume you are"
+                     "supplying modules manually or have used a absolute path"
+                     "to your executable. If you think this is in error, "
+                     "please open a ticket on github.")
+
+            jobs[job]["upload-include"] = ""
+            jobs[job]["upload-exclude"] = "*.log"
+
+            # Replace the input command line with the execution command line.
+            jobs[job]["executableargs"] = (
+                jobs[job]["executable"] + " " +
+                " ".join(jobs[job]["executableargs"]))
+
+            LOG.info("For job '%s' - execution string: %s",
+                     job, jobs[job]["executableargs"])
+
+            LOG.info("Processing jobs - complete.")
+
+            return
 
         # Hook to determine command-line parameter substitutions.
         try:

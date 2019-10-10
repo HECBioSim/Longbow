@@ -251,3 +251,52 @@ def test_processjobs_include(m_validator, m_proccommandline):
 
     assert jobs["jobone"]["upload-include"] == \
         "test.file, input, coords, topol"
+
+
+def test_processjobs_genericexec1():
+
+    """
+    Test that the generic executable case works with hard path
+    """
+
+    jobs = {
+        "jobone": {
+            "executableargs": ["-f", "input", "-c", "file", "-p", "test"],
+            "localworkdir": os.getcwd(),
+            "executable": "/opt/somesoftware/exec",
+            "upload-include": "",
+            "upload-exclude": ""
+        }
+    }
+
+    processjobs(jobs)
+
+    assert jobs["jobone"]["executableargs"] == \
+        "/opt/somesoftware/exec -f input -c file -p test"
+    assert jobs["jobone"]["upload-include"] == ""
+    assert jobs["jobone"]["upload-exclude"] == "*.log"
+
+
+def test_processjobs_genericexec2():
+
+    """
+    Test that the generic executable case works with module and exec only.
+    """
+
+    jobs = {
+        "jobone": {
+            "executableargs": ["-f", "input", "-c", "file", "-p", "test"],
+            "localworkdir": os.getcwd(),
+            "executable": "testexec",
+            "upload-include": "",
+            "upload-exclude": "",
+            "modules": "testsoftware"
+        }
+    }
+
+    processjobs(jobs)
+
+    assert jobs["jobone"]["executableargs"] == \
+        "testexec -f input -c file -p test"
+    assert jobs["jobone"]["upload-include"] == ""
+    assert jobs["jobone"]["upload-exclude"] == "*.log"
