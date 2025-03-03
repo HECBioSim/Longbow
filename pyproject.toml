@@ -1,0 +1,82 @@
+[build-system]
+# build the package with [flit](https://flit.readthedocs.io)
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+# See https://www.python.org/dev/peps/pep-0621/
+name = "Longbow"
+dynamic = ["version"]  # read from longbow/__init__.py
+description = "Biomolecular simulation remote job submission tool."
+authors = [{name = "James Gebbie-Rayet", email = "james.gebbie@stfc.ac.uk"}]
+readme = "README.rst"
+license = {file = "LICENSE"}
+classifiers = [
+    'Development Status :: 5 - Production/Stable',
+    'Environment :: Console',
+    'Programming Language :: Python',
+    'Topic :: Scientific/Engineering',
+    'Topic :: Scientific/Engineering :: Bio-Informatics',
+    'Topic :: Scientific/Engineering :: Chemistry',
+    'Topic :: System :: Distributed Computing',
+    'Topic :: Utilities',
+    'Topic :: Software Development :: Libraries',
+    'Operating System :: MacOS :: MacOS X',
+    'Operating System :: POSIX :: Linux',
+    'Operating System :: Unix'
+]
+keywords = ["aiida", "plugin", "gromacs", "aiida-gromacs"]
+requires-python = ">=3.4"
+dependencies = []
+
+[project.urls]
+Source = "https://github.com/HECBioSim/Longbow"
+
+[project.optional-dependencies]
+testing = [
+    "pgtest==1.3.2",
+    "wheel==0.43.0",
+    "coverage[toml]",
+    "pytest==8.2.2",
+    "pytest-cov==5.0.0",
+    "pytest-sugar==1.0.0"
+]
+pre-commit = [
+    "pre-commit==3.7.1",
+    "pylint==3.2.5"
+]
+docs = [
+    "sphinx",
+    "sphinx_rtd_theme",
+    "sphinxcontrib-contentui",
+    "sphinxcontrib-details-directive",
+    "sphinx_copybutton",
+    "furo",
+    "markupsafe<2.1"
+]
+
+[project.scripts]
+longbow = "longbow.longbow"
+
+[tool.flit.module]
+name = "longbow"
+
+[tool.pylint.format]
+max-line-length = 125
+
+[tool.pylint.messages_control]
+disable = [
+    "too-many-ancestors",
+    "invalid-name",
+    "duplicate-code",
+]
+
+[tool.pytest.ini_options]
+# Configuration for [pytest](https://docs.pytest.org)
+python_files = "test_*.py example_*.py"
+filterwarnings = []
+
+[tool.coverage.run]
+# Configuration of [coverage.py](https://coverage.readthedocs.io)
+# reporting which lines of your plugin are covered by tests
+source=["longbow"]

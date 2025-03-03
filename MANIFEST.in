@@ -1,8 +1,0 @@
-# Include AUTHORS file
-include AUTHORS
-
-# Include the license file
-include LICENSE
-
-# Include the readme file
-include README.rst
