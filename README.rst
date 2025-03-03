@@ -1,5 +1,5 @@
-.. image:: https://travis-ci.org/HECBioSim/Longbow.svg?branch=master
-  :target: https://travis-ci.org/HECBioSim/Longbow
+.. image:: https://github.com/HECBioSim/Longbow/actions/workflows/ci.yaml/badge.svg
+  :target: https://github.com/HECBioSim/Longbow/actions/workflows/ci.yaml
 .. image:: https://img.shields.io/pypi/v/Longbow.svg
   :target: https://pypi.python.org/pypi/Longbow/
 .. image:: https://img.shields.io/pypi/status/Longbow.svg
