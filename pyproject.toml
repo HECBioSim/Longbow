@@ -56,7 +56,7 @@ docs = [
 ]
 
 [project.scripts]
-longbow = "longbow.longbow"
+longbow = "longbow:launcher"
 
 [tool.flit.module]
 name = "longbow"
