@@ -3,7 +3,7 @@ Installation
 
 **Longbow is designed to be as simple as possible to install**
 
-The software has been written in vanilla python to be compatible with versions 2.6, 2.7, 3.2, 3.3, 3.4, 3.5 and 3.6 and has no other dependencies on other python packages. The result is that Longbow is very quick and simple to install.
+The software has been written in vanilla python to be compatible with versions 3.11 onwards, and has no other dependencies on other python packages. The result is that Longbow is very quick and simple to install.
 
 There are two ways to install Longbow, we recommend you use the pip method, however your circumstances may mean that you require other ways to install (permissions, no pip, no outbound connection, firewall, or testing a development build etc). Each method is detailed below.
 
