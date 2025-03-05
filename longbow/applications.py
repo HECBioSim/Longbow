@@ -100,7 +100,7 @@ def checkapp(jobs):
 
             cmd = []
 
-            if jobs[job]["modules"] is "":
+            if jobs[job]["modules"] == "":
 
                 LOG.debug("Checking without modules.")
 
@@ -478,7 +478,7 @@ def _procfilesreplicatejobs(app, arg, cwd, initargs, repx):
             pass
 
         # If we have a positive check then file found in rep$i directories.
-        if tmpitem is not "":
+        if tmpitem != "":
 
             fileitem = tmpitem
 

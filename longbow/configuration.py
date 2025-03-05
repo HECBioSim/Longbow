@@ -147,7 +147,7 @@ def processconfigs(parameters):
     _, hostsections, hostdata = loadconfigs(parameters["hosts"])
 
     # If we have been given a job file then try and load it.
-    if parameters["job"] is not "":
+    if parameters["job"] != "":
 
         _, _, jobdata = loadconfigs(parameters["job"])
 
@@ -156,7 +156,7 @@ def processconfigs(parameters):
 
         jobdata = {}
 
-        if parameters["jobname"] is not "":
+        if parameters["jobname"] != "":
 
             jobname = parameters["jobname"]
 
@@ -277,7 +277,7 @@ def loadconfigs(configfile):
             params[section] = {}
 
         # Find comment markers.
-        elif len(item) > 0 and item[0] is "#":
+        elif len(item) > 0 and item[0] == "#":
 
             # Ignore comments.
             pass
@@ -294,7 +294,7 @@ def loadconfigs(configfile):
             params[section][key] = value
 
     # Check if there are zero sections.
-    if len(sections) is 0:
+    if len(sections) == 0:
 
         raise exceptions.ConfigurationError(
             "Error no sections are defined in configuration file '{0}'"
@@ -303,7 +303,7 @@ def loadconfigs(configfile):
     # Check for sections with zero options.
     for section in sections:
 
-        if len(params[section]) is 0:
+        if len(params[section]) == 0:
 
             raise exceptions.ConfigurationError(
                 "Error section '{0}' contains no parameter definitions using "
@@ -438,7 +438,7 @@ def _processconfigsfinalinit(jobs):
         jobs[job]["jobname"] = job
 
         # If the local working directory has not been set, then default to cwd
-        if jobs[job]["localworkdir"] is "":
+        if jobs[job]["localworkdir"] == "":
 
             jobs[job]["localworkdir"] = os.getcwd()
 
@@ -447,7 +447,7 @@ def _processconfigsfinalinit(jobs):
         # If modules hasn't been set then try and use a default. If the
         # executable is given as an absolute path than we will assume the user
         # knows they need to provide any modules to load etc.
-        if jobs[job]["modules"] is "":
+        if jobs[job]["modules"] == "":
 
             try:
 
@@ -490,18 +490,18 @@ def _processconfigsparams(jobs, parameters, jobdata, hostdata):
             if item != "resource":
 
                 # Command-line overrides are highest priority.
-                if item in parameters and parameters[item] is not "":
+                if item in parameters and parameters[item] != "":
 
                     jobs[job][item] = parameters[item]
 
                 # Job file is next highest in priority.
-                elif item in jobdata[job] and jobdata[job][item] is not "":
+                elif item in jobdata[job] and jobdata[job][item] != "":
 
                     jobs[job][item] = jobdata[job][item]
 
                 # Hosts file is next highest in priority.
                 elif item in hostdata[jobs[job]["resource"]] and \
-                        hostdata[jobs[job]["resource"]][item] is not "":
+                        hostdata[jobs[job]["resource"]][item] != "":
 
                     jobs[job][item] = hostdata[jobs[job]["resource"]][item]
 
@@ -520,10 +520,10 @@ def _processconfigsresource(parameters, jobdata, hostsections):
         # Before we go further, check that the job has been assigned a host.
         try:
 
-            if jobdata[job]["resource"] is "":
+            if jobdata[job]["resource"] == "":
 
                 # Has a host been named on the command-line?
-                if parameters["resource"] is not "":
+                if parameters["resource"] != "":
 
                     jobs[job]["resource"] = parameters["resource"]
 
@@ -588,7 +588,7 @@ def _processconfigsvalidate(jobs):
         # Validate required parameters have been set.
         for validationitem in required:
 
-            if jobs[job][validationitem] is "":
+            if jobs[job][validationitem] == "":
 
                 raise exceptions.ConfigurationError(required[validationitem])
 

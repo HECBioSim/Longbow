@@ -598,7 +598,7 @@ def _downloadexamples(longbowargs):
 def _hostfileproc(parameters):
     """Locate the host configuration file."""
     # Hosts - if a filename hasn't been provided default to hosts.conf
-    if parameters["hosts"] is "":
+    if parameters["hosts"] == "":
 
         parameters["hosts"] = "hosts.conf"
 
@@ -638,7 +638,7 @@ def _jobfileproc(parameters):
     # Job - if a job configuration file has been supplied but the path hasn't
     # look in the current working directory and then the execution directory
     # if needs be.
-    if parameters["job"] is not "":
+    if parameters["job"] != "":
 
         if os.path.isabs(parameters["job"]) is False:
 
@@ -800,7 +800,7 @@ def _setuplogger(parameters):
 
     """
     # If no log file name was given then default to "log".
-    if parameters["log"] is "":
+    if parameters["log"] == "":
 
         parameters["log"] = "longbow.log"
 

@@ -90,23 +90,23 @@ def prepare(job):
         jobfile.write("#BSUB -J " + job["jobname"] + "[1-" +
                       job["replicates"] + "]\n")
 
-    if job["queue"] is not "":
+    if job["queue"] != "":
 
         jobfile.write("#BSUB -q " + job["queue"] + "\n")
 
-    if job["lsf-cluster"] is not "":
+    if job["lsf-cluster"] != "":
 
         jobfile.write("#BSUB -m " + job["lsf-cluster"] + "\n")
 
-    if job["memory"] is not "":
+    if job["memory"] != "":
 
         jobfile.write('#BSUB -R "rusage[mem=' + job["memory"] + 'G]"\n')
 
     # Account to charge (if supplied).
-    if job["account"] is not "":
+    if job["account"] != "":
 
         # if no accountflag is provided use the default
-        if job["accountflag"] is "":
+        if job["accountflag"] == "":
 
             jobfile.write("#BSUB -P " + job["account"] + "\n")
 
@@ -116,9 +116,9 @@ def prepare(job):
                           job["account"] + "\n")
 
     # Email user.
-    if job["email-address"] is not "":
+    if job["email-address"] != "":
 
-        if job["email-flags"] is not "":
+        if job["email-flags"] != "":
 
             jobfile.write("#BSUB " + job["email-flags"] + "\n")
 
@@ -162,7 +162,7 @@ def prepare(job):
 
                 jobfile.write(item.strip() + "\n")
 
-    if job["modules"] is not "":
+    if job["modules"] != "":
 
         for module in job["modules"].split(","):
 

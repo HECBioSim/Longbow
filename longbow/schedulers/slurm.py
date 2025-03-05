@@ -83,15 +83,15 @@ def prepare(job):
     jobfile.write("#SBATCH -J " + job["jobname"] + "\n")
 
     # Queue to submit to (if supplied)
-    if job["queue"] is not "":
+    if job["queue"] != "":
 
         jobfile.write("#SBATCH -p " + job["queue"] + "\n")
 
     # Account to charge (if supplied)
-    if job["account"] is not "":
+    if job["account"] != "":
 
         # if no accountflag is provided use the default
-        if job["accountflag"] is "":
+        if job["accountflag"] == "":
 
             jobfile.write("#SBATCH -A " + job["account"] + "\n")
 
@@ -100,19 +100,19 @@ def prepare(job):
             jobfile.write("#SBATCH " + job["accountflag"] + " " +
                           job["account"] + "\n")
 
-    if job["memory"] is not "":
+    if job["memory"] != "":
 
         jobfile.write("#SBATCH --mem=" + job["memory"] + "G" + "\n")
 
     # Generic resource (if supplied)
-    if job["slurm-gres"] is not "":
+    if job["slurm-gres"] != "":
 
         jobfile.write("#SBATCH --gres=" + job["slurm-gres"] + "\n")
 
     # Email user.
-    if job["email-address"] is not "":
+    if job["email-address"] != "":
 
-        if job["email-flags"] is not "":
+        if job["email-flags"] != "":
 
             jobfile.write("#SBATCH --mail-type=" + job["email-flags"] + "\n")
 
@@ -126,7 +126,7 @@ def prepare(job):
 
     # If user has specified corespernode for under utilisation then
     # set the total nodes (-N) parameter.
-    if cpn is not "":
+    if cpn != "":
 
         nodes = float(cores) / float(cpn)
 
@@ -163,7 +163,7 @@ def prepare(job):
             jobfile.write("\n")
 
     # Load up modules if required.
-    if job["modules"] is not "":
+    if job["modules"] != "":
 
         for module in job["modules"].split(","):
 
