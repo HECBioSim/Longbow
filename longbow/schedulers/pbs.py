@@ -90,15 +90,15 @@ def prepare(job):
     jobfile.write("#PBS -N " + job["jobname"] + "\n")
 
     # Queue to submit to (if supplied)
-    if job["queue"] is not "":
+    if job["queue"] != "":
 
         jobfile.write("#PBS -q " + job["queue"] + "\n")
 
     # Account to charge (if supplied).
-    if job["account"] is not "":
+    if job["account"] != "":
 
         # if no accountflag is provided use the default
-        if job["accountflag"] is "":
+        if job["accountflag"] == "":
 
             jobfile.write("#PBS -A " + job["account"] + "\n")
 
@@ -128,7 +128,7 @@ def prepare(job):
 
     # If user has specified memory append the flag (not all machines support
     # this).
-    if job["memory"] is not "":
+    if job["memory"] != "":
 
         tmp = tmp + ":mem=" + job["memory"] + "gb"
 
@@ -136,9 +136,9 @@ def prepare(job):
     jobfile.write("#PBS -l " + tmp + "\n")
 
     # Email user.
-    if job["email-address"] is not "":
+    if job["email-address"] != "":
 
-        if job["email-flags"] is not "":
+        if job["email-flags"] != "":
 
             jobfile.write("#PBS -m " + job["email-flags"] + "\n")
 
@@ -183,7 +183,7 @@ def prepare(job):
             jobfile.write("\n")
 
     # Load up modules if required.
-    if job["modules"] is not "":
+    if job["modules"] != "":
 
         for module in job["modules"].split(","):
 

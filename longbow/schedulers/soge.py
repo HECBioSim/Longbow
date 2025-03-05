@@ -83,15 +83,15 @@ def prepare(job):
 
     jobfile.write("#$ -N " + job["jobname"] + "\n")
 
-    if job["queue"] is not "":
+    if job["queue"] != "":
 
         jobfile.write("#$ -q " + job["queue"] + "\n")
 
     # Account to charge (if supplied).
-    if job["account"] is not "":
+    if job["account"] != "":
 
         # if no accountflag is provided use the default
-        if job["accountflag"] is "":
+        if job["accountflag"] == "":
 
             jobfile.write("#$ -A " + job["account"] + "\n")
 
@@ -103,14 +103,14 @@ def prepare(job):
 
     jobfile.write("#$ -l h_rt=" + job["maxtime"] + ":00\n")
 
-    if job["memory"] is not "":
+    if job["memory"] != "":
 
         jobfile.write("#$ -l h_vmem=" + job["memory"] + "G\n")
 
     # Email user.
-    if job["email-address"] is not "":
+    if job["email-address"] != "":
 
-        if job["email-flags"] is not "":
+        if job["email-flags"] != "":
 
             jobfile.write("#$ -m " + job["email-flags"] + "\n")
 
@@ -175,7 +175,7 @@ def prepare(job):
 
             jobfile.write("\n")
 
-    if job["modules"] is not "":
+    if job["modules"] != "":
 
         for module in job["modules"].split(","):
 

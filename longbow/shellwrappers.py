@@ -252,7 +252,7 @@ def sendtossh(job, args):
     # This loop is essentially so we can do 3 retries on commands that fail,
     # this is to catch when things go wrong over SSH like dropped connections,
     # issues with latency etc.
-    while i is not 3:
+    while i != 3:
 
         # Send to ssh.
         shellout = sendtoshell(cmd)
@@ -261,11 +261,11 @@ def sendtossh(job, args):
 
         # If no error exit loop, if errorcode is not 0 raise exception unless
         # code is 255
-        if errorstate is 0:
+        if errorstate == 0:
 
             break
 
-        elif errorstate is 255:
+        elif errorstate == 255:
 
             i = i + 1
 
@@ -276,7 +276,7 @@ def sendtossh(job, args):
                 "to be sure there are no connection issues.", shellout)
 
         # If number of retries hits 3 then give up.
-        if i is 3:
+        if i == 3:
 
             raise exceptions.SSHError(
                 "SSH failed, make sure a normal terminal can connect to SSH "
@@ -325,7 +325,7 @@ def sendtorsync(job, src, dst, includemask, excludemask):
     port = job["port"]
 
     # Figure out if we are using masks to specify files.
-    if excludemask is not "" and includemask is "":
+    if excludemask != "" and includemask == "":
 
         # Exclude masks are a comma separated list.
         for mask in excludemask.split(","):
@@ -338,7 +338,7 @@ def sendtorsync(job, src, dst, includemask, excludemask):
         cmd.extend(exclude)
         cmd.extend(["-e", "ssh -p " + port, src, dst])
 
-    elif excludemask is not "" and includemask is not "":
+    elif excludemask != "" and includemask != "":
 
         # Exclude masks are a comma separated list.
         for mask in excludemask.split(","):
@@ -369,7 +369,7 @@ def sendtorsync(job, src, dst, includemask, excludemask):
     # This loop is essentially so we can do 3 retries on commands that fail,
     # this is to catch when things go wrong over SSH like dropped connections,
     # issues with latency etc.
-    while i is not 3:
+    while i != 3:
 
         # Send to SSH.
         shellout = sendtoshell(cmd)
@@ -378,7 +378,7 @@ def sendtorsync(job, src, dst, includemask, excludemask):
 
         # If no error exit loop, if errorcode is not 0 raise exception unless
         # code is 255
-        if errorstate is 0:
+        if errorstate == 0:
 
             break
 
@@ -387,7 +387,7 @@ def sendtorsync(job, src, dst, includemask, excludemask):
             i = i + 1
 
         # If number of retries hits 3 then give up.
-        if i is 3:
+        if i == 3:
 
             raise exceptions.RsyncError(
                 "rsync failed, make sure a normal terminal can connect to "

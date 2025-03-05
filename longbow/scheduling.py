@@ -116,7 +116,7 @@ def checkenv(jobs, hostconf):
                 saveparams[job["resource"]] = {}
 
             # If we have no scheduler defined by the user then find it.
-            if job["scheduler"] is "":
+            if job["scheduler"] == "":
 
                 _testscheduler(job)
                 saveparams[job["resource"]]["scheduler"] = job["scheduler"]
@@ -128,7 +128,7 @@ def checkenv(jobs, hostconf):
                          job["resource"], job["scheduler"])
 
             # If we have no job handler defined by the user then find it.
-            if job["handler"] is "":
+            if job["handler"] == "":
 
                 _testhandler(job)
                 saveparams[job["resource"]]["handler"] = job["handler"]
@@ -248,9 +248,8 @@ def monitor(jobs):
             saverecoveryfile = _stagejobfiles(jobs, saverecoveryfile)
 
         # Save out the recovery files.
-        if (os.path.isdir(os.path.expanduser('~/.longbow')) and
-                saverecoveryfile is True and recoveryfileerror is False and
-                recoveryfile != ""):
+        if (os.path.isdir(basepath) and saverecoveryfile is True and 
+        recoveryfileerror is False and recoveryfile != ""):
 
             saverecoveryfile = False
 
@@ -478,7 +477,7 @@ def _testscheduler(job):
 
             LOG.debug("Environment is not '%s'", param)
 
-    if job["scheduler"] is "":
+    if job["scheduler"] == "":
 
         raise exceptions.SchedulercheckError("Could not find the job "
                                              "scheduling system.")
@@ -521,7 +520,7 @@ def _testhandler(job):
 
             LOG.debug("The batch queue handler is not '%s'", param)
 
-    if job["handler"] is "":
+    if job["handler"] == "":
 
         raise exceptions.HandlercheckError("Could not find the batch queue "
                                            "handler.")
@@ -553,7 +552,7 @@ def _monitorinitialise(jobs):
 
     # If somehow the polling interval parameter is still zero, reduce the
     # polling to once every 5 minutes.
-    if pollinterval is 0:
+    if pollinterval == 0:
 
         pollinterval = 300
 

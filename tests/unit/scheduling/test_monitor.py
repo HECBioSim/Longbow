@@ -195,6 +195,7 @@ def test_monitor_complete1(mock_init, mock_poll, mock_wait, mock_down,
     assert mock_down.call_count == 1
 
 
+@mock.patch('os.path.isdir', mock.MagicMock(return_value="true"))
 @mock.patch('longbow.configuration.saveini')
 @mock.patch('longbow.staging.stage_downstream')
 @mock.patch('longbow.scheduling._checkwaitingjobs')
@@ -253,6 +254,7 @@ def test_monitor_complete2(mock_init, mock_poll, mock_wait, mock_down,
     assert mock_save.call_count == 1
 
 
+@mock.patch('os.path.isdir', mock.MagicMock(return_value="true"))
 @mock.patch('longbow.configuration.saveini')
 @mock.patch('longbow.staging.stage_downstream')
 @mock.patch('longbow.scheduling._checkwaitingjobs')
@@ -311,6 +313,7 @@ def test_monitor_run1(mock_init, mock_poll, mock_wait, mock_down,
     assert mock_save.call_count == 1
 
 
+@mock.patch('os.path.isdir', mock.MagicMock(return_value="true"))
 @mock.patch('longbow.configuration.saveini')
 @mock.patch('longbow.staging.stage_downstream')
 @mock.patch('longbow.scheduling._checkwaitingjobs')
@@ -356,6 +359,7 @@ def test_monitor_except(mock_init, mock_poll, mock_wait, mock_down,
     assert mock_save.call_count == 1
 
 
+@mock.patch('os.path.isdir', mock.MagicMock(return_value="true"))
 @mock.patch('longbow.configuration.saveini')
 @mock.patch('longbow.staging.stage_downstream')
 @mock.patch('longbow.scheduling._checkwaitingjobs')

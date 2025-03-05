@@ -1,15 +1,11 @@
+.. image:: https://github.com/HECBioSim/Longbow/actions/workflows/ci.yaml/badge.svg
+  :target: https://github.com/HECBioSim/Longbow/actions/workflows/ci.yaml
 .. image:: https://img.shields.io/pypi/v/Longbow.svg
   :target: https://pypi.python.org/pypi/Longbow/
-.. image:: https://img.shields.io/pypi/pyversions/Longbow.svg
-  :target: https://pypi.python.org/pypi/Longbow
 .. image:: https://img.shields.io/pypi/status/Longbow.svg
   :target: https://pypi.python.org/pypi/Longbow
-.. image:: https://travis-ci.org/HECBioSim/Longbow.svg?branch=master
-  :target: https://travis-ci.org/HECBioSim/Longbow
 .. image:: https://coveralls.io/repos/github/HECBioSim/Longbow/badge.svg?branch=master
   :target: https://coveralls.io/github/HECBioSim/Longbow?branch=master
-.. image:: https://api.codacy.com/project/badge/Grade/78370da5b0284083b64e7c1ef030ee8e
-  :target: https://www.codacy.com/gh/HECBioSim/Longbow?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=HECBioSim/Longbow&amp;utm_campaign=Badge_Grade
 .. image:: https://readthedocs.org/projects/longbow/badge/?version=latest
   :target: https://longbow.readthedocs.io/en/latest/?badge=latest
   :alt: Documentation Status
