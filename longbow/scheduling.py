@@ -248,9 +248,8 @@ def monitor(jobs):
             saverecoveryfile = _stagejobfiles(jobs, saverecoveryfile)
 
         # Save out the recovery files.
-        if (os.path.isdir(os.path.expanduser('~/.longbow')) and
-                saverecoveryfile is True and recoveryfileerror is False and
-                recoveryfile != ""):
+        if (os.path.isdir(basepath) and saverecoveryfile is True and 
+        recoveryfileerror is False and recoveryfile != ""):
 
             saverecoveryfile = False
 
