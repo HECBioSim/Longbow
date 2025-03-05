@@ -1,0 +1,115 @@
+name: Release a new version.
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  version:
+    name: Version checks.
+    if: |
+      github.event.pull_request.merged == true &&
+      contains( github.event.pull_request.labels.*.name, 'tag-release' )
+    runs-on: ubuntu-latest
+    outputs:
+      release-tag: ${{ steps.getrelease.outputs.release_tag }}
+      pip-tag: ${{ steps.latestreleased.outputs.pip_tag }}
+
+    steps:
+    - name: Checkout repository
+      id: repo
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.11.6
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.11.6
+
+    - name: Get version number from __init__.py
+      id: getrelease
+      run: |
+        RELEASE_VERSION=$(awk '/__version__ = /{print $NF}' longbow/__init__.py | tr -d \")
+        echo "release_tag=$RELEASE_VERSION" >> "$GITHUB_OUTPUT"
+        echo $RELEASE_VERSION
+
+    - name: Get latest release from pip
+      id: latestreleased
+      run: |
+        PREVIOUS_VERSION=$(python -m pip index versions longbow | grep "longbow" | cut -d "(" -f2 | cut -d ")" -f1)
+        echo "pip_tag=$PREVIOUS_VERSION" >> "$GITHUB_OUTPUT"
+        echo $PREVIOUS_VERSION
+
+    - name: version comparison
+      id: compare
+      run: |
+        pip3 install semver
+        output=$(pysemver compare ${{ steps.latestreleased.outputs.pip_tag }} ${{ steps.getrelease.outputs.release_tag }})
+        if [ $output -ge 0 ]; then exit 1; fi
+
+  tag:
+    name: Create tagged commit.
+    needs: version
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ needs.version.outputs.release-tag }}
+      GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Create tag
+        run: |
+          echo $RELEASE_TAG
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git tag $RELEASE_TAG
+          git push origin tag $RELEASE_TAG
+
+  release:
+    name: Create GH release.
+    needs: [version, tag]
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ needs.version.outputs.release-tag }}
+      GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+
+    steps:
+      - name: Create release
+        run: |
+          gh release create "$RELEASE_TAG" \
+              --repo="$GITHUB_REPOSITORY" \
+              --title="v$RELEASE_TAG" \
+              --generate-notes
+
+  pypi:
+    name: Push release to PyPI
+    needs: tag
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.11.6
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.11.6
+
+    - name: Install flit
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install flit~=3.9
+
+    - name: Build and publish
+      run: |
+        flit publish
+      env:
+        FLIT_USERNAME: __token__
+        FLIT_PASSWORD:  ${{ secrets.PYPI_TOKEN }}
