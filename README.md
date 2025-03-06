@@ -1,19 +1,11 @@
-.. image:: https://github.com/HECBioSim/Longbow/actions/workflows/ci.yaml/badge.svg
-  :target: https://github.com/HECBioSim/Longbow/actions/workflows/ci.yaml
-.. image:: https://img.shields.io/pypi/v/Longbow.svg
-  :target: https://pypi.python.org/pypi/Longbow/
-.. image:: https://img.shields.io/pypi/status/Longbow.svg
-  :target: https://pypi.python.org/pypi/Longbow
-.. image:: https://coveralls.io/repos/github/HECBioSim/Longbow/badge.svg?branch=master
-  :target: https://coveralls.io/github/HECBioSim/Longbow?branch=master
-.. image:: https://readthedocs.org/projects/longbow/badge/?version=latest
-  :target: https://longbow.readthedocs.io/en/latest/?badge=latest
-  :alt: Documentation Status
+[![ci](https://github.com/HECBioSim/Longbow/actions/workflows/ci.yaml/badge.svg)](https://github.com/HECBioSim/Longbow/actions/workflows/ci.yaml)
+![PyPI - Version](https://img.shields.io/pypi/v/longbow?logo=pypi&logoColor=white)
+![PyPI - Status](https://img.shields.io/pypi/status/longbow?logo=pypi&logoColor=white)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/longbow?logo=pypi&logoColor=white)
+[![Coverage Status](https://coveralls.io/repos/github/HECBioSim/Longbow/badge.svg?branch=main)](https://coveralls.io/github/HECBioSim/Longbow?branch=main)
+[![Docs - Status](https://readthedocs.org/projects/longbow/badge/?version=latest)](https://longbow.readthedocs.io/en/latest/?badge=latest)
 
-
-*******
-Longbow
-*******
+# Longbow
 
 Longbow is an automated simulation submission and monitoring tool. Longbow
 is designed to reproduce the look and feel of using software on the users
@@ -45,15 +37,13 @@ for automating job submission. Longbow is available as a convenient and
 light-weight python API that can be integrated in a number of different way.
 
 
-Licensing
-=========
+## Licensing
 
 Longbow is released under the BSD 3-clause license. A copy of this license is
 provided when Longbow is downloaded and installed.
 
 
-Citing
-======
+## Citing
 
 If you make use of Longbow in your own code or in production simulations that
 result in publishable output, then please reference our paper:
@@ -63,8 +53,7 @@ A Lightweight Remote Job Submission Tool. Journal of Open Research Software,
 4: e1, DOI: http://dx.doi.org/10.5334/jors.95
 
 
-Installation
-============
+## Installation
 
 Releases can be installed either via pip or can be installed manually, to
 install via pip:
@@ -78,16 +67,14 @@ http://www.hecbiosim.ac.uk/longbow
 and then extract and run the setup.py script to install.
 
 
-Documentation
-=============
+## Documentation
 
 Documentation for Longbow users can be found here:
 
 http://www.hecbiosim.ac.uk/longbow-docs
 
 
-Examples
-========
+## Examples
 
 Example files can be installed either through the Longbow command-line or by
 downloading from the HECBioSim website manually:
@@ -97,8 +84,7 @@ longbow --examples
 http://www.hecbiosim.ac.uk/longbow-examples
 
 
-Support
-=======
+## Support
 
 Support for any issues arising from using Longbow, whether these are questions,
 to report a bug or to suggest new ideas. You should use the Longbow forums
@@ -107,8 +93,7 @@ here:
 https://github.com/HECBioSim/Longbow/issues
 
 
-Developers
-==========
+## Developers
 
 Developers that wish to contribute to Longbow are welcome. We do ask that if
 you wish to contribute to the Longbow base code that you contact us first.
@@ -117,6 +102,6 @@ The following resources are available to developers:
 
 Code repository: https://github.com/hecbiosim/longbow
 
-Unit testing: https://travis-ci.org/HECBioSim/Longbow
+Unit testing: https://github.com/HECBioSim/Longbow/actions
 
 Code coverage: https://coveralls.io/github/HECBioSim/Longbow
