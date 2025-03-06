@@ -2,6 +2,7 @@
 ![PyPI - Version](https://img.shields.io/pypi/v/longbow?logo=pypi&logoColor=white)
 ![PyPI - Status](https://img.shields.io/pypi/status/longbow?logo=pypi&logoColor=white)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/longbow?logo=pypi&logoColor=white)
+![Pepy Total Downloads](https://img.shields.io/pepy/dt/longbow?logo=pypi&logoColor=white&color=blue)
 [![Coverage Status](https://coveralls.io/repos/github/HECBioSim/Longbow/badge.svg?branch=main)](https://coveralls.io/github/HECBioSim/Longbow?branch=main)
 [![Docs - Status](https://readthedocs.org/projects/longbow/badge/?version=latest)](https://longbow.readthedocs.io/en/latest/?badge=latest)
 
