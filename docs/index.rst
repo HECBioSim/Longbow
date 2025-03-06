@@ -37,7 +37,6 @@ Support for any issues arising from using Longbow, whether these are questions, 
    usr-configuration
    usr-running-jobs
    usr-troubleshooting
-   changelog
 
 .. toctree::
    :maxdepth: 2
