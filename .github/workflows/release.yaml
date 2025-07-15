@@ -16,7 +16,7 @@ jobs:
     if: |
       github.event.pull_request.merged == true &&
       contains( github.event.pull_request.labels.*.name, 'tag-release' )
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       release-tag: ${{ steps.getrelease.outputs.release_tag }}
       pip-tag: ${{ steps.latestreleased.outputs.pip_tag }}
@@ -24,7 +24,7 @@ jobs:
     steps:
     - name: Checkout repository
       id: repo
-      uses: actions/checkout@v4
+      uses: actions/checkout@v4.2.2
 
     - name: Set up Python 3.11.6
       uses: actions/setup-python@v5
@@ -55,14 +55,14 @@ jobs:
   tag:
     name: Create tagged commit.
     needs: version
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       RELEASE_TAG: ${{ needs.version.outputs.release-tag }}
       GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
       - name: Create tag
         run: |
           echo $RELEASE_TAG
@@ -90,17 +90,17 @@ jobs:
   pypi:
     name: Push release to PyPI
     needs: tag
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v4.2.2
 
-    - name: Set up Python 3.11.6
-      uses: actions/setup-python@v5
+    - name: Set up Python
+      uses: actions/setup-python@v5.6.0
       with:
-        python-version: 3.11.6
+        python-version: 3.13
 
     - name: Install flit
       run: |
