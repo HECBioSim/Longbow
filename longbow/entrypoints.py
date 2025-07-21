@@ -568,15 +568,15 @@ def _downloadexamples(longbowargs):
             try:
 
                 subprocess.check_call([
-                    "wget", "http://www.hecbiosim.ac.uk/downloads/send/"
-                    "2-software/4-longbow-examples", "-O",
+                    "wget", "http://www.hecbiosim.ac.uk/file-store/"
+                    "longbow-examples.zip", "-O",
                     os.path.join(os.getcwd(), "longbow-examples.zip")])
 
             except subprocess.CalledProcessError:
 
                 subprocess.call([
-                    "curl", "-L", "http://www.hecbiosim.ac.uk/downloads/send/"
-                    "2-software/4-longbow-examples", "-o",
+                    "curl", "-L", "http://www.hecbiosim.ac.uk/file-store/"
+                    "longbow-examples.zip", "-o",
                     os.path.join(os.getcwd(), "longbow-examples.zip")])
 
             # Unzip the archive file.
@@ -706,7 +706,7 @@ def _messageflags(longbowargs):
               "target remote resource and setup configuration files according "
               "to the\n"
               "documentation.\n\n"
-              "documentation http://www.hecbiosim.ac.uk/longbow-docs \n\n"
+              "documentation https://longbow.readthedocs.io/latest/ \n\n"
               "Submit jobs using the following syntax:\n\n"
               "longbow [longbow args] executable [executable args]\n\n"
               "e.g.:\n"
@@ -741,9 +741,8 @@ def _messageflags(longbowargs):
               "current job progress and files.\n"
               "--version, -V             : prints Longbow version number.\n"
               "\n"
-              "Read the documentation at http://www.hecbiosim.ac.uk/ for more "
-              "information on\n"
-              "how to setup and run jobs using Longbow.")
+              "Read the documentation at https://longbow.readthedocs.io/latest/" 
+              "for more information on how to setup and run jobs using Longbow.")
 
         exit(0)
 
