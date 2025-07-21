@@ -7,7 +7,7 @@ on:
 
 jobs:
   tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     strategy:
       matrix:
@@ -15,10 +15,10 @@ jobs:
     name: Run tests
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v4
+      uses: actions/checkout@v4.2.2
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v5.6.0
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -31,19 +31,19 @@ jobs:
       run: pytest --cov longbow --cov-report term-missing --cov-append .
 
     - name: Report Coverage
-      uses: coverallsapp/github-action@v2
+      uses: coverallsapp/github-action@v2.3.6
       with:
         github-token: ${{ secrets.COVERALLS_REPO_TOKEN }}
 
   docs:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python 3.12
-      uses: actions/setup-python@v5
+    - uses: actions/checkout@v4.2.2
+    - name: Set up Python
+      uses: actions/setup-python@v5.6.0
       with:
-        python-version: 3.12
+        python-version: 3.13
     - name: Install python dependencies
       run: |
         pip install --upgrade pip
@@ -52,14 +52,14 @@ jobs:
       run: cd docs && make
 
   #pre-commit:
-  #  runs-on: ubuntu-latest
+  #  runs-on: ubuntu-24.04
   #  timeout-minutes: 15
   #  steps:
-  #  - uses: actions/checkout@v4
-  #  - name: Set up Python 3.11
-  #    uses: actions/setup-python@v5
+  #  - uses: actions/checkout@v4.2.2
+  #  - name: Set up Python
+  #    uses: actions/setup-python@v5.6.0
   #    with:
-  #      python-version: 3.11
+  #      python-version: 3.13
   #  - name: Install python dependencies
   #    run: |
   #      pip install --upgrade pip
