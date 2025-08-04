@@ -44,4 +44,4 @@ from longbow.shellwrappers import (checkconnections, sendtoshell, sendtossh,
                                    remotelist, upload, download)
 from longbow.staging import stage_upstream, stage_downstream, cleanup
 
-__version__ = "1.5.3"
+__version__ = "1.5.4"
