@@ -61,18 +61,12 @@ install via pip:
 
 pip install longbow
 
-or to install manually (see docs) Longbow can be downloaded here:
-
-http://www.hecbiosim.ac.uk/longbow
-
-and then extract and run the setup.py script to install.
-
 
 ## Documentation
 
 Documentation for Longbow users can be found here:
 
-http://www.hecbiosim.ac.uk/longbow-docs
+https://longbow.readthedocs.io/
 
 
 ## Examples
@@ -82,7 +76,9 @@ downloading from the HECBioSim website manually:
 
 longbow --examples
 
-http://www.hecbiosim.ac.uk/longbow-examples
+or
+
+https://www.hecbiosim.ac.uk/file-store/longbow-examples.zip
 
 
 ## Support
