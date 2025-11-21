@@ -18,7 +18,7 @@ jobs:
     steps:
     - name: Checkout repository
       id: repo
-      uses: actions/checkout@v5.0.1
+      uses: actions/checkout@v6.0.0
 
     - name: Set up Python
       uses: actions/setup-python@v6.0.0
@@ -46,7 +46,7 @@ jobs:
     steps:
 
       - name: checkout
-        uses: actions/checkout@v5.0.1
+        uses: actions/checkout@v6.0.0
 
       - name: Change version in repo
         run: sed -i "s/__version__ =.*/__version__ = \"${{ github.event.inputs.version }}\"/g" longbow/__init__.py
@@ -77,7 +77,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5.0.1
+        uses: actions/checkout@v6.0.0
         with:
           ref: main
 
@@ -108,7 +108,7 @@ jobs:
     steps:
 
     - name: checkout
-      uses: actions/checkout@v5.0.1
+      uses: actions/checkout@v6.0.0
       with:
         ref: main
 
