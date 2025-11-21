@@ -217,7 +217,7 @@ def status(job):
 
     jobstate = ""
 
-    shellout = shellwrappers.sendtossh(job, ["squeue -u " + job["user"]])
+    shellout = shellwrappers.sendtossh(job, ["squeue -j " + job["jodid"]])
 
     # PBS will return a table, so split lines into a list.
     stdout = shellout[0].split("\n")
