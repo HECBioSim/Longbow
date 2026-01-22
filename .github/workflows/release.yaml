@@ -53,7 +53,7 @@ jobs:
 
       - name: send PR
         id: pr_id
-        uses: peter-evans/create-pull-request@v8.0.0
+        uses: peter-evans/create-pull-request@v8.1.0
         with:
           commit-message: Update version to ${{ github.event.inputs.version }}
           branch: version-update
