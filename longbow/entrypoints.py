@@ -568,14 +568,14 @@ def _downloadexamples(longbowargs):
             try:
 
                 subprocess.check_call([
-                    "wget", "http://www.hecbiosim.ac.uk/file-store/"
+                    "wget", "https://file-store.hecbiosim.org/"
                     "longbow-examples.zip", "-O",
                     os.path.join(os.getcwd(), "longbow-examples.zip")])
 
             except subprocess.CalledProcessError:
 
                 subprocess.call([
-                    "curl", "-L", "http://www.hecbiosim.ac.uk/file-store/"
+                    "curl", "-L", "https://file-store.hecbiosim.org/"
                     "longbow-examples.zip", "-o",
                     os.path.join(os.getcwd(), "longbow-examples.zip")])
 
