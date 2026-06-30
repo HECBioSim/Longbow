@@ -78,7 +78,7 @@ longbow --examples
 
 or
 
-https://www.hecbiosim.ac.uk/file-store/longbow-examples.zip
+https://file-store.hecbiosim.org/longbow-examples.zip
 
 
 ## Support
