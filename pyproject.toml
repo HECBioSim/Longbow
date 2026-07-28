@@ -52,7 +52,7 @@ docs = [
     "sphinxcontrib-details-directive",
     "sphinx_copybutton",
     "furo",
-    "markupsafe<2.1"
+    "markupsafe<2.2"
 ]
 
 [project.scripts]
