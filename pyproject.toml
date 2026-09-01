@@ -42,7 +42,7 @@ testing = [
     "coverage[toml]",
     "pytest==8.2.2",
     "pytest-cov==7.1.0",
-    "pytest-sugar==1.0.0"
+    "pytest-sugar==1.1.1"
 ]
 pre-commit = [
     "pre-commit==3.8.0",
