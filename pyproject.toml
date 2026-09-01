@@ -45,7 +45,7 @@ testing = [
     "pytest-sugar==1.1.1"
 ]
 pre-commit = [
-    "pre-commit==3.8.0",
+    "pre-commit==4.6.2",
     "pylint==4.0.8"
 ]
 docs = [
