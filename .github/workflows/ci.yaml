@@ -15,10 +15,10 @@ jobs:
     name: Run tests
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v7.0.1
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v7.0.0
+      uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -31,15 +31,15 @@ jobs:
       run: pytest --cov longbow --cov-report term-missing --cov-append .
 
     - name: Report Coverage
-      uses: coverallsapp/github-action@v2.3.8
+      uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
 
   docs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-    - uses: actions/checkout@v7.0.1
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
     - name: Set up Python
-      uses: actions/setup-python@v7.0.0
+      uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
       with:
         python-version: 3.14
     - name: Install python dependencies
