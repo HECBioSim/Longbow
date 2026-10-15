@@ -30,9 +30,8 @@ classifiers = [
     'Operating System :: POSIX :: Linux',
     'Operating System :: Unix'
 ]
-keywords = ["hpc", "hec", "supercomputer", "grid", "cloud", "batch" "jobs" "remote",
-            "submission", "submitter", "lsf", "pbs", "torque", "sge", "soge",
-            "slurm", "automated", "staging", "longbow", "hecbiosim", "ccpbiosim"]
+keywords = ["hpc", "supercomputer", "batch jobs", "remote submission", "job submitter", 
+            "lsf", "pbs", "torque", "sge", "soge", "slurm", "hecbiosim", "ccpbiosim"]
 requires-python = ">=3.11"
 dependencies = []
 
