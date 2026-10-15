@@ -30,7 +30,9 @@ classifiers = [
     'Operating System :: POSIX :: Linux',
     'Operating System :: Unix'
 ]
-keywords = ["aiida", "plugin", "gromacs", "aiida-gromacs"]
+keywords = ["hpc", "hec", "supercomputer", "grid", "cloud", "batch" "jobs" "remote",
+            "submission", "submitter", "lsf", "pbs", "torque", "sge", "soge",
+            "slurm", "automated", "staging", "longbow", "hecbiosim", "ccpbiosim"]
 requires-python = ">=3.11"
 dependencies = []
 
